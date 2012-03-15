@@ -24,16 +24,12 @@ from enthought.tvtk.api import tvtk
 from enthought.mayavi.sources.vtk_data_source import VTKDataSource
 from enthought.mayavi.modules.surface import Surface
 
-import tempfile
 import os
 import numpy as np
-import string
-
 
 class FFView(HasTraits):
-
     '''
-     This Class manages the visualiszation of FoldFace constrains 
+     This class manages the visualization of FoldFace constrains 
     '''
     show_ff_pipe = Bool(True)
     show_ff_nodes = Bool(False)
@@ -41,14 +37,11 @@ class FFView(HasTraits):
     time_step = Float(0.0)
     name = Str('Nr 1')
     
-    
     # constrain opacity
     opacity_min = Int(0)
     opacity_max = Int(100)
     
     opacity = Int(20)
-    
-
 
     def __init__(self, scene, cnstr_lst, xyzgrid, nodes, scalefactor, *args, **kw):
         super(FFView, self).__init__(*args, **kw)
@@ -60,12 +53,9 @@ class FFView(HasTraits):
         self.scalefactor = scalefactor
         self.ff_pipe
 
-
-
     def update(self, fold_step, time_step):
         self.fold_step = fold_step
         self.time_step = time_step     
-        
     
     ff_pipe = Property(Instance(PipelineBase))
     @cached_property
@@ -85,7 +75,6 @@ class FFView(HasTraits):
         ff_nodes = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor, color = (0.5, 0., 0.))
         ff_nodes.visible = self.show_ff_nodes
         return ff_nodes
-
     
     # constrain colormap
     lut = Property(depends_on = 'opacity')

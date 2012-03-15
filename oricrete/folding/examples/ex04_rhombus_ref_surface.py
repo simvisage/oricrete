@@ -357,12 +357,11 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 
     A = 0.2
     face_z_t = FF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
-    face_x_L2 = FF(Rf = x_ - L_x / 2)
-
-    cp.cnstr_lst = [(face_z_t, n_h[n_h_idx, :].flatten()),
-                    (face_z_t, n_h[0, :].flatten()),
-                    (face_z_t, n_h[-1, :].flatten())
-                    ]
+#    face_x_L2 = FF(Rf = x_ - L_x / 2)
+    n_arr = np.hstack([n_h[n_h_idx, :].flatten(),
+                    n_h[0, :].flatten(),
+                    n_h[-1, :].flatten()])
+    cp.cnstr_lst = [(face_z_t, n_arr)]
 
     print "edge1", n_h[0, :]
     print "edge2", n_h[-1, :]

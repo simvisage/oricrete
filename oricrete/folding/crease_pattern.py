@@ -10,13 +10,8 @@
 #
 # Thanks for using Simvisage open source!
 #
-# Created on Sep 7, 2011 by: rch
+# Created on Sep 7, 2011 by: rch, schmerl
 
-'''
-Created on 25.08.2011
-
-@author: schmerl
-'''
 from enthought.traits.api import HasTraits, Property, cached_property, Event, \
     Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
     Str, Tuple, Interface, implements, Enum, List, Float, Dict
@@ -26,11 +21,36 @@ from enthought.traits.ui.api import Item, View, HGroup, RangeEditor
 
 import numpy as np
 
-from oricrete.folding.fold_face import FoldFace
-
 class CreasePattern(HasTraits):
     '''
-        Structure of triangulated Crease-Patterns
+    Structure of triangulated Crease-Patterns
+
+    @todo: define triangle constraints given by a tripple 
+    of node numbers and by a corresponding tripple of 
+    the weighting factors specifying the point within
+    the triangle in form of area coordinates. 
+    
+    The constraint is established by introducing the 
+    equations 
+    R1 := L1 * n1_x + L2 * n2_x + L3 * n3_x - n4_x = 0
+    R2 := L1 * n1_y + L2 * n2_y + L3 * n3_y - n4_y = 0
+    R3 := L1 * n1_z + L2 * n2_z + L3 * n3_z - n4_z = 0
+    
+    As a result a new point n4 has been introduced 
+    into the system that can be used in further constraints.
+    
+    Should there be an array/list of dependent nodes?
+    How should these nodes be referenced when specifying
+    further constraints? crease_lines?
+    
+    Should there be a property taking over the role of the 
+    current nodes array? The dependent nodes might be
+    specified separately as an arbitrary linear dependency
+    between the other nodes.
+     
+    1. visualization of the nodes can be done separately
+       for the primary and dependent nodes.
+    2. crease lines should be called simply lines 
     '''
     #===============================================================================
     # Input data structure 
