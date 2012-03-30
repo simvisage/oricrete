@@ -13,12 +13,12 @@
 # Created on Sep 8, 2011 by: matthias
 
 
-from enthought.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int
-from enthought.traits.ui.api import View, Item, Group, ButtonEditor
-from enthought.mayavi import mlab
-from enthought.mayavi.core.api import Engine
+from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
+from etsproxy.mayavi import mlab
+from etsproxy.mayavi.core.api import Engine
 import numpy as np
 
 # own Modules

@@ -4,25 +4,25 @@ Created on Jan 19, 2012
 @author: matthias
 '''
 
-from enthought.mayavi.core.api import PipelineBase
-from enthought.mayavi.core.ui.api import MayaviScene, SceneEditor, \
+from etsproxy.mayavi.core.api import PipelineBase
+from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, \
     MlabSceneModel
-from enthought.mayavi.modules.axes import Axes
+from etsproxy.mayavi.modules.axes import Axes
 
-from enthought.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Bool, File, Array, List, Float, TraitType
 
-from enthought.traits.ui.api import \
+from etsproxy.traits.ui.api import \
     View, Item, Group, ButtonEditor, RangeEditor, VGroup, HGroup, HSplit, Tabbed, \
     ViewSubElement, VGrid
-from enthought.mayavi import mlab
-from enthought.mayavi.core.api import Engine
+from etsproxy.mayavi import mlab
+from etsproxy.mayavi.core.api import Engine
 
-from enthought.tvtk.api import tvtk
 
-from enthought.mayavi.sources.vtk_data_source import VTKDataSource
-from enthought.mayavi.modules.surface import Surface
+
+
+from etsproxy.mayavi.modules.surface import Surface
 
 import tempfile
 import os

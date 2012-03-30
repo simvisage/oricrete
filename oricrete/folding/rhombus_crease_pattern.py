@@ -12,9 +12,9 @@
 #
 # Created on Sep 7, 2011 by: rch
 
-from enthought.traits.api import \
+from etsproxy.traits.api import \
     DelegatesTo, Float, Int, Property, cached_property, Bool
-from enthought.traits.ui.api import \
+from etsproxy.traits.ui.api import \
     Item, View, HGroup, RangeEditor
 from crease_pattern import CreasePattern
 
