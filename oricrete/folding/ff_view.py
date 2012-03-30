@@ -7,7 +7,7 @@ Created on Jan 19, 2012
 from etsproxy.mayavi.core.api import PipelineBase
 from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, \
     MlabSceneModel
-from etsproxy.mayavi.modules.axes import Axes
+from etsproxy.mayavi.modules.api import Axes
 
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
@@ -18,11 +18,6 @@ from etsproxy.traits.ui.api import \
     ViewSubElement, VGrid
 from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine
-
-from etsproxy.tvtk.api import tvtk
-
-from etsproxy.mayavi.sources.vtk_data_source import VTKDataSource
-from etsproxy.mayavi.modules.surface import Surface
 
 import os
 import numpy as np

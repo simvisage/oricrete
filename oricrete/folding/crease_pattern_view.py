@@ -27,9 +27,6 @@ from etsproxy.traits.ui.api import \
 from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine
 
-from etsproxy.mayavi.sources.vtk_data_source import VTKDataSource
-from etsproxy.mayavi.modules.surface import Surface
-
 import tempfile
 import os
 import numpy as np
@@ -38,10 +35,6 @@ import string
 # own Modules
 from crease_pattern import CreasePattern
 from ff_view import FFView
-
-
-
-
 
 class CreasePatternView(HasTraits):
 
