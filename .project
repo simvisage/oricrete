@@ -3,6 +3,7 @@
 	<name>oricrete</name>
 	<comment></comment>
 	<projects>
+		<project>etsproxy</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

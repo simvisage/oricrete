@@ -12,12 +12,11 @@
 #
 # Created on Sep 7, 2011 by: rch, schmerl
 
-from enthought.traits.api import HasTraits, Property, cached_property, Event, \
+from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
     Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
-    Str, Tuple, Interface, implements, Enum, List, Float, Dict
+    Str, Tuple, Interface, implements, Enum, List, Float, Dict, DelegatesTo
 
-from enthought.traits.trait_types import DelegatesTo
-from enthought.traits.ui.api import Item, View, HGroup, RangeEditor
+from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
 
 import numpy as np
 
