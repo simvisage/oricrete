@@ -12,11 +12,11 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from enthought.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
-from etsproxy.mayavi import mlab
+from enthought.traits.ui.api import View, Item, Group, ButtonEditor
+from enthought.mayavi import mlab
 import numpy as np
 
 # own Modules
@@ -370,7 +370,7 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 if __name__ == '__main__':
 
 
-    cp_fc = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 20, n_y = 20,
+    cp_fc = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 6, n_y = 6,
                          n_steps = 20)
 
     print 't_arr',

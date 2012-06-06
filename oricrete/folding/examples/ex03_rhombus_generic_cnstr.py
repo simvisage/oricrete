@@ -12,17 +12,17 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.mayavi.core.api import PipelineBase
-from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, \
+from enthought.mayavi.core.api import PipelineBase
+from enthought.mayavi.core.ui.api import MayaviScene, SceneEditor, \
     MlabSceneModel
-from etsproxy.mayavi.modules.axes import Axes
+from enthought.mayavi.modules.axes import Axes
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from enthought.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
-from etsproxy.mayavi import mlab
-from etsproxy.mayavi.core.api import Engine
+from enthought.traits.ui.api import View, Item, Group, ButtonEditor
+from enthought.mayavi import mlab
+from enthought.mayavi.core.api import Engine
 import numpy as np
 
 # own Modules

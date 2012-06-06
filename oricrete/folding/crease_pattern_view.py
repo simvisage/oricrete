@@ -237,6 +237,7 @@ class CreasePatternView(HasTraits):
         self.update_cp_pipeline()
         #self.update_ff_view()
         self.set_focal_point()
+        self.grab_pts_pipeline()
 
 
 
@@ -293,9 +294,22 @@ class CreasePatternView(HasTraits):
                            x0[2]:x1[2]:ff_r]
         return x, y, z
 
+    grab_pts_pipeline = Property(Instance(PipelineBase), depends_on = 'data')
+    @cached_property
+    def _get_grab_pts_pipeline(self):
+        
+        pts = np.array([])
+        for i in self.data.grab_pts:
+            pts = np.append(pts,i[0])
+        pts = pts.reshape(-1,3)
+        
+        x,y,z = pts.T
+        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor*0.25, color = (0.0, 1.0, 1.0))
+        return grab_pts_pipeline
+        
+       
+
     # Pipeline visualizing fold faces
-
-
 
     ff_pipe_view = Property(List(FFView), depends_on = 'data')
     @cached_property
