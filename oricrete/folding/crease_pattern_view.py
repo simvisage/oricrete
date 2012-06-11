@@ -237,7 +237,7 @@ class CreasePatternView(HasTraits):
         self.update_cp_pipeline()
         #self.update_ff_view()
         self.set_focal_point()
-        self.grab_pts_pipeline()
+        self.update_grab_pts_pipeline()
 
 
 
@@ -349,7 +349,13 @@ class CreasePatternView(HasTraits):
         # set new position of 3D Points
         self.cp_pipeline.mlab_source.set(x = x, y = y, z = z)
 
-
+        
+    @on_trait_change('fold_step')
+    def update_grab_pts_pipeline(self):
+        nodes = self.data.iteration_grab_pts[self.fold_step]
+        x, y, z = nodes.T
+        self.grab_pts_pipeline.mlab_source.set(x = x, y = y, z = z)
+        
 
 
 

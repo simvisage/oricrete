@@ -385,7 +385,7 @@ class CreasePattern(HasTraits):
 
         # make a copy of the start vector
         X = np.copy(X0)
-
+        g_X = np.zeros((self.n_g*self.n_d,), dtype = float)
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
@@ -405,16 +405,16 @@ class CreasePattern(HasTraits):
                 nR = np.linalg.norm(R)
                 if nR < TOLERANCE:
                     print '==== converged in ', i, 'iterations ===='
-                    self.set_next_node(X)
+                    self.set_next_node(X, g_X)
                     break
                 
-                print 'dR shape', dR.shape
-                print 'R shape', R.shape
+                dX_full = np.linalg.solve(dR, -R)
                 
-                dX = np.linalg.solve(dR, -R)
+                dX, dg_X = np.split(dX_full,[self.n_dofs])
                 X += dX
+                g_X += dg_X
                 if self.show_iter:
-                    self.set_next_node(X)
+                    self.set_next_node(X,g_X)
                 i += 1
             else:
                 print '==== did not converge in %d interations ====' % i
@@ -432,7 +432,7 @@ class CreasePattern(HasTraits):
 
         # make a copy of the start vector
         X = np.copy(X0)
-
+        g_X = np.zeros((self.n_g*self.n_d,), dtype = float)
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
@@ -449,12 +449,14 @@ class CreasePattern(HasTraits):
                 nR = np.linalg.norm(R)
                 if nR < TOLERANCE:
                     print '==== converged in ', i, 'iterations ===='
-                    self.set_next_node(X)
+                    self.set_next_node(X, g_X)
                     break
-                dX = np.linalg.solve(dR, -R)
+                dX_full = np.linalg.solve(dR, -R)
+                dX, dg_X = np.split(dX_full,[self.n_dofs])
                 X += dX
+                g_X += dg_X
                 if self.show_iter:
-                    self.set_next_node(X)
+                    self.set_next_node(X, g_X)
                 i += 1
             else:
                 print '==== did not converge in %d interations ====' % i
@@ -476,17 +478,26 @@ class CreasePattern(HasTraits):
             return self.t_arr[fold_step - 1]
 
     iteration_nodes = Array(value = [], dtype = float)
+    iteration_grab_pts = Array(value = [], dtype = float)
 
-    def set_next_node(self, X_vct):
+    def set_next_node(self, X_vct, g_X_vct):
         '''
            Calculates the position of nodes for this iteration.
         '''
         if(self.iteration_nodes.shape == (0,)):
             self.iteration_nodes = [self.nodes]
-
+            pts = []
+            for i in self.grab_pts:
+                pts = np.append(pts, i[0])
+            self.iteration_grab_pts = [pts.reshape(-1,self.n_d)]
+            
+        grab_pts = self.iteration_grab_pts[0]  
         X = X_vct.reshape(self.n_n, self.n_d)
+        g_X = g_X_vct.reshape(-1,self.n_d)
         nextnode = self.nodes + X
+        next_grab_pts = grab_pts + g_X
         self.iteration_nodes = np.vstack((self.iteration_nodes, [nextnode]))
+        self.iteration_grab_pts = np.vstack((self.iteration_grab_pts, [next_grab_pts]))
 
 
     def get_cnstr_pos(self, iterationstep):

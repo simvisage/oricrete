@@ -30,7 +30,7 @@ import sympy as sp
 from oricrete.folding import \
     CreasePattern, CreasePatternView, FF, x_, y_, z_, t_
 
-def triangle_cp_cnstr(n_steps = 10, dx = -1.99):
+def triangle_cp_cnstr(n_steps = 10, dx = -0.99):
 
     cp = CreasePattern(n_steps = n_steps)
 
@@ -76,6 +76,8 @@ def triangle_cp_cnstr(n_steps = 10, dx = -1.99):
     print 'final positions\n', cp.get_new_nodes(X)
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
+    
+    
 
     return cp
 
