@@ -352,9 +352,10 @@ class CreasePatternView(HasTraits):
         
     @on_trait_change('fold_step')
     def update_grab_pts_pipeline(self):
-        nodes = self.data.iteration_grab_pts[self.fold_step]
-        x, y, z = nodes.T
-        self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
+        if(len(self.data.iteration_grab_pts) > 0):
+            nodes = self.data.iteration_grab_pts[self.fold_step]
+            x, y, z = nodes.T
+            self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
         
 
 

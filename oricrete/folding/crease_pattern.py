@@ -499,25 +499,33 @@ class CreasePattern(HasTraits):
     iteration_nodes = Array(value = [], dtype = float)
     iteration_grab_pts = Array(value = [], dtype = float)
 
-    def set_next_node(self, X_vct, g_X_vct):
+    def set_next_node(self, X_vct, g_X_vct = []):
         '''
            Calculates the position of nodes for this iteration.
         '''
         if(self.iteration_nodes.shape == (0,)):
             self.iteration_nodes = [self.nodes]
-            pts = []
-            for i in self.grab_pts:
-                pts = np.append(pts, i[0])
-            self.iteration_grab_pts = [pts.reshape(-1,self.n_d)]
             
-        grab_pts = self.iteration_grab_pts[0]  
+              
         X = X_vct.reshape(self.n_n, self.n_d)
-        g_X = g_X_vct.reshape(-1,self.n_d)
+       
         nextnode = self.nodes + X
-        next_grab_pts = grab_pts + g_X
+        
         self.iteration_nodes = np.vstack((self.iteration_nodes, [nextnode]))
-        self.iteration_grab_pts = np.vstack((self.iteration_grab_pts, [next_grab_pts]))
-
+        
+        
+        if(len(g_X_vct)>0):
+            if(self.iteration_grab_pts.shape == (0,)):
+                pts = []
+                for i in self.grab_pts:
+                    pts = np.append(pts, i[0])
+                    print pts
+                self.iteration_grab_pts = [pts.reshape(-1,self.n_d)]
+                
+            grab_pts = self.iteration_grab_pts[0]
+            g_X = g_X_vct.reshape(-1,self.n_d)
+            next_grab_pts = grab_pts + g_X
+            self.iteration_grab_pts = np.vstack((self.iteration_grab_pts, [next_grab_pts]))
 
     def get_cnstr_pos(self, iterationstep):
         '''

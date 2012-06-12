@@ -28,9 +28,9 @@ import sympy as sp
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
 
-def triangle_cp_cnstr(n_steps = 10, dx = -0.32):
+def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     cp = CreasePattern(n_steps = n_steps)
 
@@ -83,6 +83,40 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.32):
     print 'final lengths\n', cp.get_new_lengths(X)
     
     
+
+    return cp
+
+def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
+
+    cp = RhombusCreasePattern(n_steps = n_steps,
+                              L_x = L_x,
+                              L_y = L_y,
+                              n_x = n_x,
+                              n_y = n_y,
+                              z0_ratio = 0.01,
+                              show_iter = False,
+                              MAX_ITER = 500)
+
+    n_h = cp.n_h
+    n_i = cp.n_i
+    n_v = cp.n_v
+
+    cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
+                    [(n_h[0, -1], 2, 1.0)], # 1
+                    [(n_h[-1, 0], 2, 1.0)], # 2
+                    [(n_h[-1, -1], 2, 1.0)], # 3
+                    [(n_h[1, 0], 2, 1.0)], # 4
+                    [(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1.0)], # 5
+                    [(n_h[0, 0], 1, 1.0), (n_h[-1, 0], 1, -1.0)], # 6
+                    [(n_h[0, -1], 1, 1.0), (n_h[1, -1], 1, -1.0)], # 7
+                    [(n_h[0, -1], 1, 1.0), (n_h[-1, -1], 1, -1.0)], # 8
+                    [(n_h[1, 0], 0, 1.0)], # 9
+                    [(n_h[0, -1], 1, 1.0)], # 10
+                    ]
+
+    # lift node 0 in z-axes
+    cp.cnstr_rhs = np.zeros((14,), dtype = float)
+    cp.cnstr_rhs[4] = 1.999999999
 
     return cp
 
@@ -270,8 +304,32 @@ def moving_truss_cp_square(n_steps = 40):
 if __name__ == '__main__':
 #    cp = moving_truss_cp_circle(n_steps = 10, dx = -1.99)
 #    cp = moving_truss_cp_ff_cnstr(n_steps = 40)
-    cp = triangle_cp_cnstr(n_steps = 40)
+#    cp = triangle_cp_cnstr(n_steps = 40)
+#
+#    # initialise View
+#    my_model = CreasePatternView(data = cp)
+#    my_model.configure_traits()
+
+    cp = rhombus_grab_points(n_steps = 40)
+
+    # cp = cp05(L_x = 10, L_y = 5, n_x = 2, n_y = 4,
+    # n_steps = 40, skew_coeff = 0.0)
+    X0 = cp.generate_X0()
+    #cp.set_next_node(X0)
+
+    print 'n_dofs', cp.n_dofs
+    print 'n_c', cp.n_c
+    print 'necessary constraints', cp.n_dofs - cp.n_c
+    print 'cnstr', len(cp.cnstr_lhs)
+
+    X_vct = cp.solve(X0)
+
+#    print 'new nodes'
+#    print cp.get_new_nodes(X_vct)
+#    print 'new lengths'
+#    print cp.get_new_lengths(X_vct)
 
     # initialise View
-    my_model = CreasePatternView(data = cp)
-    my_model.configure_traits()
+    cpv = CreasePatternView(data = cp, show_cnstr = True)
+
+    cpv.configure_traits()
