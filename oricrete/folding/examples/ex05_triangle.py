@@ -36,7 +36,9 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     cp.nodes = [[ 0, 0, 0 ],
                 [ 1, 0, 0 ],
-                [ 1, 1, 0]]
+                [ 1, 1, 0],
+                [0.667,0.333,0],
+                [0.1,0.05,0]]
 
     cp.crease_lines = [[ 0, 1 ],
                        [ 1, 2 ],
@@ -44,8 +46,8 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     
     cp.facets = [[0, 1, 2 ]]
 
-    cp.grab_pts = [[[0.667,0.333,0],0],
-                   [[0.1,0.05,0],0]]
+    cp.grab_pts = [[3,0],
+                   [4,0]]
     
     
     cp.cnstr_lhs = [
@@ -53,25 +55,27 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
                     [(1, 1, 1.0)],
-                    [(1, 2, 1.0)]
+                    [(1, 2, 1.0)],
+                    [(3, 2, 1.0)]
+                    
                    # ,[(2, 2, 1.0)]
                     ]
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
-                    #, dx
+                    , dx, 0.0, 0.0
                     ]
-    cp.grab_cnstr_lhs = [[(0, 2, 1.0)]]
-    cp.grab_cnstr_rhs = [ dx ]
+    
+    
 
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-    g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
+    #g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
 
     
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X, g_X)
+    print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
     X = cp.solve(X)
@@ -86,7 +90,139 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     return cp
 
-def small_rhombus_grab_points(n_steps = 10, dx = -0.3299999999999):
+def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
+
+    cp = CreasePattern(n_steps = n_steps)
+
+    cp.nodes = [[ 0, 0, 0 ],
+                [ 1, 0, 0 ],
+                [ 1, 1, 0],
+                [0.667,0.333,0],
+                [0.1,0.05,0],
+                [0.66, 0.33, 2]]
+
+    cp.crease_lines = [[ 0, 1 ],
+                       [ 1, 2 ],
+                       [ 2, 0 ],
+                       [ 3, 5]]
+    
+    cp.facets = [[0, 1, 2 ]]
+
+    cp.grab_pts = [[3,0],
+                   [4,0]]
+    
+    
+    cp.cnstr_lhs = [
+                    [(0, 0, 1.0)],
+                    [(0, 1, 1.0)],
+                    [(0, 2, 1.0)],
+                    [(1, 1, 1.0)],
+                    [(1, 2, 1.0)],
+                    [(5, 2, 1.0)],
+                    [(5, 0, 1.0)],
+                    [(5, 1, 1.0)]
+                    
+                   # ,[(2, 2, 1.0)]
+                    ]
+
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
+                    , dx, 0.0, 0.0
+                    ]
+    
+    
+
+    X = np.zeros((cp.n_dofs,), dtype = float)
+    X[1] = 0.01
+    #g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
+
+    
+    print 'initial lengths\n', cp.c_lengths
+    print 'initial vectors\n', cp.c_vectors
+
+    print 'initial R\n', cp.get_R(X)
+    print 'initial dR\n', cp.get_dR(X)
+
+    X = cp.solve(X)
+
+    print '========== results =============='
+    print 'solution X\n', X
+    print 'final positions\n', cp.get_new_nodes(X)
+    print 'final vectors\n', cp.get_new_vectors(X)
+    print 'final lengths\n', cp.get_new_lengths(X)
+    
+    
+
+    return cp
+
+def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
+
+    cp = CreasePattern(n_steps = n_steps)
+
+    cp.nodes = [[ 0, 0, 0 ],
+                [ 1, 0, 0 ],
+                [ 1, 1, 0],
+                [0.667,0.333,0],
+                [0.66, 0.33, 2],
+                [ 0, 1, 0]]
+
+    cp.crease_lines = [[ 0, 1 ],
+                       [ 1, 2 ],
+                       [ 2, 0 ],
+                       [ 3, 4],
+                       [ 0, 5],
+                       [ 5, 2]]
+    
+    cp.facets = [[0, 1, 2 ],
+                 [2, 5, 0]]
+
+    cp.grab_pts = [[3,0]
+                   ]
+    
+    
+    cp.cnstr_lhs = [
+                    [(0, 0, 1.0)],
+                    [(0, 1, 1.0)],
+                    [(0, 2, 1.0)],
+                    [(1, 1, 1.0)],
+                    [(1, 2, 1.0)],
+                    [(4, 2, 1.0)],
+                    [(4, 0, 1.0)],
+                    [(4, 1, 1.0)],
+                    [(5, 2, 1.0)]
+                    
+                   # ,[(2, 2, 1.0)]
+                    ]
+
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
+                    , dx, 0.0, 0.0, 0.0
+                    ]
+    
+    
+
+    X = np.zeros((cp.n_dofs,), dtype = float)
+    X[1] = 0.01
+    #g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
+
+    
+    print 'initial lengths\n', cp.c_lengths
+    print 'initial vectors\n', cp.c_vectors
+
+    print 'initial R\n', cp.get_R(X)
+    print 'initial dR\n', cp.get_dR(X)
+
+    X = cp.solve(X)
+
+    print '========== results =============='
+    print 'solution X\n', X
+    print 'final positions\n', cp.get_new_nodes(X)
+    print 'final vectors\n', cp.get_new_vectors(X)
+    print 'final lengths\n', cp.get_new_lengths(X)
+    
+    
+
+    return cp
+
+def small_rhombus_grab_points(n_steps = 10, dx = +0.3299999999999):
     
     cp = CreasePattern(n_steps = n_steps)
     
@@ -96,7 +232,9 @@ def small_rhombus_grab_points(n_steps = 10, dx = -0.3299999999999):
                 [1, 1, 0],
                 [0, 0.5, 0],
                 [1, 0.5, 0],
-                [0.5, 0.5, 0]]
+                [0.5, 0.5, 0],
+                [0.5,0.5/3,0],
+                [0.5, 1-0.5/3,0]]
     
     cp.crease_lines = [[0,2],
                        [0,4],
@@ -118,30 +256,39 @@ def small_rhombus_grab_points(n_steps = 10, dx = -0.3299999999999):
                  [1,4,6],
                  [3,5,6]]
     
-    cp.grab_pts = [[[0.5,0.5/3,0],0],
-                   [[0.5, 1-0.5/3,0],3]]
+    cp.grab_pts = [[7,0],
+                   [8,3]]
     
-    cp.grab_cnstr_lhs = [[(0,2,1.0)],
-                         [(1,2,1.0)]
-                         ]
     
-    cp.grab_cnstr_rhs = [dx, dx]
     
-    cp.cnstr_lhs = [[(0,2,1.0),(1,2,1.0)],
-                    [(2,2,1.0),(3,2,1.0)],
-                    []
+    cp.cnstr_lhs = [[(4,1,1.0)],
+                    [(5,1,1.0)],
+                    [(4,2,1.0)],
+                    [(5,2,1.0)],
+                    [(6,0,1.0)],
+                    [(0,2,1.0),(1,2,-1.0)],
+                    [(2,2,1.0),(3,2,-1.0)],
+                    [(7,2,1.0)],
+                    [(7,2,1.0),(8,2,-1.0)]
+                    
                     
                     ]
     
-    cp.cnstr_rhs = np.zeros((8,), dtype = float)
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0]
     
     X = np.zeros((cp.n_dofs,), dtype = float)
-    X[20] = 0.01
-    g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
-    print 'dR', cp.get_dR(X)
-    print 'R', cp.get_R(X,g_X)
     
-    cp.set_next_node(X,g_X)
+    X[20]= 0.0005
+    X[2] = 0.001
+    X[1] = 0.00001
+    X[12] = 0.001
+    
+    
+    
+    print 'dR', cp.get_dR(X)
+    print 'R', cp.get_R(X)
+    
+    cp.set_next_node(X)
     
     X = cp.solve(X)
     return cp
@@ -163,47 +310,100 @@ def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
     n_v = cp.n_v
     
 
-    cp.cnstr_lhs = [[(8,2,1.0)],
-                    [(9,2,1.0)],
-                    [(8,1,1.0)],
-                    [(9,1,1.0)],
+    
                     
-                    [(11,0,1.0)],
-                    [(0,2,1.0),(1,2,1.0)],
-                    [(6,2,1.0),(7,2,1.0)],
-                    [(1,1,1.0),(7,1,1.0)],
-                    [(3,1,1.0),(5,1,1.0)],
-                    [(2,2,1.0),(3,2,1.0)],
-                    [(4,2,1.0),(5,2,1.0)]
+ 
+    
+    new_points = [[ 1.5, 0.5/3, 0],         #13
+                  [ 1.5, 1 - 0.5/3, 0],     #14
+                  [ 0.5, 0.5/3, 0],         #15
+                  [ 0.5, 1 - 0.5/3, 0],     #16
+                  [ 2.5, 0.5/3, 0],         #17
+                  [ 2.5, 1 - 0.5/3, 0],     #18
+                  [ 1.5, 0.5, 2],           #19    mittelpunkt gestaenge
+                  [ 0.5, 0.5, 2],           #20
+                  [ 2.5, 0.5, 2],           #21
+                  [ 0, 0.5, 2],             #22
+                  [ 3, 0.5, 2]              #23
+                  ]
+    
+    cp.new_nodes = new_points
+    
+    new_lines = [[19,13],
+                 [19,14],
+                 [20,15],
+                 [20,16],
+                 [21,17],
+                 [21,18],
+                 [19,20],
+                 [19,21],
+                 [20,22],
+                 [21,23]]
+    
+    cp.new_crease_lines = new_lines
+    
+    
+                                        
+    cp.grab_pts = [[13, 1],
+                   [14, 8],
+                   [15, 0],
+                   [16, 7],
+                   [17, 2],
+                   [18, 9],
+                   ]
+    
+    cp.cnstr_lhs = [[(19,0,1.0)],
+                    [(19,1,1.0)],
+                    [(19,2,1.0)],
+                    [(22,1,1.0)],
+                    [(22,2,1.0)],
+                    [(23,1,1.0)],
+                    [(23,2,1.0)],
+                    [(20,1,1.0)],
+                    [(20,1,1.0)],
+                    [(20,0,1.0),(22,0,-0.5)],
+                    [(21,0,1.0),(23,0,-0.5)],
+                    [(20,2,1.0),(19,2,-0.5)],
+                    [(21,2,1.0),(19,2,-0.5)],
+                    # Cnstr for CP
+                    [(8,1,1.0)],
+                    [(8,2,1.0)],
+                    [(9,1,1.0)],
+                    [(9,2,1.0)],
+                    [(11,0,1.0)]
+                    
                     
                     ]
-                                        
-    cp.grab_pts = [[[ 1.5, 0.5/3, 0], 1],
-                   [[ 1.5, 1 - 0.5/3, 0], 8],
-                   [[ 0.5, 0.5/3, 0], 0],
-                   [[ 0.5, 1 - 0.5/3, 0], 7],
-                   [[ 2.5, 0.5/3, 0], 2],
-                   [[ 2.5, 1 - 0.5/3, 0], 9],
-                   ]
-
-    cp.grab_cnstr_lhs = [[(0, 2, 1.0)],
-                         [(1, 2, 1.0)]
-                         
-                         
-                         ]
-    cp.grab_cnstr_rhs = [0.5, 0.5]
+    dx = 1.0
+    cp.cnstr_rhs = [0.0, 
+                    0.0, 
+                    dx, 
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    ]
+#    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),))
     
-    # lift node 0 in z-axes
-    cp.cnstr_rhs = np.zeros((12,), dtype = float)
     
     X0 = cp.generate_X0()
-    g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
-#    g_X[2] = X0[35]
-#    g_X[5] = X0[35]
-#    g_X[8] = X0[32]
-#    g_X[11] = X0[32]
-#    g_X[14] = X0[32]
-#    g_X[17] = X0[32]
+    
     
     cp.set_next_node(X0)
 #    X0 = np.zeros((cp.n_dofs,), dtype = float)
@@ -221,192 +421,17 @@ def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
 
     return cp
 
-def moving_truss_cp_ff(n_steps = 10, dx = -1.99):
 
-    cp = CreasePattern(n_steps = n_steps)
-
-    cp.nodes = [[ 0, 0, 0 ],
-                [ 1, 0, 0 ]]
-
-    cp.crease_lines = [[ 0, 1 ]]
-
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-    face_xy_135 = FF(Rf = x_ + y_ - 1.0)
-    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
-                    (face_x_0, [0]),
-                    (face_xy_135, [1]),
-                    (face_x_1_t, [1])]
-
-    X = np.zeros((cp.n_dofs,), dtype = float)
-    X[1] = 0.01
-
-    print 'initial lengths\n', cp.c_lengths
-    print 'initial vectors\n', cp.c_vectors
-
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
-
-    X = cp.solve_ff(X)
-
-    print '========== results =============='
-    print 'solution X\n', X
-    print 'final positions\n', cp.get_new_nodes(X)
-    print 'final vectors\n', cp.get_new_vectors(X)
-    print 'final lengths\n', cp.get_new_lengths(X)
-
-    return cp
-
-def moving_truss_cp_ff_cnstr(n_steps = 10, dx = -1.99):
-
-    cp = CreasePattern(n_steps = n_steps)
-
-    cp.nodes = [[ 0, 0, 0 ],
-                [ 1, 0, 0 ]]
-
-    cp.crease_lines = [[ 0, 1 ]]
-
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
-                    (face_x_0, [0]),
-                    (face_x_1_t, [1])]
-
-    cp.cnstr_lhs = [
-                    [(1, 0, 1.0), (1, 1, 1.0)],
-                    ]
-
-    cp.cnstr_rhs = [0]
-
-    X = np.zeros((cp.n_dofs,), dtype = float)
-    X[1] = 0.01
-
-    print 'initial lengths\n', cp.c_lengths
-    print 'initial vectors\n', cp.c_vectors
-
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
-
-    X = cp.solve_ff(X)
-
-    print '========== results =============='
-    print 'solution X\n', X
-    print 'final positions\n', cp.get_new_nodes(X)
-    print 'final vectors\n', cp.get_new_vectors(X)
-    print 'final lengths\n', cp.get_new_lengths(X)
-
-    return cp
-
-def moving_truss_cp_circle(n_steps = 40):
-
-    cp = CreasePattern(n_steps = n_steps)
-
-    cp.nodes = [[ 0, 1, 0 ],
-                [ 0, -1, 0 ]]
-
-    cp.crease_lines = [[ 0, 1 ]]
-
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-#    face_xy_135 = FF(Rf = x_ + y_ - 1.0)
-#    face_xy_round = FF(Rf = x_**2 + (y_)**2 - 1.0)
-#    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
-#    argument =  2*3.14159*t_   
-#    face_x_1_t = FF(Rf = y_ + 3 + sp.sin(argument))
-    face_x_1_t = FF(Rf = y_ + sp.cos(1.0 * t_))
-    face_y_1_t = FF(Rf = x_ + sp.sin(1.0 * t_))
-# +3.14159/2.0    
-#    face_x_1_t = FF(Rf = y_ - 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
-                    (face_x_0, [0]),
-                    (face_x_1_t, [1]),
-                    (face_y_1_t, [1])]
-
-    X = np.zeros((cp.n_dofs,), dtype = float)
-#    X[1] = 0.01
-#    X[0] = 0.01
-
-
-    print 'initial lengths\n', cp.c_lengths
-    print 'initial vectors\n', cp.c_vectors
-
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
-
-    X = cp.solve_ff(X)
-
-    print '========== results =============='
-    print 'solution X\n', X
-    print 'final positions\n', cp.get_new_nodes(X)
-    print 'final vectors\n', cp.get_new_vectors(X)
-    print 'final lengths\n', cp.get_new_lengths(X)
-
-    return cp
-
-def moving_truss_cp_square(n_steps = 40):
-
-    cp = CreasePattern(n_steps = n_steps)
-
-    cp.nodes = [[ 0, 2, 0 ],
-                [ 0, 0, 0 ]]
-
-    cp.crease_lines = [[ 0, 1 ]]
-
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-#    face_xy_135 = FF(Rf = x_ + y_ - 1.0)
-#    face_xy_round = FF(Rf = x_**2 + (y_)**2 - 1.0)
-#    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
-#    argument =  2*3.14159*t_   
-#    face_x_1_t = FF(Rf = y_ + 3 + sp.sin(argument))
-    face_x_1_t = FF(Rf = y_ - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
-                    + 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3) 
-                    + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5) 
-                    - 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7))
-    
-    face_y_1_t = FF(Rf = x_ + 1.0 * t_ * sp.Heaviside(t_) 
-                    - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
-                    - 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3) 
-                    + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5)
-                    + 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7) 
-                    - 1.0 * (t_ - 8) * sp.Heaviside(t_ - 8))
-# +3.14159/2.0    
-#    face_x_1_t = FF(Rf = y_ - 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
-                    (face_x_0, [0]),
-                    (face_x_1_t, [1]),
-                    (face_y_1_t, [1])]
-
-    X = np.zeros((cp.n_dofs,), dtype = float)
-#    X[1] = 0.01
-#    X[0] = 0.01
-
-
-    print 'initial lengths\n', cp.c_lengths
-    print 'initial vectors\n', cp.c_vectors
-
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
-
-    X = cp.solve_ff(X)
-
-    print '========== results =============='
-    print 'solution X\n', X
-    print 'final positions\n', cp.get_new_nodes(X)
-    print 'final vectors\n', cp.get_new_vectors(X)
-    print 'final lengths\n', cp.get_new_lengths(X)
-
-    return cp
 
 
 
 if __name__ == '__main__':
 #    cp = moving_truss_cp_circle(n_steps = 10, dx = -1.99)
 #    cp = moving_truss_cp_ff_cnstr(n_steps = 40)
-    cp = triangle_cp_cnstr(n_steps = 40)
-#    cp = rhombus_grab_points(n_steps = 40)
+#    cp = triangle_cp_cnstr(n_steps = 40)
+#    cp = triangle_stick_cnstr(n_steps = 40)
+#    cp = twotriangle_stick_cnstr(n_steps = 40)
+    cp = rhombus_grab_points(n_steps = 40)
 #    cp = small_rhombus_grab_points(n_steps = 40)
 #
    

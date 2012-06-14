@@ -126,6 +126,8 @@ class CreasePatternView(HasTraits):
             # gives the direction 
             # the constrain on the same indexposition in lhs is the load constrain
             if (rhs[count] != 0):
+                print 'lhs',lhs
+                print'counter', count
                 node = lhs[count][0][0]
                 dir_vec = np.array([0, 0, 0])
                 dir_vec[lhs[count][0][1]] = 1
@@ -298,10 +300,9 @@ class CreasePatternView(HasTraits):
     @cached_property
     def _get_grab_pts_pipeline(self):
         
-        pts = np.array([])
-        for i in self.data.grab_pts:
-            pts = np.append(pts,i[0])
-        pts = pts.reshape(-1,3)
+        pts = np.array(self.data.grab_pts)
+        n = pts[:,0]
+        pts = self.data.nodes[n]
         
         x,y,z = pts.T
         grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor*0.25, color = (0.0, 1.0, 1.0))
@@ -352,10 +353,14 @@ class CreasePatternView(HasTraits):
         
     @on_trait_change('fold_step')
     def update_grab_pts_pipeline(self):
-        if(len(self.data.iteration_grab_pts) > 0):
-            nodes = self.data.iteration_grab_pts[self.fold_step]
-            x, y, z = nodes.T
-            self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
+        
+        pts = np.array(self.data.grab_pts)
+        
+        n = pts[:,0]
+        nodes = self.data.iteration_nodes[self.fold_step]
+        gp_nodes = nodes[n]
+        x, y, z = gp_nodes.T
+        self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
         
 
 

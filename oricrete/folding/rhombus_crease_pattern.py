@@ -13,7 +13,7 @@
 # Created on Sep 7, 2011 by: rch
 
 from etsproxy.traits.api import \
-    DelegatesTo, Float, Int, Property, cached_property, Bool
+    DelegatesTo, Float, Int, Property, cached_property, Bool, Array
 from etsproxy.traits.ui.api import \
     Item, View, HGroup, RangeEditor
 from crease_pattern import CreasePattern
@@ -34,14 +34,19 @@ class RhombusCreasePattern(CreasePattern):
 
     n_x = Int(2, geometry = True)
     n_y = Int(2, geometry = True)
+    
+    new_nodes = Array(value = [], dtype = float)
+    new_crease_lines = Array(value = [], dtype = int)
 
-    nodes = Property
+    nodes = Property( depends_on = 'new_nodes')
     def _get_nodes(self):
-        return self._geometry[0]
+        nodes = np.vstack([self._geometry[0], self.new_nodes])
+        return nodes
 
     crease_lines = Property
     def _get_crease_lines(self):
-        return self._geometry[1]
+        cl = np.vstack([self._geometry[1], self.new_crease_lines])
+        return cl
 
     facets = Property
     def _get_facets(self):
@@ -193,6 +198,10 @@ class RhombusCreasePattern(CreasePattern):
         X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
 
         return X0.flatten()
+    
+    def set_new_nodes(self, nodes = []):
+        self.nodes = np.vstack([self.nodes,nodes])
+
 
 if __name__ == '__main__':
 

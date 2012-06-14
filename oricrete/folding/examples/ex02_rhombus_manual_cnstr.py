@@ -231,7 +231,7 @@ def cp05(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
 
 if __name__ == '__main__':
 
-    cp = cp02(n_steps = 40)
+    cp = cp01(n_steps = 40)
 
     # cp = cp05(L_x = 10, L_y = 5, n_x = 2, n_y = 4,
     # n_steps = 40, skew_coeff = 0.0)
