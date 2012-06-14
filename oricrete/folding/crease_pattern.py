@@ -171,7 +171,7 @@ class CreasePattern(HasTraits):
     
         
     
-    grab_pts_L = Property( Array, depends_on = 'nodes, facets, grab_pts')
+    grab_pts_L = Property(Array, depends_on = 'nodes, facets, grab_pts')
     @cached_property
     def _get_grab_pts_L(self):
         '''
@@ -183,20 +183,20 @@ class CreasePattern(HasTraits):
         n = self.nodes
         f = self.facets
         
-        x4 = np.array([0,0,-1])
+        x4 = np.array([0, 0, -1])
         L = np.array([])
        
         for i in self.grab_pts:
             f_i = i[1] #actual facet index
-            T = np.c_[n[f[f_i][0]]-x4,n[f[f_i][1]]-x4]
-            T = np.c_[T,n[f[f_i][2]]-x4]
+            T = np.c_[n[f[f_i][0]] - x4, n[f[f_i][1]] - x4]
+            T = np.c_[T, n[f[f_i][2]] - x4]
             Tinv = np.linalg.inv(T)
             
-            x = n[i[0]]-x4
-            Li = np.dot(Tinv,x)
-            L = np.append(L,Li)
+            x = n[i[0]] - x4
+            Li = np.dot(Tinv, x)
+            L = np.append(L, Li)
         
-        L = L.reshape(-1,3)    # gives L1,L2,L3 for each grabpoint
+        L = L.reshape(-1, 3)    # gives L1,L2,L3 for each grabpoint
         return L
 
     #===============================================================================
@@ -357,9 +357,6 @@ class CreasePattern(HasTraits):
             grab_lines[i * 3 + 2, self.grab_pts[i][0] * 3 + 2 ] = -1
         
         return grab_lines
-    
-    
-        
 
     def get_R(self, X_vct, t = 0):
         R = np.hstack([self.get_length_R(X_vct),
@@ -379,7 +376,6 @@ class CreasePattern(HasTraits):
         dR_gp = self.get_grab_dR()
 
         dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp ])
-        
         
         return dR
 
@@ -403,15 +399,12 @@ class CreasePattern(HasTraits):
         n_steps = self.n_steps
 
         cnstr_rhs = np.copy(self.cnstr_rhs)
-        
 
         for k in range(n_steps):
             print 'step', k,
             #self.set_next_node(X)
             i = 0
             self.cnstr_rhs = (k + 1.) / float(n_steps) * cnstr_rhs
-            
-            
 
             while i <= MAX_ITER:
                 dR = self.get_dR(X)
@@ -423,8 +416,6 @@ class CreasePattern(HasTraits):
                     break
                 
                 dX = np.linalg.solve(dR, -R)
-                
-                
                 X += dX
                 
                 if self.show_iter:
@@ -468,6 +459,7 @@ class CreasePattern(HasTraits):
                     print '==== converged in ', i, 'iterations ===='
                     self.set_next_node(X)
                     break
+                print 'dR.shape', dR.shape
                 dX = np.linalg.solve(dR, -R)
                
                 X += dX
@@ -512,16 +504,16 @@ class CreasePattern(HasTraits):
         self.iteration_nodes = np.vstack((self.iteration_nodes, [nextnode]))
         
         
-        if(len(g_X_vct)>0):
+        if(len(g_X_vct) > 0):
             if(self.iteration_grab_pts.shape == (0,)):
                 pts = []
                 for i in self.grab_pts:
                     pts = np.append(pts, i[0])
                     
-                self.iteration_grab_pts = [pts.reshape(-1,self.n_d)]
+                self.iteration_grab_pts = [pts.reshape(-1, self.n_d)]
                 
             grab_pts = self.iteration_grab_pts[0]
-            g_X = g_X_vct.reshape(-1,self.n_d)
+            g_X = g_X_vct.reshape(-1, self.n_d)
             next_grab_pts = grab_pts + g_X
             self.iteration_grab_pts = np.vstack((self.iteration_grab_pts, [next_grab_pts]))
 

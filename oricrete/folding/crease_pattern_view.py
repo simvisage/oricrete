@@ -126,7 +126,7 @@ class CreasePatternView(HasTraits):
             # gives the direction 
             # the constrain on the same indexposition in lhs is the load constrain
             if (rhs[count] != 0):
-                print 'lhs',lhs
+                print 'lhs', lhs
                 print'counter', count
                 node = lhs[count][0][0]
                 dir_vec = np.array([0, 0, 0])
@@ -241,10 +241,6 @@ class CreasePatternView(HasTraits):
         self.set_focal_point()
         self.update_grab_pts_pipeline()
 
-
-
-
-
     cp_pipeline = Property(Instance(PipelineBase))
     @cached_property
     def _get_cp_pipeline(self):
@@ -301,17 +297,14 @@ class CreasePatternView(HasTraits):
     def _get_grab_pts_pipeline(self):
         
         pts = np.array(self.data.grab_pts)
-        n = pts[:,0]
+        n = pts[:, 0]
         pts = self.data.nodes[n]
         
-        x,y,z = pts.T
-        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor*0.25, color = (0.0, 1.0, 1.0))
+        x, y, z = pts.T
+        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.25, color = (0.0, 1.0, 1.0))
         return grab_pts_pipeline
         
-       
-
     # Pipeline visualizing fold faces
-
     ff_pipe_view = Property(List(FFView), depends_on = 'data')
     @cached_property
     def _get_ff_pipe_view(self):
@@ -337,7 +330,6 @@ class CreasePatternView(HasTraits):
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)
 
-
     @on_trait_change('fold_step')
     def update_cp_pipeline(self):
 
@@ -350,20 +342,18 @@ class CreasePatternView(HasTraits):
         # set new position of 3D Points
         self.cp_pipeline.mlab_source.set(x = x, y = y, z = z)
 
-        
     @on_trait_change('fold_step')
     def update_grab_pts_pipeline(self):
         
         pts = np.array(self.data.grab_pts)
+        if len(pts) == 0:
+            return
         
-        n = pts[:,0]
+        n = pts[:, 0]
         nodes = self.data.iteration_nodes[self.fold_step]
         gp_nodes = nodes[n]
         x, y, z = gp_nodes.T
         self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
-        
-
-
 
     #===============================================================================
     # Pipelines for OLD constrain visualization

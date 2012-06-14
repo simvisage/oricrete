@@ -238,7 +238,7 @@ if __name__ == '__main__':
 #    cp_dc = create_cp_dc(L_x = 14, L_y = 8, n_x = 2, n_y = 4,
 #                         n_steps = 40)
     cp_fc = create_cp_fc_inclined(L_x = 80, L_y = 8, n_x = 10, n_y = 2,
-                         n_steps = 10)
+                                  n_steps = 10)
 
     X0 = cp_fc.generate_X0()
     #cp_fc.set_next_node(X0)

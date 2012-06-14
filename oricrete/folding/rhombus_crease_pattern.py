@@ -38,15 +38,17 @@ class RhombusCreasePattern(CreasePattern):
     new_nodes = Array(value = [], dtype = float)
     new_crease_lines = Array(value = [], dtype = int)
 
-    nodes = Property( depends_on = 'new_nodes')
+    nodes = Property(depends_on = 'new_nodes')
     def _get_nodes(self):
-        nodes = np.vstack([self._geometry[0], self.new_nodes])
-        return nodes
+        #nodes = np.vstack([self._geometry[0], self.new_nodes])
+        return self._geometry[0]
+        #return nodes
 
     crease_lines = Property
     def _get_crease_lines(self):
-        cl = np.vstack([self._geometry[1], self.new_crease_lines])
-        return cl
+        #cl = np.vstack([self._geometry[1], self.new_crease_lines])
+        return self._geometry[1]
+        #return cl
 
     facets = Property
     def _get_facets(self):
@@ -200,7 +202,7 @@ class RhombusCreasePattern(CreasePattern):
         return X0.flatten()
     
     def set_new_nodes(self, nodes = []):
-        self.nodes = np.vstack([self.nodes,nodes])
+        self.nodes = np.vstack([self.nodes, nodes])
 
 
 if __name__ == '__main__':
@@ -228,10 +230,6 @@ if __name__ == '__main__':
 
     cp.set_next_node(X0)
     
-    
-
-    
-
     from crease_pattern_view import CreasePatternView
     my_model = CreasePatternView(data = cp, show_cnstr = True)
     my_model.configure_traits()
