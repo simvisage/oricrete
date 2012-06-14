@@ -222,7 +222,7 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     return cp
 
-def small_rhombus_grab_points(n_steps = 10, dx = +0.3299999999999):
+def small_rhombus_grab_points(n_steps = 10, dx = 1.99):
     
     cp = CreasePattern(n_steps = n_steps)
     
@@ -431,8 +431,8 @@ if __name__ == '__main__':
 #    cp = triangle_cp_cnstr(n_steps = 40)
 #    cp = triangle_stick_cnstr(n_steps = 40)
 #    cp = twotriangle_stick_cnstr(n_steps = 40)
-    cp = rhombus_grab_points(n_steps = 40)
-#    cp = small_rhombus_grab_points(n_steps = 40)
+#    cp = rhombus_grab_points(n_steps = 40)
+    cp = small_rhombus_grab_points(n_steps = 40)
 #
    
 
