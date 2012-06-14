@@ -66,10 +66,16 @@ class CreasePattern(HasTraits):
     facets = Array(value = [], dtype = 'int_')
 
     cnstr_lst = List([])
-
+    
     ff_lst = Property
     def _get_ff_lst(self):
         return [ ff for ff, nodes in self.cnstr_lst ]
+    
+    # points for facetgrabbing [n,f]
+    # first indize gives node, second gives the facet 
+    grab_pts = List()
+    # first tupel gives the coordination of endpoint, i gives indize of grab point
+    
 
     # constrained node indices
     # define the pairs (node, dimension) affected by the constraint
@@ -82,11 +88,16 @@ class CreasePattern(HasTraits):
     # 
     # left-hand side coefficients of the constraint equations 
     cnstr_lhs = List()
+    
+    
     # right-hand side values of the constraint equations
     cnstr_rhs = Array(value = [], dtype = float)
+    
+    
     # list of Constrain-Objects
     cnstr = Array(value = [])
-
+    
+    
     #===============================================================================
     # Enumeration of dofs 
     #===============================================================================
@@ -117,7 +128,13 @@ class CreasePattern(HasTraits):
         for ff, nodes in self.cnstr_lst:
             n_c += len(nodes)
         return n_c
-
+    
+    n_g = Property
+    def _get_n_g(self):
+        '''Number of Grabpoints'''
+        return len(self.grab_pts)
+    
+    
     n_d = Constant(3)
 
     # total number of dofs
@@ -148,6 +165,39 @@ class CreasePattern(HasTraits):
         '''
         c = self.c_vectors
         return np.sqrt(np.sum(c ** 2, axis = 1))
+    
+    
+    
+    
+        
+    
+    grab_pts_L = Property( Array, depends_on = 'nodes, facets, grab_pts')
+    @cached_property
+    def _get_grab_pts_L(self):
+        '''
+            Calculates the L vector for the Barycentric coordinates
+            Trick: assuming a tetraheder with fourth point on [ 0, 0, -1],
+                   if the grabpoint is choosen correctly (laying in the plane of the facet)
+                   L4 will be 0
+        '''
+        n = self.nodes
+        f = self.facets
+        
+        x4 = np.array([0,0,-1])
+        L = np.array([])
+       
+        for i in self.grab_pts:
+            f_i = i[1] #actual facet index
+            T = np.c_[n[f[f_i][0]]-x4,n[f[f_i][1]]-x4]
+            T = np.c_[T,n[f[f_i][2]]-x4]
+            Tinv = np.linalg.inv(T)
+            
+            x = n[i[0]]-x4
+            Li = np.dot(Tinv,x)
+            L = np.append(L,Li)
+        
+        L = L.reshape(-1,3)    # gives L1,L2,L3 for each grabpoint
+        return L
 
     #===============================================================================
     # Verification procedures to check the compliance with the constant length criteria. 
@@ -199,6 +249,8 @@ class CreasePattern(HasTraits):
         R = 2 * CXj - 2 * CXi - 2 * Xij + Xii + Xjj
 
         return R
+    
+    
 
     def get_length_dR(self, X_vct):
         ''' Calculate the jacobian of the residuum at the instantaneous
@@ -228,7 +280,12 @@ class CreasePattern(HasTraits):
         # the derivatives with respect to the node displacements
         # in 3d.
         # 
+        
+        
         return dR.reshape(self.n_c, self.n_n * self.n_d)
+    
+    
+   
 
     def get_cnstr_R(self, X_vct):
         ''' Calculate the residuum for given constraint equations
@@ -280,18 +337,51 @@ class CreasePattern(HasTraits):
                 i += 1
 
         return dRf
+    
+    def get_grab_R(self):
+        return np.zeros((self.n_g * self.n_d,))
+    
+    
+    
+    def get_grab_dR(self):
+        
+        grab_lines = np.zeros((self.n_g * self.n_d, self.n_dofs))
+        for i in range(len(self.grab_pts)):
+            points = self.facets[self.grab_pts[i][1]]
+            for q in points:
+                grab_lines[i * 3, q * 3] = self.grab_pts_L[i][0]
+                grab_lines[i * 3 + 1, q * 3 + 1] = self.grab_pts_L[i][1]
+                grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][2]
+            grab_lines[i * 3, self.grab_pts[i][0] * 3 ] = -1
+            grab_lines[i * 3 + 1, self.grab_pts[i][0] * 3 + 1 ] = -1
+            grab_lines[i * 3 + 2, self.grab_pts[i][0] * 3 + 2 ] = -1
+        
+        return grab_lines
+    
+    
+        
 
     def get_R(self, X_vct, t = 0):
-        return np.hstack([self.get_length_R(X_vct),
+        R = np.hstack([self.get_length_R(X_vct),
                           self.get_cnstr_R(X_vct),
                           self.get_cnstr_R_ff(X_vct, t),
+                          self.get_grab_R()
                           ])
+        # Add rows for grabpoint extensions
+        
+        
+        return R
 
     def get_dR(self, X_vct, t = 0):
         dR_l = self.get_length_dR(X_vct)
         dR_fc = self.get_cnstr_dR(X_vct, t)
         dR_ff = self.get_cnstr_dR_ff(X_vct, t)
-        return np.vstack([dR_l, dR_fc, dR_ff ])
+        dR_gp = self.get_grab_dR()
+
+        dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp ])
+        
+        
+        return dR
 
     #===========================================================================
     # Folding algorithm - Newton-Raphson
@@ -302,23 +392,26 @@ class CreasePattern(HasTraits):
     n_steps = Int(20)
     show_iter = Bool(False)
 
-    def solve(self, X0):
+    def solve(self, X0, g_X = []):
 
         # make a copy of the start vector
         X = np.copy(X0)
-
+        
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
         n_steps = self.n_steps
 
         cnstr_rhs = np.copy(self.cnstr_rhs)
+        
 
         for k in range(n_steps):
             print 'step', k,
             #self.set_next_node(X)
             i = 0
             self.cnstr_rhs = (k + 1.) / float(n_steps) * cnstr_rhs
+            
+            
 
             while i <= MAX_ITER:
                 dR = self.get_dR(X)
@@ -328,8 +421,12 @@ class CreasePattern(HasTraits):
                     print '==== converged in ', i, 'iterations ===='
                     self.set_next_node(X)
                     break
+                
                 dX = np.linalg.solve(dR, -R)
+                
+                
                 X += dX
+                
                 if self.show_iter:
                     self.set_next_node(X)
                 i += 1
@@ -345,15 +442,18 @@ class CreasePattern(HasTraits):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
 
-    def solve_ff(self, X0):
+    def solve_ff(self, X0, g_X = []):
 
         # make a copy of the start vector
         X = np.copy(X0)
-
+       
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
         n_steps = self.n_steps
+        
+        cnstr_rhs = np.copy(self.cnstr_rhs)
+        
 
         for t in self.t_arr:
             print 'step', t,
@@ -369,7 +469,9 @@ class CreasePattern(HasTraits):
                     self.set_next_node(X)
                     break
                 dX = np.linalg.solve(dR, -R)
+               
                 X += dX
+                
                 if self.show_iter:
                     self.set_next_node(X)
                 i += 1
@@ -393,18 +495,35 @@ class CreasePattern(HasTraits):
             return self.t_arr[fold_step - 1]
 
     iteration_nodes = Array(value = [], dtype = float)
+    iteration_grab_pts = Array(value = [], dtype = float)
 
-    def set_next_node(self, X_vct):
+    def set_next_node(self, X_vct, g_X_vct = []):
         '''
            Calculates the position of nodes for this iteration.
         '''
         if(self.iteration_nodes.shape == (0,)):
             self.iteration_nodes = [self.nodes]
-
+            
+              
         X = X_vct.reshape(self.n_n, self.n_d)
+       
         nextnode = self.nodes + X
+        
         self.iteration_nodes = np.vstack((self.iteration_nodes, [nextnode]))
-
+        
+        
+        if(len(g_X_vct)>0):
+            if(self.iteration_grab_pts.shape == (0,)):
+                pts = []
+                for i in self.grab_pts:
+                    pts = np.append(pts, i[0])
+                    
+                self.iteration_grab_pts = [pts.reshape(-1,self.n_d)]
+                
+            grab_pts = self.iteration_grab_pts[0]
+            g_X = g_X_vct.reshape(-1,self.n_d)
+            next_grab_pts = grab_pts + g_X
+            self.iteration_grab_pts = np.vstack((self.iteration_grab_pts, [next_grab_pts]))
 
     def get_cnstr_pos(self, iterationstep):
         '''
@@ -429,20 +548,25 @@ if __name__ == '__main__':
     cp = CreasePattern()
 
     cp.nodes = [[ 0, 0, 0 ],
-                [ 1, 0, 0 ]]
+                [ 1, 0, 0 ],
+                [ 1, 1, 0 ]]
 
-    cp.crease_lines = [[ 0, 1 ]]
+    cp.crease_lines = [[ 0, 1 ],
+                       [ 1, 2 ],
+                       [ 2, 0 ]]
 
     cp.cnstr_lhs = [
                     [(0, 0, 1.0)],
+                    [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
-                    [(1, 0, 1.0)],
-                    [(1, 0, 1.0), (1, 1, 1.0)],
-                    [(1, 2, 1.0)]
+                    [(1, 1, 1.0)],
+                    [(2, 1, 1.0)],
+                    [(1, 2, 1.0), (2, 2, 1.0)]
                     ]
 
-    cp.cnstr_rhs = [0.0, 0.0, -0.1, 0.0, 0.0]
-
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, -1.0]
+    
+    
     X = np.zeros((cp.n_dofs,), dtype = float)
 
     # NOTE: there must be a nonzero initial value
@@ -463,7 +587,7 @@ if __name__ == '__main__':
     print 'R\n', cp.get_R(X)
     print 'dR\n', cp.get_dR(X)
 
-    print 'constraint positions', cp.get_cnstr_pos()
+#    print 'constraint positions', cp.get_cnstr_pos()
 
     X = cp.solve(X)
 
@@ -472,3 +596,4 @@ if __name__ == '__main__':
     print 'final positions\n', cp.get_new_nodes(X)
 #    print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
+    print 'T ', cp.grab_pts_L
