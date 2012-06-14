@@ -197,10 +197,10 @@ class RhombusCreasePattern(CreasePattern):
 if __name__ == '__main__':
 
     cp = RhombusCreasePattern(n_steps = 100,
-                              L_x = 4,
-                              L_y = 4,
-                              n_x = 2,
-                              n_y = 4,
+                              L_x = 3,
+                              L_y = 1,
+                              n_x = 3,
+                              n_y = 2,
                               show_iter = False,
                               MAX_ITER = 500,
                               fx = (xn_) ** 2,

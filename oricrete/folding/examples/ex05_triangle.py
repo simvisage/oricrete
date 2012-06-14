@@ -86,6 +86,67 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     return cp
 
+def small_rhombus_grab_points(n_steps = 10, dx = -0.3299999999999):
+    
+    cp = CreasePattern(n_steps = n_steps)
+    
+    cp.nodes = [[0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 0],
+                [1, 1, 0],
+                [0, 0.5, 0],
+                [1, 0.5, 0],
+                [0.5, 0.5, 0]]
+    
+    cp.crease_lines = [[0,2],
+                       [0,4],
+                       [0,6],
+                       [1,3],
+                       [1,4],
+                       [1,6],
+                       [2,5],
+                       [2,6],
+                       [3,5],
+                       [3,6],
+                       [4,6],
+                       [5,6]]
+    
+    cp.facets = [[0,2,6],
+                 [0,4,6],
+                 [2,5,6],
+                 [1,3,6],
+                 [1,4,6],
+                 [3,5,6]]
+    
+    cp.grab_pts = [[[0.5,0.5/3,0],0],
+                   [[0.5, 1-0.5/3,0],3]]
+    
+    cp.grab_cnstr_lhs = [[(0,2,1.0)],
+                         [(1,2,1.0)]
+                         ]
+    
+    cp.grab_cnstr_rhs = [dx, dx]
+    
+    cp.cnstr_lhs = [[(0,2,1.0),(1,2,1.0)],
+                    [(2,2,1.0),(3,2,1.0)],
+                    []
+                    
+                    ]
+    
+    cp.cnstr_rhs = np.zeros((8,), dtype = float)
+    
+    X = np.zeros((cp.n_dofs,), dtype = float)
+    X[20] = 0.01
+    g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
+    print 'dR', cp.get_dR(X)
+    print 'R', cp.get_R(X,g_X)
+    
+    cp.set_next_node(X,g_X)
+    
+    X = cp.solve(X)
+    return cp
+
+
 def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
 
     cp = RhombusCreasePattern(n_steps = n_steps,
@@ -100,23 +161,63 @@ def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
     n_h = cp.n_h
     n_i = cp.n_i
     n_v = cp.n_v
+    
 
-    cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
-                    [(n_h[0, -1], 2, 1.0)], # 1
-                    [(n_h[-1, 0], 2, 1.0)], # 2
-                    [(n_h[-1, -1], 2, 1.0)], # 3
-                    [(n_h[1, 0], 2, 1.0)], # 4
-                    [(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1.0)], # 5
-                    [(n_h[0, 0], 1, 1.0), (n_h[-1, 0], 1, -1.0)], # 6
-                    [(n_h[0, -1], 1, 1.0), (n_h[1, -1], 1, -1.0)], # 7
-                    [(n_h[0, -1], 1, 1.0), (n_h[-1, -1], 1, -1.0)], # 8
-                    [(n_h[1, 0], 0, 1.0)], # 9
-                    [(n_h[0, -1], 1, 1.0)], # 10
+    cp.cnstr_lhs = [[(8,2,1.0)],
+                    [(9,2,1.0)],
+                    [(8,1,1.0)],
+                    [(9,1,1.0)],
+                    
+                    [(11,0,1.0)],
+                    [(0,2,1.0),(1,2,1.0)],
+                    [(6,2,1.0),(7,2,1.0)],
+                    [(1,1,1.0),(7,1,1.0)],
+                    [(3,1,1.0),(5,1,1.0)],
+                    [(2,2,1.0),(3,2,1.0)],
+                    [(4,2,1.0),(5,2,1.0)]
+                    
                     ]
+                                        
+    cp.grab_pts = [[[ 1.5, 0.5/3, 0], 1],
+                   [[ 1.5, 1 - 0.5/3, 0], 8],
+                   [[ 0.5, 0.5/3, 0], 0],
+                   [[ 0.5, 1 - 0.5/3, 0], 7],
+                   [[ 2.5, 0.5/3, 0], 2],
+                   [[ 2.5, 1 - 0.5/3, 0], 9],
+                   ]
 
+    cp.grab_cnstr_lhs = [[(0, 2, 1.0)],
+                         [(1, 2, 1.0)]
+                         
+                         
+                         ]
+    cp.grab_cnstr_rhs = [0.5, 0.5]
+    
     # lift node 0 in z-axes
-    cp.cnstr_rhs = np.zeros((14,), dtype = float)
-    cp.cnstr_rhs[4] = 1.999999999
+    cp.cnstr_rhs = np.zeros((12,), dtype = float)
+    
+    X0 = cp.generate_X0()
+    g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
+#    g_X[2] = X0[35]
+#    g_X[5] = X0[35]
+#    g_X[8] = X0[32]
+#    g_X[11] = X0[32]
+#    g_X[14] = X0[32]
+#    g_X[17] = X0[32]
+    
+    cp.set_next_node(X0)
+#    X0 = np.zeros((cp.n_dofs,), dtype = float)
+#    X0[35] = 1
+    
+    
+    
+    print 'n_dofs', cp.n_dofs
+    print 'n_c', cp.n_c
+    print 'necessary constraints', cp.n_dofs - cp.n_c
+    print 'cnstr', len(cp.cnstr_lhs)
+
+    X_vct = cp.solve(X0)
+    
 
     return cp
 
@@ -304,30 +405,13 @@ def moving_truss_cp_square(n_steps = 40):
 if __name__ == '__main__':
 #    cp = moving_truss_cp_circle(n_steps = 10, dx = -1.99)
 #    cp = moving_truss_cp_ff_cnstr(n_steps = 40)
-#    cp = triangle_cp_cnstr(n_steps = 40)
+    cp = triangle_cp_cnstr(n_steps = 40)
+#    cp = rhombus_grab_points(n_steps = 40)
+#    cp = small_rhombus_grab_points(n_steps = 40)
 #
-#    # initialise View
-#    my_model = CreasePatternView(data = cp)
-#    my_model.configure_traits()
+   
 
-    cp = rhombus_grab_points(n_steps = 40)
-
-    # cp = cp05(L_x = 10, L_y = 5, n_x = 2, n_y = 4,
-    # n_steps = 40, skew_coeff = 0.0)
-    X0 = cp.generate_X0()
-    #cp.set_next_node(X0)
-
-    print 'n_dofs', cp.n_dofs
-    print 'n_c', cp.n_c
-    print 'necessary constraints', cp.n_dofs - cp.n_c
-    print 'cnstr', len(cp.cnstr_lhs)
-
-    X_vct = cp.solve(X0)
-
-#    print 'new nodes'
-#    print cp.get_new_nodes(X_vct)
-#    print 'new lengths'
-#    print cp.get_new_lengths(X_vct)
+   
 
     # initialise View
     cpv = CreasePatternView(data = cp, show_cnstr = True)

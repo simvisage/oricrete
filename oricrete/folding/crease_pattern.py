@@ -74,6 +74,8 @@ class CreasePattern(HasTraits):
     # points for facetgrabbing [(x,y,z),i]
     # first tupel gives the coordinations, i gives the facet 
     grab_pts = List()
+    # first tupel gives the coordination of endpoint, i gives indize of grab point
+    gsticks = List()
 
     # constrained node indices
     # define the pairs (node, dimension) affected by the constraint
@@ -87,9 +89,11 @@ class CreasePattern(HasTraits):
     # left-hand side coefficients of the constraint equations 
     cnstr_lhs = List()
     grab_cnstr_lhs = List()
+    gsticks_cnstr_lhs = List()
     # right-hand side values of the constraint equations
     cnstr_rhs = Array(value = [], dtype = float)
     grab_cnstr_rhs = Array(value = [], dtype = float)
+    gsticks_cnstr_rhs = Array(value = [], dtype = float)
     # list of Constrain-Objects
     cnstr = Array(value = [])
 
@@ -128,6 +132,11 @@ class CreasePattern(HasTraits):
     def _get_n_g(self):
         '''Number of Grabpoints'''
         return len(self.grab_pts)
+    
+    n_gs = Property
+    def _get_n_gs(self):
+        '''Number of Grabsticks'''
+        return len(self.gsticks)
 
     n_d = Constant(3)
 
@@ -159,6 +168,27 @@ class CreasePattern(HasTraits):
         '''
         c = self.c_vectors
         return np.sqrt(np.sum(c ** 2, axis = 1))
+    
+    gs_vectors = Property(Array, depends_on = 'nodes, gsticks')
+    @cached_property
+    def _get_gs_vectors(self):
+        '''
+            Calculates the c of the grab sticks
+        '''
+        gs_v = np.zeros((self.n_gs,3))
+        for i in range(self.n_gs):
+            gs_v[i] = self.gsticks[i][0]-self.grab_pts[self.gsticks[i][1]][0]
+            
+        return gs_v
+    
+    gs_lengths = Property(Array, depends_on = 'nodes, gsticks')
+    @cached_property
+    def _get_gs_lengths(self):
+        '''
+            Calculates the lengths of the grab sticks.
+        '''
+        return np.sqrt(np.sum(self.gs_vectors ** 2, axis = 1))
+        
     
     grab_pts_L = Property( Array, depends_on = 'nodes, facets, grab_pts')
     @cached_property
@@ -238,6 +268,8 @@ class CreasePattern(HasTraits):
         R = 2 * CXj - 2 * CXi - 2 * Xij + Xii + Xjj
 
         return R
+    
+    
 
     def get_length_dR(self, X_vct):
         ''' Calculate the jacobian of the residuum at the instantaneous
@@ -270,6 +302,52 @@ class CreasePattern(HasTraits):
         
         
         return dR.reshape(self.n_c, self.n_n * self.n_d)
+    
+    
+    def get_length_gs_R(self, gs_X, gp_X):
+        
+        i = self.gsticks[:,1]
+        Xj = gs_X.reshape(self.n_gs, self.n_d)
+        Xi = gp_X.reshape(self.n_gp, self.n_d)[i]
+        
+        CXi = np.sum(self.gs_vectors * Xi, axis = 1)
+        CXj = np.sum(self.gs_vectors * Xj, axis = 1)
+
+        Xij = np.sum(Xi * Xj, axis = 1)
+        Xii = np.sum(Xi ** 2, axis = 1)
+        Xjj = np.sum(Xj ** 2, axis = 1)
+        R = 2 * CXj - 2 * CXi - 2 * Xij + Xii + Xjj
+        
+        return R
+    
+    
+    def get_length_gs_dR(self, gs_X, gp_X):
+        i = self.gsticks[:,1]
+        Xj = gs_X.reshape(self.n_gs, self.n_d)
+        Xi = gp_X.reshape(self.n_gp, self.n_d)[i]
+        
+        dR_i = -2 * self.gs_vectors + 2 * Xi - 2 * Xj
+        dR_j = 2 * self.gs_vectors + 2 * Xj - 2 * Xi
+
+        dR = np.zeros((self.n_gs, self.n_gp+self.n_gs, self.n_d), dtype = 'float_')
+
+        # running crease line index
+        if self.n_gs > 0:
+            cidx = np.arange(self.n_gs)
+
+            dR[ cidx, i, : ] += dR_i
+            for p in range(self.n_gs):
+                dR[ cidx, p+self.n_gp, : ] += dR_j
+            
+
+        # reshape the 3D matrix to a 2D matrix 
+        # with rows for crease lines and columns representing 
+        # the derivatives with respect to the node displacements
+        # in 3d.
+        # 
+        
+        
+        return dR.reshape(self.n_gs, (self.n_gp+self.n_gs) * self.n_d)
 
     def get_cnstr_R(self, X_vct):
         ''' Calculate the residuum for given constraint equations
@@ -361,7 +439,7 @@ class CreasePattern(HasTraits):
         return np.hstack([dR,dRc])
         
 
-    def get_R(self, X_vct,g_X_vct, t = 0):
+    def get_R(self, X_vct, g_X_vct, t = 0):
         R = np.hstack([self.get_length_R(X_vct),
                           self.get_cnstr_R(X_vct),
                           self.get_cnstr_R_ff(X_vct, t),
@@ -397,11 +475,12 @@ class CreasePattern(HasTraits):
     n_steps = Int(20)
     show_iter = Bool(False)
 
-    def solve(self, X0):
+    def solve(self, X0, g_X = []):
 
         # make a copy of the start vector
         X = np.copy(X0)
-        g_X = np.zeros((self.n_g*self.n_d,), dtype = float)
+        if(len(g_X) == 0 ):
+            g_X = np.zeros((self.n_g*self.n_d,), dtype = float)
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
@@ -447,15 +526,19 @@ class CreasePattern(HasTraits):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
 
-    def solve_ff(self, X0):
+    def solve_ff(self, X0, g_X = []):
 
         # make a copy of the start vector
         X = np.copy(X0)
-        g_X = np.zeros((self.n_g*self.n_d,), dtype = float)
+        if(len(g_X) == 0 ):
+            g_X = np.zeros((self.n_g*self.n_d,), dtype = float)
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
         n_steps = self.n_steps
+        
+        cnstr_rhs = np.copy(self.cnstr_rhs)
+        grab_cnstr_rhs = np.copy(self.grab_cnstr_rhs)
 
         for t in self.t_arr:
             print 'step', t,
@@ -464,7 +547,7 @@ class CreasePattern(HasTraits):
 
             while i <= MAX_ITER:
                 dR = self.get_dR(X, t)
-                R = self.get_R(X, t)
+                R = self.get_R(X, g_X, t)
                 nR = np.linalg.norm(R)
                 if nR < TOLERANCE:
                     print '==== converged in ', i, 'iterations ===='
@@ -519,7 +602,7 @@ class CreasePattern(HasTraits):
                 pts = []
                 for i in self.grab_pts:
                     pts = np.append(pts, i[0])
-                    print pts
+                    
                 self.iteration_grab_pts = [pts.reshape(-1,self.n_d)]
                 
             grab_pts = self.iteration_grab_pts[0]

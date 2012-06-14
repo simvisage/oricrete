@@ -314,10 +314,10 @@ class CreasePatternView(HasTraits):
     ff_pipe_view = Property(List(FFView), depends_on = 'data')
     @cached_property
     def _get_ff_pipe_view(self):
-
+        
         ff_pipe_view = [FFView(self.scene, cnstr_lst, self.xyz_grid,
-                               self.data.iteration_nodes, self.scalefactor)
-                        for cnstr_lst in self.data.cnstr_lst]
+                                   self.data.iteration_nodes, self.scalefactor)
+                            for cnstr_lst in self.data.cnstr_lst]
         
         return ff_pipe_view
 
