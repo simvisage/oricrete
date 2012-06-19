@@ -49,32 +49,21 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     cp.grab_pts = [[3, 0],
                    [4, 0]]
     
-    
-    cp.cnstr_lhs = [
-                    [(0, 0, 1.0)],
+    cp.cnstr_lhs = [[(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
                     [(1, 1, 1.0)],
                     [(1, 2, 1.0)],
-                    [(3, 2, 1.0)]
-                    
-                   # ,[(2, 2, 1.0)]
-                    ]
+                    [(3, 2, 1.0)]]
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
-                    , dx, 0.0, 0.0
-                    ]
+                    , dx, 0.0, 0.0]
     
-    
-
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-    #g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
-
     
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
-
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
@@ -86,8 +75,6 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
     
-    
-
     return cp
 
 def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
@@ -111,31 +98,21 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     cp.grab_pts = [[3, 0],
                    [4, 0]]
     
-    
-    cp.cnstr_lhs = [
-                    [(0, 0, 1.0)],
+    cp.cnstr_lhs = [[(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
                     [(1, 1, 1.0)],
                     [(1, 2, 1.0)],
                     [(5, 2, 1.0)],
                     [(5, 0, 1.0)],
-                    [(5, 1, 1.0)]
-                    
-                   # ,[(2, 2, 1.0)]
-                    ]
+                    [(5, 1, 1.0)]]
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
-                    , dx, 0.0, 0.0
-                    ]
+                    , dx, 0.0, 0.0]
     
-    
-
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-    #g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
-
-    
+   
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
@@ -150,8 +127,6 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
     
-    
-
     return cp
 
 def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
@@ -175,9 +150,7 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     cp.facets = [[0, 1, 2 ],
                  [2, 5, 0]]
 
-    cp.grab_pts = [[3, 0]
-                   ]
-    
+    cp.grab_pts = [[3, 0]  ]
     
     cp.cnstr_lhs = [
                     [(0, 0, 1.0)],
@@ -188,21 +161,14 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
                     [(4, 2, 1.0)],
                     [(4, 0, 1.0)],
                     [(4, 1, 1.0)],
-                    [(5, 2, 1.0)]
-                    
-                   # ,[(2, 2, 1.0)]
-                    ]
+                    [(5, 2, 1.0)]]
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
                     , dx, 0.0, 0.0, 0.0
                     ]
     
-    
-
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-    #g_X = np.zeros((cp.n_g*cp.n_d,), dtype = float)
-
     
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
@@ -218,11 +184,9 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
     
-    
-
     return cp
 
-def small_rhombus_grab_points(n_steps = 10, dx = 1.99):
+def small_rhombus_grab_points(n_steps = 10, dx = 1.0):
     
     cp = CreasePattern(n_steps = n_steps)
     
@@ -274,29 +238,28 @@ def small_rhombus_grab_points(n_steps = 10, dx = 1.99):
     
     X0 = np.zeros((cp.n_dofs,), dtype = float)
     
-    X0[2] = 0.1
-    X0[5] = 0.1
-    X0[8] = 0.1
-    X0[11] = 0.1
-    X0[20] = 0.2
+    X0[2] = 0.0001
+    X0[5] = 0.0001
+    X0[8] = 0.0001
+    X0[11] = 0.0001
+    X0[20] = 0.0002
+#    X0[23] = 0.133                # ! Anfangskonfiguration nicht zu ausgepraegt 
+#    X0[26] = 0.133                #   waehle, grabpoints werden sonst abgehaengt
     
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
     
-    #cp.set_next_node(X0)
-    
-#    X0 = np.zeros((cp.n_dofs,), dtype = float)
-#    X0[35] = 1
-    
-    
+    cp.set_next_node(X0)
+
+    print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
-    print 'necessary constraints', cp.n_dofs - cp.n_c
+    print 'n_g', cp.n_g
+    print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
         
     X = cp.solve(X0)
     return cp
-
 
 def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
 
@@ -394,13 +357,11 @@ def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
                     0.0,
                     0.0,
                     ]
-#    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),))
-     
+    
     X0 = cp.generate_X0()
     
     cp.set_next_node(X0)
-#    X0 = np.zeros((cp.n_dofs,), dtype = float)
-#    X0[35] = 1
+
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
     print 'necessary constraints', cp.n_dofs - cp.n_c

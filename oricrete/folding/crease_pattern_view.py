@@ -295,7 +295,6 @@ class CreasePatternView(HasTraits):
     grab_pts_pipeline = Property(Instance(PipelineBase), depends_on = 'data')
     @cached_property
     def _get_grab_pts_pipeline(self):
-        
         pts = np.array(self.data.grab_pts)
         n = pts[:, 0]
         pts = self.data.nodes[n]
