@@ -62,7 +62,7 @@ class CreasePatternView(HasTraits):
         minbb = np.min(bb)
         fkt_bb = minbb / 5
         fkt_c_length = np.min(self.data.c_lengths) / 2
-        minfkt = np.min([fkt_bb, fkt_c_length])
+        minfkt = np.max([fkt_bb, fkt_c_length])
         return minfkt
 
     # range of fold steps
@@ -126,8 +126,6 @@ class CreasePatternView(HasTraits):
             # gives the direction 
             # the constrain on the same indexposition in lhs is the load constrain
             if (rhs[count] != 0):
-                print 'lhs', lhs
-                print'counter', count
                 node = lhs[count][0][0]
                 dir_vec = np.array([0, 0, 0])
                 dir_vec[lhs[count][0][1]] = 1

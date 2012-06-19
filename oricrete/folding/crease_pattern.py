@@ -325,13 +325,17 @@ class CreasePattern(HasTraits):
         grab_lines = np.zeros((self.n_g * self.n_d, self.n_dofs))
         for i in range(len(self.grab_pts)):
             facet = self.facets[self.grab_pts[i][1]]
+            c = 0
             for q in facet:
-                grab_lines[i * 3, q * 3] = self.grab_pts_L[i][0]
-                grab_lines[i * 3 + 1, q * 3 + 1] = self.grab_pts_L[i][1]
-                grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][2]
+                grab_lines[i * 3, q * 3] = self.grab_pts_L[i][c]
+                grab_lines[i * 3 + 1, q * 3 + 1] = self.grab_pts_L[i][c]
+                grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][c]
+                c += 1
+                
             grab_lines[i * 3, self.grab_pts[i][0] * 3 ] = -1
             grab_lines[i * 3 + 1, self.grab_pts[i][0] * 3 + 1 ] = -1
             grab_lines[i * 3 + 2, self.grab_pts[i][0] * 3 + 2 ] = -1
+           
         return grab_lines
 
     def get_R(self, X_vct, t = 0):
