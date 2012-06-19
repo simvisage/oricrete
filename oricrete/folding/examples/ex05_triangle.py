@@ -414,8 +414,8 @@ if __name__ == '__main__':
 #    cp = triangle_cp_cnstr(n_steps = 40)
 #    cp = triangle_stick_cnstr(n_steps = 40)
 #    cp = twotriangle_stick_cnstr(n_steps = 40)
-#    cp = small_rhombus_grab_points(n_steps = 40)
-    cp = rhombus_grab_points(n_steps = 40)
+    cp = small_rhombus_grab_points(n_steps = 40)
+#    cp = rhombus_grab_points(n_steps = 40)
 
     # initialise View
     cpv = CreasePatternView(data = cp, show_cnstr = True)
