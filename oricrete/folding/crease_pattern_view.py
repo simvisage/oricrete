@@ -76,7 +76,7 @@ class CreasePatternView(HasTraits):
     # constrain datas
 
 
-    show_old_cnstr = Bool(False)
+    show_manual_cnstr = Bool(False)
 
 
 
@@ -174,48 +174,29 @@ class CreasePatternView(HasTraits):
         fixed_nodes = fixed_nodes.reshape(len(cnstr_fixed), 1)
         fixed_dir = fixed_dir.reshape(len(cnstr_fixed), 3)
 
-        # get connections on reale node indexes  
-        for i in cnstr_connect:
-            con = np.array([i[0][0], i[1][0]])
-            connect_nodes = np.append(connect_nodes, con)
-
-        connect_nodes = connect_nodes.reshape(len(cnstr_connect), 2)
-
-        # build an mask showing the nodes which are connected
-        mask = np.ones(len(self.data.nodes), dtype = np.int)
-        mask[connect_nodes[:, 0]] = 0
-        mask[connect_nodes[:, 1]] = 0
-
-        # build cn_c and translate cc_c from global indexing to an array 
-        # with index the effective cn_c array
-
-        cc_c = np.array(connect_nodes)
-        connect_nodes = np.array([], dtype = np.int)
-        countc = 0
-        for i in range(len(mask)):
-            if(mask[i] == 0):
-                cc_c[cc_c == i] = countc
-                connect_nodes = np.append(connect_nodes, i)
-                countc += 1
-
-        # build cd_c for all nodes in creasepattern
-
-        connect_dir = np.zeros((len(mask), 3))
-        for i in cnstr_connect:
-            connect_dir[i[0][0]][i[0][1]] = 1
-            connect_dir[i[1][0]][i[1][1]] = 1
-
+        # get connections on reale node indexes 
+        
+        c_nodes = np.array([], dtype = int)
+        c_dir = np.array([])
+        con = np.array([], dtype = int)
         count = 0
-
-        # delete all direction-array which are [0, 0, 0] and won't represent 
-        # a connected constrain
-        for i in range(len(mask)):
-            if (mask[i] == 1):
-                connect_dir = np.delete(connect_dir, count, 0)
-            else:
-                count += 1
-        # return ( cn_f, cd_f, cn_c, cc_c, cd_c, cn_l, cn_d)
-        return (fixed_nodes, fixed_dir, connect_nodes, cc_c, connect_dir,
+        for i in cnstr_connect:
+            c_nodes = np.append(c_nodes,i[0][0])
+            c_nodes = np.append(c_nodes,i[1][0])
+            vct1 = np.zeros((3,))
+            vct2 = np.zeros((3,))
+            vct1[i[0][1]] = 1
+            vct2[i[1][1]] = 1
+            c_dir = np.append(c_dir,vct1)
+            c_dir = np.append(c_dir,vct2)
+            c = np.array([count,count+1])
+            con = np.append(con,c)
+            count += 2 
+        
+        c_dir = c_dir.reshape((-1,3))
+        con = con.reshape((-1,2))
+            
+        return (fixed_nodes, fixed_dir, c_nodes, con, c_dir,
                 load_nodes, load_dir)
 
     def set_focal_point(self):
@@ -360,7 +341,7 @@ class CreasePatternView(HasTraits):
     def _get_cnstr_pipeline(self):
 
         nodes = self.data.nodes
-        if self.show_old_cnstr:
+        if self.show_manual_cnstr:
             # get constrains
             cn_f, cd_f, cn_c, cc_c, cd_c, cn_l, cd_l = self.cnstr
 
@@ -414,12 +395,12 @@ class CreasePatternView(HasTraits):
             # connected contrains
 
             cp_c = nodes[cn_c]
-
+            
             x, y, z = cp_c.T
-
+            
             U, V, W = cd_c.T * scale
             sU, sV, sW = cd_c.T * spacefactor
-
+            
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
@@ -442,10 +423,10 @@ class CreasePatternView(HasTraits):
             return []
 
     # when parameters are changed, plot is updated
-    @on_trait_change('fold_step, show_old_cnstr')
+    @on_trait_change('fold_step, show_manual_cnstr')
     def update_cnstr_pipeline(self):
         nodes = self.data.iteration_nodes[self.fold_step]
-        if self.show_old_cnstr:
+        if self.show_manual_cnstr:
 
             # update constrain symbols
 
@@ -575,7 +556,7 @@ class CreasePatternView(HasTraits):
     # The main view
     view1 = View(
            HSplit(Group(
-                             Group(Item('show_old_cnstr')),
+                             Group(Item('show_manual_cnstr')),
                              Group(Item('save_animation', show_label = False),
                                     Item('animation_file', show_label = False),
                                     ),
