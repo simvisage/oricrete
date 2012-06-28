@@ -500,6 +500,7 @@ class CreasePatternView(HasTraits):
 
     save_animation = Button
     animation_file = File
+    animation_steps = Int(1)
     def _animation_file_default(self):
         return os.path.join('fig', 'oricrete.gif')
 
@@ -510,38 +511,27 @@ class CreasePatternView(HasTraits):
         #===========================================================================
         tdir = tempfile.mkdtemp()
         n_steps = len(self.data.iteration_nodes)
-
-        steps_forward = range(n_steps)
-        steps_backward = range(n_steps, 2 * n_steps)
+        
+        steps = np.array([0])
+        while( (steps[-1] + self.animation_steps) < n_steps):
+            steps = np.append(steps,(steps[-1] + self.animation_steps))
+        
+        steps_forward = steps / self.animation_steps
+        steps_backward = steps_forward + len(steps)
         fnames_forward = [os.path.join(tdir, 'x%02d.jpg' % i)
                           for i in steps_forward ]
         fnames_backward = [os.path.join(tdir, 'x%02d.jpg' % i)
                            for i in steps_backward ]
 
-        nodes_history = self.data.iteration_nodes
-        for nodes, fname in zip(nodes_history, fnames_forward):
+        for step, fname in zip(steps, fnames_forward):
             # Array of current foldstep
-            x, y, z = nodes.T
-            self.plot.mlab_source.set(x = x, y = y, z = z)
-
-            if self.show_cnstr:
-                # set new position of constraints
-                cnstr = self.data.get_cnstr_pos(nodes)
-                x, y, z = cnstr.T[:3]
-                self.quiver3d.mlab_source.set(x = x, y = y, z = z)
+            self.fold_step = step
 
             self.scene.mlab.savefig(fname, size = (300, 200))
 
-        for nodes, fname in zip(nodes_history[-1::-1], fnames_backward):
+        for step, fname in zip(steps[::-1], fnames_backward):
             # Array of current foldstep
-            x, y, z = nodes.T
-            self.plot.mlab_source.set(x = x, y = y, z = z)
-
-            if self.show_cnstr:
-                # set new position of constraints
-                cnstr = self.data.get_cnstr_pos(nodes)
-                x, y, z = cnstr.T[:3]
-                self.quiver3d.mlab_source.set(x = x, y = y, z = z)
+            self.fold_step = step
 
             self.scene.mlab.savefig(fname, size = (300, 200))
 
@@ -564,6 +554,8 @@ class CreasePatternView(HasTraits):
                                    Item('z_raising', label = 'Z-Raising for Foldstep 1'),
                                    Item('raising_factor')),
                              Group(Item('save_animation', show_label = False),
+                                   Item('animation_steps', tooltip = 
+                                        'gives the distance of foldsteps between the frames (1 = every foldstep; 2 = every second foldstep; ...'),
                                     Item('animation_file', show_label = False),
                                     ),
                              Group(Item(name = 'ff_pipe_view',
