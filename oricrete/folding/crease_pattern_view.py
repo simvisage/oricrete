@@ -31,7 +31,7 @@ import tempfile
 import os
 import numpy as np
 import string
-
+import copy
 # own Modules
 from crease_pattern import CreasePattern
 from ff_view import FFView
@@ -75,12 +75,9 @@ class CreasePatternView(HasTraits):
     last_step = Int(0)
     # constrain datas
 
-
     show_manual_cnstr = Bool(False)
-
-
-
-
+    z_raising = Bool(False)
+    raising_factor = Float(1000.0)
     cnstr = Property
     @cached_property
     def _get_cnstr(self):
@@ -111,7 +108,7 @@ class CreasePatternView(HasTraits):
         - cd_l : direction (axes) of the load constrain [x, y, z]
         '''
         # get constrain information of the creasepattern
-        import copy
+        
 
         lhs = copy.deepcopy(self.data.cnstr_lhs)
         rhs = copy.deepcopy(self.data.cnstr_rhs)
@@ -308,19 +305,21 @@ class CreasePatternView(HasTraits):
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)
 
-    @on_trait_change('fold_step')
+    @on_trait_change('fold_step, z_raising, raising_factor')
     def update_cp_pipeline(self):
 
         # Array of current foldstep
         nodes = self.data.iteration_nodes[self.fold_step]
-        x, y, z = nodes.T
-
-        # Visualize the data 
+        x, y, z = copy.copy(nodes.T)
+        
+        # Raising factor for Foldstep 1
+        if( self.z_raising and (self.fold_step == 1)):
+            z *= self.raising_factor
 
         # set new position of 3D Points
-        self.cp_pipeline.mlab_source.set(x = x, y = y, z = z)
+        self.cp_pipeline.mlab_source.reset(x = x, y = y, z = z)
 
-    @on_trait_change('fold_step')
+    @on_trait_change('fold_step, z_raising, raising_factor')
     def update_grab_pts_pipeline(self):
         
         pts = np.array(self.data.grab_pts)
@@ -330,7 +329,9 @@ class CreasePatternView(HasTraits):
         n = pts[:, 0]
         nodes = self.data.iteration_nodes[self.fold_step]
         gp_nodes = nodes[n]
-        x, y, z = gp_nodes.T
+        x, y, z = copy.copy(gp_nodes.T)
+        if( self.z_raising and (self.fold_step == 1)):
+            z *= self.raising_factor
         self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
 
     #===============================================================================
@@ -423,7 +424,7 @@ class CreasePatternView(HasTraits):
             return []
 
     # when parameters are changed, plot is updated
-    @on_trait_change('fold_step, show_manual_cnstr')
+    @on_trait_change('fold_step, show_manual_cnstr, z_raising, raising_factor')
     def update_cnstr_pipeline(self):
         nodes = self.data.iteration_nodes[self.fold_step]
         if self.show_manual_cnstr:
@@ -446,7 +447,8 @@ class CreasePatternView(HasTraits):
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-
+            if( self.z_raising and (self.fold_step == 1)):
+                z *= self.raising_factor
             self.cnstr_pipeline.mlab_source.reset(x = x, y = y, z = z)
             self.cf_cross.mlab_source.reset(x = x, y = y, z = z)
 
@@ -461,7 +463,8 @@ class CreasePatternView(HasTraits):
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-
+            if( self.z_raising and (self.fold_step == 1)):
+                z *= self.raising_factor
             self.cl_arrow.mlab_source.reset(x = x, y = y, z = z)
 
             # connected constrains
@@ -475,19 +478,20 @@ class CreasePatternView(HasTraits):
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-
+            if( self.z_raising and (self.fold_step == 1)):
+                z *= self.raising_factor
             self.cc_arrow.mlab_source.reset(x = x, y = y, z = z)
             self.cc_arrow.mlab_source.dataset.lines = cc_c
 
 
-    @on_trait_change('show_old_cnstr')
+    @on_trait_change('show_manual_cnstr')
     def update_visible_cnstr_pipeline(self):
-            self.cnstr_pipeline.visible = self.show_old_cnstr
-            self.cf_cross.visible = self.show_old_cnstr
-            self.cl_arrow.visible = self.show_old_cnstr
-            self.cc_arrow.visible = self.show_old_cnstr
+            self.cnstr_pipeline.visible = self.show_manual_cnstr
+            self.cf_cross.visible = self.show_manual_cnstr
+            self.cl_arrow.visible = self.show_manual_cnstr
+            self.cc_arrow.visible = self.show_manual_cnstr
 
-            if not self.show_old_cnstr:
+            if not self.show_manual_cnstr:
                 self.cc_arrow.mlab_source.dataset.lines = []
 
     #===========================================================================
@@ -556,7 +560,9 @@ class CreasePatternView(HasTraits):
     # The main view
     view1 = View(
            HSplit(Group(
-                             Group(Item('show_manual_cnstr')),
+                             Group(Item('show_manual_cnstr'),
+                                   Item('z_raising', label = 'Z-Raising for Foldstep 1'),
+                                   Item('raising_factor')),
                              Group(Item('save_animation', show_label = False),
                                     Item('animation_file', show_label = False),
                                     ),
