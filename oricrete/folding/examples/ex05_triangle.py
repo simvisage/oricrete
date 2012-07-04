@@ -25,6 +25,7 @@ from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine
 import numpy as np
 import sympy as sp
+import thread
 
 # own Modules
 from oricrete.folding import \
@@ -224,7 +225,7 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.354828):
                    [8, 3]]
     
     cp.cnstr_lhs = [[(4, 1, 1.0)],
-                    [(5, 1, 1.0)],
+                    #[(5, 1, 1.0)],
                     [(4, 2, 1.0)],
                     [(5, 2, 1.0)],
                     [(6, 0, 1.0)],
@@ -232,6 +233,7 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.354828):
                     [(1, 1, 1.0), (3, 1, -1.0)],
                     #[(6, 2, 1.0)],
                     #[(6, 1, 1.0)]
+                    [(7, 0, 1.0), (8, 0, -1.0)],
                     [(7, 2, 1.0)],
                     [(7, 2, 1.0), (8, 2, -1.0)]
                     ]
@@ -359,8 +361,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
                 [0.5, 0.333, 0],
                 [0.5, 0.667, 0],
                 [1.5, 0.333, 0],
-                [1.5, 0.667, 0],
-                [0.4, 0.333, 0]]
+                [1.5, 0.667, 0]]
     
     cp.crease_lines = [[0, 2],
                        [0, 6],
@@ -396,12 +397,11 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     cp.grab_pts = [[10, 0],
                    [11, 5],
                    [12, 1],
-                   [13, 6],
-                   [14, 0]]
+                   [13, 6]]
     
     cp.cnstr_lhs = [[(6, 1, 1.0)],
                     [(6, 2, 1.0)],
-                    [(7, 1, 1.0)],
+                    #[(7, 1, 1.0)],
                     #[(0, 1, 1.0), (2, 1, -1.0)],
                     [(7, 2, 1.0)],
                     [(2, 0, 1.0)],
@@ -412,7 +412,8 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
                     [(10, 2, 1.0), (12, 2, -1.0)],
                     [(10, 2, 1.0), (13, 2, -1.0)],
                     [(10, 0, 1.0), (11, 0, -1.0)],
-                    [(10, 1, 1.0), (14, 1, -1.0)]
+                    [(10, 1, 1.0), (12, 1, -1.0)],
+                    [(0, 1, 1.0), (2, 1, -1.0)]
                     #[(12, 0, 1.0), (13, 0, -1.0)]
                     ]
 
@@ -431,7 +432,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
 #                    [(12, 2, 1.0), (13, 2, -1.0)]
 #                    ]
     
-    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0,dx, 0.0, 0.0,  0.0, 0.0, 0.0]
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     
     X0 = np.zeros((cp.n_dofs,), dtype = float)
     
@@ -492,8 +493,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                 [1.5, 0.333, 0],
                 [1.5, 0.667, 0],
                 [1.5, 1.333, 0],
-                [1.5, 1.667, 0],
-                [0.4, 0.333, 0]
+                [1.5, 1.667, 0]
                 ]
     
     cp.crease_lines = [[0, 3],
@@ -562,8 +562,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                    [21, 1],
                    [22, 6],
                    [23, 11],
-                   [24, 16],
-                   [25, 0]
+                   [24, 16]
                    ]
     
     cp.cnstr_lhs = [
@@ -626,7 +625,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
     X0[68] = 0.0002083  
     X0[71] = 0.0002083
     X0[74] = 0.0002083
-    X0[77] = 0.0002083
+
     
     X0 *= 1
 
@@ -1095,15 +1094,20 @@ if __name__ == '__main__':
 #    cp = triangle_cp_cnstr(n_steps = 40)
 #    cp = triangle_stick_cnstr(n_steps = 40)
 #    cp = twotriangle_stick_cnstr(n_steps = 40)
-#    cp = small_rhombus_grab_points(n_steps = 80)
+    cp = small_rhombus_grab_points(n_steps = 80)
 #    cp = small_rhombus_grab_stick(n_steps = 40)
 #    cp = two_rhombus_grab_points(n_steps = 40)
 #    cp = rhombus_2x2_grab_points(n_steps = 40)
 #    cp = rhombus_2x3_grab_points(n_steps = 40)
-    cp = rhombus_3x1_grab_points(n_steps = 40)
+#    cp = rhombus_3x1_grab_points(n_steps = 40)
 #    cp = rhombus_grab_points(n_steps = 40)
 
     # initialise View
+    
     cpv = CreasePatternView(data = cp, show_cnstr = True)
-
+    
     cpv.configure_traits()
+    
+        
+        
+    
