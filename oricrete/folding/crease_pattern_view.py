@@ -20,7 +20,6 @@ from etsproxy.mayavi.modules.api import Axes
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Bool, File, Array, List, Float
-
 from etsproxy.traits.ui.api import \
     View, Item, Group, ButtonEditor, RangeEditor, VGroup, HGroup, HSplit, Tabbed, \
     ViewSubElement, VGrid, Include, TreeEditor, TreeNode, Handler, ListEditor
@@ -499,22 +498,31 @@ class CreasePatternView(HasTraits):
     #===========================================================================
 
     save_animation = Button
-    animation_file = File
     animation_steps = Int(1)
+    single_frame = Int(-1)
+    animation_file = File
     def _animation_file_default(self):
         return os.path.join('fig', 'oricrete.gif')
 
     def _save_animation_fired(self):
+        self.animation_maker()
 
+    def animation_maker(self, frame = -1):
         #===========================================================================
         # Prepare plotting 
         #===========================================================================
+        if( frame == -1):
+            frame = self.single_frame
+        multiframe = True
         tdir = tempfile.mkdtemp()
         n_steps = len(self.data.iteration_nodes)
-        
         steps = np.array([0])
-        while( (steps[-1] + self.animation_steps) < n_steps):
-            steps = np.append(steps,(steps[-1] + self.animation_steps))
+        if( frame > -1 and frame < n_steps):
+            steps[0] = frame
+            multiframe = False
+        else:
+            while( (steps[-1] + self.animation_steps) < n_steps):
+                steps = np.append(steps,(steps[-1] + self.animation_steps))
         
         steps_forward = steps / self.animation_steps
         steps_backward = steps_forward + len(steps)
@@ -527,24 +535,28 @@ class CreasePatternView(HasTraits):
             # Array of current foldstep
             self.fold_step = step
 
-            self.scene.mlab.savefig(fname, size = (300, 200))
+            self.scene.mlab.savefig(fname, size = (500, 400))
 
-        for step, fname in zip(steps[::-1], fnames_backward):
-            # Array of current foldstep
-            self.fold_step = step
+        if(multiframe):
+            for step, fname in zip(steps[::-1], fnames_backward):
+                # Array of current foldstep
+                self.fold_step = step
+                self.scene.mlab.savefig(fname, size = (500, 400))
 
-            self.scene.mlab.savefig(fname, size = (300, 200))
-
-        fnames = fnames_forward + fnames_backward
+        fnames = fnames_forward
+        if( multiframe ):
+            fnames += fnames_backward
         images = string.join(fnames, ' ')
         destination = self.animation_file
-
+        
         import platform
         if platform.system() == 'Linux':
             os.system('convert ' + images + ' ' + destination)
         else:
             raise NotImplementedError, 'film production available only on linux'
         print 'animation saved in', destination
+       
+            
 
     # The layout of the dialog created
     # The main view
@@ -556,6 +568,7 @@ class CreasePatternView(HasTraits):
                              Group(Item('save_animation', show_label = False),
                                    Item('animation_steps', tooltip = 
                                         'gives the distance of foldsteps between the frames (1 = every foldstep; 2 = every second foldstep; ...'),
+                                    Item('single_frame', tooltip = 'choose a iterationstep for a single picture, else their will be an animation rendered'),
                                     Item('animation_file', show_label = False),
                                     ),
                              Group(Item(name = 'ff_pipe_view',
