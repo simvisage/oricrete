@@ -75,6 +75,10 @@ class CreasePattern(HasTraits):
     # first indize gives node, second gives the facet 
     grab_pts = List()
     
+    # points moveable only on a creaseline [n,cl]
+    # first indice gives the node, scond the cleaseline
+    line_pts = List()
+    
     # constrained node indices
     # define the pairs (node, dimension) affected by the constraint
     # stored in the constrained_x array
@@ -126,6 +130,11 @@ class CreasePattern(HasTraits):
     def _get_n_g(self):
         '''Number of Grabpoints'''
         return len(self.grab_pts)
+    
+    n_l = Property
+    def _get_n_l(self):
+        '''Number of line pts'''
+        return len(self.line_pts)
     
     n_d = Constant(3)
 
@@ -247,10 +256,10 @@ class CreasePattern(HasTraits):
         X = X_vct.reshape(self.n_n, self.n_d)
         Xj = X[j]
         Xi = X[i]
-
+        
         dR_i = -2 * self.c_vectors + 2 * Xi - 2 * Xj
         dR_j = 2 * self.c_vectors + 2 * Xj - 2 * Xi
-
+        
         dR = np.zeros((self.n_c, self.n_n, self.n_d), dtype = 'float_')
 
         # running crease line index
@@ -266,6 +275,63 @@ class CreasePattern(HasTraits):
         # in 3d.
         # 
         return dR.reshape(self.n_c, self.n_n * self.n_d)
+    
+    def get_line_R(self, X_vct):
+        line = np.array(self.line_pts)
+        if(len(line) == 0):
+            return []
+        cl = self.crease_lines[line[:,1]]
+        X = X_vct.reshape(self.n_n, self.n_d)
+        p0 = X[line[:,0]]
+        p1 = X[cl[:,0]]
+        p2 = X[cl[:,1]]
+        Rx = p0[:,2]*(p1[:,0] - p2[:,0]) + p1[:,2]*(p2[:,0] - p0[:,0]) + p2[:,2]*(p0[:,0] - p1[:,0])
+        Ry = p0[:,2]*(p1[:,1] - p2[:,1]) + p1[:,2]*(p2[:,1] - p0[:,1]) + p2[:,2]*(p0[:,1] - p1[:,1])
+        R = np.vstack([Rx, Ry])
+        
+        
+        return R.reshape((-1,))
+        
+    def get_line_dR(self, X_vct):
+        ''' Calculate the jacobian of the residuum at the instantaneous
+        configuration dR
+        '''
+        line = np.array(self.line_pts)
+        if(len(line) == 0):
+            return np.zeros((self.n_l * 2, self.n_dofs))
+        cl = self.crease_lines[line[:,1]]
+        X = X_vct.reshape(self.n_n, self.n_d)
+        p0 = X[line[:,0]]
+        p1 = X[cl[:,0]]
+        p2 = X[cl[:,1]]
+        dR = np.zeros((len(line) * 2, self.n_dofs))
+        
+        dRxz = p1[:,0] - p2[:,0]
+        dRxz1 = p2[:,0] - p0[:,0]
+        dRxz2 = p0[:,0] - p1[:,0]
+        dRyz = p1[:,1] - p2[:,1]
+        dRyz1 = p2[:,1] - p0[:,1]
+        dRyz2 = p0[:,1] - p1[:,1]
+        dRz = p2[:,2]- p1[:,2]
+        dRz1 = p0[:,2] - p2[:,2]
+        dRz2 = p1[:,2] - p0[:,2]
+        
+        for i in range(len(line)):
+            dR[i*2,line[i,0]*3] = dRz[i]
+            dR[i*2,cl[i,0]*3] = dRz1[i]
+            dR[i*2,cl[i,1]*3] = dRz2[i]
+            dR[i*2,line[i,0]*3+2] = dRxz[i]
+            dR[i*2,cl[i,0]*3 + 2] = dRxz1[i]
+            dR[i*2,cl[i,1]*3 + 2] = dRxz2[i]
+            
+            dR[i*2 +1,line[i,0]*3 +1] = dRz[i]
+            dR[i*2 +1,cl[i,0]*3 +1] = dRz1[i]
+            dR[i*2 +1,cl[i,1]*3 +1] = dRz2[i]
+            dR[i*2 +1,line[i,0]*3+2] = dRyz[i]
+            dR[i*2 +1,cl[i,0]*3 + 2] = dRyz1[i]
+            dR[i*2 +1,cl[i,1]*3 + 2] = dRyz2[i]
+        
+        return dR
     
     def get_cnstr_R(self, X_vct):
         ''' Calculate the residuum for given constraint equations
@@ -342,7 +408,8 @@ class CreasePattern(HasTraits):
         R = np.hstack([self.get_length_R(X_vct),
                           self.get_cnstr_R(X_vct),
                           self.get_cnstr_R_ff(X_vct, t),
-                          self.get_grab_R()
+                          self.get_grab_R(),
+                          self.get_line_R(X_vct)
                           ])
         return R
 
@@ -351,8 +418,9 @@ class CreasePattern(HasTraits):
         dR_fc = self.get_cnstr_dR(X_vct, t)
         dR_ff = self.get_cnstr_dR_ff(X_vct, t)
         dR_gp = self.get_grab_dR()
-
-        dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp ])
+        dR_lp = self.get_line_dR(X_vct)
+        
+        dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
         
         return dR
 
@@ -366,7 +434,7 @@ class CreasePattern(HasTraits):
     show_iter = Bool(False)
 
     def solve(self, X0):
-
+        
         # make a copy of the start vector
         X = np.copy(X0)
         
@@ -390,17 +458,21 @@ class CreasePattern(HasTraits):
                     print '==== converged in ', i, 'iterations ===='
                     self.set_next_node(X)
                     break
-                
-                dX = np.linalg.solve(dR, -R)
-                X += dX
-                if self.show_iter:
-                    self.set_next_node(X)
-                i += 1
+                try:
+                    dX = np.linalg.solve(dR, -R)
+                    X += dX
+                    if self.show_iter:
+                        self.set_next_node(X)
+                    i += 1
+                except:
+                    print '==== problems solving linalg in interation step %d  ====' % i
+                    return X 
             else:
                 print '==== did not converge in %d interations ====' % i
                 return X
 
         return X
+    
 
     t_arr = Property(depends_on = 'n_steps')
     @cached_property

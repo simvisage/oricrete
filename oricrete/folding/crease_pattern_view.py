@@ -442,12 +442,14 @@ class CreasePatternView(HasTraits):
             x, y, z = x[0], y[0], z[0]
             U, V, W = cd_f.T * scale
             sU, sV, sW = cd_f.T * spacefactor
-
+            
+            if( self.z_raising and (self.fold_step == 1)):
+                z *= self.raising_factor
+                
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-            if( self.z_raising and (self.fold_step == 1)):
-                z *= self.raising_factor
+            
             self.cnstr_pipeline.mlab_source.reset(x = x, y = y, z = z)
             self.cf_cross.mlab_source.reset(x = x, y = y, z = z)
 
@@ -458,12 +460,14 @@ class CreasePatternView(HasTraits):
             x, y, z = x[0], y[0], z[0]
             U, V, W = cd_l.T * scale
             sU, sV, sW = cd_l.T * spacefactor
-
+            
+            if( self.z_raising and (self.fold_step == 1)):
+                z *= self.raising_factor
+                
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-            if( self.z_raising and (self.fold_step == 1)):
-                z *= self.raising_factor
+            
             self.cl_arrow.mlab_source.reset(x = x, y = y, z = z)
 
             # connected constrains
@@ -473,12 +477,14 @@ class CreasePatternView(HasTraits):
 
             U, V, W = cd_c.T * scale
             sU, sV, sW = cd_c.T * spacefactor
-
+            
+            if( self.z_raising and (self.fold_step == 1)):
+                z *= self.raising_factor
+                
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-            if( self.z_raising and (self.fold_step == 1)):
-                z *= self.raising_factor
+           
             self.cc_arrow.mlab_source.reset(x = x, y = y, z = z)
             self.cc_arrow.mlab_source.dataset.lines = cc_c
 
