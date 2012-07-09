@@ -282,14 +282,23 @@ class CreasePattern(HasTraits):
             return []
         cl = self.crease_lines[line[:,1]]
         X = X_vct.reshape(self.n_n, self.n_d)
-        p0 = X[line[:,0]]
-        p1 = X[cl[:,0]]
-        p2 = X[cl[:,1]]
-        Rx = p0[:,2]*(p1[:,0] - p2[:,0]) + p1[:,2]*(p2[:,0] - p0[:,0]) + p2[:,2]*(p0[:,0] - p1[:,0])
-        Ry = p0[:,2]*(p1[:,1] - p2[:,1]) + p1[:,2]*(p2[:,1] - p0[:,1]) + p2[:,2]*(p0[:,1] - p1[:,1])
+        p0 = self.nodes[line[:,0]]
+        p1 = self.nodes[cl[:,0]]
+        p2 = self.nodes[cl[:,1]]
+        dp0 = X[line[:,0]]
+        dp1 = X[cl[:,0]]
+        dp2 = X[cl[:,1]]
+        Rx = (p0[:,2]*(p1[:,0] + dp1[:,0] - p2[:,0] - dp2[:,0])+
+              dp0[:,2]*(p1[:,0] + dp1[:,0] - p2[:,0] - dp2[:,0])+
+              p1[:,2]*(p2[:,0] + dp2[:,0] - p0[:,0] - dp0[:,0])+
+              dp1[:,2]*(p2[:,0] + dp2[:,0] - p0[:,0] - dp0[:,0])+
+              p2[:,2]*(p0[:,0] + dp0[:,0] - p1[:,0] - dp1[:,0]))
+        Ry = (p0[:,2]*(p1[:,1] + dp1[:,1] - p2[:,1] - dp2[:,1])+
+              dp0[:,2]*(p1[:,1] + dp1[:,1] - p2[:,1] - dp2[:,1])+
+              p1[:,2]*(p2[:,1] + dp2[:,1] - p0[:,1] - dp0[:,1])+
+              dp1[:,2]*(p2[:,1] + dp2[:,1] - p0[:,1] - dp0[:,1])+
+              p2[:,2]*(p0[:,1] + dp0[:,1] - p1[:,1] - dp1[:,1]))
         R = np.vstack([Rx, Ry])
-        
-        
         return R.reshape((-1,))
         
     def get_line_dR(self, X_vct):
@@ -301,20 +310,23 @@ class CreasePattern(HasTraits):
             return np.zeros((self.n_l * 2, self.n_dofs))
         cl = self.crease_lines[line[:,1]]
         X = X_vct.reshape(self.n_n, self.n_d)
-        p0 = X[line[:,0]]
-        p1 = X[cl[:,0]]
-        p2 = X[cl[:,1]]
+        p0 = self.nodes[line[:,0]]
+        p1 = self.nodes[cl[:,0]]
+        p2 = self.nodes[cl[:,1]]
+        dp0 = X[line[:,0]]
+        dp1 = X[cl[:,0]]
+        dp2 = X[cl[:,1]]
         dR = np.zeros((len(line) * 2, self.n_dofs))
         
-        dRxz = p1[:,0] - p2[:,0]
-        dRxz1 = p2[:,0] - p0[:,0]
-        dRxz2 = p0[:,0] - p1[:,0]
-        dRyz = p1[:,1] - p2[:,1]
-        dRyz1 = p2[:,1] - p0[:,1]
-        dRyz2 = p0[:,1] - p1[:,1]
-        dRz = p2[:,2]- p1[:,2]
-        dRz1 = p0[:,2] - p2[:,2]
-        dRz2 = p1[:,2] - p0[:,2]
+        dRxz = p1[:,0] + dp1[:,0] - p2[:,0] - dp2[:,0]
+        dRxz1 = p2[:,0] + dp2[:,0] - p0[:,0] - dp0[:,0]
+        dRxz2 = p0[:,0] + dp0[:,0] - p1[:,0] - dp1[:,0]
+        dRyz = p1[:,1] + dp1[:,0] - p2[:,1] - dp2[:,0]
+        dRyz1 = p2[:,1] + dp2[:,0] - p0[:,1] - dp0[:,0]
+        dRyz2 = p0[:,1] + dp0[:,0] - p1[:,1] - dp1[:,0]
+        dRz = p2[:,2] + dp2[:,0] - p1[:,2] - dp1[:,0]
+        dRz1 = p0[:,2] + dp0[:,0] - p2[:,2] - dp2[:,0]
+        dRz2 = p1[:,2] + dp1[:,0] - p0[:,2] - dp0[:,0]
         
         for i in range(len(line)):
             dR[i*2,line[i,0]*3] = dRz[i]
