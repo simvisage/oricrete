@@ -19,6 +19,7 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
 
 import numpy as np
+import sys
 
 class CreasePattern(HasTraits):
     '''
@@ -475,11 +476,15 @@ class CreasePattern(HasTraits):
                 try:
                     dX = np.linalg.solve(dR, -R)
                     X += dX
-                    if self.show_iter:
+                    if self.show_iter and i < 10:
                         self.set_next_node(X)
+                        print'X%d:' % i
+                        print X.reshape((-1,3))
                     i += 1
-                except:
+                except Exception as inst:
                     print '==== problems solving linalg in interation step %d  ====' % i
+                    print '==== Exception message: ',inst
+                    self.set_next_node(X)
                     return X 
             else:
                 print '==== did not converge in %d interations ====' % i
