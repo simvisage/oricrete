@@ -62,6 +62,8 @@ class CreasePatternView(HasTraits):
         fkt_bb = minbb / 5
         fkt_c_length = np.min(self.data.c_lengths) / 2
         minfkt = np.max([fkt_bb, fkt_c_length])
+        if(minfkt > 1):
+            minfkt = 0.3
         return minfkt
 
     # range of fold steps
@@ -570,7 +572,8 @@ class CreasePatternView(HasTraits):
            HSplit(Group(
                              Group(Item('show_manual_cnstr'),
                                    Item('z_raising', label = 'Z-Raising for Foldstep 1'),
-                                   Item('raising_factor')),
+                                   Item('raising_factor'),
+                                   Item('scalefactor')),
                              Group(Item('save_animation', show_label = False),
                                    Item('animation_steps', tooltip = 
                                         'gives the distance of foldsteps between the frames (1 = every foldstep; 2 = every second foldstep; ...'),
