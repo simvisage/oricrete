@@ -31,7 +31,7 @@ import thread
 from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
 
-def line_test(n_steps = 10, dx = 1.5):
+def halfcrane_1stick(n_steps = 10, dx = 1.5):
     
     """
         
@@ -39,12 +39,68 @@ def line_test(n_steps = 10, dx = 1.5):
 
     cp = CreasePattern(n_steps = n_steps)
 
-    cp.nodes = [[ 0, 0, 0.5 ],
-                [ 1, 0, 1.0 ],
+    cp.nodes = [[ 0, 0, 1.0 ],
+                [ 1, 0, 1.5 ],
+                [ 0.5, 0.0, 0.0],
+                [ 0.6, 0, 1.3]]
+
+    cp.crease_lines = [[ 0, 1 ],
+                       [ 2, 3 ]
+                       ]
+    
+    cp.facets = [[0, 1, 3]]
+
+    cp.grab_pts = []
+    
+    cp.line_pts = [[3, 0],
+                   #[4, 0]
+                   ]
+    
+    cp.cnstr_lhs = [[(1, 2, 1.0)],
+                    [(1, 0, 1.0)],
+                    [(1, 1, 1.0)],
+                    [(0, 2, 1.0)],
+                    [(0, 1, 1.0)],
+                    [(2, 0, 1.0)],
+                    [(2, 1, 1.0)],
+                    [(2, 2, 1.0)]
+                    ]
+
+    cp.cnstr_rhs = [dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    
+    X = np.zeros((cp.n_dofs,), dtype = float)
+    X[5] = 0.0001
+    X[9] = 0.0001
+   # X[10] = 0.01
+  #  X[11] = 0.01
+    X *= 1
+    cp.set_next_node(X)
+    print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
+    print 'cnstr', len(cp.cnstr_lhs)
+    
+    print 'initial R\n', cp.get_R(X)
+    print 'initial dR\n', cp.get_dR(X)
+    #cp.show_iter = True
+    X = cp.solve(X)
+
+    
+    
+    return cp
+
+def halfcrane_2sticks(n_steps = 10, dx = 1.5):
+    
+    """
+        
+    """
+
+    cp = CreasePattern(n_steps = n_steps, MAX_ITER = 5000)
+    
+    cp.nodes = [[ 0, 0, 1.0 ],
+                [ 1, 0, 1.15 ],
                 [ 0.5, 0.5, -0.5],
                 [ 0.5, -0.5, -0.5],
                # [ 0.5, 0, 0.75],
-                [ 0.5, 0, 0.75]]
+                [ 0.5, 0, 1.075]]
 
     cp.crease_lines = [[ 0, 1 ],
                        [ 2, 4 ],
@@ -76,20 +132,82 @@ def line_test(n_steps = 10, dx = 1.5):
     X[9] = 0.0001
    # X[10] = 0.01
   #  X[11] = 0.01
+    X *= 1
+    print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
+    print 'cnstr', len(cp.cnstr_lhs)
     
-    print 'initial lengths\n', cp.c_lengths
-    print 'initial vectors\n', cp.c_vectors
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
-    cp.show_iter = True
+    #cp.show_iter = True
     X = cp.solve(X)
 
-    print '========== results =============='
-    print 'solution X\n', X
-    print 'final positions\n', cp.get_new_nodes(X)
-    print 'final vectors\n', cp.get_new_vectors(X)
-    print 'final lengths\n', cp.get_new_lengths(X)
+    return cp
+
+def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
     
+    """
+        
+    """
+
+    cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
+    
+    cp.nodes = [[ 0, 0, 1.0 ],
+                [ 1, 0, 1.15 ],
+                #[ 0.5, 0.5, -0.5],
+               # [ 0.5, -0.5, -0.5],
+               # [ 0.5, 0, 0.75],
+                [ 0.6, 0, 1.09],
+                [ 0.6, 0.5, 1.09],
+                [ 0.6, -0.5, 1.09]]
+
+    cp.crease_lines = [[ 0, 1 ],
+                       [ 2, 3],
+                       [ 2, 4],
+                       #[ 2, 5 ],
+                       #[ 3, 6]
+                       ]
+    
+    cp.facets = [[0, 1, 2]]
+
+    cp.grab_pts = []
+    
+    cp.line_pts = [[2, 0],
+                   #[4, 0]
+                   ]
+    
+    cp.cnstr_lhs = [[(1, 2, 1.0)],
+                    [(1, 0, 1.0)],
+                    [(1, 1, 1.0)],
+                    [(0, 2, 1.0)],
+                    [(0, 1, 1.0)],
+                    #[(2, 0, 1.0), (3, 0, -1.0) ],
+                    #[(3, 1, 1.0)],
+                    #[(2, 2, 1.0), (3, 2, -1.0)],
+                    #[(3, 2, 1.0)],
+                   # [(3, 0, 1.0)],
+                    [(3, 2, 1.0)],
+                    [(2, 0, 1.0), (3, 0, -1.0)],
+                    [(2, 0, 1.0), (4, 0, -1.0)],
+                    [(2, 2, 1.0), (3, 2, -1.0)],
+                    [(2, 2, 1.0), (4, 2, -1.0)],
+                    ]
+
+    cp.cnstr_rhs = [dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    
+    X = np.zeros((cp.n_dofs,), dtype = float)
+    X[5] = 0.0001
+    X[9] = 0.0001
+   # X[10] = 0.01
+  #  X[11] = 0.01
+    X *= 1
+    print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
+    print 'cnstr', len(cp.cnstr_lhs)
+    cp.set_next_node(X)
+    print 'initial R\n', cp.get_R(X)
+    print 'initial dR\n', cp.get_dR(X)
+    #cp.show_iter = True
+    X = cp.solve(X)
+
     return cp
 
 def line_test_crane(n_steps = 10, dx = 1.0):
@@ -100,15 +218,15 @@ def line_test_crane(n_steps = 10, dx = 1.0):
 
     cp = CreasePattern(n_steps = n_steps)
 
-    cp.nodes = [[0.8, 0.333, 0],
-                [0.8, 0.667, 0],
-                [2.2, 0.333, 0],
-                [2.2, 0.667, 0],
-                [1.5, 0.5, 1.1],
+    cp.nodes = [[0.75, 0.333, 0],
+                [0.75, 0.667, 0],
+                [2.25, 0.333, 0],
+                [2.25, 0.667, 0],
+                [1.5, 0.5, 1.5],
                 [0, 0.5, 1],
                 [3, 0.5, 1],
-                [0.8, 0.5, 1.0533],
-                [2.2, 0.5, 1.0533]
+                [0.8, 0.5, 1.266],
+                [2.2, 0.5, 1.266]
 #                [0.8, 0.333, 1.0533],
 #                [0.8, 0.667, 1.0533],
 #                [2.2, 0.333, 1.0533],
@@ -139,8 +257,9 @@ def line_test_crane(n_steps = 10, dx = 1.0):
                    [8, 1]]
     
     cp.cnstr_lhs = [[(4, 2, 1.0)],
-                    [(0, 1, 1.0)],
+                    #[(0, 1, 1.0)],
                     [(4, 0, 1.0)],
+                    #[(4, 1, 1.0)],
                     [(5, 1, 1.0)],
                     [(5, 2, 1.0)],
                     [(6, 1, 1.0)],
@@ -158,8 +277,10 @@ def line_test_crane(n_steps = 10, dx = 1.0):
                     [(0, 0, 1.0), (1, 0, -1.0)],
                     [(2, 2, 1.0), (3, 2, -1.0)],
                     [(2, 0, 1.0), (3, 0, -1.0)],
-                    [(7, 2, 1.0), (8, 2, -1.0)],
+                    [(2, 1, 1.0), (3, 1, -1.0)],
                     [(0, 0, 1.0)],
+                    [(2, 1, 1.0)],
+                    [(0, 1, 1.0)],
                     [(2, 0, 1.0)],
                     [(0, 2, 1.0)],
                     [(2, 2, 1.0)],
@@ -207,17 +328,17 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.0):
                 [1.5, 0.667, 0],
                 [2.5, 0.333, 0],
                 [2.5, 0.666, 0],
-                [1.5, 0.5, 1.1],
+                [1.5, 0.5, 1.5],
                 [0, 0.5, 1],
                 [3, 0.5, 1],
-                [0.8, 0.5, 1.0533],
-                [2.2, 0.5, 1.0533],
-                [0.8, 0.333, 1.0533],
-                [0.8, 0.667, 1.0533],
-                [2.2, 0.333, 1.0533],
-                [2.2, 0.667, 1.0533],
-                [1.5, 0.333, 1.1],
-                [1.5, 0.667, 1.1]
+                [0.8, 0.5, 1.266],
+                [2.2, 0.5, 1.266],
+                [0.8, 0.333, 1.266],
+                [0.8, 0.667, 1.266],
+                [2.2, 0.333, 1.266],
+                [2.2, 0.667, 1.266],
+                [1.5, 0.333, 1.5],
+                [1.5, 0.667, 1.5]
                 ]
     
     cp.crease_lines = [[0, 2],  #0
@@ -307,7 +428,7 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.0):
                     [(23, 0, 1.0), (27, 0, -1.0)],
                     [(23, 2, 1.0), (26, 2, -1.0)],
                     [(23, 2, 1.0), (27, 2, -1.0)],
-                    [(22, 2, 1.0), (23, 2, -1.0)],
+                    [(13, 2, 1.0), (17, 2, -1.0)],
                     
                     [(8, 2, 1.0)],
                     [(8, 1, 1.0)],
@@ -363,7 +484,7 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.0):
     X0[89] = 0.00025
     X0 *= 1
     
-    # np.set_printoptions(threshold='nan')
+    np.set_printoptions(threshold='nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
     
@@ -376,18 +497,20 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    #cp.show_iter = True 
-     
-    X = cp.solve(X0)
+    
+    cp.show_iter = True 
+    #X = cp.solve(X0)
     #print'Iterationnodes', cp.iteration_nodes  
     return cp
 
 
 
 if __name__ == '__main__':
-#    cp = line_test(n_steps = 40)
-    cp = line_test_crane(n_steps = 40)
-#    cp = rhombus_3x1_grab_points(n_steps = 80)
+#    cp = halfcrane_1stick(n_steps = 40)
+#    cp = halfcrane_2sticks(n_steps = 40)
+#    cp = halfcrane_2sticks_bar(n_steps = 40)
+#    cp = line_test_crane(n_steps = 40)
+    cp = rhombus_3x1_grab_points(n_steps = 80)
 
 
     # initialise View
