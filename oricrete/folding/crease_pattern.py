@@ -301,7 +301,12 @@ class CreasePattern(HasTraits):
               dp1[:,2]*(p2[:,1] + dp2[:,1] - p0[:,1] - dp0[:,1])+
               p2[:,2]*(p0[:,1] + dp0[:,1] - p1[:,1] - dp1[:,1])+
               dp2[:,2]*(p0[:,1] + dp0[:,1] - p1[:,1] - dp1[:,1]))
-        R = np.vstack([Rx, Ry])
+        
+        R = np.zeros((len(Rx)*2,))
+        for i in range(len(Rx)):
+            R[i*2] = Rx[i]
+            R[i*2 + 1] = Ry[i] 
+        
         return R.reshape((-1,))
         
     def get_line_dR(self, X_vct):
