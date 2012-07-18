@@ -62,8 +62,6 @@ class CreasePatternView(HasTraits):
         fkt_bb = minbb / 5
         fkt_c_length = np.min(self.data.c_lengths) / 2
         minfkt = np.max([fkt_bb, fkt_c_length])
-        if(minfkt > 1):
-            minfkt = 0.3
         return minfkt
 
     # range of fold steps
