@@ -215,6 +215,7 @@ class CreasePatternView(HasTraits):
         #self.update_ff_view()
         self.set_focal_point()
         self.update_grab_pts_pipeline()
+        self.update_line_pts_pipeline()
 
     cp_pipeline = Property(Instance(PipelineBase))
     @cached_property
@@ -239,6 +240,9 @@ class CreasePatternView(HasTraits):
             self.scene.mlab.pipeline.surface(cp_pipe, color = (0.6, 0.6, 0.6))
         else:
             cp_pipe = self.scene.mlab.points3d(x, y, z, scale_factor = 0.2)
+            cp_pipe.mlab_source.dataset.lines = self.data.crease_lines
+            tube = self.scene.mlab.pipeline.tube(cp_pipe, tube_radius = 0.1 * self.scalefactor)
+            self.scene.mlab.pipeline.surface(tube, color = (1.0, 1.0, 0.9))
         return cp_pipe
 
     # @todo: make dependent on iteration nodes.
@@ -277,6 +281,17 @@ class CreasePatternView(HasTraits):
         x, y, z = pts.T
         grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.25, color = (0.0, 1.0, 1.0))
         return grab_pts_pipeline
+    
+    line_pts_pipeline = Property(Instance(PipelineBase), depends_on = 'data')
+    @cached_property
+    def _get_line_pts_pipeline(self):
+        pts = np.array(self.data.line_pts)
+        n = pts[:, 0]
+        pts = self.data.nodes[n]
+        
+        x, y, z = pts.T
+        line_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.25, color = (1.0, 0.0, 0.0))
+        return line_pts_pipeline
         
     # Pipeline visualizing fold faces
     ff_pipe_view = Property(List(FFView), depends_on = 'data')
@@ -332,6 +347,21 @@ class CreasePatternView(HasTraits):
         if( self.z_raising and (self.fold_step == 1)):
             z *= self.raising_factor
         self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
+        
+    @on_trait_change('fold_step, z_raising, raising_factor')
+    def update_line_pts_pipeline(self):
+        
+        pts = np.array(self.data.line_pts)
+        if len(pts) == 0:
+            return
+        
+        n = pts[:, 0]
+        nodes = self.data.iteration_nodes[self.fold_step]
+        lp_nodes = nodes[n]
+        x, y, z = copy.copy(lp_nodes.T)
+        if( self.z_raising and (self.fold_step == 1)):
+            z *= self.raising_factor
+        self.line_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
 
     #===============================================================================
     # Pipelines for OLD constrain visualization
@@ -541,13 +571,13 @@ class CreasePatternView(HasTraits):
             # Array of current foldstep
             self.fold_step = step
 
-            self.scene.mlab.savefig(fname, size = (500, 400))
+            self.scene.mlab.savefig(fname, size = (800, 600))
 
         if(multiframe):
             for step, fname in zip(steps[::-1], fnames_backward):
                 # Array of current foldstep
                 self.fold_step = step
-                self.scene.mlab.savefig(fname, size = (500, 400))
+                self.scene.mlab.savefig(fname, size = (800, 600))
 
         fnames = fnames_forward
         if( multiframe ):

@@ -576,7 +576,41 @@ class CreasePattern(HasTraits):
         pts_l = None
         con_l = None
         return (pts_l, con_l, pts_p, faces_p)
-
+    
+    def get_line_position(self, i):
+        if(len(self.line_pts) == 0 ):
+            print ' NO LINE POINTS'
+            return
+        
+        for p in range(len(self.iteration_nodes)):
+            cl = self.crease_lines[self.line_pts[i][1]]
+            p1 = self.iteration_nodes[p][cl[0]]
+            p2 = self.iteration_nodes[p][cl[1]]
+            p0 = self.iteration_nodes[p][self.line_pts[i][0]]
+            
+            try:
+                rx = (p0[0]- p1[0]) / (p2[0] - p1[0])
+            except:
+                rx = 0
+            try:
+                ry = (p0[1]- p1[1]) / (p2[1] - p1[1])
+            except:
+                ry = 0
+            try:
+                rz = (p0[2]- p1[2]) / (p2[2] - p1[2])
+            except:
+                rz = 0
+            
+            if(rx != 0):
+                r = rx
+            elif ( ry != 0):
+                r = ry
+            else:
+                r = rz
+                
+            print 'Step ', p, ': r = ', r
+            
+        
 if __name__ == '__main__':
 
     # trivial example with a single triangle positioned 
