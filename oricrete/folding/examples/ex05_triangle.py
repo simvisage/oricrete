@@ -32,6 +32,15 @@ from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
 
 def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
+    
+    """
+        This example demonstrates the main funtions of Grabpoints.
+        Two Grabpoints are integrated in a single triangle.
+        Grabpoint one is used as regulare constrain moved in z-direction.
+        Grabpoint two is used as control point, which gives back the coordinations of
+        an exact point on the face in every iteration step.
+        
+    """
 
     cp = CreasePattern(n_steps = n_steps)
 
@@ -39,7 +48,7 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
                 [ 1, 0, 0 ],
                 [ 1, 1, 0],
                 [0.667, 0.333, 0],
-                [0.1, 0.05, 0]]
+                [0.2, 0.1, 0]]
 
     cp.crease_lines = [[ 0, 1 ],
                        [ 1, 2 ],
@@ -68,7 +77,7 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
-    X = cp.solve(X)
+#    X = cp.solve(X)
 
     print '========== results =============='
     print 'solution X\n', X
@@ -79,7 +88,11 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     return cp
 
 def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
-
+    """
+        This example shows new options of lines, as beams connected to grabpoints.
+        This could be usefull for simulation the crane lifting up the oricrete construction.
+        
+    """
     cp = CreasePattern(n_steps = n_steps)
 
     cp.nodes = [[ 0, 0, 0 ],
@@ -131,6 +144,9 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     return cp
 
 def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
+    """
+        This example shows the use of Grabpoints an Sticks in a more complex creasepattern.
+    """
 
     cp = CreasePattern(n_steps = n_steps)
 
@@ -187,8 +203,16 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     
     return cp
 
-def small_rhombus_grab_points(n_steps = 10, dx = 0.354828):
-    
+def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
+    """
+        This example shows a 1x1 rhombus creasepattern with grabpoinst for movement.
+        The creasepattern should give first rules for possible movements of the creasepattern
+        under a standard bearing. The Intetion is to hold the endpoints of the
+        middelline on an fixed z-plane and y-plane and to hold the system in one point in 
+        x-direction. So it can lift up while the endpoints are moving against the point
+        fixed in x-direction.
+        Now their should be as many constrains as possible build up over the grabpoints. 
+    """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
     cp.nodes = [[0, 0, 0],
@@ -230,7 +254,7 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.354828):
                     [(5, 2, 1.0)],
                     [(6, 0, 1.0)],
                     [(0, 1, 1.0), (2, 1, -1.0)],
-                    [(1, 1, 1.0), (3, 1, -1.0)],
+                    [(7, 1, 1.0), (8, 1, 1.0)],
                     #[(6, 2, 1.0)],
                     #[(6, 1, 1.0)]
                     [(7, 0, 1.0), (8, 0, -1.0)],
@@ -266,7 +290,9 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.354828):
     return cp
 
 def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
-    
+    """
+        See small_rhombus_grab_points. System is only extended with some beams.
+    """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
     cp.nodes = [[0, 0, 0],
@@ -345,6 +371,11 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
     return cp
 
 def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
+    """
+        This example shows a 2x1 rhombus creasepattern.
+        It shows how an enlargement of the creasepattern
+        can reduce constrains.  
+    """
     
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
@@ -466,7 +497,12 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     return cp
 
 def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
-    
+    """
+        This example shows a 2x2 rhombus creasepattern.
+        It shows how a secon row stabilise the behavior
+        of the creasepattern, so the constrains on systempoints
+        can be reduced to a minimum.
+    """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
     cp.nodes = [[0, 0, 0],
@@ -593,8 +629,8 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                     
                    # [(17, 1, 1.0), (25, 1, -1.0)],
                     [(17, 2, 1.0), (20, 2, -1.0)],
-                    [(17, 2, 1.0), (23, 2, -1.0)],
-                    [(17, 2, 1.0), (24, 2, -1.0)]
+                    [(19, 1, 1.0), (23, 1, -1.0)],
+                    [(17, 0, 1.0), (20, 0, -1.0)]
                     
                     #[(17, 0, 1.0), (18, 0, -1.0)]
                     ]
@@ -647,7 +683,11 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
     return cp
 
 def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
-    
+    """
+        This example shows a 2x3 rhombus creasepattern.
+        It gives exact rules constrain design for an
+        unlimited expansion in y-direction.
+    """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
     cp.nodes = [[0, 0, 0],
@@ -868,8 +908,13 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
     X = cp.solve(X0)
     return cp
 
-def rhombus_3x1_grab_points(n_steps = 10, dx = 1.0):
-    
+def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
+    """
+        This example shows a 3x1 rhombus creasepattern.
+        In this creasepattern, the grabpoints lift up
+        in different speeds. So their must be new rules
+        defined for constrain setup. 
+    """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
     cp.nodes = [[0, 0, 0],
@@ -1006,101 +1051,129 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.0):
     X = cp.solve(X0)
     return cp
 
-
-def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
-
-    cp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              z0_ratio = 0.01,
-                              show_iter = False,
+def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
+    """
+        This example shows a 3x2 rhombus creasepattern.
+         
+    """
+    cpr = RhombusCreasePattern(n_steps = n_steps,
+                              L_x = 3,
+                              L_y = 2,
+                              n_x = 3,
+                              n_y = 4,
                               MAX_ITER = 500)
-
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
     
-                                        
-    cp.grab_pts = [[13, 1],
-                   [14, 8],
-                   [15, 0],
-                   [16, 7],
-                   [17, 2],
-                   [18, 9],
+    X_rcp = cpr.generate_X0()
+    X_rcp = X_rcp.reshape((-1,3))
+    X_rcp[:,2] += 0.15
+    print 'X_rcp', X_rcp
+    
+    cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
+    
+    cp.nodes = cpr.nodes
+    
+    cp.crease_lines = cpr.crease_lines
+    
+    cp.facets = cpr.facets
+    
+    grab_nodes = [[0.5, 0.333, 0],#22
+                  [0.5, 0.667, 0],
+                  [0.5, 1.333, 0],
+                  [0.5, 1.667, 0],
+                  [1.5, 0.333, 0],
+                  [1.5, 0.667, 0],
+                  [1.5, 1.333, 0],
+                  [1.5, 1.667, 0],
+                  [2.5, 0.333, 0],
+                  [2.5, 0.666, 0],
+                  [2.5, 1.333, 0],
+                  [2.5, 1.667, 0]]
+    
+    cp.nodes = np.vstack([cp.nodes,grab_nodes])
+    
+    cp.grab_pts = [
+                   [22, 0],
+                   [23, 14],
+                   [26, 2],
+                   [27, 16],
+                   [30, 4],
+                   [31, 18],
+                   [24, 1],
+                   [25, 15],
+                   [28, 3],
+                   [29, 17],
+                   [32, 5],
+                   [33, 19]
                    ]
     
-    cp.cnstr_lhs = [[(19, 0, 1.0)],
-                    [(19, 1, 1.0)],
-                    [(19, 2, 1.0)],
-                    [(22, 1, 1.0)],
-                    [(22, 2, 1.0)],
-                    [(23, 1, 1.0)],
-                    [(23, 2, 1.0)],
-                    [(20, 1, 1.0)],
-                    [(20, 1, 1.0)],
-                    [(20, 0, 1.0), (22, 0, -0.5)],
-                    [(21, 0, 1.0), (23, 0, -0.5)],
-                    [(20, 2, 1.0), (19, 2, -0.5)],
-                    [(21, 2, 1.0), (19, 2, -0.5)],
-                    # Cnstr for CP
-                    [(8, 1, 1.0)],
-                    [(8, 2, 1.0)],
-                    [(9, 1, 1.0)],
-                    [(9, 2, 1.0)],
-                    [(11, 0, 1.0)]
-                    ]
-    dx = 1.0
-    cp.cnstr_rhs = [0.0,
-                    0.0,
-                    dx,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
+    cp.cnstr_lhs = [[(12, 2, 1.0)],
+                    [(13, 2, 1.0)],
+                    [(14, 2, 1.0)],
+                    [(15, 2, 1.0)],
+                    [(1, 1, 1.0)],
+                    [(18, 0, 1.0)],
+                    
+                    [(26, 2, 1.0)],
+                    [(26, 2, 1.0), (27, 2, -1.0)],
+                    [(26, 2, 1.0), (28, 2, -1.0)],
+                    [(26, 2, 1.0), (29, 2, -1.0)],
+                    [(22, 2, 1.0), (23, 2, -1.0)],
+                    [(22, 2, 1.0), (24, 2, -1.0)],
+                    [(22, 2, 1.0), (25, 2, -1.0)],
+                    [(30, 2, 1.0), (31, 2, -1.0)],
+                    [(3, 2, 1.0), (6, 2, -1.0)],
+                    [(22, 2, 1.0), (30, 2, -1.0)],
+                    [(22, 1, 1.0), (26, 1, -1.0)]
+                    
                     ]
     
-    X0 = cp.generate_X0()
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    
+    
+    X_ext = np.zeros((cp.n_g * cp.n_d,), dtype = float)
+    X0 = np.hstack([X_rcp.reshape((-1,)), X_ext])
+    
+    X0[68] = 0.3059
+    X0[71] = 0.3059
+    X0[74] = 0.3059
+    X0[77] = 0.3059
+    X0[80] = 0.4389
+    X0[83] = 0.4389
+    X0[86] = 0.4389
+    X0[89] = 0.4389
+    X0[92] = 0.3059
+    X0[95] = 0.3059
+    X0[98] = 0.3059
+    X0[101] = 0.3059
+    
+    X0 *= 0.01
+    print 'dR', cp.get_dR(X0)
+    print 'R', cp.get_R(X0)
     
     cp.set_next_node(X0)
 
+    print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
-    print 'necessary constraints', cp.n_dofs - cp.n_c
+    print 'n_g', cp.n_g
+    print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-
-    X_vct = cp.solve(X0)
-
+    #cp.show_iter = True    
+    X = cp.solve(X0)
     return cp
+
 
 if __name__ == '__main__':
 #    cp = triangle_cp_cnstr(n_steps = 40)
 #    cp = triangle_stick_cnstr(n_steps = 40)
 #    cp = twotriangle_stick_cnstr(n_steps = 40)
-    cp = small_rhombus_grab_points(n_steps = 80)
+#    cp = small_rhombus_grab_points(n_steps = 80)
 #    cp = small_rhombus_grab_stick(n_steps = 40)
 #    cp = two_rhombus_grab_points(n_steps = 40)
 #    cp = rhombus_2x2_grab_points(n_steps = 40)
 #    cp = rhombus_2x3_grab_points(n_steps = 40)
-#    cp = rhombus_3x1_grab_points(n_steps = 40)
-#    cp = rhombus_grab_points(n_steps = 40)
+#    cp = rhombus_3x1_grab_points(n_steps = 80)
+    cp = rhombus_3x2_grab_points(n_steps = 40)
 
     # initialise View
     
