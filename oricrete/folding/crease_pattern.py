@@ -301,11 +301,24 @@ class CreasePattern(HasTraits):
               dp1[:,2]*(p2[:,1] + dp2[:,1] - p0[:,1] - dp0[:,1])+
               p2[:,2]*(p0[:,1] + dp0[:,1] - p1[:,1] - dp1[:,1])+
               dp2[:,2]*(p0[:,1] + dp0[:,1] - p1[:,1] - dp1[:,1]))
+        Rz = (p0[:,1]*(p1[:,0] + dp1[:,0] - p2[:,0] - dp2[:,0])+
+              dp0[:,1]*(p1[:,0] + dp1[:,0] - p2[:,0] - dp2[:,0])+
+              p1[:,1]*(p2[:,0] + dp2[:,0] - p0[:,0] - dp0[:,0])+
+              dp1[:,1]*(p2[:,0] + dp2[:,0] - p0[:,0] - dp0[:,0])+
+              p2[:,1]*(p0[:,0] + dp0[:,0] - p1[:,0] - dp1[:,0])+
+              dp2[:,1]*(p0[:,0] + dp0[:,0] - p1[:,0] - dp1[:,0]))
         
         R = np.zeros((len(Rx)*2,))
         for i in range(len(Rx)):
-            R[i*2] = Rx[i]
-            R[i*2 + 1] = Ry[i] 
+            if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
+                R[i*2] = Ry[i]
+                R[i*2 + 1] = Rx[i]
+            elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
+                R[i*2] = Rx[i]
+                R[i*2 + 1] = Rz[i]
+            else:
+                R[i*2] = Rx[i]
+                R[i*2 + 1] = Ry[i]
         
         return R.reshape((-1,))
         
@@ -326,30 +339,76 @@ class CreasePattern(HasTraits):
         dp2 = X[cl[:,1]]
         dR = np.zeros((len(line) * 2, self.n_dofs))
         
-        dRxz = p1[:,0] + dp1[:,0] - p2[:,0] - dp2[:,0]
-        dRxz1 = p2[:,0] + dp2[:,0] - p0[:,0] - dp0[:,0]
-        dRxz2 = p0[:,0] + dp0[:,0] - p1[:,0] - dp1[:,0]
-        dRyz = p1[:,1] + dp1[:,1] - p2[:,1] - dp2[:,1]
-        dRyz1 = p2[:,1] + dp2[:,1] - p0[:,1] - dp0[:,1]
-        dRyz2 = p0[:,1] + dp0[:,1] - p1[:,1] - dp1[:,1]
-        dRz = p2[:,2] + dp2[:,2] - p1[:,2] - dp1[:,2]
-        dRz1 = p0[:,2] + dp0[:,2] - p2[:,2] - dp2[:,2]
-        dRz2 = p1[:,2] + dp1[:,2] - p0[:,2] - dp0[:,2]
-        
         for i in range(len(line)):
-            dR[i*2,line[i,0]*3] = dRz[i]
-            dR[i*2,cl[i,0]*3] = dRz1[i]
-            dR[i*2,cl[i,1]*3] = dRz2[i]
-            dR[i*2,line[i,0]*3+2] = dRxz[i]
-            dR[i*2,cl[i,0]*3 + 2] = dRxz1[i]
-            dR[i*2,cl[i,1]*3 + 2] = dRxz2[i]
+            if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
+                dR1 = self.get_line_dRf2(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+                dR2 = self.get_line_dRf3(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+            elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
+                dR1 = self.get_line_dRf1(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+                dR2 = self.get_line_dRf3(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+            else:
+                dR1 = self.get_line_dRf1(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+                dR2 = self.get_line_dRf2(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+            dR[i*2] = dR1
+            dR[i*2+1] = dR2
             
-            dR[i*2 +1,line[i,0]*3 +1] = dRz[i]
-            dR[i*2 +1,cl[i,0]*3 +1] = dRz1[i]
-            dR[i*2 +1,cl[i,1]*3 +1] = dRz2[i]
-            dR[i*2 +1,line[i,0]*3+2] = dRyz[i]
-            dR[i*2 +1,cl[i,0]*3 + 2] = dRyz1[i]
-            dR[i*2 +1,cl[i,1]*3 + 2] = dRyz2[i]
+        return dR
+    
+    def get_line_dRf1(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
+        dfdx0 = p2[2] + dp2[2] - p1[2] - dp1[2]
+        dfdx1 = p0[2] + dp0[2] - p2[2] - dp2[2]
+        dfdx2 = p1[2] + dp1[2] - p0[2] - dp0[2]
+        
+        dfdz0 = p1[0] + dp1[0] - p2[0] - dp2[0]
+        dfdz1 = p2[0] + dp2[0] - p0[0] - dp0[0]
+        dfdz2 = p0[0] + dp0[0] - p1[0] - dp1[0]
+        
+        dR = np.zeros((1, self.n_dofs))
+        dR[0,line[0]*3] = dfdx0
+        dR[0,line[0]*3+2] = dfdz0
+        dR[0,cl[0]*3] = dfdx1
+        dR[0,cl[0]*3+2] = dfdz1
+        dR[0,cl[1]*3] = dfdx2
+        dR[0,cl[1]*3+2] = dfdz2
+        
+        return dR
+    
+    def get_line_dRf2(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
+        dfdy0 = p2[2] + dp2[2] - p1[2] - dp1[2]
+        dfdy1 = p0[2] + dp0[2] - p2[2] - dp2[2]
+        dfdy2 = p1[2] + dp1[2] - p0[2] - dp0[2]
+        
+        dfdz0 = p1[1] + dp1[1] - p2[1] - dp2[1]
+        dfdz1 = p2[1] + dp2[1] - p0[1] - dp0[1]
+        dfdz2 = p0[1] + dp0[1] - p1[1] - dp1[1]
+        
+        dR = np.zeros((1, self.n_dofs))
+        
+        dR[0,line[0]*3+1] = dfdy0
+        dR[0,line[0]*3+2] = dfdz0
+        dR[0,cl[0]*3+1] = dfdy1
+        dR[0,cl[0]*3+2] = dfdz1
+        dR[0,cl[1]*3+1] = dfdy2
+        dR[0,cl[1]*3+2] = dfdz2
+        
+        return dR
+    
+    def get_line_dRf3(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
+        dfdx0 = p2[1] + dp2[1] - p1[1] - dp1[1]
+        dfdx1 = p0[1] + dp0[1] - p2[1] - dp2[1]
+        dfdx2 = p1[1] + dp1[1] - p0[1] - dp0[1]
+        
+        dfdy0 = p1[0] + dp1[0] - p2[0] - dp2[0]
+        dfdy1 = p2[0] + dp2[0] - p0[0] - dp0[0]
+        dfdy2 = p0[0] + dp0[0] - p1[0] - dp1[0]
+        
+        dR = np.zeros((1, self.n_dofs))
+        dR[0,line[0]*3] = dfdx0
+        dR[0,line[0]*3+1] = dfdy0
+        dR[0,cl[0]*3] = dfdx1
+        dR[0,cl[0]*3+1] = dfdy1
+        dR[0,cl[1]*3] = dfdx2
+        dR[0,cl[1]*3+1] = dfdy2
         
         return dR
     
