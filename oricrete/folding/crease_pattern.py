@@ -500,7 +500,8 @@ class CreasePattern(HasTraits):
         dR_lp = self.get_line_dR(X_vct)
         
         dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
-        
+        if(self.singularity_test):
+            self.singul_test(dR)
         return dR
 
     #===========================================================================
@@ -511,6 +512,7 @@ class CreasePattern(HasTraits):
     TOLERANCE = Float(1e-10)
     n_steps = Int(20)
     show_iter = Bool(False)
+    singularity_test = Bool(False)
 
     def solve(self, X0):
         
@@ -597,8 +599,37 @@ class CreasePattern(HasTraits):
                 return X
 
         return X
-
-
+    
+    def singul_test(self, dR):
+        for i in range(len(dR)):
+            z = np.zeros(dR[i].shape)
+            if(np.all([z, dR[i]])):
+                print 'zeroline: ', i
+            
+            for p in range(len(dR)):
+                if(i == p):
+                    pass
+                else:
+                    if(np.all([dR[i],dR[p]])):
+                        print'same line in dR: line: ', i ,' and line: ', p
+                        
+        for i in range(len(dR)):
+            x = dR[:,i]
+            z = np.zeros(x.shape)
+            if(np.all([z, x])):
+                print 'zero constrain: ', i
+                
+        for i in range(len(dR)):
+            if(dR[i][i] == 0):
+                dR = self.sort(dR, i)
+            for p in range(len(dR) - i):
+                if(dR[p][i] == 0):
+                    break
+                if(dR[i][i] == 0):
+                    break
+                fak = dR[p][i] / dR[i][i]
+                dR[p] -= dR[i]* fak
+        print'singularity test done'
     #===============================================================================
     # methods and Informations for visualization
     #===============================================================================
