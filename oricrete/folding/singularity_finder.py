@@ -42,25 +42,37 @@ class SingularityFinder(HasTraits):
         
         indexer = np.arange(len(dR))        
         for i in range(len(dR)):
-            dR, indexer = self.sort(dR, indexer)
-            column = 0
-            
-            for k in range(len(dR)):
-                if(dR[i][column] != 0):
-                    break
-                else:
-                    column += 1
-            if(column == len(dR)):
-                column -= 1
-            for p in range(i+1,len(dR)):
-                if(dR[p][column] == 0):
-                    break
-                n = float(dR[p][column])
-                z = float(dR[i][column])
-                fak = (n / z)
-                dR[p] -= dR[i]* fak
                 
-        dR, indexer = self.sort(dR, indexer)
+                
+                dR, indexer = self.sort(dR, indexer)
+                
+                column = 0
+                while(dR[i][column] == 0):
+                    column +=1
+                    if(column == len(dR[0])):
+                        print'nullline ', i
+                        break
+                
+                if(column == len(dR[0])):
+                    break
+                print'row NR ', i,' of ',len(dR),'column', column
+                dR[i] = dR[i]/dR[i][column]
+                for p in range(i+1,len(dR)):
+                    if(dR[p][column] == 0):
+                        break
+                    
+                    dR[p] = dR[p]/dR[p][column]
+                    n = float(dR[p][column])
+                    z = float(dR[i][column])
+                    fak = (n / z)
+                    if (fak == 0):
+                        print'faktor null'
+                    dR[p] -= dR[i]* fak
+                    
+                    
+                    
+                
+        
         print 'indexer ', indexer        
         print 'dR Gauss',dR
         np.savetxt('dRGauss.txt',dR,fmt='%1.2e')
@@ -68,25 +80,39 @@ class SingularityFinder(HasTraits):
         print'singularity test done'
         
     def sort(self, dR, indexer):
-        unready = True
-        while(unready):
-            unready = False
-            for i in range(len(dR)-1):
-                column = 0
-                if( dR[i][column] == 0 and dR[i+1][column] == 0):
-                    column += 1
-                    if(column > len(dR)):
-                        continue
-                elif(np.abs(dR[i][column]) < np.abs(dR[i+1][column])):
-                    temp = np.copy(dR[i+1])
-                    temp_ind = indexer[i+1]
-                    dR[i+1] = dR[i]
-                    dR[i] = temp
-                    indexer[i+1] = indexer[i]
-                    indexer[i] = temp_ind
-                    unready = True
-                    break
-        return (dR, indexer)    
+        sortlist = []
+        sortindexer = []
+        for i in range(len(dR[0])):
+            for row in range(len(dR)):
+                if(dR[row][i] != 0):
+                    first = True
+                    for p in range(i):
+                        if(p == i):
+                            print'sort i =  p '
+                        if(dR[row][p] != 0):
+                            first = False
+                            break
+                    if first:
+                        sortlist = np.append(sortlist, dR[row])
+                        sortindexer = np.append(sortindexer, indexer[row])
+            if(i == len(dR[0]) -1 ):
+                #Last column: search for Nulllines
+                for row in range(len(dR)):
+                    if(dR[row][i] == 0):
+                        Nullline = True
+                        for p in range(len(dR[0])):
+                            if(dR[row][p] != 0):
+                                Nullline = False
+                                break
+                        if Nullline:
+                            sortlist = np.append(sortlist, dR[row])
+                            sortindexer = np.append(sortindexer, indexer[row])   
+        dR = sortlist.reshape(dR.shape)
+        indexer = sortindexer.reshape(indexer.shape)
+        return (dR, indexer)
+        
+
+
 
 
 if __name__ == '__main__':
