@@ -17,33 +17,16 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 
 from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
 import numpy as np
+import os
 
 class SingularityFinder(HasTraits):
     def singul_test(self, dR):
-#        for i in range(len(dR)):
-#            z = np.zeros(dR[i].shape)
-#            if(np.all([z, dR[i]])):
-#                print 'zeroline: ', i
-#            
-#            for p in range(len(dR)):
-#                if(i == p):
-#                    pass
-#                else:
-#                    if(np.all([dR[i],dR[p]])):
-#                        print'same line in dR: line: ', i ,' and line: ', p
-#                        print dR[i]
-#                        print dR[p]
-#                        
-#        for i in range(len(dR)):
-#            x = dR[:,i]
-#            z = np.zeros(x.shape)
-#            if(np.all([z, x])):
-#                print 'zero constrain: ', i
-        
-        indexer = np.arange(len(dR))        
+        indexer = np.arange(len(dR), dtype = Int)
+        line_manipulation = []
         for i in range(len(dR)):
-                
-                
+            line_manipulation.append(str(i))
+            
+        for i in range(len(dR)):
                 dR, indexer = self.sort(dR, indexer)
                 
                 column = 0
@@ -68,18 +51,19 @@ class SingularityFinder(HasTraits):
                     if (fak == 0):
                         print'faktor null'
                     dR[p] -= dR[i]* fak
+                    line_manipulation[indexer[p]] += ' + ' + str(indexer[i])
                     
-                    
-                    
-                
-        
         print 'indexer ', indexer        
         print 'dR Gauss',dR
+        f = open('line_manipulation.txt', 'w')
         np.savetxt('dRGauss.txt',dR,fmt='%1.2e')
         np.savetxt('indexer.txt',indexer)
+        f.write('\n'.join(line_manipulation))
+        f.close()
         print'singularity test done'
         
     def sort(self, dR, indexer):
+        
         sortlist = []
         sortindexer = []
         for i in range(len(dR[0])):
@@ -109,12 +93,9 @@ class SingularityFinder(HasTraits):
                             sortindexer = np.append(sortindexer, indexer[row])   
         dR = sortlist.reshape(dR.shape)
         indexer = sortindexer.reshape(indexer.shape)
+        indexer = indexer.astype(np.int32)
         return (dR, indexer)
         
-
-
-
-
 if __name__ == '__main__':
     a = np.array([[1,3,5],[2,6,10],[-2,-6,-10]])
     indexer = np.arange(len(a))
