@@ -38,7 +38,7 @@ class SingularityFinder(HasTraits):
                 
                 if(column == len(dR[0])):
                     break
-                print'row NR ', i,' of ',len(dR),'column', column
+                print'row NR ', i,' of ',len(dR)-1,'column', column
                 dR[i] = dR[i]/dR[i][column]
                 for p in range(i+1,len(dR)):
                     if(dR[p][column] == 0):
@@ -55,9 +55,9 @@ class SingularityFinder(HasTraits):
                     
         print 'indexer ', indexer        
         print 'dR Gauss',dR
-        f = open('line_manipulation.txt', 'w')
         np.savetxt('dRGauss.txt',dR,fmt='%1.2e')
         np.savetxt('indexer.txt',indexer)
+        f = open('line_manipulation.txt', 'w')
         f.write('\n'.join(line_manipulation))
         f.close()
         print'singularity test done'
