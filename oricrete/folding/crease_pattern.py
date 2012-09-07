@@ -668,7 +668,52 @@ class CreasePattern(HasTraits):
                 r = rz
                 
             print 'Step ', p, ': r = ', r
+    def create_rcp_tex(self, name = 'rcp_output.tex', x = 15., y = 15.):
+        n = self.nodes
+        c = self.crease_lines       
+        x_l = np.max(n[:,0])
+        y_l = np.max(n[:,1])
+        x_size = x/x_l
+        y_size = x/y_l
+        if(x_size < y_size):
+            size = x_size
+        else:
+            size = y_size
+        f = open(name, 'w')
+        f.write('\\psset{xunit=%.3fcm,yunit=%.3fcm}\n' %(size, size))
+        f.write(' \\begin{pspicture}(0,%.3f)\n' %(y_l))
+        for i in range(len(n)):
+            if(n[i][2] == 0):
+                f.write('  \\cnodeput(%.3f,%.3f){%s}{\\footnotesize%s}\n' %( n[i][0], n[i][1], i, i))
+        for i in range(len(c)):
+            if(n[c[i][0]][2] == 0 and n[c[i][1]][2] == 0):
+                f.write('  \\ncline{%s}{%s}\n' %(c[i][0], c[i][1]))
+        f.write(' \\end{pspicture}' + '\n')
+        f.close()
             
+    def create_3D_tex(self, name = 'standart3Doutput.tex', x = 15, y = 15, alpha = 140, beta = 30):    
+        n = self.nodes
+        c = self.crease_lines
+        f = open(name, 'w')
+        f.write('\\psset{xunit=%.3fcm,yunit=%.3fcm,Alpha=%.3f,Beta=%.3f}\n' %(x/4, y/4, alpha, beta))
+        f.write(' \\begin{pspicture}(0,0)\n')
+        f.write(' \\pstThreeDCoor\n')
+        for i in range(len(n)):
+            f.write('  \\pstThreeDNode(%.3f,%.3f,%.3f){%s}\n' %(n[i][0],n[i][1],n[i][2],i))
+        for i in range(len(c)):
+            if(n[c[i][0]][2] == 0 and n[c[i][1]][2] == 0):
+                f.write(' \\psset{dotstyle=*,linecolor=gray}\n')
+            else:
+                f.write(' \\psset{linecolor=black}\n') 
+            f.write('  \\pstThreeDLine(%.3f,%.3f,%.3f)(%.3f,%.3f,%.3f)\n' %(n[c[i][0]][0],n[c[i][0]][1],n[c[i][0]][2],n[c[i][1]][0],n[c[i][1]][1],n[c[i][1]][2]))
+        f.write(' \\psset{dotstyle=*,linecolor=gray}\n')
+        for i in range(len(n)):
+            f.write('  \\pstThreeDDot(%.3f,%.3f,%.3f)\n' %(n[i][0],n[i][1],n[i][2]))
+        f.write(' \\psset{linecolor=black}\n')
+        for i in range(len(n)):
+            f.write('  \\pstThreeDPut(%.3f,%.3f,%.3f){%s}\n' %(n[i][0],n[i][1],n[i][2],i))
+        f.write(' \\end{pspicture}' + '\n')
+        f.close()    
         
 if __name__ == '__main__':
 
