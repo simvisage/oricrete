@@ -691,11 +691,13 @@ class CreasePattern(HasTraits):
         f.write(' \\end{pspicture}' + '\n')
         f.close()
             
-    def create_3D_tex(self, name = 'standart3Doutput.tex', x = 15, y = 15, alpha = 140, beta = 30):    
+    def create_3D_tex(self, name = 'standart3Doutput.tex', x = 5, y = 5, alpha = 140, beta = 30):    
         n = self.nodes
         c = self.crease_lines
         f = open(name, 'w')
-        f.write('\\psset{xunit=%.3fcm,yunit=%.3fcm,Alpha=%.3f,Beta=%.3f}\n' %(x/4, y/4, alpha, beta))
+        #f.write('\\configure[pdfgraphic][width=%.3f,height=%.3f]\n' %(x, y))
+        #f.write('\\begin{pdfdisplay}\n')
+        f.write('\\psset{xunit=%.3fcm,yunit=%.3fcm,Alpha=%.3f,Beta=%.3f}\n' %(x, y, alpha, beta))
         f.write(' \\begin{pspicture}(0,0)\n')
         f.write(' \\pstThreeDCoor\n')
         for i in range(len(n)):
@@ -713,6 +715,7 @@ class CreasePattern(HasTraits):
         for i in range(len(n)):
             f.write('  \\pstThreeDPut(%.3f,%.3f,%.3f){%s}\n' %(n[i][0],n[i][1],n[i][2],i))
         f.write(' \\end{pspicture}' + '\n')
+#        f.write(' \\end{pdfdisplay}' + '\n')
         f.close()    
         
 if __name__ == '__main__':
