@@ -57,8 +57,6 @@ class CraneCreasePattern(RhombusCreasePattern):
     def _get__X_rcp(self):
         X_rcp = self.generate_X0()
         X_rcp = X_rcp.reshape((-1,3))
-        
-        X_rcp[:,2] += -0.1559
         return X_rcp 
     
     _crane_modell_nodes = [[0, 0, 0],
@@ -190,15 +188,87 @@ class CraneCreasePattern(RhombusCreasePattern):
         return gp.reshape((-1,2))
     
     _X0_crane_modell = [0,7,8]
+    _X0_gp_modell = [4,5]
     
     X0 = Property
     @cached_property
     def _get_X0(self):
-        X_ext = np.zeros((self.n_dofs - len(self._X_rcp.reshape((-1,))),), dtype = float)
-        X0 = np.hstack([self._X_rcp.reshape((-1,)), X_ext])
+        X_rcp = self._X_rcp
+        X_face_zero = X_rcp[self.facets[0]]
+        L = self.grab_pts_L[0]
+        X_z_GP_zero = np.dot(X_face_zero[:,2].T, L)
+        
+        X_face_one = X_rcp[self.facets[1*self.N_y]]
+        L = self.grab_pts_L[4]
+        X_z_GP_one = np.dot(X_face_one[:,2].T, L)
+        
+        X_rcp[:,2] -= X_z_GP_zero
+        X_ext = np.zeros((self.n_dofs - len(X_rcp)*self.n_d,), dtype = float)
+        X0 = np.hstack([X_rcp.reshape((-1)), X_ext])
+        
         for i in range(self.n_y/2):
             for p in self._X0_crane_modell:
                 pos = (p + i*9 + len(self._geometry[0]))*3 + 2
-                X0[pos] = 0.1441
+                X0[pos] = X_z_GP_one - X_z_GP_zero
+            for p in self._X0_gp_modell:
+                pos = (p + i*6 + len(self._geometry[0]) + len(self._crane_nodes))*3 + 2
+                X0[pos] = X_z_GP_one - X_z_GP_zero
         return X0
+        
+        
+    def generate_X0(self):
+        L_x = self.L_x
+        z0 = L_x * self.z0_ratio
+        para_lhs = np.array([[ L_x ** 2.0, L_x ],
+                             [ (L_x / 2.0) ** 2, L_x / 2.0 ]])
+        para_rhs = np.array([0, z0])
+        a, b = np.linalg.solve(para_lhs, para_rhs)
+        def para_fn(X):
+            return a * X ** 2 + b * X
+
+        X0 = np.zeros((len(self._geometry[0]), self.n_d,), dtype = 'float')
+        print self.n_h[:, :].flatten()
+        print self.X_h[:, 0]
+        X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
+        X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
+        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
+
+        return X0.flatten()
+    
+    _crane_lhs_model =[[(1, 2, 1.0)],
+                       [(2, 2, 1.0)],
+                       [(0, 0, 1.0)],
+                       [(1, 1, 1.0), (0, 1, -1.0)],
+                       [(0, 1, 1.0), (2, 1, -1.0)],
+                       [(3, 2, 1.0), (1, 2, -1.0)],
+                       [(4, 2, 1.0), (1, 2, -1.0)],
+                       [(5, 2, 1.0), (2, 2, -1.0)],
+                       [(6, 2, 1.0), (2, 2, -1.0)],
+                       [(7, 2, 1.0), (0, 2, -1.0)],
+                       [(8, 2, 1.0), (0, 2, -1.0)],
+                       [(3, 0, 1.0), (1, 0, -1.0)],
+                       [(4, 0, 1.0), (1, 0, -1.0)],
+                       [(5, 0, 1.0), (2, 0, -1.0)],
+                       [(6, 0, 1.0), (2, 0, -1.0)],
+                       [(7, 0, 1.0), (0, 0, -1.0)],
+                       [(8, 0, 1.0), (0, 0, -1.0)]]
+    
+    def generate_lhs(self):
+        lhs = []
+        n_nodes = len(self._geometry[0])
+        for i in range(self.n_y/2):
+            for p in self._crane_lhs_model:
+                temp = []
+                if len(p) == 1:
+                    node1 = p[0][0] + i*9 + n_nodes
+                    temp = [(node1, p[0][1], p[0][2])]
+                else:
+                    node1 = p[0][0] + i*9 + n_nodes
+                    node2 = p[1][0] + i*9 + n_nodes
+                    temp = [(node1, p[0][1], p[0][2]), (node2, p[1][1], p[1][2])]
+                    
+                lhs.append(temp)
+                
+        return lhs
+        
         
