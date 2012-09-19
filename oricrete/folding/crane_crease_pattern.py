@@ -125,11 +125,39 @@ class CraneCreasePattern(RhombusCreasePattern):
                     [4, 7],
                     [5, 8]]
     
+    _gp_crane_cl_small_right = [[0, 3],
+                                [1, 4],
+                                [4, 7],
+                                [5, 8]]
+    
+    _gp_crane_cl_small_middle = [[0, 3],
+                                 [1, 4],
+                                 [2, 5],
+                                 [3, 6],
+                                 ]
+    
+    
+    _gp_crane_cl_small_one = [[1, 4],
+                              [3, 6],
+                              [4, 7],
+                              [5, 8]]
+    
+    _gp_crane_cl_small_two = [[0, 3],
+                              [2, 5],
+                              [4, 7],
+                              [5, 8]]
+    
     _gp_crane_creaselines = Property(depends_on = '_crane_nodes, _gp_nodes')
     def _get__gp_crane_creaselines(self):
         gp_crane_cl = []
         for i in range(self.n_y/2):
             temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
+            if(self.N_y > 3):
+                if(i != 0 and i != self.N_y - 1 and i != (self.N_y - 1)/2 ):
+                    temp = np.array(copy.copy(self._gp_crane_cl_small_right), dtype = int)
+#                    if(i == self.N_y -2):
+#                        temp = np.array(copy.copy(self._gp_crane_cl_small_middle), dtype = int)
+                    
             temp[:,0] += i*6
             temp[:,1] += i*9
             gp_crane_cl = np.append(gp_crane_cl, temp)
@@ -254,9 +282,25 @@ class CraneCreasePattern(RhombusCreasePattern):
                        [(8, 0, 1.0), (0, 0, -1.0)]]
     
     def generate_lhs(self):
-        lhs = []
         n_nodes = len(self._geometry[0])
+        x_cnstr = int(7*self.N_y + 4)
+        y_cnstr = int(self.N_y/2)
+        if(self.N_y%2 != 0):
+            y_cnstr = int(4.5*self.N_y + 3.5)
+            
+        
+        lhs = [[(n_nodes, 2, 1.0)],
+               [(y_cnstr, 1, 1.0)],
+               [(x_cnstr, 0, 1.0)]
+               ]
+        
+       
+               
+        
         for i in range(self.n_y/2):
+            lhs.append([(n_nodes + i*9, 1, 1.0), (x_cnstr + i, 1, -1.0)])
+            if(i > 0):
+                lhs.append([(n_nodes, 2, 1.0), (n_nodes + i*9, 2, -1.0)])
             for p in self._crane_lhs_model:
                 temp = []
                 if len(p) == 1:
@@ -268,7 +312,7 @@ class CraneCreasePattern(RhombusCreasePattern):
                     temp = [(node1, p[0][1], p[0][2]), (node2, p[1][1], p[1][2])]
                     
                 lhs.append(temp)
-                
+        lhs.append([(self.N_y +1, 2, 1.0), (int((self.N_y +1)*2), 2, -1.0)])        
         return lhs
         
         
