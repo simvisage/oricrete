@@ -24,7 +24,7 @@ from singularity_finder import SingularityFinder
 # own Modules
 from crease_pattern import CreasePattern
 from rhombus_crease_pattern import RhombusCreasePattern
-
+from crane_modell import CraneModell
     
 class CraneCreasePattern(RhombusCreasePattern):
     '''
@@ -39,6 +39,17 @@ class CraneCreasePattern(RhombusCreasePattern):
     n_x = Int(3, geometry = True)
     n_y = Int(6, geometry = True)
     
+    _crane = Property(depends_on = 'L_x, L_y, L_gp, H_crane, n_x, n_y')
+    @cached_property
+    def _get__crane(self):
+        crane = CraneModell(L_x = self.L_x,
+                            L_y = self.L_y,
+                            L_gp = self.L_gp,
+                            H_crane = self.H_crane,
+                            n_x = self.n_x,
+                            n_y = self.n_y)
+        return crane
+    
     N_y = Property(depends_on = 'n_y')
     def _get_N_y(self):
         return self.n_y/2
@@ -49,24 +60,68 @@ class CraneCreasePattern(RhombusCreasePattern):
         X_rcp = X_rcp.reshape((-1,3))
         return X_rcp 
     
+    _gp_onesize_nodes = Property(depends_on = 'n_x, n_y')
+    @cached_property
+    def _get__gp_onesize_nodes(self):
+        gp_n = []
+        for i in range(self.n_x):
+            x_pos = float((1+2*i))/float((self.n_x*2))
+            gp_n.append([x_pos, -1, 0])
+            gp_n.append([x_pos, 1, 0])
+        return gp_n
+    
+    _gp_nodes = Property(depends_on = '+geometry, L_gp')
+    @cached_property
+    def _get__gp_nodes(self):
+        gp_nodes = []
+        for i in range(self.n_y/2):
+            temp = np.array(copy.copy(self._gp_onesize_nodes))
+            temp[:,1] *= self.L_gp * self.L_y/self.N_y
+            temp[:,0] *= self.L_x
+            temp[:,1] += self.L_y/self.n_y*(1 + 2*i)
+            gp_nodes = np.append(gp_nodes, temp)
+        return gp_nodes.reshape((-1,3))
+    
+    _gp_modell = Property(depends_on = 'N_y, n_x')
+    def _get__gp_modell(self):
+        gp = []
+        second_row = int((2*self.n_x + 1)*self.N_y)
+        for j in range(self.n_x):
+            gp.append([j*2,j*self.N_y])
+            gp.append([j*2 + 1,second_row + j*self.N_y])
+        return gp
+    
+    _grab_points = Property(depends_on = '_gp_nodes')
+    def _get__grab_points(self):
+        gp = []
+        for i in range(self.n_y/2):
+            temp = np.array(copy.copy(self._gp_modell))
+            temp[:,0] += i*len(self._gp_modell)
+            temp[:,1] += i
+            gp = np.append(gp, temp)
+            gp = np.array(gp, dtype = int)
+        return gp.reshape((-1,2))
+    
+    
     _crane_modell_nodes = [[0, 0, 0],
                            [-1., 0, 0],
                            [1., 0, 0],
                            [-1., -1., 0],
                            [-1., 1.,0],
-                           [1., -1., 0],
-                           [1., 1., 0],
                            [0, -1., 0],
-                           [0, 1., 0]]
+                           [0, 1., 0],
+                           [1., -1., 0],
+                           [1., 1., 0]
+                           ]
     
     _crane_modell_cl = [[0,1],
                         [0,2],
                         [3,1],
                         [4,1],
-                        [5,2],
-                        [6,2],
-                        [7,0],
-                        [8,0]]
+                        [5,0],
+                        [6,0],
+                        [7,2],
+                        [8,2]]
     
     _crane_nodes = Property(depends_on = '+geometry, H_crane, L_gp')
     def _get__crane_nodes(self):
@@ -90,23 +145,7 @@ class CraneCreasePattern(RhombusCreasePattern):
             crane_creaselines = np.append(crane_creaselines,temp)
         return crane_creaselines.reshape((-1, 2))
     
-    _gp_onesize_nodes = [[0.166, -1, 0],
-                         [0.166, 1, 0],
-                         [0.833, -1, 0],
-                         [0.833, 1, 0],
-                         [0.5, -1, 0],
-                         [0.5, 1, 0]]
     
-    _gp_nodes = Property(depends_on = '+geometry, L_gp')
-    def _get__gp_nodes(self):
-        gp_nodes = []
-        for i in range(self.n_y/2):
-            temp = np.array(copy.copy(self._gp_onesize_nodes))
-            temp[:,1] *= self.L_gp * self.L_y/self.N_y
-            temp[:,0] *= self.L_x
-            temp[:,1] += self.L_y/self.n_y*(1 + 2*i)
-            gp_nodes = np.append(gp_nodes, temp)
-        return gp_nodes.reshape((-1,3))
 
     _gp_crane_cl = [[0, 3],
                     [1, 4],
@@ -117,24 +156,16 @@ class CraneCreasePattern(RhombusCreasePattern):
     
     _gp_crane_cl_small_right = [[0, 3],
                                 [1, 4],
-                                [4, 7],
-                                [5, 8]]
+                                [2, 5],
+                                [3, 6],]
     
     _gp_crane_cl_small_middle = [[0, 3],
                                  [1, 4],
-                                 [2, 5],
-                                 [3, 6],
-                                 ]
+                                 [4, 7],
+                                 [5, 8]]
     
-    _gp_crane_cl_small_one = [[1, 4],
-                              [3, 6],
-                              [4, 7],
-                              [5, 8]]
     
-    _gp_crane_cl_small_two = [[0, 3],
-                              [2, 5],
-                              [4, 7],
-                              [5, 8]]
+    
     
     _gp_crane_creaselines = Property(depends_on = '_crane_nodes, _gp_nodes')
     def _get__gp_crane_creaselines(self):
@@ -152,26 +183,7 @@ class CraneCreasePattern(RhombusCreasePattern):
             gp_crane_cl = np.append(gp_crane_cl, temp)
         return gp_crane_cl.reshape((-1,2))
 
-    _gp_modell = Property(depends_on = 'N_y')
-    def _get__gp_modell(self):
-        gp=       [[0,0],
-                  [1, 7*self.N_y],
-                  [2, 2*self.N_y],
-                  [3, 9*self.N_y],
-                  [4, 1*self.N_y],
-                  [5, 8*self.N_y]]
-        return gp
     
-    _grab_points = Property(depends_on = '_gp_nodes')
-    def _get__grab_points(self):
-        gp = []
-        for i in range(self.n_y/2):
-            temp = np.array(copy.copy(self._gp_modell))
-            temp[:,0] += i*6
-            temp[:,1] += i
-            gp = np.append(gp, temp)
-            gp = np.array(gp, dtype = int)
-        return gp.reshape((-1,2))
         
     nodes = Property
     @cached_property
@@ -200,8 +212,8 @@ class CraneCreasePattern(RhombusCreasePattern):
         gp[:,0] += (len(self._geometry[0]) + len(self._crane_nodes))
         return gp.reshape((-1,2))
     
-    _X0_crane_modell = [0,7,8]
-    _X0_gp_modell = [4,5]
+    _X0_crane_modell = [0,5,6]
+    
     
     X0 = Property
     @cached_property
@@ -211,22 +223,15 @@ class CraneCreasePattern(RhombusCreasePattern):
         L = self.grab_pts_L[0]
         X_z_GP_zero = np.dot(X_face_zero[:,2].T, L)
         
-        X_face_one = X_rcp[self.facets[1*self.N_y]]
-        L = self.grab_pts_L[4]
-        X_z_GP_one = np.dot(X_face_one[:,2].T, L)
-        
         X_rcp[:,2] -= X_z_GP_zero
         X_ext = np.zeros((self.n_dofs - len(X_rcp)*self.n_d,), dtype = float)
-        X0 = np.hstack([X_rcp.reshape((-1)), X_ext])
-        
-        for i in range(self.n_y/2):
-            for p in self._X0_crane_modell:
-                pos = (p + i*9 + len(self._geometry[0]))*3 + 2
-                X0[pos] = X_z_GP_one - X_z_GP_zero
-            for p in self._X0_gp_modell:
-                pos = (p + i*6 + len(self._geometry[0]) + len(self._crane_nodes))*3 + 2
-                X0[pos] = X_z_GP_one - X_z_GP_zero
-        return X0
+        X0 = np.hstack([X_rcp.reshape((-1)), X_ext]).reshape((-1, 3))
+        for i in range(len(self.grab_pts)):
+            X_face = X0[self.facets[self.grab_pts[i][1]]]
+            L = self.grab_pts_L[i]
+            z = np.dot(X_face[:,2].T, L)
+            X0[self.grab_pts[i][0],2] = z
+        return X0.reshape((-1))
         
     def generate_X0(self):
         L_x = self.L_x
@@ -254,16 +259,16 @@ class CraneCreasePattern(RhombusCreasePattern):
                        [(0, 1, 1.0), (2, 1, -1.0)],
                        [(3, 2, 1.0), (1, 2, -1.0)],
                        [(4, 2, 1.0), (1, 2, -1.0)],
-                       [(5, 2, 1.0), (2, 2, -1.0)],
-                       [(6, 2, 1.0), (2, 2, -1.0)],
-                       [(7, 2, 1.0), (0, 2, -1.0)],
-                       [(8, 2, 1.0), (0, 2, -1.0)],
+                       [(5, 2, 1.0), (0, 2, -1.0)],
+                       [(6, 2, 1.0), (0, 2, -1.0)],
+                       [(7, 2, 1.0), (2, 2, -1.0)],
+                       [(8, 2, 1.0), (2, 2, -1.0)],
                        [(3, 0, 1.0), (1, 0, -1.0)],
                        [(4, 0, 1.0), (1, 0, -1.0)],
-                       [(5, 0, 1.0), (2, 0, -1.0)],
-                       [(6, 0, 1.0), (2, 0, -1.0)],
-                       [(7, 0, 1.0), (0, 0, -1.0)],
-                       [(8, 0, 1.0), (0, 0, -1.0)]]
+                       [(5, 0, 1.0), (0, 0, -1.0)],
+                       [(6, 0, 1.0), (0, 0, -1.0)],
+                       [(7, 0, 1.0), (2, 0, -1.0)],
+                       [(8, 0, 1.0), (2, 0, -1.0)]]
     
     def generate_lhs(self):
         n_nodes = len(self._geometry[0])
