@@ -1,3 +1,4 @@
+from crane_modell import CraneModell
 from crane_crease_pattern import CraneCreasePattern
 from crease_pattern import CreasePattern
 from crease_pattern_view import CreasePatternView
