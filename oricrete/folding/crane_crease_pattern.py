@@ -24,7 +24,7 @@ from singularity_finder import SingularityFinder
 # own Modules
 from crease_pattern import CreasePattern
 from rhombus_crease_pattern import RhombusCreasePattern
-from crane_modell import CraneModell
+from crane_model import CraneModel
     
 class CraneCreasePattern(RhombusCreasePattern):
     '''
@@ -42,7 +42,7 @@ class CraneCreasePattern(RhombusCreasePattern):
     _crane = Property(depends_on = 'L_x, L_y, L_gp, H_crane, n_x, n_y')
     @cached_property
     def _get__crane(self):
-        crane = CraneModell(L_x = self.L_x,
+        crane = CraneModel(L_x = self.L_x,
                             L_y = self.L_y,
                             L_gp = self.L_gp,
                             H_crane = self.H_crane,
@@ -189,19 +189,19 @@ class CraneCreasePattern(RhombusCreasePattern):
     @cached_property
     def _get_nodes(self):
         nodes = copy.copy(self._geometry[0])
-        nodes = np.append(nodes, self._crane_nodes)
         nodes = np.append(nodes, self._gp_nodes)
+        nodes = np.append(nodes, self._crane.crane_nodes)
         return nodes.reshape((-1,3))
     
     crease_lines = Property
     @cached_property
     def _get_crease_lines(self):
         cl = np.array(copy.copy(self._geometry[1]), dtype = int)
-        cl = np.append(cl, self._crane_creaselines + len(self._geometry[0]))
-        temp = np.array(copy.copy(self._gp_crane_creaselines), dtype = int)
-        temp[:,0] += len(self._geometry[0]) + len(self._crane_nodes)
-        temp[:,1] += len(self._geometry[0])
-        cl = np.append(cl, temp)
+        cl = np.append(cl, self._crane.crane_creaselines + len(self._geometry[0]) + len(self._gp_nodes))
+#        temp = np.array(copy.copy(self._gp_crane_creaselines), dtype = int)
+#        temp[:,0] += len(self._geometry[0]) + len(self._crane_nodes)
+#        temp[:,1] += len(self._geometry[0])
+#        cl = np.append(cl, temp)
         cl = np.array(cl, dtype = int)
         return cl.reshape((-1,2))
         
@@ -209,7 +209,7 @@ class CraneCreasePattern(RhombusCreasePattern):
     @cached_property
     def _get_grab_pts(self):
         gp = np.array(copy.copy(self._grab_points), dtype = int)
-        gp[:,0] += (len(self._geometry[0]) + len(self._crane_nodes))
+        gp[:, 0] += (len(self._geometry[0]))
         return gp.reshape((-1,2))
     
     _X0_crane_modell = [0,5,6]
