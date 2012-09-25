@@ -198,10 +198,10 @@ class CraneCreasePattern(RhombusCreasePattern):
     def _get_crease_lines(self):
         cl = np.array(copy.copy(self._geometry[1]), dtype = int)
         cl = np.append(cl, self._crane.crane_creaselines + len(self._geometry[0]) + len(self._gp_nodes))
-#        temp = np.array(copy.copy(self._gp_crane_creaselines), dtype = int)
-#        temp[:,0] += len(self._geometry[0]) + len(self._crane_nodes)
-#        temp[:,1] += len(self._geometry[0])
-#        cl = np.append(cl, temp)
+        temp = np.array(copy.copy(self._crane.gp_crane_creaselines))
+        temp[:, 0] += len(self._geometry[0])
+        temp[:, 1] += len(self._geometry[0]) + len(self._gp_nodes)
+        cl = np.append(cl, temp)
         cl = np.array(cl, dtype = int)
         return cl.reshape((-1,2))
         
@@ -211,6 +211,14 @@ class CraneCreasePattern(RhombusCreasePattern):
         gp = np.array(copy.copy(self._grab_points), dtype = int)
         gp[:, 0] += (len(self._geometry[0]))
         return gp.reshape((-1,2))
+    
+    line_pts = Property
+    @cached_property
+    def _get_line_pts(self):
+        lp = np.array(copy.copy(self._crane.crane_line_pts), dtype = int)
+        lp[:, 0] += len(self._geometry[0]) + len(self.grab_pts)
+        lp[:, 1] += len(self._geometry[1])
+        return lp
     
     _X0_crane_modell = [0,5,6]
     
