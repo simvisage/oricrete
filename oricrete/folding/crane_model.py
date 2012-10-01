@@ -61,7 +61,11 @@ class CraneModel(HasTraits):
                   [(2, 2, 1.0)],
                   [(3, 2, 1.0)],
                   [(0, 1, 1.0)],
-                  [(1, 1, 1.0)]]
+                  [(1, 1, 1.0)],
+                  [(0, 0, 1.0)],
+                  [(1, 0, 1.0)],
+                  [(2, 0, 1.0)],
+                  [(3, 0, 1.0)]]
         return fw_lhs
 
 #===============================================================================
@@ -70,7 +74,7 @@ class CraneModel(HasTraits):
     
     _crane_model2_nodes = Property(depends_on = 'n_x')
     @cached_property
-    def _get__crane_model_nodes(self):
+    def _get__crane_model2_nodes(self):
         '''
             returns a node modell of the used crane for one row
         '''
@@ -146,7 +150,7 @@ class CraneModel(HasTraits):
     
     _crane_model2_line_pts = Property(depends_on = '_crane_model_nodes')
     @cached_property
-    def _get__crane_model_line_pts(self):
+    def _get__crane_model2_line_pts(self):
         line_pts = []
         nodes = self._crane_model_nodes
         for i in range(3, len(nodes)):
@@ -170,7 +174,6 @@ class CraneModel(HasTraits):
     @cached_property
     def _get__crane_model_line_pts(self):
         line_pts = None
-        
         return line_pts
     
     _crane_model_lp_fw = Property(depends_on = '_crane_model_nodes')
@@ -220,8 +223,28 @@ class CraneModel(HasTraits):
                   [self.n_x * 2 - 2, 7],
                   [self.n_x * 2 - 1, 8]
                   ]
-            print'cl model', cl
         return cl
+    
+    _gp_crane_cl_left = Property(depends_on = '_crane_model_nodes')
+    @cached_property
+    def _get__gp_crane_cl_left(self):
+        cl = []
+        if(self.n_x % 2 == 0):
+            cl = [[0, 3],
+                  [1, 4],
+                  [self.n_x - 2, 5],
+                  [self.n_x - 2 + 1, 6],
+                  [self.n_x - 2 + 2, 8],
+                  [self.n_x - 2 + 3, 9]
+                  ]
+        else:
+            cl = [[0, 3],
+                  [1, 4],
+                  [self.n_x - 1, 5],
+                  [self.n_x , 6]
+                  ]
+        return cl
+        
     
     _gp_crane_cl_small_right = [[0, 3],
                                 [1, 4],
@@ -236,33 +259,69 @@ class CraneModel(HasTraits):
 #===============================================================================
 #     lhs modell setup
 #===============================================================================
-    _crane_lhs_model = [[(1, 2, 1.0)],
-                       [(2, 2, 1.0)],
-                       [(0, 0, 1.0)],
-                       [(1, 1, 1.0), (0, 1, -1.0)],
-                       [(0, 1, 1.0), (2, 1, -1.0)],
-                       [(3, 2, 1.0), (1, 2, -1.0)],
-                       [(4, 2, 1.0), (1, 2, -1.0)],
-                       [(5, 2, 1.0), (0, 2, -1.0)],
-                       [(6, 2, 1.0), (0, 2, -1.0)],
-                       [(7, 2, 1.0), (2, 2, -1.0)],
-                       [(8, 2, 1.0), (2, 2, -1.0)],
-                       [(3, 0, 1.0), (1, 0, -1.0)],
-                       [(4, 0, 1.0), (1, 0, -1.0)],
-                       [(5, 0, 1.0), (0, 0, -1.0)],
-                       [(6, 0, 1.0), (0, 0, -1.0)],
-                       [(7, 0, 1.0), (2, 0, -1.0)],
-                       [(8, 0, 1.0), (2, 0, -1.0)]]
+    _crane_lhs_model = Property(depends_on = '_crane_model_nodes')
+    @cached_property
+    def _get__crane_lhs_model(self):
+        if(self.n_x % 2 == 0):
+            lhs = [[(1, 2, 1.0)],
+                   [(2, 2, 1.0)],
+                   [(0, 0, 1.0)],
+                   [(1, 1, 1.0), (0, 1, -1.0)],
+                   [(0, 1, 1.0), (2, 1, -1.0)],
+                   [(7, 1, 1.0), (0, 1, -1.0)],
+                   [(0, 1, 1.0), (10, 1, -1.0)],
+                   [(3, 2, 1.0), (1, 2, -1.0)],
+                   [(4, 2, 1.0), (1, 2, -1.0)],
+                   [(5, 2, 1.0), (7, 2, -1.0)],
+                   [(6, 2, 1.0), (7, 2, -1.0)],
+                   [(8, 2, 1.0), (10, 2, -1.0)],
+                   [(9, 2, 1.0), (10, 2, -1.0)],
+                   [(3, 0, 1.0), (1, 0, -1.0)],
+                   [(4, 0, 1.0), (1, 0, -1.0)],
+                   [(5, 0, 1.0), (7, 0, -1.0)],
+                   [(6, 0, 1.0), (7, 0, -1.0)],
+                   [(8, 0, 1.0), (10, 0, -1.0)],
+                   [(9, 0, 1.0), (10, 0, -1.0)],
+                   [(11, 0, 1.0), (2, 0, -1.0)],
+                   [(12, 0, 1.0), (2, 0, -1.0)],
+                   [(11, 2, 1.0), (2, 2, -1.0)],
+                   [(12, 2, 1.0), (2, 2, -1.0)]]
+        
+        else:
+            lhs = [[(1, 2, 1.0)],
+                   [(2, 2, 1.0)],
+                   [(0, 0, 1.0)],
+                   [(1, 1, 1.0), (0, 1, -1.0)],
+                   [(0, 1, 1.0), (2, 1, -1.0)],
+                   [(3, 2, 1.0), (1, 2, -1.0)],
+                   [(4, 2, 1.0), (1, 2, -1.0)],
+                   [(5, 2, 1.0), (0, 2, -1.0)],
+                   [(6, 2, 1.0), (0, 2, -1.0)],
+                   [(7, 2, 1.0), (2, 2, -1.0)],
+                   [(8, 2, 1.0), (2, 2, -1.0)],
+                   [(3, 0, 1.0), (1, 0, -1.0)],
+                   [(4, 0, 1.0), (1, 0, -1.0)],
+                   [(5, 0, 1.0), (0, 0, -1.0)],
+                   [(6, 0, 1.0), (0, 0, -1.0)],
+                   [(7, 0, 1.0), (2, 0, -1.0)],
+                   [(8, 0, 1.0), (2, 0, -1.0)]]
+        return lhs
+    
+                       
 #===============================================================================
 #  Crane global setup 
 #===============================================================================
 
     
-    crane_nodes = Property(depends_on = '_crane_model_nodes, H_crane, L_gp')
+    crane_nodes = Property(depends_on = '_crane_model_nodes, H_crane, L_gp, n_y, L_x, L_y, n_x')
     @cached_property
     def _get_crane_nodes(self):
         crane_nodes = np.array(copy.copy(self._framework_model_nodes), dtype = float)
         crane_nodes[:, 0] *= self.L_x * float(1 - 1 / float(self.n_x)) / 2.
+        print 'lx', self.L_x
+        print 'nx', self.n_x
+        print 'ny', self.n_y
+        print 'crane nodes', crane_nodes.reshape((-1, 3))
         crane_nodes[:, 1] *= self.L_y / 2.
         crane_nodes[:, 0] += self.L_x / 2.
         crane_nodes[:, 1] += self.L_y / 2.
@@ -275,6 +334,8 @@ class CraneModel(HasTraits):
             temp[:, 1] += self.L_y / self.n_y * (1 + 2 * i)
             temp[:, 2] += self.H_crane
             crane_nodes = np.append(crane_nodes, temp)
+            
+        print 'crane nodes', crane_nodes.reshape((-1, 3))
         return crane_nodes.reshape((-1, 3))
     
     crane_creaselines = Property(depends_on = '_crane_nodes')
@@ -303,8 +364,8 @@ class CraneModel(HasTraits):
         return lp.reshape((-1, 2))
         
     
-    gp_crane_creaselines = Property(depends_on = '_crane_nodes, _gp_nodes')
-    def _get_gp_crane_creaselines(self):
+    crane_gp_creaselines = Property(depends_on = 'crane_nodes')
+    def _get_crane_gp_creaselines(self):
         gp_crane_cl = []
         for i in range(self.n_y / 2):
             temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
@@ -312,6 +373,21 @@ class CraneModel(HasTraits):
             temp[:, 1] += i * len(self._crane_model_nodes) + len(self._framework_model_nodes)
             gp_crane_cl = np.append(gp_crane_cl, temp)
         return gp_crane_cl.reshape((-1, 2))
+    
+    crane_lhs = Property(depends_on = 'crane_nodes')
+    def _get_crane_lhs(self):
+        lhs = self._framework_model_lhs
+        index_c = len(self._crane_model_nodes)
+        index_fw = len(self._framework_model_nodes)
+        for i in range(self.n_y / 2):
+            for c in self._crane_lhs_model:
+                pos = index_fw + i * index_c
+                if(len(c) > 1):
+                    lhs.append([(c[0][0] + pos, c[0][1], c[0][2]), (c[1][0] + pos, c[1][1], c[1][2])])
+                else:
+                    lhs.append([(c[0][0] + pos, c[0][1], c[0][2])])
+                    
+        return lhs
 
     
     
