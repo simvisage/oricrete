@@ -40,7 +40,7 @@ def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
     cp = CraneCreasePattern(n_steps = n_steps,
                               L_x = 5,
                               L_y = 2,
-                              n_x = 5,
+                              n_x = 6,
                               n_y = 4,
                               MAX_ITER = 500)
     lhs = cp.generate_lhs()
