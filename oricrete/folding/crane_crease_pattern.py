@@ -158,6 +158,11 @@ class CraneCreasePattern(RhombusCreasePattern):
             L = self.grab_pts_L[i]
             z = np.dot(X_face[:, 2].T, L)
             X0[self.grab_pts[i][0], 2] = z
+        pos = (len(self._geometry[0]) + self.n_y * int(self.n_x / 2)) 
+        self._crane.X0_height = X0[pos, 2]
+        X0_crane_index = self._crane.X0_index
+        X0_crane_position = np.array(X0_crane_index[:, 0] + len(self._geometry[0]) + len(self._gp_nodes), dtype = int)
+        X0[X0_crane_position, 2] = X0_crane_index[:, 1]
         return X0.reshape((-1))
         
     def generate_X0(self):
@@ -183,14 +188,28 @@ class CraneCreasePattern(RhombusCreasePattern):
     def generate_lhs(self):
         n_nodes = len(self._geometry[0])
         n_gp = len(self._gp_nodes)
-        x_cnstr = int(7 * self.N_y + 4)
+        pos = n_nodes + n_gp
+        # y-cnstr node-index
         y_cnstr = int(self.N_y / 2)
+        if(self.N_y % 2 != 0):
+            y_cnstr = self.n_x * (self.N_y + 1) + self.N_y + y_cnstr + 1
+        # x-cnstr node-index
+        x_cnstr = self.n_x / 2 * (self.N_y + 1) + 1
+        if(self.n_x % 2 != 0):
+            x_cnstr = self.n_x * (self.N_y + 1) + 3 * self.N_y + self.N_y * int(self.n_x / 2) + 1 
         lhs = []
         for c in self._crane.crane_lhs:
-                pos = n_nodes + n_gp
                 if(len(c) > 1):
                     lhs.append([(c[0][0] + pos, c[0][1], c[0][2]), (c[1][0] + pos, c[1][1], c[1][2])])
                 else:
                     lhs.append([(c[0][0] + pos, c[0][1], c[0][2])])
-                    
+        for i in range(self.N_y):
+            x = self.n_x * (self.N_y + 1) + 3 * self.N_y + self.N_y * int(self.n_x / 2) + 1
+            lhs.append([(x + i, 1, 1.0), (pos + i * self._crane.n_model_nodes, 1, -1.0)])
+        lhs.append([(x_cnstr, 0, 1.0)])
+        lhs.append([(y_cnstr, 1, 1.0)])
+        if(self.n_x % 2 != 0):
+            x = (self.n_x - 1) / 2
+            pos1 = x * (self.N_y + 1) 
+            lhs.append([(pos1, 2, 1.0), (pos1 + (self.N_y + 1), 2, -1.0)])            
         return lhs
