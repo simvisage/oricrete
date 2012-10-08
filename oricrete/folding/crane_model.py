@@ -191,16 +191,14 @@ class CraneModel(HasTraits):
         lp = []
         return lp
     
-    _crane_model_X0 = Property(depends_on = '_crane_model_nodes')
+    _crane_model_X0 = Property(depends_on = '_crane_model_nodes, X0_height, L_x, n_x')
     @cached_property
     def _get__crane_model_X0(self):
         X0_index = []
         if(self.n_x % 2 == 0):
-            distanz = 2 / float(self.n_x - 1)
-            length = (self.n_x - 1) / 2.0 * self.L_x / float(self.n_x)
+            length = self.L_x / 2.0 * (1 - 1 / float(self.n_x))
+            distanz = self.L_x / 2.0 - length
             procent = length / float(length - distanz)
-            print'distanc', distanz
-            print'length', length
             X0_index = [[0, procent],
                         [5, 1.],
                         [6, 1.],
@@ -277,17 +275,6 @@ class CraneModel(HasTraits):
                   ]
         return cl
         
-    
-    _gp_crane_cl_small_right = [[0, 3],
-                                [1, 4],
-                                [2, 5],
-                                [3, 6], ]
-    
-    _gp_crane_cl_small_middle = [[0, 3],
-                                 [1, 4],
-                                 [4, 7],
-                                 [5, 8]]
-
 #===============================================================================
 #     lhs modell setup
 #===============================================================================
@@ -398,6 +385,8 @@ class CraneModel(HasTraits):
         gp_crane_cl = []
         for i in range(self.n_y / 2):
             temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
+            if(i != 0 and i != self.N_y - 1 and i != self.N_y / 2):
+                temp = np.array(copy.copy(self._gp_crane_cl_left), dtype = int)
             temp[:, 0] += i * self.n_x * 2
             temp[:, 1] += i * len(self._crane_model_nodes) + len(self._framework_model_nodes)
             gp_crane_cl = np.append(gp_crane_cl, temp)
