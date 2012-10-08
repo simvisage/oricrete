@@ -206,6 +206,8 @@ class CraneCreasePattern(RhombusCreasePattern):
         for i in range(self.N_y):
             x = self.n_x * (self.N_y + 1) + 3 * self.N_y + self.N_y * int(self.n_x / 2) + 1
             lhs.append([(x + i, 1, 1.0), (pos + i * self._crane.n_model_nodes, 1, -1.0)])
+#            if(float(i) == (self.N_y - 1) / 2.0):
+#                lhs.append([(x + i, 1, 1.0)])
         lhs.append([(x_cnstr, 0, 1.0)])
         lhs.append([(y_cnstr, 1, 1.0)])
         if(self.n_x % 2 != 0):
