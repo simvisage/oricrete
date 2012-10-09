@@ -38,6 +38,7 @@ class CraneCreasePattern(RhombusCreasePattern):
 
     n_x = Int(3, geometry = True)
     n_y = Int(6, geometry = True)
+    dx = Float(1.0)
     
     _crane = Property(depends_on = 'L_x, L_y, L_gp, H_crane, n_x, n_y')
     @cached_property
@@ -142,14 +143,13 @@ class CraneCreasePattern(RhombusCreasePattern):
    
     
     
-    X0 = Property
+    X0 = Property(depends_on = 'L_x, L_y, n_x, n_y, +geometry, _X_rcp, n_dofs, grab_pts')
     @cached_property
     def _get_X0(self):
         X_rcp = self._X_rcp
         X_face_zero = X_rcp[self.facets[0]]
         L = self.grab_pts_L[0]
         X_z_GP_zero = np.dot(X_face_zero[:, 2].T, L)
-        
         X_rcp[:, 2] -= X_z_GP_zero
         X_ext = np.zeros((self.n_dofs - len(X_rcp) * self.n_d,), dtype = float)
         X0 = np.hstack([X_rcp.reshape((-1)), X_ext]).reshape((-1, 3))
@@ -158,8 +158,14 @@ class CraneCreasePattern(RhombusCreasePattern):
             L = self.grab_pts_L[i]
             z = np.dot(X_face[:, 2].T, L)
             X0[self.grab_pts[i][0], 2] = z
-        pos = (len(self._geometry[0]) + self.n_y * int(self.n_x / 2)) 
-        self._crane.X0_height = X0[pos, 2]
+        pos = (len(self._geometry[0]) + self.n_x)
+        # scale on increment
+        height = X0[pos, 2]
+        increment = self.dx / float(self.n_steps)
+        scale = increment / height
+        X0[:, 2] *= scale
+        
+        self._crane.X0_height = increment
         X0_crane_index = self._crane.X0_index
         X0_crane_position = np.array(X0_crane_index[:, 0] + len(self._geometry[0]) + len(self._gp_nodes), dtype = int)
         X0[X0_crane_position, 2] = X0_crane_index[:, 1]
@@ -176,11 +182,9 @@ class CraneCreasePattern(RhombusCreasePattern):
             return a * X ** 2 + b * X
 
         X0 = np.zeros((len(self._geometry[0]), self.n_d,), dtype = 'float')
-        print self.n_h[:, :].flatten()
-        print self.X_h[:, 0]
         X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
         X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
+        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 10.0
 
         return X0.flatten()
     
