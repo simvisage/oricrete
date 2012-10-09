@@ -38,10 +38,11 @@ def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
          
     """
     cp = CraneCreasePattern(n_steps = n_steps,
-                              L_x = 4,
+                            dx = dx,
+                            L_x = 3,
                               L_y = 3,
-                              n_x = 4,
-                              n_y = 6,
+                              n_x = 9,
+                              n_y = 20,
                               MAX_ITER = 500)
     lhs = cp.generate_lhs()
 
@@ -50,8 +51,8 @@ def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
     cp.cnstr_rhs = np.zeros((cp.n_dofs,))
     cp.cnstr_rhs[0] = dx
     X0 = cp.X0 
-   
-    X0 *= 01
+    
+    X0 *= 1.0
     #np.set_printoptions(threshold='nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
@@ -72,7 +73,7 @@ def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
 if __name__ == '__main__':
 
 #    cp = rhombus_3x1_crane(n_steps = 80)
-    cp = rhombus_nx3_crane(n_steps = 80)
+    cp = rhombus_nx3_crane(n_steps = 150)
 #    cp = rhombus_3x3_crane(n_steps = 80)
 
 
