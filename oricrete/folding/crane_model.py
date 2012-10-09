@@ -131,8 +131,9 @@ class CraneModel(HasTraits):
         '''
             returns a creaseline model of the used crane
         '''
-        cl = [[0, 1],
-              [0, 2]]
+#        cl = [[0, 1],
+#              [0, 2]]
+        cl = []
         nodes = self._crane_model_nodes
         for i in range(3, len(nodes)):
             if(nodes[i][0] == -1):
@@ -285,6 +286,8 @@ class CraneModel(HasTraits):
             lhs = [[(0, 0, 1.0)],
                    [(1, 2, 1.0)],
                    [(2, 2, 1.0)],
+                   [(1, 0, 1.0)],
+                   [(2, 0, 1.0)],
                    [(1, 1, 1.0), (0, 1, -1.0)],
                    [(0, 1, 1.0), (2, 1, -1.0)],
                    [(7, 1, 1.0), (0, 1, -1.0)],
@@ -310,6 +313,8 @@ class CraneModel(HasTraits):
             lhs = [[(0, 0, 1.0)],
                    [(1, 2, 1.0)],
                    [(2, 2, 1.0)],
+                   [(1, 0, 1.0)],
+                   [(2, 0, 1.0)],
                    [(1, 1, 1.0), (0, 1, -1.0)],
                    [(0, 1, 1.0), (2, 1, -1.0)],
                    [(3, 2, 1.0), (1, 2, -1.0)],
@@ -382,10 +387,22 @@ class CraneModel(HasTraits):
     
     crane_gp_creaselines = Property(depends_on = 'crane_nodes')
     def _get_crane_gp_creaselines(self):
+        # setup list for fullcrane elements
+        craneelements = [0, self.N_y - 1, self.N_y / 2]
+        if(self.n_x % 2 != 0):
+            n_crane = self.n_x - 3
+            if(n_crane > 0):
+                for i in range(n_crane):
+                    if(i % 2 == 0):
+                        craneelements.append(i / 2 + 1)
+                    else:
+                        craneelements.append(self.N_y - i / 2 - 2)
+                
+        print'craneelements', craneelements    
         gp_crane_cl = []
         for i in range(self.n_y / 2):
             temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
-            if(i != 0 and i != self.N_y - 1 and i != self.N_y / 2):
+            if(not self.iselement(craneelements, i)):
                 temp = np.array(copy.copy(self._gp_crane_cl_left), dtype = int)
             temp[:, 0] += i * self.n_x * 2
             temp[:, 1] += i * len(self._crane_model_nodes) + len(self._framework_model_nodes)
@@ -427,7 +444,12 @@ class CraneModel(HasTraits):
             X0_index = np.append(X0_index, temp)
         return X0_index.reshape((-1, 2))
         
-    
+    def iselement(self, list, element):
+        try:
+            list.index(element)
+            return True
+        except:
+            return False
     
     
     
