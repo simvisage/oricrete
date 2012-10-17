@@ -25,6 +25,7 @@ from singularity_finder import SingularityFinder
 from crease_pattern import CreasePattern
 from rhombus_crease_pattern import RhombusCreasePattern
 from crane_model import CraneModel
+from crane_model2 import CraneModel2
     
 class CraneCreasePattern(RhombusCreasePattern):
     '''
@@ -138,7 +139,11 @@ class CraneCreasePattern(RhombusCreasePattern):
         lp = np.array(copy.copy(self._crane.crane_line_pts), dtype = int)
         lp[:, 0] += len(self._geometry[0]) + len(self.grab_pts)
         lp[:, 1] += len(self._geometry[1])
-        return lp
+        lp_gp = np.array(copy.copy(self._crane.crane_lp_gp), dtype = int)
+        lp_gp[:, 0] += len(self._geometry[0]) + len(self.grab_pts)
+        lp_gp[:, 1] += len(self._geometry[1]) + len(self._crane.crane_creaselines)
+        lp = np.append(lp, lp_gp)
+        return lp.reshape((-1, 2))
     
    
     
@@ -207,15 +212,26 @@ class CraneCreasePattern(RhombusCreasePattern):
                     lhs.append([(c[0][0] + pos, c[0][1], c[0][2]), (c[1][0] + pos, c[1][1], c[1][2])])
                 else:
                     lhs.append([(c[0][0] + pos, c[0][1], c[0][2])])
+        for c in self._crane.crane_lhs_gp:
+                if(len(c) > 1):
+                    lhs.append([(c[0][0] + pos, c[0][1], c[0][2]), (c[1][0] + n_nodes, c[1][1], c[1][2])])
+                else:
+                    lhs.append([(c[0][0] + pos, c[0][1], c[0][2])])
+                    
         for i in range(self.N_y):
             x = self.n_x * (self.N_y + 1) + 3 * self.N_y + self.N_y * int(self.n_x / 2) + 1
-            lhs.append([(x + i, 1, 1.0), (pos + i * self._crane.n_model_nodes, 1, -1.0)])
+            lhs.append([(x + i, 1, 1.0), (pos + self._crane.n_fw + i * self._crane.n_model_nodes, 1, -1.0)])
+
 #            if(float(i) == (self.N_y - 1) / 2.0):
 #                lhs.append([(x + i, 1, 1.0)])
         lhs.append([(x_cnstr, 0, 1.0)])
         lhs.append([(y_cnstr, 1, 1.0)])
         if(self.n_x % 2 != 0):
-            x = (self.n_x - 1) / 2
+            x = (self.n_x - 1) / 2 
             pos1 = x * (self.N_y + 1) 
-            lhs.append([(pos1, 2, 1.0), (pos1 + (self.N_y + 1), 2, -1.0)])            
+            lhs.append([(pos1, 2, 1.0), (pos1 + (self.N_y + 1), 2, -1.0)])
+        else:
+            x = self.n_x / 2 - 1
+            pos1 = x * (self.N_y + 1) 
+            lhs.append([(pos1, 1, 1.0), (pos1 + (self.N_y + 1), 1, -1.0)])        
         return lhs
