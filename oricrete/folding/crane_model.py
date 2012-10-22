@@ -31,6 +31,7 @@ class CraneModel(HasTraits):
     n_x = Int(3)
     n_y = Int(6)
     X0_height = 1.0
+    y_deformation = False
     
     N_y = Property(depends_on = 'n_y')
     def _get_N_y(self):
@@ -233,19 +234,6 @@ class CraneModel(HasTraits):
 #===============================================================================
 #  Creasepattern Crane model connections
 #===============================================================================
-    _gp_crane_cl2 = Property(depends_on = '_crane_model_nodes')
-    @cached_property
-    def _get__gp_crane_cl2(self):
-        cl = []
-        nodes = self._crane_model_nodes
-        counter = 0
-        for i in range(len(nodes)):
-            if(nodes[i][1] != 0):
-                cl.append([counter, i])
-                counter += 1
-            
-        return cl
-    
     _gp_crane_cl = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__gp_crane_cl(self):
@@ -286,6 +274,100 @@ class CraneModel(HasTraits):
             cl = [[0, 3],
                   [1, 4],
                   [self.n_x - 1, 5],
+                  [self.n_x , 6]
+                  ]
+        return cl
+    
+    
+    
+    _gp_crane_cl_front = Property(depends_on = '_crane_model_nodes')
+    @cached_property
+    def _get__gp_crane_cl_front(self):
+        cl = []
+        if(self.n_x % 2 == 0):
+            cl = [[0, 3],
+#                  [1, 4],
+                  [self.n_x - 2, 5],
+#                  [self.n_x - 2 + 1, 6],
+                  [self.n_x - 2 + 2, 8],
+#                  [self.n_x - 2 + 3, 9],
+                  [self.n_x * 2 - 2, 11],
+#                  [self.n_x * 2 - 1, 12]
+                  ]
+        else:
+            cl = [[0, 3],
+#                  [1, 4],
+                  [self.n_x - 1, 5],
+#                  [self.n_x , 6],
+                  [self.n_x * 2 - 2, 7],
+#                  [self.n_x * 2 - 1, 8]
+                  ]
+        return cl
+    
+    _gp_crane_cl_left_front = Property(depends_on = '_crane_model_nodes')
+    @cached_property
+    def _get__gp_crane_cl_left_front(self):
+        cl = []
+        if(self.n_x % 2 == 0):
+            cl = [[0, 3],
+#                  [1, 4],
+                  [self.n_x - 2, 5],
+#                  [self.n_x - 2 + 1, 6],
+#                  [self.n_x - 2 + 2, 8],
+#                  [self.n_x - 2 + 3, 9]
+                  ]
+        else:
+            cl = [[0, 3],
+#                  [1, 4],
+                  [self.n_x - 1, 5],
+#                  [self.n_x , 6]
+                  ]
+        return cl
+    
+    _gp_crane_cl_back = Property(depends_on = '_crane_model_nodes')
+    @cached_property
+    def _get__gp_crane_cl_back(self):
+        cl = []
+        if(self.n_x % 2 == 0):
+            cl = [
+#                  [0, 3],
+                  [1, 4],
+#                  [self.n_x - 2, 5],
+                  [self.n_x - 2 + 1, 6],
+#                  [self.n_x - 2 + 2, 8],
+                  [self.n_x - 2 + 3, 9],
+#                  [self.n_x * 2 - 2, 11],
+                  [self.n_x * 2 - 1, 12]
+                  ]
+        else:
+            cl = [
+#                  [0, 3],
+                  [1, 4],
+#                  [self.n_x - 1, 5],
+                  [self.n_x , 6],
+#                  [self.n_x * 2 - 2, 7],
+                  [self.n_x * 2 - 1, 8]
+                  ]
+        return cl
+    
+    _gp_crane_cl_left_back = Property(depends_on = '_crane_model_nodes')
+    @cached_property
+    def _get__gp_crane_cl_left_back(self):
+        cl = []
+        if(self.n_x % 2 == 0):
+            cl = [
+#                  [0, 3],
+                  [1, 4],
+#                  [self.n_x - 2, 5],
+                  [self.n_x - 2 + 1, 6],
+#                  [self.n_x - 2 + 2, 8],
+#                  [self.n_x - 2 + 3, 9]
+                  ]
+        else:
+            cl = [
+#                  [0, 3],
+                  [1, 4],
+#                  [self.n_x - 1, 5],
                   [self.n_x , 6]
                   ]
         return cl
@@ -411,37 +493,80 @@ class CraneModel(HasTraits):
         return lp.reshape((-1, 2))
         
     
-    crane_gp_creaselines = Property(depends_on = 'crane_nodes')
+    crane_gp_creaselines = Property(depends_on = 'crane_nodes, y_deformation')
     def _get_crane_gp_creaselines(self):
         # setup list for fullcrane elements
-        if(self.n_x % 2 != 0):
-            craneelements = [0, self.N_y - 1, self.N_y / 2]
-            n_crane = self.n_x - 3
-            if(n_crane > 0):
-                for i in range(n_crane):
-                    if(i % 2 == 0):
-                        craneelements.append(i / 2 + 1)
-                    else:
-                        craneelements.append(self.N_y - i / 2 - 2)
-        else:
-            craneelements = [0, self.N_y - 1]
-            n_crane = self.n_x / 2 - 2
+        if(self.y_deformation):
+            if(self.n_x % 2 != 0):
+                craneelements = [0, self.N_y - 1, self.N_y / 2]
+                n_crane = self.n_x - 3
+                if(n_crane > 0):
+                    for i in range(n_crane):
+                        if(i % 2 == 0):
+                            craneelements.append(i / 2 + 1)
+                        else:
+                            craneelements.append(self.N_y - i / 2 - 2)
+            else:
+                craneelements = [0, self.N_y - 1]
+                n_crane = self.n_x / 2 - 2
             
-            if(n_crane > 0):
-                for i in range(n_crane):
-                    if(i % 2 == 0):
-                        craneelements.append(i / 2 + 1)
-                    else:
-                        craneelements.append(self.N_y - i / 2 - 2)
+                if(n_crane > 0):
+                    for i in range(n_crane):
+                        if(i % 2 == 0):
+                            craneelements.append(i / 2 + 1)
+                        else:
+                            craneelements.append(self.N_y - i / 2 - 2)
                 
-        gp_crane_cl = []
-        for i in range(self.n_y / 2):
-            temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
-            if(not self.iselement(craneelements, i)):
-                temp = np.array(copy.copy(self._gp_crane_cl_left), dtype = int)
-            temp[:, 0] += i * self.n_x * 2
-            temp[:, 1] += i * len(self._crane_model_nodes) + len(self._framework_model_nodes)
-            gp_crane_cl = np.append(gp_crane_cl, temp)
+            gp_crane_cl = []
+            for i in range(self.n_y / 2):
+                if(i < (self.N_y - 1) / 2.):
+                    print'here1', i
+                    temp = np.array(copy.copy(self._gp_crane_cl_front), dtype = int)
+                elif(i == (self.N_y - 1) / 2.):
+                    temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
+                else:
+                    print 'here2 ', i
+                    temp = np.array(copy.copy(self._gp_crane_cl_back), dtype = int)
+                if(not self.iselement(craneelements, i)):
+                    if(i < (self.N_y - 1) / 2.):
+                        temp = np.array(copy.copy(self._gp_crane_cl_left_front), dtype = int)
+                        
+                    elif(i == (self.N_y - 1) / 2.):
+                        temp = np.array(copy.copy(self._gp_crane_cl_left), dtype = int)
+                    else:
+                        temp = np.array(copy.copy(self._gp_crane_cl_left_back), dtype = int)
+                temp[:, 0] += i * self.n_x * 2
+                temp[:, 1] += i * len(self._crane_model_nodes) + len(self._framework_model_nodes)
+                gp_crane_cl = np.append(gp_crane_cl, temp)
+        else:
+            if(self.n_x % 2 != 0):
+                craneelements = [0, self.N_y - 1, self.N_y / 2]
+                n_crane = self.n_x - 3
+                if(n_crane > 0):
+                    for i in range(n_crane):
+                        if(i % 2 == 0):
+                            craneelements.append(i / 2 + 1)
+                        else:
+                            craneelements.append(self.N_y - i / 2 - 2)
+            else:
+                craneelements = [0, self.N_y - 1]
+                n_crane = self.n_x / 2 - 2
+            
+                if(n_crane > 0):
+                    for i in range(n_crane):
+                        if(i % 2 == 0):
+                            craneelements.append(i / 2 + 1)
+                        else:
+                            craneelements.append(self.N_y - i / 2 - 2)
+                
+            gp_crane_cl = []
+            for i in range(self.n_y / 2):
+                temp = np.array(copy.copy(self._gp_crane_cl), dtype = int)
+                if(not self.iselement(craneelements, i)):
+                    temp = np.array(copy.copy(self._gp_crane_cl_left), dtype = int)
+                temp[:, 0] += i * self.n_x * 2
+                temp[:, 1] += i * len(self._crane_model_nodes) + len(self._framework_model_nodes)
+                gp_crane_cl = np.append(gp_crane_cl, temp)
         return gp_crane_cl.reshape((-1, 2))
     
     crane_lhs = Property(depends_on = 'crane_nodes, n_x, n_y, L_x, L_y')
