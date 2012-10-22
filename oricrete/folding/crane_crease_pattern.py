@@ -29,35 +29,54 @@ from crane_model2 import CraneModel2
     
 class CraneCreasePattern(RhombusCreasePattern):
     '''
-        Structure of triangulated Crease-Patterns with crane
+        This module generates a NxM Rhombus-Creasepattern including Grabpoints 
+        with an predefined distance to the middelline of each N_y segment.
+        It's Segments are uniformly distributed over both axis.
+        This module also loads a crane-model which can be used for simulation.
+        As long as the crane-model supports, this module can also load a 
+        predeformation(X0) and a lhs constrain system for the crane.
+        At the moment it can generate a NxM Pattern with crane which is simulating
+        an one axial deformation over the x-axis within to an tube.
     '''
     
-    L_x = Float(3, geometry = True)
-    L_y = Float(3, geometry = True)
-    L_gp = Float(0.167)
-    H_crane = Float(1.)
+    L_x = Float(3, geometry = True) # whole length on X-direction 
+    L_y = Float(3, geometry = True) # whole length on Y-direction
+    L_gp = Float(0.167)             # distance from middelline of a Y-Segment to grabpoints
+    H_crane = Float(1.)             # hight of the crane in initial position
 
-    n_x = Int(3, geometry = True)
-    n_y = Int(6, geometry = True)
-    dx = Float(1.0)
+    n_x = Int(3, geometry = True)   # number of segments in X-direction
+    n_y = Int(6, geometry = True)   # number of half segments in Y-direction (only full 
+                                    # segments allowed, so n_y have to be even
+    dx = Float(1.0)                 # whole deformation on choosen DOF's
+    y_deformation = False           # boolean used for modding the cranemodel for multi usage
     
-    _crane = Property(depends_on = 'L_x, L_y, L_gp, H_crane, n_x, n_y')
+    _crane = Property(depends_on = 'L_x, L_y, L_gp, H_crane, n_x, n_y, y_deformation')
     @cached_property
     def _get__crane(self):
+        '''
+            Initialize the crane model 
+        '''
         crane = CraneModel(L_x = self.L_x,
                            L_y = self.L_y,
                            L_gp = self.L_gp,
                            H_crane = self.H_crane,
                            n_x = self.n_x,
-                           n_y = self.n_y)
+                           n_y = self.n_y,
+                           y_deformation = self.y_deformation)
         return crane
     
     N_y = Property(depends_on = 'n_y')
     def _get_N_y(self):
+        '''
+            Number of full Segments in Y-Direction
+        '''
         return self.n_y / 2
     
     _X_rcp = Property
     def _get__X_rcp(self):
+        '''
+            Predeformation of the Crease Pattern
+        '''
         X_rcp = self.generate_X0()
         X_rcp = X_rcp.reshape((-1, 3))
         return X_rcp 
@@ -65,6 +84,9 @@ class CraneCreasePattern(RhombusCreasePattern):
     _gp_onesize_nodes = Property(depends_on = 'n_x, n_y')
     @cached_property
     def _get__gp_onesize_nodes(self):
+        '''
+            generates nodes for Grabpoints for one Y-Segment
+        '''
         gp_n = []
         for i in range(self.n_x):
             x_pos = float((1 + 2 * i)) / float((self.n_x * 2))
@@ -75,6 +97,10 @@ class CraneCreasePattern(RhombusCreasePattern):
     _gp_nodes = Property(depends_on = '+geometry, L_gp')
     @cached_property
     def _get__gp_nodes(self):
+        '''
+            generates all nodes for Grabpoints  connectet to the creasepattern
+            using _gp_onesize_nodes as map
+        '''
         gp_nodes = []
         for i in range(self.n_y / 2):
             temp = np.array(copy.copy(self._gp_onesize_nodes))
@@ -86,6 +112,9 @@ class CraneCreasePattern(RhombusCreasePattern):
     
     _gp_modell = Property(depends_on = 'N_y, n_x')
     def _get__gp_modell(self):
+        '''
+            generates a map for Grabpoint list
+        '''
         gp = []
         second_row = int((2 * self.n_x + 1) * self.N_y)
         for j in range(self.n_x):
@@ -95,6 +124,9 @@ class CraneCreasePattern(RhombusCreasePattern):
     
     _grab_points = Property(depends_on = '_gp_nodes')
     def _get__grab_points(self):
+        '''
+            generates all Grabpoints connected to the creasepattern
+        '''
         gp = []
         for i in range(self.n_y / 2):
             temp = np.array(copy.copy(self._gp_modell))
@@ -109,6 +141,12 @@ class CraneCreasePattern(RhombusCreasePattern):
     nodes = Property
     @cached_property
     def _get_nodes(self):
+        '''
+            fetching all Nodes from:
+            - Rhombus Creasepattern
+            - Grabpoints
+            - Crane
+        '''
         nodes = copy.copy(self._geometry[0])
         nodes = np.append(nodes, self._gp_nodes)
         nodes = np.append(nodes, self._crane.crane_nodes)
@@ -117,6 +155,12 @@ class CraneCreasePattern(RhombusCreasePattern):
     crease_lines = Property
     @cached_property
     def _get_crease_lines(self):
+        '''
+            fetching all Creaselines from:
+            - Rhombus Creasepattern
+            - Crane
+            - Connection Grabpoints->Crane
+        '''
         cl = np.array(copy.copy(self._geometry[1]), dtype = int)
         cl = np.append(cl, self._crane.crane_creaselines + len(self._geometry[0]) + len(self._gp_nodes))
         temp = np.array(copy.copy(self._crane.crane_gp_creaselines))
@@ -129,6 +173,10 @@ class CraneCreasePattern(RhombusCreasePattern):
     grab_pts = Property
     @cached_property
     def _get_grab_pts(self):
+        '''
+            fetching all grabpoints from:
+            - RhombusCreasepattern
+        '''
         gp = np.array(copy.copy(self._grab_points), dtype = int)
         gp[:, 0] += (len(self._geometry[0]))
         return gp.reshape((-1, 2))
@@ -136,6 +184,11 @@ class CraneCreasePattern(RhombusCreasePattern):
     line_pts = Property
     @cached_property
     def _get_line_pts(self):
+        '''
+            fetching all linepoints from:
+            - crane
+            - crane-grabpoint connection
+        '''
         lp = np.array(copy.copy(self._crane.crane_line_pts), dtype = int)
         lp[:, 0] += len(self._geometry[0]) + len(self.grab_pts)
         lp[:, 1] += len(self._geometry[1])
@@ -145,12 +198,14 @@ class CraneCreasePattern(RhombusCreasePattern):
         lp = np.append(lp, lp_gp)
         return lp.reshape((-1, 2))
     
-   
-    
-    
     X0 = Property(depends_on = 'L_x, L_y, n_x, n_y, +geometry, _X_rcp, n_dofs, grab_pts')
     @cached_property
     def _get_X0(self):
+        '''
+            fetching all predeformations from:
+            - Rhombus Creasepattern
+            - Crane
+        '''
         X_rcp = self._X_rcp
         X_face_zero = X_rcp[self.facets[0]]
         L = self.grab_pts_L[0]
@@ -176,7 +231,11 @@ class CraneCreasePattern(RhombusCreasePattern):
         X0[X0_crane_position, 2] = X0_crane_index[:, 1]
         return X0.reshape((-1))
         
-    def generate_X0(self):
+    
+    def _get_generate_X0(self):
+        '''
+            generator for the predeformation of Rhombus Creasepattern
+        '''
         L_x = self.L_x
         z0 = L_x * self.z0_ratio
         para_lhs = np.array([[ L_x ** 2.0, L_x ],
@@ -195,6 +254,9 @@ class CraneCreasePattern(RhombusCreasePattern):
     
 
     def generate_lhs(self):
+        '''
+            generator for lhs constrains of Rhombus Creasepattern and Crane
+        '''
         n_nodes = len(self._geometry[0])
         n_gp = len(self._gp_nodes)
         pos = n_nodes + n_gp
