@@ -32,17 +32,17 @@ from oricrete.folding.singularity_finder import SingularityFinder
 from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, CraneCreasePattern, FF, x_, y_, z_, t_
     
-def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
+def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6):
     """
         This example shows a 3x2 rhombus creasepattern.
          
     """
     cp = CraneCreasePattern(n_steps = n_steps,
                             dx = dx,
-                            L_x = 4,
-                              L_y = 4,
-                              n_x = 3,
-                              n_y = 6,
+                            L_x = L_x,
+                              L_y = L_y,
+                              n_x = n_x,
+                              n_y = n_y,
                               MAX_ITER = 500)
     lhs = cp.generate_lhs()
 
@@ -72,9 +72,9 @@ def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
 
 if __name__ == '__main__':
 
-#    cp = rhombus_3x1_crane(n_steps = 80)
-    cp = rhombus_nx3_crane(n_steps = 80)
-#    cp = rhombus_3x3_crane(n_steps = 80)
+
+    cp = rhombus_nxm_crane(n_steps = 80, L_x = 6, L_y = 5, n_x = 6, n_y = 10)
+
 
 
     # initialise View

@@ -370,7 +370,7 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 if __name__ == '__main__':
 
 
-    cp_fc = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 20, n_y = 20,
+    cp_fc = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 10, n_y = 10,
                          n_steps = 20)
 
     print 't_arr',

@@ -47,7 +47,11 @@ class CraneModel(HasTraits):
                 [1, 1, 0],
                 [-1, 1, 0],
                 [0, -1, 0],
-                [0, 1, 0]]
+                [0, 1, 0], ]
+#                [0, -1, 0],
+#                [0, 1, 0],
+#                [0, -1, 1],
+#                [0, 1, 1]]
         return fw_n
     
     _framework_model_cl = Property(depends_on = 'n_x')
@@ -55,7 +59,11 @@ class CraneModel(HasTraits):
     def _get__framework_model_cl(self):
         fw_cl = [[0, 3],
                 [1, 2],
-                [4, 5]]
+                [4, 5],
+                [0, 1],
+                [3, 2], ]
+#                [6, 8],
+#                [7, 9]]
         return fw_cl
     
     _framework_model_lhs = Property(depends_on = 'n_x')
@@ -68,13 +76,23 @@ class CraneModel(HasTraits):
                   [(3, 2, 1.0)],
                   [(1, 2, 1.0)],
                   [(1, 1, 1.0)],
-                  [(1, 0, 1.0)],
-                  [(2, 0, 1.0)],
+                  #[(1, 0, 1.0)],
+                  #[(2, 0, 1.0)],
                   [(2, 2, 1.0)],
                   [(4, 0, 1.0)],
                   [(5, 0, 1.0)],
                   [(4, 1, 1.0)],
-                  [(4, 2, 1.0), (5, 2, -1.0)]
+                  [(4, 2, 1.0), (5, 2, -1.0)],
+#                  [(6, 0, 1.0)],
+#                  [(6, 1, 1.0)],
+#                  [(6, 2, 1.0)],
+#                  [(7, 0, 1.0)],
+#                  [(7, 1, 1.0)],
+#                  [(8, 0, 1.0)],
+#                  [(8, 1, 1.0)],
+#                  [(8, 2, 1.0)],
+#                  [(9, 0, 1.0)],
+#                  [(9, 1, 1.0)]
                   ]
         return fw_lhs
     
@@ -264,8 +282,8 @@ class CraneModel(HasTraits):
         cl = []
         if(self.n_x % 2 == 0):
             cl = [
-#                  [0, 3],
-#                  [1, 4],
+                  [0, 3],
+                  [1, 4],
                   [self.n_x - 2, 5],
                   [self.n_x - 2 + 1, 6],
                   [self.n_x - 2 + 2, 8],
@@ -275,8 +293,8 @@ class CraneModel(HasTraits):
                   ]
         else:
             cl = [
-#                  [0, 3],
-#                  [1, 4],
+                  [0, 3],
+                  [1, 4],
                   [self.n_x - 1, 5],
                   [self.n_x , 6],
 #                  [self.n_x * 2 - 2, 7],
@@ -311,7 +329,8 @@ class CraneModel(HasTraits):
     def _get__gp_crane_cl_front(self):
         cl = []
         if(self.n_x % 2 == 0):
-            cl = [[0, 3],
+            cl = [
+#                  [0, 3],
 #                  [1, 4],
 #                  [self.n_x - 2, 5],
 #                  [self.n_x - 2 + 1, 6],
@@ -321,7 +340,8 @@ class CraneModel(HasTraits):
 #                  [self.n_x * 2 - 1, 12]
                   ]
         else:
-            cl = [[0, 3],
+            cl = [
+#                  [0, 3],
 #                  [1, 4],
 #                  [self.n_x - 1, 5],
 #                  [self.n_x , 6],
@@ -335,7 +355,8 @@ class CraneModel(HasTraits):
     def _get__gp_crane_cl_left_front(self):
         cl = []
         if(self.n_x % 2 == 0):
-            cl = [[0, 3],
+            cl = [
+                  [0, 3],
 #                  [1, 4],
                   [self.n_x - 2, 5],
 #                  [self.n_x - 2 + 1, 6],
@@ -357,7 +378,7 @@ class CraneModel(HasTraits):
         if(self.n_x % 2 == 0):
             cl = [
 #                  [0, 3],
-                  [1, 4],
+#                  [1, 4],
 #                  [self.n_x - 2, 5],
 #                  [self.n_x - 2 + 1, 6],
 #                  [self.n_x - 2 + 2, 8],
@@ -368,7 +389,7 @@ class CraneModel(HasTraits):
         else:
             cl = [
 #                  [0, 3],
-                  [1, 4],
+#                  [1, 4],
 #                  [self.n_x - 1, 5],
 #                  [self.n_x , 6],
 #                  [self.n_x * 2 - 2, 7],

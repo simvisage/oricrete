@@ -882,8 +882,7 @@ def rhombus_3x3_crane(n_steps = 10, dx = 0.7):
     #X0[135] = -0.1441
     
     
-
-    
+    cp.create_rcp_tex(name = 'rcp_x3_y3.tex')    
     
     X0 *= 0.1
     #np.set_printoptions(threshold='nan')
@@ -903,15 +902,16 @@ def rhombus_3x3_crane(n_steps = 10, dx = 0.7):
     X = cp.solve(X0)
     return cp
 
+
 if __name__ == '__main__':
 
 #    cp = rhombus_3x1_crane(n_steps = 80)
-    cp = rhombus_3x2_crane(n_steps = 80)
-#    cp = rhombus_3x3_crane(n_steps = 80)
-
-
+#    cp = rhombus_3x2_crane(n_steps = 80)
+    cp = rhombus_3x3_crane(n_steps = 80)
+#    cp.create_3D_tex(name = '3x3_crane.tex')
+#    cp.create_3D_tex('cp3x1K33D.tex')
     # initialise View
-    
+
     cpv = CreasePatternView(data = cp, show_cnstr = True)
     
     cpv.configure_traits()

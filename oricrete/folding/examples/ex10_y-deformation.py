@@ -39,8 +39,8 @@ def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
     """
     cp = CraneCreasePattern(n_steps = n_steps,
                             dx = dx,
-                            L_x = 4,
-                              L_y = 4,
+                            L_x = 5,
+                              L_y = 3,
                               n_x = 3,
                               n_y = 6,
                               MAX_ITER = 500,

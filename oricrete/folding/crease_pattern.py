@@ -253,7 +253,7 @@ class CreasePattern(HasTraits):
         '''
         i = self.crease_lines[:, 0]
         j = self.crease_lines[:, 1]
-
+        
         X = X_vct.reshape(self.n_n, self.n_d)
         Xj = X[j]
         Xi = X[i]

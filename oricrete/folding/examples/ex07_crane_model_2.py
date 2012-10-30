@@ -224,7 +224,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.5):
                     [(40, 0, 1.0)],
                     
                     [(37, 2, 1.0), (41, 2, -1.0)],
-                    [(2, 2, 1.0), (4, 2, -1.0)]
+                    [(2, 1, 1.0), (4, 1, -1.0)]
                     
                     ]
     
@@ -472,9 +472,9 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.5):
     X0[136] = 0.01
     X0[142] = -0.01
     
-    return cp, X0
+    return cp
 
-def rhombus_3x2_crane_fixed_sticks(n_steps = 10, dx = 0.5):
+def rhombus_3x2_crane_fixed_sticks(n_steps = 10, dx = 0.7):
     """
         This example shows a 3x2 rhombus creasepattern.
          
@@ -1101,7 +1101,7 @@ def rhombus_3x3_crane_fixed_sticks(n_steps = 10, dx = 0.5):
     
     return cp, X0
 
-def rhombus_3x2_fixed_sticks(n_steps = 10, dx = 0.5):
+def rhombus_3x2_fixed_sticks(n_steps = 10, dx = 1.5):
     cp, X0 = rhombus_3x2_crane_fixed_sticks(n_steps, dx)
     
     cp.cnstr_lhs = [[(62, 2, 1.0)],
@@ -1680,12 +1680,12 @@ if __name__ == '__main__':
 #    cp = rhombus_3x1_crane(n_steps = 80)
 #    cp = rhombus_3x2_crane(n_steps = 80)
 #    cp = rhombus_3x2_fixed_sticks(n_steps = 80)
-#    cp = rhombus_3x2_fixed_sticks_2(n_steps = 80)
-    cp = rhombus_3x2_y_fixed(n_steps = 120)
+    cp = rhombus_3x2_fixed_sticks_2(n_steps = 80)
+#    cp = rhombus_3x2_y_fixed(n_steps = 120)
 #    cp = rhombus_3x2_moveable_sticks(n_steps = 80)
 #    cp = rhombus_3x3_fixed_sticks(n_steps = 80)
     # initialise View
-    
+#    cp.create_3D_tex('3x1K2.tex')
     cpv = CreasePatternView(data = cp, show_cnstr = True)
     
     cpv.configure_traits()
