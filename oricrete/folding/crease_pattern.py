@@ -716,7 +716,51 @@ class CreasePattern(HasTraits):
             f.write('  \\pstThreeDPut(%.3f,%.3f,%.3f){%s}\n' %(n[i][0],n[i][1],n[i][2],i))
         f.write(' \\end{pspicture}' + '\n')
 #        f.write(' \\end{pdfdisplay}' + '\n')
-        f.close()    
+        f.close() 
+        
+    def create_output(self, name = 'OutputData.txt'):
+        '''
+            Creates an output file which contains the basic creaspattern information and the 
+            Nodeposition in every timestep
+        '''
+        f = open(name, 'w')
+        n = self.nodes
+        cl = self.crease_lines
+        fc = self.facets
+        #=======================================================================
+        # Basic Informations: Nodes, Creaselines, Facets
+        #=======================================================================
+        
+        # Nodes
+        f.write(' This Outputfile contains all basic geometrical datas of a Creasepattern and \n')
+        f.write(' the Coordinates of each Node in every timestep, after solving the system. \n \n')
+        f.write(' ### Basic Informations ### \n \n')
+        f.write(' NODES \n')
+        f.write(' Index\t X\t Y\t Z\n')
+        for i in range(len(n)):
+            f.write(' %i\t %.4f\t %.4f\t %.4f\n' % (i, n[i][0], n[i][1], n[i][2]))
+        f.write('\n CREASELINES \n')
+        f.write(' Index\t Node1\t Node2\n')
+        for i in range(len(cl)):
+            f.write(' %i\t %i\t %i\n' % (i, cl[i][0], cl[i][1]))
+        f.write('\n FACETS \n')
+        f.write(' Index\t Node1\t Node2\t Node3\t \n')
+        for i in range(len(fc)):
+            f.write(' %i\t %i\t %i\t %i\t \n' % (i, fc[i][0], fc[i][1], fc[i][2]))
+        
+        #=======================================================================
+        # Nodepostion in every timestep
+        #=======================================================================
+        
+        f.write('\n  ### Nodeposition in every timestep ### \n')
+        inodes = self.iteration_nodes
+        for i in range(2, len(inodes)):
+            f.write('\n Iterationstep %i\n' % (i - 1))
+            f.write(' Index\t X\t Y\t Z\n')
+            for p in range(len(inodes[i])):
+                f.write(' %i\t %.4f\t %.4f\t %.4f\n' % (p, inodes[i][p][0], inodes[i][p][1], inodes[i][p][2]))
+            
+        f.close()
         
 if __name__ == '__main__':
 
