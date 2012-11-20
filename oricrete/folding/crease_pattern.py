@@ -718,7 +718,7 @@ class CreasePattern(HasTraits):
 #        f.write(' \\end{pdfdisplay}' + '\n')
         f.close() 
         
-    def create_output(self, name = 'OutputData.txt'):
+    def save_output(self, name = 'OutputData.txt'):
         '''
             Creates an output file which contains the basic creaspattern information and the 
             Nodeposition in every timestep
