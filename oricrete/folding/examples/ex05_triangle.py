@@ -188,7 +188,7 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
 
 def small_rhombus_grab_points(n_steps = 10, dx = 1.0):
     
-    cp = CreasePattern(n_steps = n_steps)
+    cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
     
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
@@ -197,8 +197,8 @@ def small_rhombus_grab_points(n_steps = 10, dx = 1.0):
                 [0, 0.5, 0],
                 [1, 0.5, 0],
                 [0.5, 0.5, 0],
-                [0.5, 0.5 / 3, 0],
-                [0.5, 1 - 0.5 / 3, 0]]
+                [0.5, 2 * 0.5 / 3, 0],
+                [0.5, 1 - 2 * 0.5 / 3, 0]]
     
     cp.crease_lines = [[0, 2],
                        [0, 4],
@@ -367,7 +367,7 @@ def rhombus_grab_points(L_x = 3, L_y = 1, n_x = 3, n_y = 2, n_steps = 80):
     print 'necessary constraints', cp.n_dofs - cp.n_c
     print 'cnstr', len(cp.cnstr_lhs)
 
-    X_vct = cp.solve(X0)
+#    X_vct = cp.solve(X0)
 
     return cp
 
