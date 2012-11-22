@@ -19,6 +19,7 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
 
 import numpy as np
+import sys
 
 class CreasePattern(HasTraits):
     '''
@@ -75,6 +76,10 @@ class CreasePattern(HasTraits):
     # first indize gives node, second gives the facet 
     grab_pts = List()
 
+    # points moveable only on a creaseline [n,cl]
+    # first indice gives the node, scond the cleaseline
+    line_pts = List()
+
     # constrained node indices
     # define the pairs (node, dimension) affected by the constraint
     # stored in the constrained_x array
@@ -126,6 +131,11 @@ class CreasePattern(HasTraits):
     def _get_n_g(self):
         '''Number of Grabpoints'''
         return len(self.grab_pts)
+
+    n_l = Property
+    def _get_n_l(self):
+        '''Number of line pts'''
+        return len(self.line_pts)
 
     n_d = Constant(3)
 
@@ -266,6 +276,144 @@ class CreasePattern(HasTraits):
         # in 3d.
         # 
         return dR.reshape(self.n_c, self.n_n * self.n_d)
+<<<<<<< HEAD
+
+== == == =
+
+    def get_line_R(self, X_vct):
+        line = np.array(self.line_pts)
+        if(len(line) == 0):
+            return []
+        cl = self.crease_lines[line[:, 1]]
+        X = X_vct.reshape(self.n_n, self.n_d)
+        p0 = self.nodes[line[:, 0]]
+        p1 = self.nodes[cl[:, 0]]
+        p2 = self.nodes[cl[:, 1]]
+        dp0 = X[line[:, 0]]
+        dp1 = X[cl[:, 0]]
+        dp2 = X[cl[:, 1]]
+        Rx = (p0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
+              dp0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
+              p1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
+              dp1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
+              p2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
+              dp2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
+        Ry = (p0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
+              dp0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
+              p1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
+              dp1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
+              p2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]) +
+              dp2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]))
+        Rz = (p0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
+              dp0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
+              p1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
+              dp1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
+              p2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
+              dp2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
+
+        R = np.zeros((len(Rx) * 2,))
+        for i in range(len(Rx)):
+            if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
+                R[i * 2] = Ry[i]
+                R[i * 2 + 1] = Rx[i]
+            elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
+                R[i * 2] = Rx[i]
+                R[i * 2 + 1] = Rz[i]
+            else:
+                R[i * 2] = Rx[i]
+                R[i * 2 + 1] = Ry[i]
+
+        return R.reshape((-1,))
+
+    def get_line_dR(self, X_vct):
+        ''' Calculate the jacobian of the residuum at the instantaneous
+        configuration dR
+        '''
+        line = np.array(self.line_pts)
+        if(len(line) == 0):
+            return np.zeros((self.n_l * 2, self.n_dofs))
+        cl = self.crease_lines[line[:, 1]]
+        X = X_vct.reshape(self.n_n, self.n_d)
+        p0 = self.nodes[line[:, 0]]
+        p1 = self.nodes[cl[:, 0]]
+        p2 = self.nodes[cl[:, 1]]
+        dp0 = X[line[:, 0]]
+        dp1 = X[cl[:, 0]]
+        dp2 = X[cl[:, 1]]
+        dR = np.zeros((len(line) * 2, self.n_dofs))
+
+        for i in range(len(line)):
+            if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
+                dR1 = self.get_line_dRf2(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+                dR2 = self.get_line_dRf3(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+            elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
+                dR1 = self.get_line_dRf1(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+                dR2 = self.get_line_dRf3(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+            else:
+                dR1 = self.get_line_dRf1(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+                dR2 = self.get_line_dRf2(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
+            dR[i * 2] = dR1
+            dR[i * 2 + 1] = dR2
+
+        return dR
+
+    def get_line_dRf1(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
+        dfdx0 = p2[2] + dp2[2] - p1[2] - dp1[2]
+        dfdx1 = p0[2] + dp0[2] - p2[2] - dp2[2]
+        dfdx2 = p1[2] + dp1[2] - p0[2] - dp0[2]
+
+        dfdz0 = p1[0] + dp1[0] - p2[0] - dp2[0]
+        dfdz1 = p2[0] + dp2[0] - p0[0] - dp0[0]
+        dfdz2 = p0[0] + dp0[0] - p1[0] - dp1[0]
+
+        dR = np.zeros((1, self.n_dofs))
+        dR[0, line[0] * 3] = dfdx0
+        dR[0, line[0] * 3 + 2] = dfdz0
+        dR[0, cl[0] * 3] = dfdx1
+        dR[0, cl[0] * 3 + 2] = dfdz1
+        dR[0, cl[1] * 3] = dfdx2
+        dR[0, cl[1] * 3 + 2] = dfdz2
+
+        return dR
+
+    def get_line_dRf2(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
+        dfdy0 = p2[2] + dp2[2] - p1[2] - dp1[2]
+        dfdy1 = p0[2] + dp0[2] - p2[2] - dp2[2]
+        dfdy2 = p1[2] + dp1[2] - p0[2] - dp0[2]
+
+        dfdz0 = p1[1] + dp1[1] - p2[1] - dp2[1]
+        dfdz1 = p2[1] + dp2[1] - p0[1] - dp0[1]
+        dfdz2 = p0[1] + dp0[1] - p1[1] - dp1[1]
+
+        dR = np.zeros((1, self.n_dofs))
+
+        dR[0, line[0] * 3 + 1] = dfdy0
+        dR[0, line[0] * 3 + 2] = dfdz0
+        dR[0, cl[0] * 3 + 1] = dfdy1
+        dR[0, cl[0] * 3 + 2] = dfdz1
+        dR[0, cl[1] * 3 + 1] = dfdy2
+        dR[0, cl[1] * 3 + 2] = dfdz2
+
+        return dR
+
+    def get_line_dRf3(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
+        dfdx0 = p2[1] + dp2[1] - p1[1] - dp1[1]
+        dfdx1 = p0[1] + dp0[1] - p2[1] - dp2[1]
+        dfdx2 = p1[1] + dp1[1] - p0[1] - dp0[1]
+
+        dfdy0 = p1[0] + dp1[0] - p2[0] - dp2[0]
+        dfdy1 = p2[0] + dp2[0] - p0[0] - dp0[0]
+        dfdy2 = p0[0] + dp0[0] - p1[0] - dp1[0]
+
+        dR = np.zeros((1, self.n_dofs))
+        dR[0, line[0] * 3] = dfdx0
+        dR[0, line[0] * 3 + 1] = dfdy0
+        dR[0, cl[0] * 3] = dfdx1
+        dR[0, cl[0] * 3 + 1] = dfdy1
+        dR[0, cl[1] * 3] = dfdx2
+        dR[0, cl[1] * 3 + 1] = dfdy2
+
+        return dR
 
     def get_cnstr_R(self, X_vct):
         ''' Calculate the residuum for given constraint equations
@@ -325,20 +473,25 @@ class CreasePattern(HasTraits):
         grab_lines = np.zeros((self.n_g * self.n_d, self.n_dofs))
         for i in range(len(self.grab_pts)):
             facet = self.facets[self.grab_pts[i][1]]
+            c = 0
             for q in facet:
-                grab_lines[i * 3, q * 3] = self.grab_pts_L[i][0]
-                grab_lines[i * 3 + 1, q * 3 + 1] = self.grab_pts_L[i][1]
-                grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][2]
+                grab_lines[i * 3, q * 3] = self.grab_pts_L[i][c]
+                grab_lines[i * 3 + 1, q * 3 + 1] = self.grab_pts_L[i][c]
+                grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][c]
+                c += 1
+
             grab_lines[i * 3, self.grab_pts[i][0] * 3 ] = -1
             grab_lines[i * 3 + 1, self.grab_pts[i][0] * 3 + 1 ] = -1
             grab_lines[i * 3 + 2, self.grab_pts[i][0] * 3 + 2 ] = -1
+
         return grab_lines
 
     def get_R(self, X_vct, t = 0):
         R = np.hstack([self.get_length_R(X_vct),
                           self.get_cnstr_R(X_vct),
                           self.get_cnstr_R_ff(X_vct, t),
-                          self.get_grab_R()
+                          self.get_grab_R(),
+                          self.get_line_R(X_vct)
                           ])
         return R
 
@@ -347,8 +500,9 @@ class CreasePattern(HasTraits):
         dR_fc = self.get_cnstr_dR(X_vct, t)
         dR_ff = self.get_cnstr_dR_ff(X_vct, t)
         dR_gp = self.get_grab_dR()
+        dR_lp = self.get_line_dR(X_vct)
 
-        dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp ])
+        dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
 
         return dR
 
@@ -386,17 +540,25 @@ class CreasePattern(HasTraits):
                     print '==== converged in ', i, 'iterations ===='
                     self.set_next_node(X)
                     break
-
-                dX = np.linalg.solve(dR, -R)
-                X += dX
-                if self.show_iter:
+                try:
+                    dX = np.linalg.solve(dR, -R)
+                    X += dX
+                    if self.show_iter and i < 10:
+                        self.set_next_node(X)
+                        print'X%d:' % i
+                        print X.reshape((-1, 3))
+                    i += 1
+                except Exception as inst:
+                    print '==== problems solving linalg in interation step %d  ====' % i
+                    print '==== Exception message: ', inst
                     self.set_next_node(X)
-                i += 1
+                    return X
             else:
                 print '==== did not converge in %d interations ====' % i
                 return X
 
         return X
+
 
     t_arr = Property(depends_on = 'n_steps')
     @cached_property
@@ -476,6 +638,145 @@ class CreasePattern(HasTraits):
         con_l = None
         return (pts_l, con_l, pts_p, faces_p)
 
+    def get_line_position(self, i):
+        if(len(self.line_pts) == 0):
+            print ' NO LINE POINTS'
+            return
+
+        for p in range(len(self.iteration_nodes)):
+            cl = self.crease_lines[self.line_pts[i][1]]
+            p1 = self.iteration_nodes[p][cl[0]]
+            p2 = self.iteration_nodes[p][cl[1]]
+            p0 = self.iteration_nodes[p][self.line_pts[i][0]]
+
+            try:
+                rx = (p0[0] - p1[0]) / (p2[0] - p1[0])
+            except:
+                rx = 0
+            try:
+                ry = (p0[1] - p1[1]) / (p2[1] - p1[1])
+            except:
+                ry = 0
+            try:
+                rz = (p0[2] - p1[2]) / (p2[2] - p1[2])
+            except:
+                rz = 0
+
+            if(rx != 0):
+                r = rx
+            elif (ry != 0):
+                r = ry
+            else:
+                r = rz
+
+            print 'Step ', p, ': r = ', r
+    def create_rcp_tex(self, name = 'rcp_output.tex', x = 15., y = 15.):
+        n = self.nodes
+        c = self.crease_lines
+        x_l = np.max(n[:, 0])
+        y_l = np.max(n[:, 1])
+        x_size = x / x_l
+        y_size = x / y_l
+        if(x_size < y_size):
+            size = x_size
+        else:
+            size = y_size
+        f = open(name, 'w')
+        f.write('\\psset{xunit=%.3fcm,yunit=%.3fcm}\n' % (size, size))
+        f.write(' \\begin{pspicture}(0,%.3f)\n' % (y_l))
+        for i in range(len(n)):
+            if(n[i][2] == 0):
+                f.write('  \\cnodeput(%.3f,%.3f){%s}{\\footnotesize%s}\n' % (n[i][0], n[i][1], i, i))
+        for i in range(len(c)):
+            if(n[c[i][0]][2] == 0 and n[c[i][1]][2] == 0):
+                f.write('  \\ncline{%s}{%s}\n' % (c[i][0], c[i][1]))
+        f.write(' \\end{pspicture}' + '\n')
+        f.close()
+
+    def create_3D_tex(self, name = 'standart3Doutput.tex', x = 5, y = 5, alpha = 140, beta = 30):
+        n = self.nodes
+        c = self.crease_lines
+        f = open(name, 'w')
+        #f.write('\\configure[pdfgraphic][width=%.3f,height=%.3f]\n' %(x, y))
+        #f.write('\\begin{pdfdisplay}\n')
+        f.write('\\psset{xunit=%.3fcm,yunit=%.3fcm,Alpha=%.3f,Beta=%.3f}\n' % (x, y, alpha, beta))
+        f.write(' \\begin{pspicture}(0,0)\n')
+        f.write(' \\pstThreeDCoor\n')
+        for i in range(len(n)):
+            f.write('  \\pstThreeDNode(%.3f,%.3f,%.3f){%s}\n' % (n[i][0], n[i][1], n[i][2], i))
+        for i in range(len(c)):
+            if(n[c[i][0]][2] == 0 and n[c[i][1]][2] == 0):
+                f.write(' \\psset{dotstyle=*,linecolor=gray}\n')
+            else:
+                f.write(' \\psset{linecolor=black}\n')
+            f.write('  \\pstThreeDLine(%.3f,%.3f,%.3f)(%.3f,%.3f,%.3f)\n' % (n[c[i][0]][0], n[c[i][0]][1], n[c[i][0]][2], n[c[i][1]][0], n[c[i][1]][1], n[c[i][1]][2]))
+        f.write(' \\psset{dotstyle=*,linecolor=gray}\n')
+        for i in range(len(n)):
+            f.write('  \\pstThreeDDot(%.3f,%.3f,%.3f)\n' % (n[i][0], n[i][1], n[i][2]))
+        f.write(' \\psset{linecolor=black}\n')
+        for i in range(len(n)):
+            f.write('  \\pstThreeDPut(%.3f,%.3f,%.3f){%s}\n' % (n[i][0], n[i][1], n[i][2], i))
+        f.write(' \\end{pspicture}' + '\n')
+#        f.write(' \\end{pdfdisplay}' + '\n')
+        f.close()
+
+    def save_output(self, name = 'OutputData.txt'):
+        '''
+            Creates an output file which contains the basic creaspattern information and the
+            Nodeposition in every timestep
+        '''
+        f = open(name, 'w')
+        n = self.nodes
+        cl = self.crease_lines
+        fc = self.facets
+        #=======================================================================
+        # Basic Informations: Nodes, Creaselines, Facets
+        #=======================================================================
+
+        # Nodes
+        f.write(' This Outputfile contains all basic geometrical datas of a Creasepattern and \n')
+        f.write(' the Coordinates of each Node in every timestep, after solving the system. \n \n')
+        f.write(' ### Basic Informations ### \n \n')
+        f.write(' NODES \n')
+        f.write(' Index\t X\t Y\t Z\n')
+        for i in range(len(n)):
+            f.write(' %i\t %.4f\t %.4f\t %.4f\n' % (i, n[i][0], n[i][1], n[i][2]))
+        f.write('\n CREASELINES \n')
+        f.write(' Index\t Node1\t Node2\n')
+        for i in range(len(cl)):
+            f.write(' %i\t %i\t %i\n' % (i, cl[i][0], cl[i][1]))
+        f.write('\n FACETS \n')
+        f.write(' Index\t Node1\t Node2\t Node3\t \n')
+        for i in range(len(fc)):
+            f.write(' %i\t %i\t %i\t %i\t \n' % (i, fc[i][0], fc[i][1], fc[i][2]))
+
+        #=======================================================================
+        # Nodepostion in every timestep
+        #=======================================================================
+
+        f.write('\n  ### Nodeposition in every timestep ### \n')
+        inodes = self.iteration_nodes
+        for i in range(2, len(inodes)):
+            f.write('\n Iterationstep %i\n' % (i - 1))
+            f.write(' Index\t X\t Y\t Z\n')
+            for p in range(len(inodes[i])):
+                f.write(' %i\t %.4f\t %.4f\t %.4f\n' % (p, inodes[i][p][0], inodes[i][p][1], inodes[i][p][2]))
+
+        f.close()
+
+        node = open(name[:-4] + 'Node.inp', 'w')
+        for i in range(2, len(inodes)):
+            node.write('*Node\n')
+            for p in range(len(inodes[i])):
+                node.write(' %i,\t %.4f,\t %.4f,\t %.4f\n' % (p + 1, inodes[i][p][0], inodes[i][p][1], inodes[i][p][2]))
+            node.write('\n')
+        node.close()
+        faces = open(name[:-4] + 'Element.inp', 'w')
+        faces.write('*Element,\t type=M3D3\n')
+        for i in range(len(fc)):
+            faces.write(' %i,\t %i,\t %i,\t %i,\t \n' % (i + 1, fc[i][0] + 1, fc[i][1] + 1, fc[i][2] + 1))
+        faces.close()
+
 if __name__ == '__main__':
 
     # trivial example with a single triangle positioned 
@@ -522,4 +823,3 @@ if __name__ == '__main__':
     print 'final positions\n', cp.get_new_nodes(X)
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
-

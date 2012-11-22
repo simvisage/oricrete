@@ -251,8 +251,8 @@ def moving_truss_cp_square(n_steps = 40):
 
 if __name__ == '__main__':
 #    cp = moving_truss_cp_circle(n_steps = 10, dx = -1.99)
-#    cp = moving_truss_cp_ff_cnstr(n_steps = 40)
-    cp = moving_truss_cp_square(n_steps = 40)
+    cp = moving_truss_cp_ff_cnstr(n_steps = 40)
+#    cp = moving_truss_cp_square(n_steps = 40)
 
     # initialise View
     my_model = CreasePatternView(data = cp)
