@@ -276,9 +276,6 @@ class CreasePattern(HasTraits):
         # in 3d.
         # 
         return dR.reshape(self.n_c, self.n_n * self.n_d)
-<<<<<<< HEAD
-
-== == == =
 
     def get_line_R(self, X_vct):
         line = np.array(self.line_pts)
