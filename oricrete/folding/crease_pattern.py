@@ -762,6 +762,19 @@ class CreasePattern(HasTraits):
             
         f.close()
         
+        node = open(name[:-4] + 'Node.inp', 'w')
+        for i in range(2, len(inodes)):
+            node.write('*Node\n')
+            for p in range(len(inodes[i])):
+                node.write(' %i,\t %.4f,\t %.4f,\t %.4f\n' % (p + 1, inodes[i][p][0], inodes[i][p][1], inodes[i][p][2]))
+            node.write('\n')
+        node.close()
+        faces = open(name[:-4] + 'Element.inp', 'w')
+        faces.write('*Element,\t type=M3D3\n')
+        for i in range(len(fc)):
+            faces.write(' %i,\t %i,\t %i,\t %i,\t \n' % (i + 1, fc[i][0] + 1, fc[i][1] + 1, fc[i][2] + 1))
+        faces.close()
+        
 if __name__ == '__main__':
 
     # trivial example with a single triangle positioned 
