@@ -7,7 +7,7 @@ from scipy.optimize import fmin_slsqp
 if __name__ == '__main__':
 
     R = 1
-    x_c, y_c = 5, 5
+    x_c, y_c = -5, 5
     phi = np.linspace(0, 2 * np.pi, 100)
     x = R * np.cos(phi) + x_c
     y = R * np.sin(phi) + y_c
@@ -28,12 +28,16 @@ if __name__ == '__main__':
         d_gy = 2 * (y_ - y_c)
         return np.array([[d_gx, d_gy]], dtype = 'f')
 
-    def f(x) :
+    def f(x):
+        '''Goal function of the optimization problem
+        Value to be minimized.
+        '''
         x_, y_ = x[:]
-        f_val = x_ - y_
         return (x_ - y_) ** 2
 
     def d_f(x):
+        '''Derivative of the goal function.
+        '''
         x_, y_ = x[:]
         return np.array([2 * (x_ - y_), -2 * (x_ - y_)], dtype = 'f')
 
@@ -46,7 +50,7 @@ if __name__ == '__main__':
 #    print x_sol, '[f,[g],d_g]'
 
     x_sol = fmin_slsqp(f, x0, f_eqcons = g_vct, fprime_eqcons = d_g)
-    print x_sol, '[f,g,d_g'
+    print x_sol, '[f,g,d_g]'
 
 #    x_sol = fmin_slsqp(f, x0, eqcons = [g], fprime = d_f)
 #    print x_sol, '[f,[g],d_f]'
@@ -59,7 +63,7 @@ if __name__ == '__main__':
     p.plot([x_], [y_], 'g.', markersize = 20.0)
 
     p.plot(x, y)
-    p.xlim(0, 10)
-    p.ylim(0, 10)
+    p.xlim(-10, 10)
+    p.ylim(-10, 10)
     p.show()
 

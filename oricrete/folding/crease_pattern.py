@@ -275,7 +275,8 @@ class CreasePattern(HasTraits):
         # the derivatives with respect to the node displacements
         # in 3d.
         # 
-        return dR.reshape(self.n_c, self.n_n * self.n_d)
+        dR = dR.reshape(self.n_c, self.n_n * self.n_d)
+        return dR
 
     def get_line_R(self, X_vct):
         line = np.array(self.line_pts)
