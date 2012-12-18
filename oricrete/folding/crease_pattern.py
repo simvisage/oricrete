@@ -598,6 +598,28 @@ class CreasePattern(HasTraits):
 
         return X
 
+    #===============================================================================
+    # methods and Information for Abaqus calculation
+    #===============================================================================
+    
+    aligned_facets = Property(depends_on = 'facets')
+    @cached_property
+    def _get_aligned_facets(self):
+        a_f = []
+        for i in self.facets:
+            v1 = np.array(self.nodes[i[1]] - self.nodes[i[0]])
+            v2 = np.array(self.nodes[i[2]] - self.nodes[i[1]])
+            normal = np.cross(v1, v2)
+            if(normal[2] < 0):
+                temp = i
+                temp[1] = i[2]
+                temp[2] = i[1]
+                a_f.append(temp)
+            else:
+                a_f.append(i)
+        return a_f
+            
+
 
     #===============================================================================
     # methods and Informations for visualization
