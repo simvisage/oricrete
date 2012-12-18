@@ -32,14 +32,14 @@ from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
 
 def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
-    
+
     """
         This example demonstrates the main funtions of Grabpoints.
         Two Grabpoints are integrated in a single triangle.
         Grabpoint one is used as regulare constrain moved in z-direction.
         Grabpoint two is used as control point, which gives back the coordinations of
         an exact point on the face in every iteration step.
-        
+
     """
 
     cp = CreasePattern(n_steps = n_steps)
@@ -53,12 +53,12 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     cp.crease_lines = [[ 0, 1 ],
                        [ 1, 2 ],
                        [ 2, 0 ]]
-    
+
     cp.facets = [[0, 1, 2 ]]
 
     cp.grab_pts = [[3, 0],
                    [4, 0]]
-    
+
     cp.cnstr_lhs = [[(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
@@ -68,10 +68,10 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
                     , dx, 0.0, 0.0]
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-    
+
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
     print 'initial R\n', cp.get_R(X)
@@ -84,14 +84,14 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'final positions\n', cp.get_new_nodes(X)
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
-    
+
     return cp
 
 def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     """
         This example shows new options of lines, as beams connected to grabpoints.
         This could be usefull for simulation the crane lifting up the oricrete construction.
-        
+
     """
     cp = CreasePattern(n_steps = n_steps)
 
@@ -106,12 +106,12 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
                        [ 1, 2 ],
                        [ 2, 0 ],
                        [ 3, 5]]
-    
+
     cp.facets = [[0, 1, 2 ]]
 
     cp.grab_pts = [[3, 0],
                    [4, 0]]
-    
+
     cp.cnstr_lhs = [[(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
@@ -123,10 +123,10 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
                     , dx, 0.0, 0.0]
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-   
+
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
@@ -140,7 +140,7 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'final positions\n', cp.get_new_nodes(X)
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
-    
+
     return cp
 
 def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
@@ -163,12 +163,12 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
                        [ 3, 4],
                        [ 0, 5],
                        [ 5, 2]]
-    
+
     cp.facets = [[0, 1, 2 ],
                  [2, 5, 0]]
 
     cp.grab_pts = [[3, 0]  ]
-    
+
     cp.cnstr_lhs = [
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
@@ -183,10 +183,10 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
                     , dx, 0.0, 0.0, 0.0
                     ]
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[1] = 0.01
-    
+
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
@@ -200,7 +200,7 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'final positions\n', cp.get_new_nodes(X)
     print 'final vectors\n', cp.get_new_vectors(X)
     print 'final lengths\n', cp.get_new_lengths(X)
-    
+
     return cp
 
 def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
@@ -208,13 +208,13 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
         This example shows a 1x1 rhombus creasepattern with grabpoinst for movement.
         The creasepattern should give first rules for possible movements of the creasepattern
         under a standard bearing. The Intetion is to hold the endpoints of the
-        middelline on an fixed z-plane and y-plane and to hold the system in one point in 
+        middelline on an fixed z-plane and y-plane and to hold the system in one point in
         x-direction. So it can lift up while the endpoints are moving against the point
         fixed in x-direction.
-        Now their should be as many constrains as possible build up over the grabpoints. 
+        Now their should be as many constrains as possible build up over the grabpoints.
     """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
                 [1, 0, 0],
@@ -224,7 +224,7 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
                 [0.5, 0.5, 0],
                 [0.5, 0.333, 0],
                 [0.5, 0.667, 0]]
-    
+
     cp.crease_lines = [[0, 2],
                        [0, 4],
                        [0, 6],
@@ -237,17 +237,17 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
                        [3, 6],
                        [4, 6],
                        [5, 6]]
-    
+
     cp.facets = [[0, 2, 6],
                  [0, 4, 6],
                  [2, 5, 6],
                  [1, 3, 6],
                  [1, 4, 6],
                  [3, 5, 6]]
-    
+
     cp.grab_pts = [[7, 0],
                    [8, 3]]
-    
+
     cp.cnstr_lhs = [[(4, 1, 1.0)],
                     #[(5, 1, 1.0)],
                     [(4, 2, 1.0)],
@@ -261,11 +261,11 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
                     [(7, 2, 1.0)],
                     [(7, 2, 1.0), (8, 2, -1.0)]
                     ]
-    
+
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0]
-    
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.0001
     X0[5] = 0.0001
     X0[8] = 0.0001
@@ -273,10 +273,10 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
     X0[20] = 0.0002
     X0[23] = 0.000167                # ! Anfangskonfiguration nicht zu ausgepraegt 
     X0[26] = 0.000167               #   waehle, grabpoints werden sonst abgehaengt
-    
+
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -285,7 +285,7 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-        
+
     X = cp.solve(X0)
     return cp
 
@@ -294,7 +294,7 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
         See small_rhombus_grab_points. System is only extended with some beams.
     """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
                 [1, 0, 0],
@@ -305,7 +305,7 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
                 [0.5, 0.45, 0],
                 [0.5, 0.55, 0],
                 [0.5, 0.5, 0.5]]
-    
+
     cp.crease_lines = [[0, 2],
                        [0, 4],
                        [0, 6],
@@ -320,17 +320,17 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
                        [5, 6],
                        [7, 9],
                        [8, 9]]
-    
+
     cp.facets = [[0, 2, 6],
                  [0, 4, 6],
                  [2, 5, 6],
                  [1, 3, 6],
                  [1, 4, 6],
                  [3, 5, 6]]
-    
+
     cp.grab_pts = [[7, 0],
                    [8, 3]]
-    
+
     cp.cnstr_lhs = [[(4, 1, 1.0)],
                     [(5, 1, 1.0)],
                     [(4, 2, 1.0)],
@@ -342,11 +342,11 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
                     [(9, 1, 1.0)],
                     [(9, 0, 1.0)]
                     ]
-    
+
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0]
-    
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.0001
     X0[5] = 0.0001
     X0[8] = 0.0001
@@ -354,10 +354,10 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
     X0[20] = 0.0002
     X0[23] = 0.000167               # ! Anfangskonfiguration nicht zu ausgepraegt 
     X0[26] = 0.000167               #   waehlen, grabpoints werden sonst abgehaengt
-    
+
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -366,7 +366,7 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-        
+
     X = cp.solve(X0)
     return cp
 
@@ -374,11 +374,11 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     """
         This example shows a 2x1 rhombus creasepattern.
         It shows how an enlargement of the creasepattern
-        can reduce constrains.  
+        can reduce constrains.
     """
-    
+
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
                 [1, 0, 0],
@@ -393,7 +393,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
                 [0.5, 0.667, 0],
                 [1.5, 0.333, 0],
                 [1.5, 0.667, 0]]
-    
+
     cp.crease_lines = [[0, 2],
                        [0, 6],
                        [0, 8],
@@ -413,7 +413,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
                        [6, 8],
                        [7, 9],
                        [8, 9]]
-    
+
     cp.facets = [[0, 2, 8],
                  [2, 4, 9],
                  [2, 8, 9],
@@ -424,12 +424,12 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
                  [3, 8, 9],
                  [1, 6, 8],
                  [5, 7, 9]]
-    
+
     cp.grab_pts = [[10, 0],
                    [11, 5],
                    [12, 1],
                    [13, 6]]
-    
+
     cp.cnstr_lhs = [[(6, 1, 1.0)],
                     [(6, 2, 1.0)],
                     #[(7, 1, 1.0)],
@@ -462,11 +462,11 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
 #                    [(10, 2, 1.0), (12, 2, -1.0)],
 #                    [(12, 2, 1.0), (13, 2, -1.0)]
 #                    ]
-    
+
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.0005
     X0[5] = 0.0005
     X0[14] = 0.0005
@@ -475,7 +475,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     X0[8] = 0.003
     X0[26] = 0.0025
     X0[29] = 0.0025
-    
+
     X0[32] = 0.002083              # ! Anfangskonfiguration nicht zu ausgepraegt 
     X0[35] = 0.002083
     X0[38] = 0.002083
@@ -483,7 +483,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     X0 *= 1
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -492,7 +492,7 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-        
+
     X = cp.solve(X0)
     return cp
 
@@ -504,7 +504,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
         can be reduced to a minimum.
     """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
                 [0, 2, 0],
@@ -531,7 +531,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                 [1.5, 1.333, 0],
                 [1.5, 1.667, 0]
                 ]
-    
+
     cp.crease_lines = [[0, 3],
                        [0, 9],
                        [0, 13],
@@ -568,7 +568,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                        [12, 16],
                        [13, 15],
                        [14, 16]]
-    
+
     cp.facets = [[0, 3, 13],
                  [3, 6, 15],
                  [3, 13, 15],
@@ -590,7 +590,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                  [2, 10, 14],
                  [8, 12, 16]
                  ]
-    
+
     cp.grab_pts = [[17, 0],
                    [18, 5],
                    [19, 10],
@@ -600,7 +600,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                    [23, 11],
                    [24, 16]
                    ]
-    
+
     cp.cnstr_lhs = [
                     #[(11, 1, 1.0)],
                     #[(12, 2, 1.0)],
@@ -609,12 +609,12 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                     #[(2, 1, 1.0), (5, 1, -1.0)],
                     [(4, 0, 1.0)],
                     [(4, 1, 1.0)],
-                    
+
                     [(9, 2, 1.0)],
                     [(10, 2, 1.0)],
                     [(11, 2, 1.0)],
                     [(12, 2, 1.0)],
-                    
+
                     [(17, 2, 1.0)],
                     [(17, 2, 1.0), (18, 2, -1.0)],
                     [(17, 2, 1.0), (21, 2, -1.0)],
@@ -626,19 +626,19 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
                     [(17, 1, 1.0), (21, 1, -1.0)],
                     [(17, 0, 1.0), (18, 0, -1.0)],
                    # [(11, 0, 1.0), (12, 0, -1.0)]
-                    
+
                    # [(17, 1, 1.0), (25, 1, -1.0)],
                     [(17, 2, 1.0), (20, 2, -1.0)],
                     [(19, 1, 1.0), (23, 1, -1.0)],
                     [(17, 0, 1.0), (20, 0, -1.0)]
-                    
+
                     #[(17, 0, 1.0), (18, 0, -1.0)]
                     ]
-    
-    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.00005
     X0[5] = 0.00005
     X0[8] = 0.00005
@@ -651,25 +651,25 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
     X0[41] = 0.00025
     X0[44] = 0.00025
     X0[47] = 0.00025
-    X0[50] = 0.00025 
-    
+    X0[50] = 0.00025
+
     X0[53] = 0.0002083
     X0[56] = 0.0002083
     X0[59] = 0.0002083
     X0[62] = 0.0002083
     X0[65] = 0.0002083
-    X0[68] = 0.0002083  
+    X0[68] = 0.0002083
     X0[71] = 0.0002083
     X0[74] = 0.0002083
 
-    
+
     X0 *= 1
 
-    np.set_printoptions(threshold='nan')
+    np.set_printoptions(threshold = 'nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    
+
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -678,7 +678,7 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-        
+
     X = cp.solve(X0)
     return cp
 
@@ -689,7 +689,7 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
         unlimited expansion in y-direction.
     """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
                 [0, 2, 0],
@@ -727,7 +727,7 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
                 [1.5, 2.333, 0],
                 [1.5, 2.667, 0]
                 ]
-    
+
     cp.crease_lines = [[0, 4],
                        [0, 12],
                        [0, 18],
@@ -781,7 +781,7 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
                        [18, 21],
                        [19, 22],
                        [20, 23]]
-    
+
     cp.facets = [[0, 4, 18],
                  [4, 8, 21],
                  [4, 18, 21],
@@ -813,7 +813,7 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
                  [3, 14, 20],
                  [11, 17, 23]
                  ]
-    
+
     cp.grab_pts = [[24, 0],
                    [25, 5],
                    [26, 10],
@@ -827,36 +827,36 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
                    [34, 21],
                    [35, 26]
                    ]
-    
+
     cp.cnstr_lhs = [[(5, 0, 1.0)],
                     [(13, 1, 1.0)],
-                    
+
                     [(12, 2, 1.0)],
                     [(13, 2, 1.0)],
                     [(14, 2, 1.0)],
                     [(15, 2, 1.0)],
                     [(16, 2, 1.0)],
                     [(17, 2, 1.0)],
-                    
+
                     [(24, 2, 1.0)],
                     [(24, 2, 1.0), (25, 2, -1.0)],
                     [(24, 2, 1.0), (30, 2, -1.0)],
                     [(24, 2, 1.0), (31, 2, -1.0)],
                     [(24, 1, 1.0), (30, 1, -1.0)],
                     [(24, 0, 1.0), (25, 0, -1.0)],
-                    
+
                     [(24, 0, 1.0), (27, 0, -1.0)],
                     [(26, 1, 1.0), (32, 1, -1.0)],
                     [(24, 2, 1.0), (26, 2, -1.0)],
-                    
+
                     [(24, 0, 1.0), (29, 0, -1.0)],
                     [(28, 1, 1.0), (34, 1, -1.0)]
                     ]
-    
-    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0,   0.0, 0.0,dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.00005
     X0[5] = 0.00005
     X0[8] = 0.00005
@@ -875,27 +875,27 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
     X0[65] = 0.00025
     X0[68] = 0.00025
     X0[71] = 0.00025
-    
+
     X0[74] = 0.0002083
     X0[77] = 0.0002083
     X0[80] = 0.0002083
     X0[83] = 0.0002083
     X0[86] = 0.0002083
-    X0[89] = 0.0002083  
+    X0[89] = 0.0002083
     X0[92] = 0.0002083
     X0[95] = 0.0002083
     X0[98] = 0.0002083
     X0[101] = 0.0002083
     X0[104] = 0.0002083
     X0[107] = 0.0002083
-    
+
     X0 *= 1
 
    # np.set_printoptions(threshold='nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    
+
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -904,7 +904,7 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-        
+
     X = cp.solve(X0)
     return cp
 
@@ -913,10 +913,10 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
         This example shows a 3x1 rhombus creasepattern.
         In this creasepattern, the grabpoints lift up
         in different speeds. So their must be new rules
-        defined for constrain setup. 
+        defined for constrain setup.
     """
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[0, 0, 0],
                 [0, 1, 0],
                 [1, 0, 0],
@@ -937,7 +937,7 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
                 [2.5, 0.333, 0],
                 [2.5, 0.666, 0]
                 ]
-    
+
     cp.crease_lines = [[0, 2],
                        [0, 8],
                        [0, 10],
@@ -964,7 +964,7 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
                        [9, 12],
                        [10, 11],
                        [11, 12]]
-    
+
     cp.facets = [[0, 2, 10],
                  [2, 4, 11],
                  [4, 6, 12],
@@ -980,7 +980,7 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
                  [1, 8, 10],
                  [7, 9, 12]
                  ]
-    
+
     cp.grab_pts = [[13, 0],
                    [14, 7],
                    [15, 1],
@@ -988,7 +988,7 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
                    [17, 2],
                    [18, 9]
                    ]
-    
+
     cp.cnstr_lhs = [[(8, 2, 1.0)],
                     [(9, 2, 1.0)],
                     [(8, 1, 1.0)],
@@ -1005,40 +1005,40 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
                     [(17, 0, 1.0), (18, 0, -1.0)],
                     [(13, 2, 1.0), (17, 2, -1.0)]
                     ]
-    
-    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.00005
     X0[5] = 0.00005
     X0[20] = 0.00005
     X0[23] = 0.00005
-    
+
     X0[35] = 0.0003
-    
+
     X0[8] = 0.00025
     X0[11] = 0.00025
     X0[14] = 0.00025
     X0[17] = 0.00025
-    
+
     X0[32] = 0.00017
-    X0[38] = 0.00017 
-    
+    X0[38] = 0.00017
+
     X0[41] = 0.00016334
     X0[44] = 0.00016334
     X0[47] = 0.00028335
     X0[50] = 0.00028335
     X0[53] = 0.00016334
     X0[56] = 0.00016334
-    
+
     X0 *= 1
-    
+
     # np.set_printoptions(threshold='nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    
+
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -1047,14 +1047,14 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d
     print 'cnstr', len(cp.cnstr_lhs)
-        
+
     X = cp.solve(X0)
     return cp
 
 def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
     """
         This example shows a 3x2 rhombus creasepattern.
-         
+
     """
     cpr = RhombusCreasePattern(n_steps = n_steps,
                               L_x = 3,
@@ -1062,21 +1062,21 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
                               n_x = 3,
                               n_y = 4,
                               MAX_ITER = 500)
-    
+
     X_rcp = cpr.generate_X0()
-    X_rcp = X_rcp.reshape((-1,3))
-    X_rcp[:,2] += 0.15
+    X_rcp = X_rcp.reshape((-1, 3))
+    X_rcp[:, 2] += 0.15
     print 'X_rcp', X_rcp
-    
+
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = cpr.nodes
-    
+
     cp.crease_lines = cpr.crease_lines
-    
+
     cp.facets = cpr.facets
-    
-    grab_nodes = [[0.5, 0.333, 0],#22
+
+    grab_nodes = [[0.5, 0.333, 0], #22
                   [0.5, 0.667, 0],
                   [0.5, 1.333, 0],
                   [0.5, 1.667, 0],
@@ -1088,9 +1088,9 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
                   [2.5, 0.666, 0],
                   [2.5, 1.333, 0],
                   [2.5, 1.667, 0]]
-    
-    cp.nodes = np.vstack([cp.nodes,grab_nodes])
-    
+
+    cp.nodes = np.vstack([cp.nodes, grab_nodes])
+
     cp.grab_pts = [
                    [22, 0],
                    [23, 14],
@@ -1105,14 +1105,14 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
                    [32, 5],
                    [33, 19]
                    ]
-    
+
     cp.cnstr_lhs = [[(12, 2, 1.0)],
                     [(13, 2, 1.0)],
                     [(14, 2, 1.0)],
                     [(15, 2, 1.0)],
                     [(1, 1, 1.0)],
                     [(18, 0, 1.0)],
-                    
+
                     [(26, 2, 1.0)],
                     [(26, 2, 1.0), (27, 2, -1.0)],
                     [(26, 2, 1.0), (28, 2, -1.0)],
@@ -1124,15 +1124,15 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
                     [(3, 2, 1.0), (6, 2, -1.0)],
                     [(22, 2, 1.0), (30, 2, -1.0)],
                     [(22, 1, 1.0), (26, 1, -1.0)]
-                    
+
                     ]
-    
+
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
-    
+
+
     X_ext = np.zeros((cp.n_g * cp.n_d,), dtype = float)
     X0 = np.hstack([X_rcp.reshape((-1,)), X_ext])
-    
+
     X0[68] = 0.3059
     X0[71] = 0.3059
     X0[74] = 0.3059
@@ -1145,11 +1145,11 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
     X0[95] = 0.3059
     X0[98] = 0.3059
     X0[101] = 0.3059
-    
+
     X0 *= 0.01
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -1165,7 +1165,7 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
 def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
     """
         This example shows a 3x2 rhombus creasepattern.
-         
+
     """
     cpr = RhombusCreasePattern(n_steps = n_steps,
                               L_x = 3,
@@ -1173,21 +1173,21 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
                               n_x = 3,
                               n_y = 4,
                               MAX_ITER = 500)
-    
+
     X_rcp = cpr.generate_X0()
-    X_rcp = X_rcp.reshape((-1,3))
-    X_rcp[:,2] += 0.15
+    X_rcp = X_rcp.reshape((-1, 3))
+    X_rcp[:, 2] += 0.15
     print 'X_rcp', X_rcp
-    
+
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = cpr.nodes
-    
+
     cp.crease_lines = cpr.crease_lines
-    
+
     cp.facets = cpr.facets
-    
-    grab_nodes = [[0.5, 0.333, 0],#22
+
+    grab_nodes = [[0.5, 0.333, 0], #22
                   [0.5, 0.667, 0],
                   [0.5, 1.333, 0],
                   [0.5, 1.667, 0],
@@ -1199,9 +1199,9 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
                   [2.5, 0.666, 0],
                   [2.5, 1.333, 0],
                   [2.5, 1.667, 0]]
-    
-    cp.nodes = np.vstack([cp.nodes,grab_nodes])
-    
+
+    cp.nodes = np.vstack([cp.nodes, grab_nodes])
+
     cp.grab_pts = [
                    [22, 0],
                    [23, 14],
@@ -1216,14 +1216,14 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
                    [32, 5],
                    [33, 19]
                    ]
-    
+
     cp.cnstr_lhs = [[(12, 2, 1.0)],
                     [(13, 2, 1.0)],
                     [(14, 2, 1.0)],
                     [(15, 2, 1.0)],
                     [(1, 1, 1.0)],
                     [(18, 0, 1.0)],
-                    
+
                     [(26, 2, 1.0)],
                     [(22, 1, 1.0), (26, 1, -1.0)],
                     [(26, 1, 1.0), (30, 1, -1.0)],
@@ -1235,15 +1235,15 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
                     [(3, 2, 1.0), (6, 2, -1.0)],
                     [(22, 2, 1.0), (30, 2, -1.0)],
                     [(29, 1, 1.0), (33, 1, -1.0)]
-                    
+
                     ]
-    
+
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
-    
+
+
     X_ext = np.zeros((cp.n_g * cp.n_d,), dtype = float)
     X0 = np.hstack([X_rcp.reshape((-1,)), X_ext])
-    
+
     X0[68] = 0.3059
     X0[71] = 0.3059
     X0[74] = 0.3059
@@ -1256,11 +1256,11 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
     X0[95] = 0.3059
     X0[98] = 0.3059
     X0[101] = 0.3059
-    
+
     X0 *= 0.01
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
+
     cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
@@ -1288,11 +1288,11 @@ if __name__ == '__main__':
     cp = rhombus_3x2_grab_points_for_crane(n_steps = 40)
 
     # initialise View
-    
+
     cpv = CreasePatternView(data = cp, show_cnstr = True)
-    
+
     cpv.configure_traits()
-    
-        
-        
-    
+
+
+
+

@@ -235,12 +235,12 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
 
 if __name__ == '__main__':
 
-#    cp_dc = create_cp_dc(L_x = 14, L_y = 8, n_x = 2, n_y = 4,
-#                         n_steps = 40)
+    cp_dc = create_cp_dc(L_x = 14, L_y = 8, n_x = 2, n_y = 4,
+                         n_steps = 40)
     cp_fc = create_cp_fc_inclined(L_x = 80, L_y = 8, n_x = 10, n_y = 16,
                                   n_steps = 10)
 
-    X0 = cp_fc.generate_X0()
+    X0 = cp_dc.generate_X0()
     #cp_fc.set_next_node(X0)
 
 #    print 'n_dofs', cp_dc.n_dofs
@@ -248,9 +248,9 @@ if __name__ == '__main__':
 #    print 'necessary constraints', cp_dc.n_dofs - cp_dc.n_c
 #    print 'cnstr', len(cp_dc.cnstr_lhs)
 
-    #X_dc = cp_dc.solve(X0)
+    X_dc = cp_dc.solve(X0)
 
-    X_fc = cp_fc.solve_ff(X0)
+    #X_fc = cp_fc.solve_ff(X0)
 
 #    print 'new nodes'
 #    print cp.get_new_nodes(X_vct)
@@ -258,6 +258,6 @@ if __name__ == '__main__':
 #    print cp.get_new_lengths(X_vct)
 
     # initialise View
-    my_model = CreasePatternView(data = cp_fc, show_cnstr = True)
+    my_model = CreasePatternView(data = cp_dc, show_cnstr = True)
     my_model.configure_traits()
 

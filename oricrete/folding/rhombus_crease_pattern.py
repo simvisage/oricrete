@@ -21,7 +21,6 @@ from crease_pattern import CreasePattern
 import numpy as np
 import sympy as sp
 
-
 xn_, yn_ = sp.symbols('x, y')
 
 class RhombusCreasePattern(CreasePattern):
@@ -34,7 +33,7 @@ class RhombusCreasePattern(CreasePattern):
 
     n_x = Int(2, geometry = True)
     n_y = Int(2, geometry = True)
-    
+
     new_nodes = Array(value = [], dtype = float)
     new_crease_lines = Array(value = [], dtype = int)
 
@@ -77,22 +76,22 @@ class RhombusCreasePattern(CreasePattern):
     X_i = Property
     def _get_X_i(self):
         return self._geometry[8]
-    
+
     #deformed nodes    
     xnodes = Property(depends_on = 'fx, nodes')
     def _get_xnodes(self):
-        
+
         xnodes = np.zeros(self.nodes.shape)
         xnodes[:, 0] = self.fx(self.nodes[:, 0], self.nodes[:, 1])
         xnodes[:, 1] = self.fy(self.nodes[:, 0], self.nodes[:, 1])
         return xnodes
-    
+
     transform = Bool(False)
-    
+
     # geometric deformation
     _fx_expr = xn_
     _fy_expr = yn_
-    
+
     fy = Property
     def _set_fy(self, ls_expr):
         self._fy_expr = ls_expr
@@ -101,7 +100,7 @@ class RhombusCreasePattern(CreasePattern):
     fx = Property
     def _set_fx(self, ls_expr):
         self._fx_expr = ls_expr
-        
+
     def _get_fx(self):
         return sp.lambdify([xn_, yn_], self._fx_expr)
 
@@ -177,7 +176,7 @@ class RhombusCreasePattern(CreasePattern):
 
         facets = np.vstack([f_h00, f_hi90, f_hl90, f_hr90,
                             g_h00, g_hi90, g_hl90, g_hr90])
-        
+
         return nodes, crease_lines, facets, n_h, n_v, n_i, X_h, X_v, X_i
 
     z0_ratio = Float(0.1)
@@ -200,7 +199,7 @@ class RhombusCreasePattern(CreasePattern):
         X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
 
         return X0.flatten()
-    
+
     def set_new_nodes(self, nodes = []):
         self.nodes = np.vstack([self.nodes, nodes])
 
@@ -229,7 +228,7 @@ if __name__ == '__main__':
     print 'X0', X0
 
     cp.set_next_node(X0)
-    
+
     from crease_pattern_view import CreasePatternView
     my_model = CreasePatternView(data = cp, show_cnstr = True)
     my_model.configure_traits()
