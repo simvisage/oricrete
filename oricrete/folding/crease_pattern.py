@@ -611,12 +611,15 @@ class CreasePattern(HasTraits):
             v2 = np.array(self.nodes[i[2]] - self.nodes[i[1]])
             normal = np.cross(v1, v2)
             if(normal[2] < 0):
-                temp = i
+                temp = np.copy(i)
                 temp[1] = i[2]
                 temp[2] = i[1]
                 a_f.append(temp)
             else:
                 a_f.append(i)
+                
+        a_f = np.array(a_f)
+        print a_f + 1
         return a_f
             
 
@@ -748,7 +751,8 @@ class CreasePattern(HasTraits):
         f = open(name, 'w')
         n = self.nodes
         cl = self.crease_lines
-        fc = self.facets
+        fc = self.aligned_facets
+        
         #=======================================================================
         # Basic Informations: Nodes, Creaselines, Facets
         #=======================================================================
