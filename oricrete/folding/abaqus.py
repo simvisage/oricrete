@@ -148,7 +148,10 @@ def send_all(p, data):
         data = buffer(data, sent)
         
 def delete_old(p, filename, tail):
-    endings = ['.com', '.log', '.cae', '.dat', '.jnl', '.msg', '.odb', '.prt', '.sim', '.sta', '.xml', '.stt', '.odb_f', '.lck', '.mdl', '.ipm']
+    endings = ['.com', '.log', '.cae', '.dat',
+               '.jnl', '.msg', '.odb', '.prt',
+               '.sim', '.sta', '.xml', '.stt',
+               '.odb_f', '.lck', '.mdl', '.ipm']
     remove = 'rm '
     command_list = []
     for end in endings:
@@ -162,7 +165,20 @@ def solve_abaqus(p, filename, tail):
 def load_abaqus(p, filename, tail):
     send_all(p, 'abaqus cae ' + tail)
 
-def connect_cluster(p, cluster = 'cluster.rz.rwth-aacheb.de', options = [], login):
+def connect_cluster(p, login, tail, cluster = 'cluster.rz.rwth-aacheb.de', options = []):
+    cmd = 'ssh '
+    for i in options:
+        cmd += i + ' '
+    cmd += cluster + ' -l ' + login + tail
+    send_all(p, cmd)
+
+def upload_file(p, login, path_file, tail, cluster = 'cluster.rz.rwth-aachen.de', path_server = '~/'):
+    cmd = 'scp ' + path_file + ' ' + login + '@' + cluster + ':' + path_server + tail
+    send_all(p, cmd)
+    
+def download_file(p, login, path_file, tail, path_server, cluster = 'cluster.rz.rwth-aachen.de'):
+    cmd = 'scp ' + login + '@' + cluster + ':' + path_server + ' ' + path_file + tail
+    send_all(p, cmd)
     
 
 if __name__ == '__main__':
@@ -171,14 +187,36 @@ if __name__ == '__main__':
     else:
         shell, commands, tail = ('sh', ['ssh -Y -t -t cluster-x.rz.rwth-aachen.de -l ms299282', 'echo HELLO WORLD'], '\n')
     
+    
+    #open commandshell 
     a = Popen(shell, stdin = PIPE, stdout = PIPE)
-    print recv_some(a),
-    for cmd in commands:
-        send_all(a, cmd + tail)
-        print recv_some(a)
-    delete_old(a, 'beam', tail)
-    load_abaqus(a, 'beam', tail)
+    
+    
+    cluster = 'cluster-x.rz.rwth-aachen.de'
+    login = 'ms299282'
+    
+#    upload_file(a, login, '/home/matthias/beamtest.py', tail)
+    download_file(a, login, '/home/matthias/', tail, '~/beamtest.py')
     print recv_some(a)
+    #connect to server
+    options = ['-Y',
+               '-t',
+               '-t']
+    
+    connect_cluster(a, login, tail, cluster = cluster, options = options)
+    
+
+    
+    print recv_some(a)
+    
+    #remove old datas
+    delete_old(a, 'beam', tail)
+    
+    #solve new file
+    solve_abaqus(a, 'beam', tail)
+    print recv_some(a)
+    
+    # close connection
     send_all(a, 'exit' + tail)
     print recv_some(a, e = 0)
     a.wait()
