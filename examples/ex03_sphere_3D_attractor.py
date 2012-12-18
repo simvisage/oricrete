@@ -9,7 +9,7 @@ from scipy.optimize import fmin_slsqp
 
 if __name__ == '__main__':
 
-    caf = CnstrAttractorFace(F = [r_ , s_ , -10.0])
+    caf = CnstrAttractorFace(F = [r_ , s_, 0])
 
     print 'x_arr:\n', caf.X_arr
     print 'r_arr:\n', caf.r_arr
@@ -61,10 +61,8 @@ if __name__ == '__main__':
     print 'R', cp.get_R(x_sol)
     print 'lengths', cp.get_new_lengths(x_sol)
     print 'nodes', cp.get_new_nodes(x_sol)
-#    X = cp.solve(X)
-#
-#    print '========== results =============='
-#    print 'solution X\n', X
-#    print 'final positions\n', cp.get_new_nodes(X)
-#    print 'final vectors\n', cp.get_new_vectors(X)
-#    print 'final lengths\n', cp.get_new_lengths(X)
+
+    # 1) introduce the mapping association to the surface
+    #    similar to cnstr_face
+    # 2) define a rule for mountains and valley nodes.
+    # 3) visualize attractor / control surface.
