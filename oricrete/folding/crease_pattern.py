@@ -516,8 +516,10 @@ class CreasePattern(HasTraits):
         for caf, nodes in self.cnstr_caf:
             caf.X_arr = X[nodes]
             d_arr = np.append(d_arr, caf.d_arr)
-            
+        
+          
         dist = np.linalg.norm(d_arr)
+        
         return dist
 
     #===========================================================================
@@ -545,7 +547,7 @@ class CreasePattern(HasTraits):
             #self.set_next_node(X)
             i = 0
             self.cnstr_rhs = (k + 1.) / float(n_steps) * cnstr_rhs
-
+            print 'rhs', self.cnstr_rhs
             while i <= MAX_ITER:
                 dR = self.get_dR(X)
                 R = self.get_R(X)
@@ -594,6 +596,7 @@ class CreasePattern(HasTraits):
             print 'step', t,
 
             i = 0
+            
             while i <= MAX_ITER:
                 dR = self.get_dR(X, t)
                 R = self.get_R(X, t)
@@ -602,12 +605,18 @@ class CreasePattern(HasTraits):
                     print '==== converged in ', i, 'iterations ===='
                     self.set_next_node(X)
                     break
-                dX = np.linalg.solve(dR, -R)
-
-                X += dX
-                if self.show_iter:
+                try:
+                    dX = np.linalg.solve(dR, -R)
+    
+                    X += dX
+                    if self.show_iter:
+                        self.set_next_node(X)
+                    i += 1
+                except Exception as inst:
+                    print '==== problems solving linalg in interation step %d  ====' % i
+                    print '==== Exception message: ', inst
                     self.set_next_node(X)
-                i += 1
+                    return X
             else:
                 print '==== did not converge in %d interations ====' % i
                 return X
@@ -624,16 +633,44 @@ class CreasePattern(HasTraits):
         n_steps = self.n_steps
         cnstr_rhs = np.copy(self.cnstr_rhs)
 
-        for t in self.t_arr:
-            print 'step', t,
-            
-            d0 = self.dist(X0)
-            eps = d0 * 1e-4
-            X = fmin_slsqp(self.dist, X0, f_eqcons = self.get_R(X, t), fprime_eqcons = self.get_dR(X, t), acc = 1e-8,
-                    epsilon = eps)
-                
-            self.set_next_node(X)
-            
+        if(len(self.cnstr_caf) > 0):
+            print '==== solving with SLSQP optimization ===='
+            for t in self.t_arr:
+                print 'step', t,
+                d0 = self.dist(X0)
+                eps = d0 * 1e-4
+                X = fmin_slsqp(self.dist, X0, f_eqcons = self.get_R, fprime_eqcons = self.get_dR, acc = 1e-8,
+                               epsilon = eps)
+                self.set_next_node(X)
+        else:
+            print '==== solving with Newton-Raphson Iteration ===='
+            for t in self.t_arr:
+                print 'step', t,
+                i = 0
+                self.cnstr_rhs = t * cnstr_rhs
+                while i <= MAX_ITER:
+                    dR = self.get_dR(X, t)
+                    R = self.get_R(X, t)
+                    nR = np.linalg.norm(R)
+                    if nR < TOLERANCE:
+                        print '==== converged in ', i, 'iterations ===='
+                        self.set_next_node(X)
+                        break
+                    try:
+                        dX = np.linalg.solve(dR, -R)
+        
+                        X += dX
+                        if self.show_iter:
+                            self.set_next_node(X)
+                        i += 1
+                    except Exception as inst:
+                        print '==== problems solving linalg in interation step %d  ====' % i
+                        print '==== Exception message: ', inst
+                        self.set_next_node(X)
+                        return X
+                else:
+                    print '==== did not converge in %d interations ====' % i
+                    return X    
         return X
         
 
