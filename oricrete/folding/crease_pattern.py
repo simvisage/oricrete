@@ -19,7 +19,10 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
 
 import numpy as np
+from scipy.optimize import fmin_slsqp
 import sys
+from oricrete.folding.cnstr_attractor_face import \
+    CnstrAttractorFace, r_, s_
 
 class CreasePattern(HasTraits):
     '''
@@ -67,6 +70,7 @@ class CreasePattern(HasTraits):
     facets = Array(value = [], dtype = 'int_')
 
     cnstr_lst = List([])
+    cnstr_caf = List([])
 
     ff_lst = Property
     def _get_ff_lst(self):
@@ -503,6 +507,18 @@ class CreasePattern(HasTraits):
         dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
 
         return dR
+    
+    def dist(self, x):
+        # build dist-vektor for all caf
+        x = x.reshape(self.n_n, self.n_d)
+        X = self.get_new_nodes(x)
+        d_arr = np.array([])
+        for caf, nodes in self.cnstr_caf:
+            caf.X_arr = X[nodes]
+            d_arr = np.append(d_arr, caf.d_arr)
+            
+        dist = np.linalg.norm(d_arr)
+        return dist
 
     #===========================================================================
     # Folding algorithm - Newton-Raphson
@@ -563,7 +579,7 @@ class CreasePattern(HasTraits):
     def _get_t_arr(self):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
-    def solve_ff(self, X0, g_X = []):
+    def solve_ff(self, X0):
 
         # make a copy of the start vector
         X = np.copy(X0)
@@ -597,6 +613,29 @@ class CreasePattern(HasTraits):
                 return X
 
         return X
+    
+    def solve_fmin(self, X0):
+        # make a copy of the start vector
+        X = np.copy(X0)
+
+        # Sequential Least Squares optimization
+        MAX_ITER = self.MAX_ITER
+        TOLERANCE = self.TOLERANCE
+        n_steps = self.n_steps
+        cnstr_rhs = np.copy(self.cnstr_rhs)
+
+        for t in self.t_arr:
+            print 'step', t,
+            
+            d0 = self.dist(X0)
+            eps = d0 * 1e-4
+            X = fmin_slsqp(self.dist, X0, f_eqcons = self.get_R(X, t), fprime_eqcons = self.get_dR(X, t), acc = 1e-8,
+                    epsilon = eps)
+                
+            self.set_next_node(X)
+            
+        return X
+        
 
     #===============================================================================
     # methods and Information for Abaqus calculation
