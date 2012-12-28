@@ -389,7 +389,7 @@ if __name__ == '__main__':
 
     #X_dc = cp_dc.solve(X0)
 
-    X_fc = cp_fc.solve_ff(X0)
+#    X_fc = cp_fc.solve_ff(X0)
 
 #    print 'new nodes'
 #    print cp.get_new_nodes(X_vct)

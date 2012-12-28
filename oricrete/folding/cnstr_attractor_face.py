@@ -41,7 +41,7 @@ class ParamFaceOperator(HasTraits):
     #===========================================================================
     F = List(input = True)
     def _F_default(self):
-        return [r_, s_, -r_ ** 2 - s_ ** 2]
+        return [r_, s_, -r_ ** 2 - s_ ** 2 * t_]
 
     F_mtx = Property(depends_on = 'F')
     @cached_property
@@ -51,10 +51,11 @@ class ParamFaceOperator(HasTraits):
     F_fn = Property(depends_on = 'F')
     @cached_property
     def _get_F_fn(self):
-        return sm.lambdify([r_, s_], list(self.F_mtx))
+        return sm.lambdify([r_, s_, t_], list(self.F_mtx))
 
-    def get_F(self, r_pnt):
-        return self.F_fn(*r_pnt)
+    def get_F(self, r_pnt, t):
+        args = np.hstack([ r_pnt, [t]])
+        return self.F_fn(*args)
 
     #===========================================================================
     # Surface derivatives [dF(r,s)/dr, dF(r,s)/ds]
@@ -68,20 +69,53 @@ class ParamFaceOperator(HasTraits):
     @cached_property
     def _get_dF_rs_fn(self):
         dF_rs = [ map(lambda x: sm.diff(x, var_), self.F) for var_ in [r_, s_]]
-        return sm.lambdify([r_, s_], dF_rs)
+        return sm.lambdify([r_, s_, t_], dF_rs)
 
-    def get_dF_rs(self, r_pnt):
-        return self.dF_rs_fn(*r_pnt)
+    def get_dF_rs(self, r_pnt, t):
+        args = np.hstack([ r_pnt, [t]])
+        return self.dF_rs_fn(*args)
 
     #===========================================================================
-    # norm_condity condition
+    # normal vector
+    #===========================================================================
+    ls = Property(depends_on = '+input')
+    @cached_property
+    def _get_ls(self):
+        '''Calculate the projections of the vector X -> F onto
+        the plane tangent vectors of the surface.
+        '''
+        # derivatives with respect to r and s
+        dF_r, dF_s = self.dF_rs
+        n_vct = np.cross(dF_r, dF_s)
+        # F -> X vector
+        XF_vct = self.X - self.F_mtx
+        XF_vct = np.array(XF_vct)[:, 0]
+        return np.dot(n_vct, XF_vct)
+
+    ls_fn = Property(depends_on = '+input')
+    @cached_property
+    def _get_ls_fn(self):
+        return sm.lambdify([r_, s_, x_, y_, z_, t_], self.ls)
+
+    def get_ls(self, r_pnt, x_pnt, t):
+        args = np.hstack([r_pnt, x_pnt, [t]])
+        return self.ls_fn(*args)
+
+    #===========================================================================
+    # normality condition
     #===========================================================================
     norm_cond = Property(depends_on = '+input')
     @cached_property
     def _get_norm_cond(self):
+        '''Calculate the projections of the vector X -> F onto
+        the plane tangent vectors of the surface.
+        '''
+        # derivatives with respect to r and s
         dF_s, dF_r = self.dF_rs
+        # F -> X vector
         XF_vct = self.X - self.F_mtx
         XF_vct = np.array(XF_vct)[:, 0]
+        # projections of the XF vector onto tangent vectors
         pr = np.inner(XF_vct, dF_r)
         ps = np.inner(XF_vct, dF_s)
         return [pr, ps]
@@ -89,10 +123,10 @@ class ParamFaceOperator(HasTraits):
     norm_cond_fn = Property(depends_on = '+input')
     @cached_property
     def _get_norm_cond_fn(self):
-        return sm.lambdify([r_, s_, x_, y_, z_], self.norm_cond)
+        return sm.lambdify([r_, s_, x_, y_, z_, t_], self.norm_cond)
 
-    def get_norm_cond(self, r_pnt, x_pnt):
-        args = np.hstack([r_pnt, x_pnt])
+    def get_norm_cond(self, r_pnt, x_pnt, t):
+        args = np.hstack([r_pnt, x_pnt, [t]])
         return self.norm_cond_fn(*args)
 
     #===========================================================================
@@ -106,16 +140,16 @@ class ParamFaceOperator(HasTraits):
     d_norm_cond_fn = Property(depends_on = '+input')
     @cached_property
     def _get_d_norm_cond_fn(self):
-        return sm.lambdify([r_, s_, x_, y_, z_], self.d_norm_cond)
+        return sm.lambdify([r_, s_, x_, y_, z_, t_], self.d_norm_cond)
 
-    def get_d_norm_cond(self, r_pnt, x_pnt):
-        args = np.hstack([r_pnt, x_pnt])
+    def get_d_norm_cond(self, r_pnt, x_pnt, t):
+        args = np.hstack([r_pnt, x_pnt, [t]])
         return self.d_norm_cond_fn(*args)
 
-    def get_r_pnt(self, r0_pnt, x_pnt):
+    def get_r_pnt(self, r0_pnt, x_pnt, t):
 
-        get_norm_cond = lambda r_pnt: self.get_norm_cond(r_pnt, x_pnt)
-        get_d_norm_cond = lambda r_pnt: self.get_d_norm_cond(r_pnt, x_pnt)
+        get_norm_cond = lambda r_pnt: self.get_norm_cond(r_pnt, x_pnt, t)
+        get_d_norm_cond = lambda r_pnt: self.get_d_norm_cond(r_pnt, x_pnt, t)
 
         r_pnt, infodict, ier, m = fsolve(get_norm_cond,
                                          r0_pnt,
@@ -123,8 +157,9 @@ class ParamFaceOperator(HasTraits):
                                          full_output = True)
         return r_pnt
 
-    def get_dist(self, r_pnt, x_pnt):
-        return np.linalg.norm(x_pnt - self.F_fn(*r_pnt))
+    def get_dist(self, r_pnt, x_pnt, t):
+        args = np.hstack([r_pnt, [t]])
+        return np.linalg.norm(x_pnt - self.F_fn(*args))
 
 class CnstrAttractorFace(HasTraits):
     '''Calculate and maintain distances between
@@ -137,49 +172,68 @@ class CnstrAttractorFace(HasTraits):
 
     F = DelegatesTo('pf_operator')
 
-    X_arr = Array(float)
+    t = Float(0.0, input = True)
+
+    X_arr = Array(float, input = True)
     def _X_arr_default(self):
         return np.array([[0, 0, 1]], dtype = 'f')
 
-    r_arr = Property(Array(float), depends_on = 'X_arr[]')
+    r_arr = Property(Array(float), depends_on = '+input, X_arr[]')
     @cached_property
     def _get_r_arr(self):
         r0_pnt = np.array([0, 0], dtype = 'f')
-        return np.array([self.pf_operator.get_r_pnt(r0_pnt, x_pnt)
+        return np.array([self.pf_operator.get_r_pnt(r0_pnt, x_pnt, self.t)
                          for x_pnt in self.X_arr], dtype = 'f')
 
-    d_arr = Property(Array(float), depends_on = 'X_arr[]')
+    d_arr = Property(Array(float), depends_on = '+input, X_arr[]')
     @cached_property
     def _get_d_arr(self):
-        return np.array([self.pf_operator.get_dist(r_pnt, x_pnt)
+        return np.array([self.pf_operator.get_dist(r_pnt, x_pnt, self.t)
                          for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
 
+    ls_arr = Property(Array(float), depends_on = '+input, X_arr[]')
+    @cached_property
+    def _get_ls_arr(self):
+        return np.array([self.pf_operator.get_ls(r_pnt, x_pnt, self.t)
+                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
+
+    def Rf(self, x, y, z, t):
+        self.X_arr = np.c_[x.flatten(), y.flatten(), z.flatten()]
+        self.t = t
+        ls_arr = self.ls_arr
+        return ls_arr.reshape(x.shape)
+
 if __name__ == '__main__':
-    cp = ParamFaceOperator(F = [r_, s_, 0])
+    cp = ParamFaceOperator(F = [r_, s_, t_])
 
     x_pnt = np.array([0, 0.2, 1], dtype = 'f')
     r0_pnt = np.array([0, 0], dtype = 'f')
 
     print 'r0_pnt:\t\t\t\t', r0_pnt
-    print 'value of F at r0_pnt:\t\t', cp.get_F(r0_pnt)
-    print 'value of dF_rs at r0_pnt:\t', cp.get_dF_rs(r0_pnt)
+    print 'value of F at r0_pnt:\t\t', cp.get_F(r0_pnt, 0)
+    print 'value of dF_rs at r0_pnt:\t', cp.get_dF_rs(r0_pnt, 0)
     print 'x_pnt:\t\t\t\t', x_pnt
-    print 'normality r0_pnt - x_pnt:\t', cp.get_norm_cond(r0_pnt, x_pnt)
-    print 'd(normality r0_pnt - x_pnt):\t', cp.get_d_norm_cond(r0_pnt, x_pnt)
-    r_pnt = cp.get_r_pnt(r0_pnt, x_pnt)
+    print 'normality r0_pnt - x_pnt:\t', cp.get_norm_cond(r0_pnt, x_pnt, 0)
+    print 'd(normality r0_pnt - x_pnt):\t', cp.get_d_norm_cond(r0_pnt, x_pnt, 0)
+    r_pnt = cp.get_r_pnt(r0_pnt, x_pnt, 0)
     print 'r_pnt:\t\t\t\t', r_pnt
-    print 'distance x_pnt - r_pnt:\t\t', cp.get_dist(r_pnt, x_pnt)
+    print 'distance x_pnt - r_pnt:\t\t', cp.get_dist(r_pnt, x_pnt, 0)
 
     caf = CnstrAttractorFace(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
+                             #F = [r_, s_, t_],
                              X_arr = [[0, 0.2, 1],
-                                      [1, 4, 2],
+                                      [1, 4, -2],
                                       [7, 8, 9]])
     print 'x_arr:\n', caf.X_arr
     print 'r_arr:\n', caf.r_arr
     print 'd_arr:\n', caf.d_arr
+    print 'ls_arr:\n', caf.ls_arr
 
     caf.X_arr = caf.X_arr + 1.0
 
     print 'x_arr:\n', caf.X_arr
     print 'r_arr:\n', caf.r_arr
     print 'd_arr:\n', caf.d_arr
+    print 'ls_arr:\n', caf.ls_arr
+
+

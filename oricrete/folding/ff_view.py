@@ -24,34 +24,34 @@ import numpy as np
 
 class FFView(HasTraits):
     '''
-     This class manages the visualization of FoldFace constrains 
+     This class manages the visualization of FoldFace constrains
     '''
     show_ff_pipe = Bool(True)
     show_ff_nodes = Bool(False)
     fold_step = Int(0)
     time_step = Float(0.0)
     name = Str('Nr 1')
-    
+
     # constrain opacity
     opacity_min = Int(0)
     opacity_max = Int(100)
-    
+
     opacity = Int(20)
 
-    def __init__(self, scene, cnstr_lst, xyzgrid, nodes, scalefactor, *args, **kw):
+    def __init__(self, scene, cnstr, xyzgrid, nodes, scalefactor, *args, **kw):
         super(FFView, self).__init__(*args, **kw)
-        self.ff = cnstr_lst[0]
+        self.ff = cnstr[0]
         self.xyzgrid = xyzgrid
         self.nodes = nodes
-        self.nodes_id = cnstr_lst[1]
+        self.nodes_id = cnstr[1]
         self.scene = scene
         self.scalefactor = scalefactor
         self.ff_pipe
 
     def update(self, fold_step, time_step):
         self.fold_step = fold_step
-        self.time_step = time_step     
-    
+        self.time_step = time_step
+
     ff_pipe = Property(Instance(PipelineBase))
     @cached_property
     def _get_ff_pipe(self):
@@ -60,7 +60,7 @@ class FFView(HasTraits):
                                                   contours = [0.0])
         ff_pipe.visible = self.show_ff_pipe
         ff_pipe.module_manager.scalar_lut_manager.lut.table = self.lut
-        
+
         return ff_pipe
 
     ff_nodes = Property(Instance(PipelineBase))
@@ -70,7 +70,7 @@ class FFView(HasTraits):
         ff_nodes = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor, color = (0.5, 0., 0.))
         ff_nodes.visible = self.show_ff_nodes
         return ff_nodes
-    
+
     # constrain colormap
     lut = Property(depends_on = 'opacity')
     @cached_property

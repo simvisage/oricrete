@@ -507,7 +507,7 @@ class CreasePattern(HasTraits):
         dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
 
         return dR
-    
+
     def dist(self, x):
         # build dist-vektor for all caf
         x = x.reshape(self.n_n, self.n_d)
@@ -516,10 +516,9 @@ class CreasePattern(HasTraits):
         for caf, nodes in self.cnstr_caf:
             caf.X_arr = X[nodes]
             d_arr = np.append(d_arr, caf.d_arr)
-        
-          
+
         dist = np.linalg.norm(d_arr)
-        
+
         return dist
 
     #===========================================================================
@@ -596,7 +595,7 @@ class CreasePattern(HasTraits):
             print 'step', t,
 
             i = 0
-            
+
             while i <= MAX_ITER:
                 dR = self.get_dR(X, t)
                 R = self.get_R(X, t)
@@ -607,7 +606,7 @@ class CreasePattern(HasTraits):
                     break
                 try:
                     dX = np.linalg.solve(dR, -R)
-    
+
                     X += dX
                     if self.show_iter:
                         self.set_next_node(X)
@@ -622,7 +621,7 @@ class CreasePattern(HasTraits):
                 return X
 
         return X
-    
+
     def solve_fmin(self, X0):
         # make a copy of the start vector
         X = np.copy(X0)
@@ -658,7 +657,7 @@ class CreasePattern(HasTraits):
                         break
                     try:
                         dX = np.linalg.solve(dR, -R)
-        
+
                         X += dX
                         if self.show_iter:
                             self.set_next_node(X)
@@ -670,14 +669,14 @@ class CreasePattern(HasTraits):
                         return X
                 else:
                     print '==== did not converge in %d interations ====' % i
-                    return X    
+                    return X
         return X
-        
+
 
     #===============================================================================
     # methods and Information for Abaqus calculation
     #===============================================================================
-    
+
     aligned_facets = Property(depends_on = 'facets')
     @cached_property
     def _get_aligned_facets(self):
@@ -693,11 +692,11 @@ class CreasePattern(HasTraits):
                 a_f.append(temp)
             else:
                 a_f.append(i)
-                
+
         a_f = np.array(a_f)
         print a_f + 1
         return a_f
-            
+
 
 
     #===============================================================================
@@ -828,7 +827,7 @@ class CreasePattern(HasTraits):
         n = self.nodes
         cl = self.crease_lines
         fc = self.aligned_facets
-        
+
         #=======================================================================
         # Basic Informations: Nodes, Creaselines, Facets
         #=======================================================================

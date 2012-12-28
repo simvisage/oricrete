@@ -33,12 +33,14 @@ if __name__ == '__main__':
         Value to be minimized.
         '''
         x_, y_ = x[:]
+        return x_ ** 2
         return (x_ - y_) ** 2
 
     def d_f(x):
         '''Derivative of the goal function.
         '''
         x_, y_ = x[:]
+        return np.array([2 * (x_), 0], dtype = 'f')
         return np.array([2 * (x_ - y_), -2 * (x_ - y_)], dtype = 'f')
 
     x0 = np.array([0, 0], dtype = 'f')
