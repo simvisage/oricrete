@@ -11,7 +11,7 @@ from scipy.optimize import fmin_slsqp
 
 if __name__ == '__main__':
 
-    caf = CnstrAttractorFace(F = [r_ , s_, r_ ** 2 * s_ ** 2 + 0.2 * r_])
+    caf = CnstrAttractorFace(F = [r_ , s_, 0.2])
 
     print 'x_arr:\n', caf.X_arr
     print 'r_arr:\n', caf.r_arr
@@ -31,40 +31,24 @@ if __name__ == '__main__':
                 [ 1, 0, 0 ],
                 [ 0.5, -0.5, 0 ],
                 [ 0.5, 0.5, 0],
-                [ 1, 1, 0],
-                [ 1.5, 0.5, 0],
-                [ 0, 1, 0],
-#                [0.5, 1.5, 0]
                 ]
 
     cp.crease_lines = [[ 0, 2 ],
                        [ 2, 1 ],
                        [ 0, 3 ],
                        [ 3, 1 ],
-                       [ 2, 3],
-                       [1, 4],
-                       [3, 4],
-                       [1, 5],
-                       [4, 5],
-                       [0, 6],
-                       [3, 6]]
-
+                       [ 2, 3]]
     cp.facets = [[0, 3, 2],
-                 [1, 2, 3],
-                 [1, 3, 4],
-                 [1, 4, 5],
-                 [0, 3, 6]]
+                 [1, 2, 3]]
 
     cp.cnstr_lhs = [[(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
-#                    [(1, 1, 1.0)],
-#                    [(1, 2, 1.0)],
+                    [(1, 1, 1.0)],
+                    [(1, 2, 1.0)],
                      ]
 
-    cp.cnstr_rhs = [0.0, 0.0, 0.0, ]# 0, 0, 0, ]
-
-    cp.cnstr_caf = [(caf, [1, 2, 3, 4, 5, 6])]
+    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0, 0, 0, ]
 
     x0 = np.zeros((cp.n_dofs), dtype = float)
 
@@ -77,18 +61,17 @@ if __name__ == '__main__':
         x = x.reshape(cp.n_n, cp.n_d)
         X = cp.get_new_nodes(x)
 #       cp.set_next_node(x)
-        caf_nodes = cp.cnstr_caf[0][1]
-        caf.X_arr = X[1:] # [X[2]]
-        caf.X_arr = X[caf_nodes]
+        caf.X_arr = X[2:] # [X[2]]
 #        dist2 = np.linalg.norm(caf.d_arr)
 #        caf.X_arr = [X[3]]
         dist3 = np.linalg.norm(caf.d_arr)
-        return dist3
+        print 'dist', dist3
+        return dist3 # (dist2 + dist3) / 2
 
     d0 = f(x0)
     eps = d0 * 1e-4
 
-    x_sol = fmin_slsqp(f, x0, f_eqcons = cp.get_R, fprime_eqcons = cp.get_dR, acc = 1e-4,
+    x_sol = fmin_slsqp(f, x0, f_eqcons = cp.get_R, fprime_eqcons = cp.get_dR, acc = 1e-8,
                        epsilon = eps)
 
     print 'x_sol', x_sol
@@ -102,10 +85,10 @@ if __name__ == '__main__':
 
     cp.set_next_node(x_sol)
 
-    cpv = CreasePatternView(data = cp, show_cnstr = True,
-                            ff_resolution = 50)
+    cpv = CreasePatternView(data = cp, show_cnstr = True)
 
     cpv.configure_traits()
+
 
     # 1) introduce the mapping association to the surface
     #    similar to cnstr_face
