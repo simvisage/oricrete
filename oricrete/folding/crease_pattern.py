@@ -497,6 +497,9 @@ class CreasePattern(HasTraits):
                           ])
         return R
 
+    def get_R_t(self, X_vct):
+        return self.get_R(X_vct, self.t)
+
     def get_dR(self, X_vct, t = 0):
         dR_l = self.get_length_dR(X_vct)
         dR_fc = self.get_cnstr_dR(X_vct, t)
@@ -505,21 +508,25 @@ class CreasePattern(HasTraits):
         dR_lp = self.get_line_dR(X_vct)
 
         dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
-
         return dR
 
-    def dist(self, x):
+    def get_dR_t(self, X_vct):
+        return self.get_dR(X_vct, self.t)
+
+    def get_dist_norm(self, x, t = 0):
         # build dist-vektor for all caf
         x = x.reshape(self.n_n, self.n_d)
         X = self.get_new_nodes(x)
         d_arr = np.array([])
         for caf, nodes in self.cnstr_caf:
             caf.X_arr = X[nodes]
+            caf.t = t
             d_arr = np.append(d_arr, caf.d_arr)
 
-        dist = np.linalg.norm(d_arr)
+        return np.linalg.norm(d_arr)
 
-        return dist
+    def get_dist_norm_t(self, x):
+        return self.get_dist_norm(x, self.t)
 
     #===========================================================================
     # Folding algorithm - Newton-Raphson
@@ -634,11 +641,14 @@ class CreasePattern(HasTraits):
 
         if(len(self.cnstr_caf) > 0):
             print '==== solving with SLSQP optimization ===='
+            d0 = self.get_dist_norm(X0)
+            eps = d0 * 1e-4
             for t in self.t_arr:
                 print 'step', t,
-                d0 = self.dist(X0)
-                eps = d0 * 1e-4
-                X = fmin_slsqp(self.dist, X0, f_eqcons = self.get_R, fprime_eqcons = self.get_dR, acc = 1e-8,
+                self.t = t
+                X = fmin_slsqp(self.get_dist_norm_t, X0,
+                               f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
+                               acc = 1e-4,
                                epsilon = eps)
                 self.set_next_node(X)
         else:
@@ -725,12 +735,12 @@ class CreasePattern(HasTraits):
 
         self.iteration_nodes = np.vstack((self.iteration_nodes, [nextnode]))
 
-    def get_cnstr_pos(self, iterationstep):
+    def get_cnstr_pos(self, iteration_step):
         '''
          Get the coordinates of the constraints.
         '''
         print 'get position'
-        nodes = self.iteration_nodes[iterationsstep]
+        nodes = self.iteration_nodes[iteration_step]
         pts_p, faces_p = self.cnstr[0].get_cnstr_view(nodes, 1.0)
         pts_l = None
         con_l = None

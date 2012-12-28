@@ -55,7 +55,7 @@ class CreasePatternView(HasTraits):
 
     scalefactor = Property(Float, depends_on = 'data')
     def _get_scalefactor(self):
-        
+
         bbmin, bbmax = self._get_extent()
         bb = bbmax - bbmin
         minbb = np.min(bb)
@@ -85,31 +85,31 @@ class CreasePatternView(HasTraits):
         '''
         This Method get the constrain - information from the actual crease - pattern
         and divides it for easier calculation of the symbol - positions
-        
+
         The constrains are devided in three constrain - types:
         - fixed constrains (constrain is full fixed in his direction)
         - connected constrains (constrains are in an mathmatical abhaengigkeit
                            , e.g. constant or linear movementbehavior)
         - load constrains (constrains, which activates the numerical calculation)
-        
+
         Different list for visualation:
         fixed constrains:
         - cn_f : indexarray of nodes of fixed constrains
         - cd_f : direction (axes) of the fixed constrain [x, y, z]
-        
+
         connected constrains:
         - cn_c: indexarray of nodes of fixed constrains
         - cc_c: connection of nodes as indexarrays, e.g. [[0, 1],
                                                       [2, 4]]
             each index represents a node
         - cd_c: direction (axes) of the connected constrains [x, y, z]
-        
+
         load constrains:
         - cn_l : indexarray of nodes of load constrains
         - cd_l : direction (axes) of the load constrain [x, y, z]
         '''
         # get constrain information of the creasepattern
-        
+
 
         lhs = copy.deepcopy(self.data.cnstr_lhs)
         rhs = copy.deepcopy(self.data.cnstr_rhs)
@@ -173,27 +173,27 @@ class CreasePatternView(HasTraits):
         fixed_dir = fixed_dir.reshape(len(cnstr_fixed), 3)
 
         # get connections on reale node indexes 
-        
+
         c_nodes = np.array([], dtype = int)
         c_dir = np.array([])
         con = np.array([], dtype = int)
         count = 0
         for i in cnstr_connect:
-            c_nodes = np.append(c_nodes,i[0][0])
-            c_nodes = np.append(c_nodes,i[1][0])
+            c_nodes = np.append(c_nodes, i[0][0])
+            c_nodes = np.append(c_nodes, i[1][0])
             vct1 = np.zeros((3,))
             vct2 = np.zeros((3,))
             vct1[i[0][1]] = 1
             vct2[i[1][1]] = 1
-            c_dir = np.append(c_dir,vct1)
-            c_dir = np.append(c_dir,vct2)
-            c = np.array([count,count+1])
-            con = np.append(con,c)
-            count += 2 
-        
-        c_dir = c_dir.reshape((-1,3))
-        con = con.reshape((-1,2))
-            
+            c_dir = np.append(c_dir, vct1)
+            c_dir = np.append(c_dir, vct2)
+            c = np.array([count, count + 1])
+            con = np.append(con, c)
+            count += 2
+
+        c_dir = c_dir.reshape((-1, 3))
+        con = con.reshape((-1, 2))
+
         return (fixed_nodes, fixed_dir, c_nodes, con, c_dir,
                 load_nodes, load_dir)
 
@@ -249,7 +249,7 @@ class CreasePatternView(HasTraits):
 
     # @todo: make dependent on iteration nodes.
     def _get_extent(self):
-        '''Get the lower left front corner and the upper right back corner. 
+        '''Get the lower left front corner and the upper right back corner.
         '''
         nodes = self.data.iteration_nodes
         inodes = np.min(nodes, axis = 0), np.max(nodes, axis = 0)
@@ -262,7 +262,8 @@ class CreasePatternView(HasTraits):
     xyz_grid = Property
     def _get_xyz_grid(self):
         X0, X1 = np.array(self._get_extent(), dtype = 'd')
-        d = np.fabs(X1 - X0)
+        extension_factor = 2
+        d = np.fabs(X1 - X0) * extension_factor
         # @todo: define extent for one and two dimensional problems
         # (must be dependent on some volume measure of the geometry
         x0 = X0 - 0.1 * d - 0.1
@@ -279,31 +280,34 @@ class CreasePatternView(HasTraits):
         pts = np.array(self.data.grab_pts)
         n = pts[:, 0]
         pts = self.data.nodes[n]
-        
+
         x, y, z = pts.T
         grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.25, color = (0.0, 1.0, 1.0))
         return grab_pts_pipeline
-    
+
     line_pts_pipeline = Property(Instance(PipelineBase), depends_on = 'data')
     @cached_property
     def _get_line_pts_pipeline(self):
         pts = np.array(self.data.line_pts)
         n = pts[:, 0]
         pts = self.data.nodes[n]
-        
+
         x, y, z = pts.T
         line_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.25, color = (1.0, 0.0, 0.0))
         return line_pts_pipeline
-        
+
     # Pipeline visualizing fold faces
     ff_pipe_view = Property(List(FFView), depends_on = 'data')
     @cached_property
     def _get_ff_pipe_view(self):
-        
-        ff_pipe_view = [FFView(self.scene, cnstr_lst, self.xyz_grid,
+
+        ff_pipe_view = [FFView(self.scene, cnstr, self.xyz_grid,
                                    self.data.iteration_nodes, self.scalefactor)
-                            for cnstr_lst in self.data.cnstr_lst]
-        
+                            for cnstr in self.data.cnstr_lst] + \
+                       [FFView(self.scene, cnstr, self.xyz_grid,
+                                   self.data.iteration_nodes, self.scalefactor)
+                            for cnstr in self.data.cnstr_caf]
+
         return ff_pipe_view
 
     # when parameters are changed, plot is updated
@@ -312,7 +316,7 @@ class CreasePatternView(HasTraits):
         '''
             Foldstep 0 = original pattern
             Foldstep 1 = first predefined form to get Iteration startet
-            Foldstep 2-n = Iterationsteps 
+            Foldstep 2-n = Iterationsteps
         '''
         if self.fold_step == 0:
             timestep = 0.0
@@ -327,9 +331,9 @@ class CreasePatternView(HasTraits):
         # Array of current foldstep
         nodes = self.data.iteration_nodes[self.fold_step]
         x, y, z = copy.copy(nodes.T)
-        
+
         # Raising factor for Foldstep 1
-        if( self.z_raising and (self.fold_step == 1)):
+        if(self.z_raising and (self.fold_step == 1)):
             z *= self.raising_factor
 
         # set new position of 3D Points
@@ -337,31 +341,31 @@ class CreasePatternView(HasTraits):
 
     @on_trait_change('fold_step, z_raising, raising_factor')
     def update_grab_pts_pipeline(self):
-        
+
         pts = np.array(self.data.grab_pts)
         if len(pts) == 0:
             return
-        
+
         n = pts[:, 0]
         nodes = self.data.iteration_nodes[self.fold_step]
         gp_nodes = nodes[n]
         x, y, z = copy.copy(gp_nodes.T)
-        if( self.z_raising and (self.fold_step == 1)):
+        if(self.z_raising and (self.fold_step == 1)):
             z *= self.raising_factor
         self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
-        
+
     @on_trait_change('fold_step, z_raising, raising_factor')
     def update_line_pts_pipeline(self):
-        
+
         pts = np.array(self.data.line_pts)
         if len(pts) == 0:
             return
-        
+
         n = pts[:, 0]
         nodes = self.data.iteration_nodes[self.fold_step]
         lp_nodes = nodes[n]
         x, y, z = copy.copy(lp_nodes.T)
-        if( self.z_raising and (self.fold_step == 1)):
+        if(self.z_raising and (self.fold_step == 1)):
             z *= self.raising_factor
         self.line_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
 
@@ -427,12 +431,12 @@ class CreasePatternView(HasTraits):
             # connected contrains
 
             cp_c = nodes[cn_c]
-            
+
             x, y, z = cp_c.T
-            
+
             U, V, W = cd_c.T * scale
             sU, sV, sW = cd_c.T * spacefactor
-            
+
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
@@ -466,7 +470,7 @@ class CreasePatternView(HasTraits):
 
             spacefactor = 0.2 * self.scalefactor
             scale = self.scalefactor * 2
-            
+
             # fixed cnstr
             cp_f = np.array([])
             cp_f = nodes[cn_f]
@@ -474,14 +478,14 @@ class CreasePatternView(HasTraits):
             x, y, z = x[0], y[0], z[0]
             U, V, W = cd_f.T * scale
             sU, sV, sW = cd_f.T * spacefactor
-            
-            if( self.z_raising and (self.fold_step == 1)):
+
+            if(self.z_raising and (self.fold_step == 1)):
                 z *= self.raising_factor
-                
+
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-            
+
             self.cnstr_pipeline.mlab_source.reset(x = x, y = y, z = z)
             self.cf_cross.mlab_source.reset(x = x, y = y, z = z)
 
@@ -492,14 +496,14 @@ class CreasePatternView(HasTraits):
             x, y, z = x[0], y[0], z[0]
             U, V, W = cd_l.T * scale
             sU, sV, sW = cd_l.T * spacefactor
-            
-            if( self.z_raising and (self.fold_step == 1)):
+
+            if(self.z_raising and (self.fold_step == 1)):
                 z *= self.raising_factor
-                
+
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-            
+
             self.cl_arrow.mlab_source.reset(x = x, y = y, z = z)
 
             # connected constrains
@@ -509,14 +513,14 @@ class CreasePatternView(HasTraits):
 
             U, V, W = cd_c.T * scale
             sU, sV, sW = cd_c.T * spacefactor
-            
-            if( self.z_raising and (self.fold_step == 1)):
+
+            if(self.z_raising and (self.fold_step == 1)):
                 z *= self.raising_factor
-                
+
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
-           
+
             self.cc_arrow.mlab_source.reset(x = x, y = y, z = z)
             self.cc_arrow.mlab_source.dataset.lines = cc_c
 
@@ -549,19 +553,19 @@ class CreasePatternView(HasTraits):
         #===========================================================================
         # Prepare plotting 
         #===========================================================================
-        if( frame == -1):
+        if(frame == -1):
             frame = self.single_frame
         multiframe = True
         tdir = tempfile.mkdtemp()
         n_steps = len(self.data.iteration_nodes)
         steps = np.array([0])
-        if( frame > -1 and frame < n_steps):
+        if(frame > -1 and frame < n_steps):
             steps[0] = frame
             multiframe = False
         else:
-            while( (steps[-1] + self.animation_steps) < n_steps):
-                steps = np.append(steps,(steps[-1] + self.animation_steps))
-        
+            while((steps[-1] + self.animation_steps) < n_steps):
+                steps = np.append(steps, (steps[-1] + self.animation_steps))
+
         steps_forward = steps / self.animation_steps
         steps_backward = steps_forward + len(steps)
         fnames_forward = [os.path.join(tdir, 'x%02d.jpg' % i)
@@ -582,19 +586,19 @@ class CreasePatternView(HasTraits):
                 self.scene.mlab.savefig(fname, size = (800, 600))
 
         fnames = fnames_forward
-        if( multiframe ):
+        if(multiframe):
             fnames += fnames_backward
         images = string.join(fnames, ' ')
         destination = self.animation_file
-        
+
         import platform
         if platform.system() == 'Linux':
             os.system('convert ' + images + ' ' + destination)
         else:
             raise NotImplementedError, 'film production available only on linux'
         print 'animation saved in', destination
-       
-            
+
+
 
     # The layout of the dialog created
     # The main view
@@ -605,7 +609,7 @@ class CreasePatternView(HasTraits):
                                    Item('raising_factor'),
                                    Item('scalefactor')),
                              Group(Item('save_animation', show_label = False),
-                                   Item('animation_steps', tooltip = 
+                                   Item('animation_steps', tooltip =
                                         'gives the distance of foldsteps between the frames (1 = every foldstep; 2 = every second foldstep; ...'),
                                     Item('single_frame', tooltip = 'choose a iterationstep for a single picture, else their will be an animation rendered'),
                                     Item('animation_file', show_label = False),

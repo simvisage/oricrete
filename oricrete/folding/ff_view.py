@@ -97,6 +97,7 @@ class FFView(HasTraits):
 
             t = self.time_step
             Rf = self.ff.Rf(x, y, z, t)
+
             self.ff_pipe.mlab_source.set(scalars = Rf)
 
         if self.show_ff_nodes:
