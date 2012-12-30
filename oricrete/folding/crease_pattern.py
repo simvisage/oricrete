@@ -648,7 +648,7 @@ class CreasePattern(HasTraits):
                 self.t = t
                 X = fmin_slsqp(self.get_dist_norm_t, X0,
                                f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
-                               acc = 1e-4,
+                               acc = 1e-4, iter = 60,
                                epsilon = eps)
                 self.set_next_node(X)
         else:
@@ -716,10 +716,11 @@ class CreasePattern(HasTraits):
     def get_t_for_fold_step(self, fold_step):
         '''Get the index of the fold step array for the given time t'''
 
-        if(fold_step == 0):
-            return 0.
-        else:
-            return self.t_arr[fold_step - 1]
+        print 'get_t_for_fold_step', fold_step, self.t_arr
+#        if(fold_step == 0):
+#            return 0.
+#        else:
+        return self.t_arr[fold_step]
 
     iteration_nodes = Array(value = [], dtype = float)
 

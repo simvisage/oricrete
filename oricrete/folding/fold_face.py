@@ -19,7 +19,7 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
 import numpy as np
 import sympy as sp
 
-x_, y_, z_, t_ = sp.symbols('x,y,z,t')
+x_, y_, z_, r_, s_, t_ = sp.symbols('x,y,z,r,s,t')
 
 class FoldFace(HasTraits):
     '''

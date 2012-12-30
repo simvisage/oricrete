@@ -322,6 +322,10 @@ class CreasePatternView(HasTraits):
             timestep = 0.0
         else:
             timestep = self.data.get_t_for_fold_step(self.fold_step - 1)
+
+        print 'fold_step', self.fold_step
+        print 'time step', timestep
+
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)
 
