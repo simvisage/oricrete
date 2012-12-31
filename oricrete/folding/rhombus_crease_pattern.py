@@ -13,7 +13,7 @@
 # Created on Sep 7, 2011 by: rch
 
 from etsproxy.traits.api import \
-    DelegatesTo, Float, Int, Property, cached_property, Bool, Array
+    DelegatesTo, Float, Int, Property, cached_property, Bool, Array, Callable
 from etsproxy.traits.ui.api import \
     Item, View, HGroup, RangeEditor
 from crease_pattern import CreasePattern
@@ -104,6 +104,10 @@ class RhombusCreasePattern(CreasePattern):
     def _get_fx(self):
         return sp.lambdify([xn_, yn_], self._fx_expr)
 
+    geo_transform = Callable
+    def _geo_transform_default(self):
+        return lambda X_arr: X_arr
+
     _geometry = Property(depends_on = '+geometry')
     @cached_property
     def _get__geometry(self):
@@ -177,7 +181,7 @@ class RhombusCreasePattern(CreasePattern):
         facets = np.vstack([f_h00, f_hi90, f_hl90, f_hr90,
                             g_h00, g_hi90, g_hl90, g_hr90])
 
-        return nodes, crease_lines, facets, n_h, n_v, n_i, X_h, X_v, X_i
+        return self.geo_transform(nodes), crease_lines, facets, n_h, n_v, n_i, X_h, X_v, X_i
 
     z0_ratio = Float(0.1)
 

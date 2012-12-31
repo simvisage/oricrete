@@ -51,13 +51,13 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
 
     face_z_t = CnstrAttractorFace(F = [r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) + s_term])
-    n_arr = np.hstack([n_h[:, :].flatten(),
+    n_arr = np.hstack([n_h[:, 1:-1].flatten(),
                        n_i[:, :].flatten()])
     cp.cnstr_caf = [(face_z_t, n_arr)]
 
     cp.cnstr_lhs = [[(n_h[0, 0], 0, 1.0)], # 0
-                    [(n_h[0, 0], 1, 1.0)], # 1
-                    [(n_h[0, -1], 0, 1.0)],
+                    [(n_h[0, -1], 0, 1.0)], # 1
+                    [(n_h[0, -1], 1, 1.0), (n_h[0, 0], 1, 1.0)],
                     ]
 
     # lift node 0 in z-axes
@@ -67,14 +67,21 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 if __name__ == '__main__':
 
 
-    cp_fc = create_cp_fc_03(L_x = 4, L_y = 3, n_x = 3, n_y = 8,
-                         n_steps = 3)
+    cp_fc = create_cp_fc_03(L_x = 4, L_y = 3, n_x = 4, n_y = 12,
+                         n_steps = 8)
 
     print 't_arr',
     print cp_fc.t_arr
 
     print 'number of fold face constraints'
     print cp_fc.n_c_ff
+
+    # @todo - renaming of methods
+    # @todo - projection on the caf - to get the initial vector
+    # @todo - gemetry transformator
+    # @todo - derivatives of caf for the current position.
+    # @todo - rthombus generator with cut-away elements
+    # @todo - time step counting - save the initial step separately from the time history
 
     X0 = cp_fc.generate_X0()
     #cp_fc.set_next_node(X0)

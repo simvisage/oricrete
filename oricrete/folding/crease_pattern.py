@@ -529,6 +529,29 @@ class CreasePattern(HasTraits):
         return self.get_dist_norm(x, self.t)
 
     #===========================================================================
+    # 
+    #===========================================================================
+    def get_d_dist_norm_x(self, x, t = 0):
+        # build dist-vektor for all caf
+        x = x.reshape(self.n_n, self.n_d)
+        d_xyz = np.zeros_like(x)
+        X = self.get_new_nodes(x)
+        dist_arr = np.array([])
+        for caf, nodes in self.cnstr_caf:
+            caf.X_arr = X[nodes]
+            caf.t = t
+            d_arr = caf.d_arr
+            dist_arr = np.append(dist_arr, d_arr)
+            d_xyz[nodes] = caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
+
+        dist_norm = np.linalg.norm(dist_arr)
+        d_xyz[ np.isnan(d_xyz)] = 0.0
+        return d_xyz.flatten() / dist_norm
+
+    def get_d_dist_norm_x_t(self, x):
+        return self.get_d_dist_norm_x(x, self.t)
+
+    #===========================================================================
     # Folding algorithm - Newton-Raphson
     #===========================================================================
 
@@ -646,11 +669,19 @@ class CreasePattern(HasTraits):
             for t in self.t_arr:
                 print 'step', t,
                 self.t = t
-                X = fmin_slsqp(self.get_dist_norm_t, X0,
+                info = fmin_slsqp(self.get_dist_norm_t, X0,
+                               fprime = self.get_d_dist_norm_x_t,
                                f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
-                               acc = 1e-4, iter = 60,
+                               acc = 1e-5, iter = 200,
+                               iprint = 1,
+                               full_output = True,
                                epsilon = eps)
+                X, fx, n_iter, imode, smode = info
+                X = np.array(X)
                 self.set_next_node(X)
+                if imode != 0:
+                    print smode
+                    break
         else:
             print '==== solving with Newton-Raphson Iteration ===='
             for t in self.t_arr:

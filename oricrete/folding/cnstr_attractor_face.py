@@ -157,9 +157,37 @@ class ParamFaceOperator(HasTraits):
                                          full_output = True)
         return r_pnt
 
+    #===========================================================================
+    # Distance operator
+    #===========================================================================
     def get_dist(self, r_pnt, x_pnt, t):
         args = np.hstack([r_pnt, [t]])
         return np.linalg.norm(x_pnt - self.F_fn(*args))
+
+    #===========================================================================
+    # Get Derivative of Distance of X to F with respect to X 
+    #===========================================================================
+
+    d_dist_xyz = Property(depends_on = '+input')
+    @cached_property
+    def _get_d_dist_xyz(self):
+        '''Calculate the derivatives of the distance
+        with respect to nodal coordinates X.
+        '''
+        XF_vct = self.X - self.F_mtx
+        XF_vct = np.array(XF_vct)[:, 0]
+        XF2_vct = sm.sqrt(np.dot(XF_vct, XF_vct))
+        dXF_vct = [ sm.diff(XF2_vct, var_) for var_ in [x_, y_, z_]]
+        return dXF_vct
+
+    d_dist_xyz_fn = Property(depends_on = '+input')
+    @cached_property
+    def _get_d_dist_xyz_fn(self):
+        return sm.lambdify([r_, s_, x_, y_, z_, t_], self.d_dist_xyz)
+
+    def get_d_dist_xyz(self, r_pnt, x_pnt, t):
+        args = np.hstack([r_pnt, x_pnt, [t]])
+        return self.d_dist_xyz_fn(*args)
 
 class CnstrAttractorFace(HasTraits):
     '''Calculate and maintain distances between
@@ -178,20 +206,26 @@ class CnstrAttractorFace(HasTraits):
     def _X_arr_default(self):
         return np.array([[0, 0, 1]], dtype = 'f')
 
-    r_arr = Property(Array(float), depends_on = '+input, X_arr[]')
+    r_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
     @cached_property
     def _get_r_arr(self):
         r0_pnt = np.array([0, 0], dtype = 'f')
         return np.array([self.pf_operator.get_r_pnt(r0_pnt, x_pnt, self.t)
                          for x_pnt in self.X_arr], dtype = 'f')
 
-    d_arr = Property(Array(float), depends_on = '+input, X_arr[]')
+    d_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
     @cached_property
     def _get_d_arr(self):
         return np.array([self.pf_operator.get_dist(r_pnt, x_pnt, self.t)
                          for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
 
-    ls_arr = Property(Array(float), depends_on = '+input, X_arr[]')
+    d_xyz_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
+    @cached_property
+    def _get_d_xyz_arr(self):
+        return np.array([self.pf_operator.get_d_dist_xyz(r_pnt, x_pnt, self.t)
+                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
+
+    ls_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
     @cached_property
     def _get_ls_arr(self):
         return np.array([self.pf_operator.get_ls(r_pnt, x_pnt, self.t)
@@ -220,7 +254,6 @@ if __name__ == '__main__':
     print 'distance x_pnt - r_pnt:\t\t', cp.get_dist(r_pnt, x_pnt, 0)
 
     caf = CnstrAttractorFace(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
-                             #F = [r_, s_, t_],
                              X_arr = [[0, 0.2, 1],
                                       [1, 4, -2],
                                       [7, 8, 9]])
@@ -235,5 +268,7 @@ if __name__ == '__main__':
     print 'r_arr:\n', caf.r_arr
     print 'd_arr:\n', caf.d_arr
     print 'ls_arr:\n', caf.ls_arr
+    print 'ls_arr:\n', caf.d_xyz_arr
 
-
+    caf.F = [r_, s_, t_]
+    print 'ls_arr:\n', caf.d_xyz_arr
