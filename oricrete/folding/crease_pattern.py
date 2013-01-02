@@ -292,6 +292,9 @@ class CreasePattern(HasTraits):
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
+
+        # @todo [Matthias] - this can be written in a more compact way.
+        # this must be self-explaining !
         Rx = (p0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
               dp0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
               p1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
@@ -312,6 +315,8 @@ class CreasePattern(HasTraits):
               dp2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
 
         R = np.zeros((len(Rx) * 2,))
+
+        # @todo: [Matthias] - what are these cases for? PEP8
         for i in range(len(Rx)):
             if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
                 R[i * 2] = Ry[i]
@@ -574,7 +579,6 @@ class CreasePattern(HasTraits):
             #self.add_fold_step(X)
             i = 0
             self.cnstr_rhs = (k + 1.) / float(n_steps) * cnstr_rhs
-            print 'rhs', self.cnstr_rhs
             while i <= MAX_ITER:
                 dR = self.get_dR(X)
                 R = self.get_R(X)
@@ -663,21 +667,23 @@ class CreasePattern(HasTraits):
             print '==== solving with SLSQP optimization ===='
             d0 = self.get_dist_norm(X0)
             eps = d0 * 1e-4
-            for t in self.t_arr:
-                print 'step', t,
-                self.t = t
+            for step, time in enumerate(self.t_arr):
+                print 'step', step,
+                self.t = time
                 info = fmin_slsqp(self.get_dist_norm_t, X0,
                                fprime = self.get_d_dist_norm_x_t,
                                f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
                                acc = 1e-5, iter = 100,
-                               iprint = 1,
+                               iprint = 0,
                                full_output = True,
                                epsilon = eps)
                 X, fx, n_iter, imode, smode = info
                 X = np.array(X)
                 self.add_fold_step(X)
-                if imode != 0:
-                    print smode
+                if imode == 0:
+                    print '(time: %g, iter: %d, fx: %g)' % (time, n_iter, fx)
+                else:
+                    print '(time: %g, %s)' % (time, smode)
                     break
         else:
             print '==== solving with Newton-Raphson Iteration ===='

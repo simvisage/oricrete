@@ -22,7 +22,7 @@ from etsproxy.mayavi.core.api import Engine
 import os
 import numpy as np
 
-class CFView(HasTraits):
+class FaceView(HasTraits):
     '''
      This class manages the visualization of CnstrControlFace constrains
     '''
@@ -39,7 +39,7 @@ class CFView(HasTraits):
     opacity = Int(20)
 
     def __init__(self, scene, cnstr, xyzgrid, nodes, scalefactor, *args, **kw):
-        super(CFView, self).__init__(*args, **kw)
+        super(FaceView, self).__init__(*args, **kw)
         self.ff = cnstr[0]
         self.xyzgrid = xyzgrid
         self.nodes = nodes

@@ -196,8 +196,6 @@ class RhombusCreasePattern(CreasePattern):
             return a * X ** 2 + b * X
 
         X0 = np.zeros((self.n_n, self.n_d,), dtype = 'float')
-        print self.n_h[:, :].flatten()
-        print self.X_h[:, 0]
         X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
         X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
         X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0

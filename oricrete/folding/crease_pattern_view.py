@@ -33,7 +33,7 @@ import string
 import copy
 # own Modules
 from crease_pattern import CreasePattern
-from ff_view import CFView
+from face_view import FaceView
 
 class CreasePatternView(HasTraits):
 
@@ -220,7 +220,7 @@ class CreasePatternView(HasTraits):
         self.update_cnstr_pipeline()
         # new constrain visualization
         self.update_cp_pipeline()
-        #self.update_ff_view()
+        #self.update_face_view()
         self.set_focal_point()
         self.update_grab_pts_pipeline()
         self.update_line_pts_pipeline()
@@ -303,14 +303,14 @@ class CreasePatternView(HasTraits):
         return line_pts_pipeline
 
     # Pipeline visualizing fold faces
-    ff_pipe_view = Property(List(CFView), depends_on = 'data')
+    ff_pipe_view = Property(List(FaceView), depends_on = 'data')
     @cached_property
     def _get_ff_pipe_view(self):
 
-        ff_pipe_view = [CFView(self.scene, cnstr, self.xyz_grid,
+        ff_pipe_view = [FaceView(self.scene, cnstr, self.xyz_grid,
                                    self.data.fold_steps, self.scalefactor)
                             for cnstr in self.data.cnstr_lst] + \
-                       [CFView(self.scene, cnstr, self.xyz_grid,
+                       [FaceView(self.scene, cnstr, self.xyz_grid,
                                    self.data.fold_steps, self.scalefactor)
                             for cnstr in self.data.cnstr_caf]
 
@@ -318,7 +318,7 @@ class CreasePatternView(HasTraits):
 
     # when parameters are changed, plot is updated
     @on_trait_change('fold_step, ff_pipe_view')
-    def update_ff_view(self):
+    def update_face_view(self):
         '''
             Foldstep 0 = original pattern
             Foldstep 1 = first predefined form to get Iteration startet
@@ -328,9 +328,6 @@ class CreasePatternView(HasTraits):
             timestep = 0.0
         else:
             timestep = self.data.get_t_for_fold_step(self.fold_step - 1)
-
-        print 'fold_step', self.fold_step
-        print 'time step', timestep
 
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)

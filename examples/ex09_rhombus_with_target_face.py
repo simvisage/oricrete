@@ -67,14 +67,8 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 if __name__ == '__main__':
 
 
-    cp_fc = create_cp_fc_03(L_x = 8, L_y = 4, n_x = 5, n_y = 12,
+    cp_fc = create_cp_fc_03(L_x = 8, L_y = 4, n_x = 3, n_y = 12,
                          n_steps = 10)
-
-    print 't_arr',
-    print cp_fc.t_arr
-
-    print 'number of fold face constraints'
-    print cp_fc.n_c_ff
 
     # @todo - renaming of methods
     # @todo - projection on the caf - to get the initial vector
@@ -84,26 +78,11 @@ if __name__ == '__main__':
     # @todo - time step counting - save the initial step separately from the time history
 
     X0 = cp_fc.generate_X0()
-    #cp_fc.set_next_node(X0)
 
-#    X0 = np.zeros((cp_fc.n_dofs,), dtype = float)
+    X_fc = cp_fc.solve_fmin(X0 + 1e-6)
 
-#    print 'n_dofs', cp_dc.n_dofs
-#    print 'n_c', cp_dc.n_c
-#    print 'necessary constraints', cp_dc.n_dofs - cp_dc.n_c
-#    print 'cnstr', len(cp_dc.cnstr_lhs)
-
-    #X_dc = cp_dc.solve(X0)
-
-    X_fc = cp_fc.solve_fmin(X0)
-
-#    print 'new nodes'
-#    print cp.get_new_nodes(X_vct)
-#    print 'new lengths'
-#    print cp.get_new_lengths(X_vct)
-
-    # initialise View
     my_model = CreasePatternView(data = cp_fc,
-                                 ff_resolution = 30, show_cnstr = True)
+                                 ff_resolution = 30,
+                                 show_cnstr = True)
     my_model.configure_traits()
 
