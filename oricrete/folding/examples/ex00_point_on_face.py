@@ -14,7 +14,7 @@
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, FF, x_, y_, z_, t_ , \
+    CreasePattern, CF, x_, y_, z_, t_ , \
     CreasePatternView
 
 import numpy as np
@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     cp = CreasePattern(nodes = [[0, 0, 0]], n_steps = 10)
 
-    cp.cnstr_lst = [(FF(Rf = z_ - x_ ** 2 - 0), [0]),
-                    (FF(Rf = y_ - x_ ** 2 - 0), [0]),
-                    (FF(Rf = x_ - t_ - 0), [0])]
+    cp.cnstr_lst = [(CF(Rf = z_ - x_ ** 2 - 0), [0]),
+                    (CF(Rf = y_ - x_ ** 2 - 0), [0]),
+                    (CF(Rf = x_ - t_ - 0), [0])]
 
     X0 = np.zeros((cp.n_dofs,), dtype = float)
 

@@ -22,9 +22,9 @@ from etsproxy.mayavi.core.api import Engine
 import os
 import numpy as np
 
-class FFView(HasTraits):
+class CFView(HasTraits):
     '''
-     This class manages the visualization of FoldFace constrains
+     This class manages the visualization of CnstrControlFace constrains
     '''
     show_ff_pipe = Bool(True)
     show_ff_nodes = Bool(False)
@@ -39,7 +39,7 @@ class FFView(HasTraits):
     opacity = Int(20)
 
     def __init__(self, scene, cnstr, xyzgrid, nodes, scalefactor, *args, **kw):
-        super(FFView, self).__init__(*args, **kw)
+        super(CFView, self).__init__(*args, **kw)
         self.ff = cnstr[0]
         self.xyzgrid = xyzgrid
         self.nodes = nodes

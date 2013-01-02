@@ -28,7 +28,7 @@ import sympy as sp
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    CreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def moving_truss_cp_cnstr(n_steps = 10, dx = -1.99):
 
@@ -77,10 +77,10 @@ def moving_truss_cp_ff(n_steps = 10, dx = -1.99):
 
     cp.crease_lines = [[ 0, 1 ]]
 
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-    face_xy_135 = FF(Rf = x_ + y_ - 1.0)
-    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
+    face_z_0 = CF(Rf = z_ - 0)
+    face_x_0 = CF(Rf = x_ - 0)
+    face_xy_135 = CF(Rf = x_ + y_ - 1.0)
+    face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
     cp.cnstr_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_xy_135, [1]),
@@ -114,9 +114,9 @@ def moving_truss_cp_ff_cnstr(n_steps = 10, dx = -1.99):
 
     cp.crease_lines = [[ 0, 1 ]]
 
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
+    face_z_0 = CF(Rf = z_ - 0)
+    face_x_0 = CF(Rf = x_ - 0)
+    face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
     cp.cnstr_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1])]
@@ -155,17 +155,17 @@ def moving_truss_cp_circle(n_steps = 40):
 
     cp.crease_lines = [[ 0, 1 ]]
 
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-#    face_xy_135 = FF(Rf = x_ + y_ - 1.0)
-#    face_xy_round = FF(Rf = x_**2 + (y_)**2 - 1.0)
-#    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
+    face_z_0 = CF(Rf = z_ - 0)
+    face_x_0 = CF(Rf = x_ - 0)
+#    face_xy_135 = CF(Rf = x_ + y_ - 1.0)
+#    face_xy_round = CF(Rf = x_**2 + (y_)**2 - 1.0)
+#    face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
 #    argument =  2*3.14159*t_   
-#    face_x_1_t = FF(Rf = y_ + 3 + sp.sin(argument))
-    face_x_1_t = FF(Rf = y_ + sp.cos(1.0 * t_))
-    face_y_1_t = FF(Rf = x_ + sp.sin(1.0 * t_))
+#    face_x_1_t = CF(Rf = y_ + 3 + sp.sin(argument))
+    face_x_1_t = CF(Rf = y_ + sp.cos(1.0 * t_))
+    face_y_1_t = CF(Rf = x_ + sp.sin(1.0 * t_))
 # +3.14159/2.0    
-#    face_x_1_t = FF(Rf = y_ - 1.99 * t_)
+#    face_x_1_t = CF(Rf = y_ - 1.99 * t_)
     cp.cnstr_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1]),
@@ -201,26 +201,26 @@ def moving_truss_cp_square(n_steps = 40):
 
     cp.crease_lines = [[ 0, 1 ]]
 
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-#    face_xy_135 = FF(Rf = x_ + y_ - 1.0)
-#    face_xy_round = FF(Rf = x_**2 + (y_)**2 - 1.0)
-#    face_x_1_t = FF(Rf = x_ - 1.0 + 1.99 * t_)
+    face_z_0 = CF(Rf = z_ - 0)
+    face_x_0 = CF(Rf = x_ - 0)
+#    face_xy_135 = CF(Rf = x_ + y_ - 1.0)
+#    face_xy_round = CF(Rf = x_**2 + (y_)**2 - 1.0)
+#    face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
 #    argument =  2*3.14159*t_   
-#    face_x_1_t = FF(Rf = y_ + 3 + sp.sin(argument))
-    face_x_1_t = FF(Rf = y_ - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
+#    face_x_1_t = CF(Rf = y_ + 3 + sp.sin(argument))
+    face_x_1_t = CF(Rf = y_ - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
                     + 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3) 
                     + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5) 
                     - 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7))
     
-    face_y_1_t = FF(Rf = x_ + 1.0 * t_ * sp.Heaviside(t_) 
+    face_y_1_t = CF(Rf = x_ + 1.0 * t_ * sp.Heaviside(t_) 
                     - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
                     - 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3) 
                     + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5)
                     + 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7) 
                     - 1.0 * (t_ - 8) * sp.Heaviside(t_ - 8))
 # +3.14159/2.0    
-#    face_x_1_t = FF(Rf = y_ - 1.99 * t_)
+#    face_x_1_t = CF(Rf = y_ - 1.99 * t_)
     cp.cnstr_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1]),

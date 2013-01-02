@@ -30,7 +30,7 @@ from oricrete.folding.singularity_finder import SingularityFinder
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, CraneCreasePattern, FF, x_, y_, z_, t_
+    CreasePattern, RhombusCreasePattern, CreasePatternView, CraneCreasePattern, CF, x_, y_, z_, t_
     
 def rhombus_nx3_crane(n_steps = 10, dx = 0.7):
     """

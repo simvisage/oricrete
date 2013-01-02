@@ -21,7 +21,7 @@ import numpy as np
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
          n_steps = 100):
@@ -68,12 +68,12 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
 
 #    A = L_x * 0.2
     A = 0.2
-#    face_z_t = FF(Rf = z_ - 4 * A * t_ / L_x * x_ * (1 - x_ / L_x))
-    face_z_t = FF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
-    face_x_L2 = FF(Rf = x_ - L_x / 2)
+#    face_z_t = CF(Rf = z_ - 4 * A * t_ / L_x * x_ * (1 - x_ / L_x))
+    face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
+    face_x_L2 = CF(Rf = x_ - L_x / 2)
 
-    face_y_L2 = FF(Rf = y_ - L_y / 2)
-#    face_y_Ly = FF(Rf = y_ - L_y)
+    face_y_L2 = CF(Rf = y_ - L_y / 2)
+#    face_y_Ly = CF(Rf = y_ - L_y)
 
 #old
     n_h_idx = n_x / 2
@@ -129,14 +129,14 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
 
 #    A = L_x * 0.2
     A = 0.2
-#    face_z_t = FF(Rf = z_ - 4 * A * t_ / L_x * x_ * (1 - x_ / L_x))
-    face_z_t = FF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
-    face_x_L2 = FF(Rf = x_ - L_x / 2)
+#    face_z_t = CF(Rf = z_ - 4 * A * t_ / L_x * x_ * (1 - x_ / L_x))
+    face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
+    face_x_L2 = CF(Rf = x_ - L_x / 2)
 #old
-#    face_y_L2 = FF(Rf = y_ - L_y / 2)
+#    face_y_L2 = CF(Rf = y_ - L_y / 2)
 #new
-    face_y_L0 = FF(Rf = y_)
-#    face_y_Ly = FF(Rf = y_ - L_y)
+    face_y_L0 = CF(Rf = y_)
+#    face_y_Ly = CF(Rf = y_ - L_y)
 
 
 #    n_h_idx = n_x / 2
@@ -225,8 +225,8 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 
     A = 0.2
 
-    face_z_t = FF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
-    face_x_L2 = FF(Rf = x_ - L_x / 2)
+    face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
+    face_x_L2 = CF(Rf = x_ - L_x / 2)
 
     cp.cnstr_lst = [(face_z_t, n_h[0, :]),
                     (face_z_t, n_h[-1, :]),
@@ -292,7 +292,7 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 
     A = 0.2
 
-    face_z_t = FF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
+    face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
 
 
     cp.cnstr_lst = [(face_z_t, n_h[1:-1, 0]),
@@ -355,8 +355,8 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     print "cnstr_rhs", cp.cnstr_rhs
 
     A = 0.2
-    face_z_t = FF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
-#    face_x_L2 = FF(Rf = x_ - L_x / 2)
+    face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
+#    face_x_L2 = CF(Rf = x_ - L_x / 2)
     n_arr = np.hstack([n_h[n_h_idx, :].flatten(),
                     n_h[0, :].flatten(),
                     n_h[-1, :].flatten()])

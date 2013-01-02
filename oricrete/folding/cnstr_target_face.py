@@ -237,6 +237,8 @@ class CnstrTargetFace(HasTraits):
         ls_arr = self.ls_arr
         return ls_arr.reshape(x.shape)
 
+TF = CnstrTargetFace
+
 if __name__ == '__main__':
     cp = ParamFaceOperator(F = [r_, s_, t_])
 
@@ -253,22 +255,22 @@ if __name__ == '__main__':
     print 'r_pnt:\t\t\t\t', r_pnt
     print 'distance x_pnt - r_pnt:\t\t', cp.get_dist(r_pnt, x_pnt, 0)
 
-    caf = CnstrTargetFace(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
-                             X_arr = [[0, 0.2, 1],
-                                      [1, 4, -2],
-                                      [7, 8, 9]])
-    print 'x_arr:\n', caf.X_arr
-    print 'r_arr:\n', caf.r_arr
-    print 'd_arr:\n', caf.d_arr
-    print 'ls_arr:\n', caf.ls_arr
+    target_face = TF(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
+             X_arr = [[0, 0.2, 1],
+                      [1, 4, -2],
+                      [7, 8, 9]])
+    print 'x_arr:\n', target_face.X_arr
+    print 'r_arr:\n', target_face.r_arr
+    print 'd_arr:\n', target_face.d_arr
+    print 'ls_arr:\n', target_face.ls_arr
 
-    caf.X_arr = caf.X_arr + 1.0
+    target_face.X_arr = target_face.X_arr + 1.0
 
-    print 'x_arr:\n', caf.X_arr
-    print 'r_arr:\n', caf.r_arr
-    print 'd_arr:\n', caf.d_arr
-    print 'ls_arr:\n', caf.ls_arr
-    print 'ls_arr:\n', caf.d_xyz_arr
+    print 'x_arr:\n', target_face.X_arr
+    print 'r_arr:\n', target_face.r_arr
+    print 'd_arr:\n', target_face.d_arr
+    print 'ls_arr:\n', target_face.ls_arr
+    print 'ls_arr:\n', target_face.d_xyz_arr
 
-    caf.F = [r_, s_, t_]
-    print 'ls_arr:\n', caf.d_xyz_arr
+    target_face.F = [r_, s_, t_]
+    print 'ls_arr:\n', target_face.d_xyz_arr

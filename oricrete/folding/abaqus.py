@@ -17,7 +17,7 @@ else:
 class Popen(subprocess.Popen):
     def recv(self, maxsize = None):
         return self._recv('stdout', maxsize)
-    
+
     def recv_err(self, maxsize = None):
         return self._recv('stderr', maxsize)
 
@@ -30,11 +30,11 @@ class Popen(subprocess.Popen):
         elif maxsize < 1:
             maxsize = 1
         return getattr(self, which), maxsize
-    
+
     def _close(self, which):
         getattr(self, which).close()
         setattr(self, which, None)
-    
+
     if subprocess.mswindows:
         def send(self, input):
             if not self.stdin:
@@ -56,7 +56,7 @@ class Popen(subprocess.Popen):
             conn, maxsize = self.get_conn_maxsize(which, maxsize)
             if conn is None:
                 return None
-            
+
             try:
                 x = msvcrt.get_osfhandle(conn.fileno())
                 (read, nAvail, nMessage) = PeekNamedPipe(x, 0)
@@ -70,7 +70,7 @@ class Popen(subprocess.Popen):
                 if why[0] in (109, errno.ESHUTDOWN):
                     return self._close(which)
                 raise
-            
+
             if self.universal_newlines:
                 read = self._translate_newlines(read)
             return read
@@ -96,19 +96,19 @@ class Popen(subprocess.Popen):
             conn, maxsize = self.get_conn_maxsize(which, maxsize)
             if conn is None:
                 return None
-            
+
             flags = fcntl.fcntl(conn, fcntl.F_GETFL)
             if not conn.closed:
                 fcntl.fcntl(conn, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-            
+
             try:
                 if not select.select([conn], [], [], 0)[0]:
                     return ''
-                
+
                 r = conn.read(maxsize)
                 if not r:
                     return self._close(which)
-    
+
                 if self.universal_newlines:
                     r = self._translate_newlines(r)
                 return r
@@ -139,14 +139,14 @@ def recv_some(p, t = 5, e = 1, tr = 5, stderr = 0):
         else:
             time.sleep(max((x - time.time()) / tr, 0))
     return ''.join(y)
-    
+
 def send_all(p, data):
     while len(data):
         sent = p.send(data)
         if sent is None:
             raise Exception(message)
         data = buffer(data, sent)
-        
+
 def delete_old(p, filename, tail):
     endings = ['.com', '.log', '.cae', '.dat',
                '.jnl', '.msg', '.odb', '.prt',
@@ -158,10 +158,10 @@ def delete_old(p, filename, tail):
         command_list.append(remove + filename + end + tail)
     for cmd in command_list:
         send_all(p, cmd)
-        
+
 def solve_abaqus(p, filename, tail):
     send_all(p, 'abaqus job=' + filename + tail)
-    
+
 def load_abaqus(p, filename, tail):
     send_all(p, 'abaqus cae ' + tail)
 
@@ -175,26 +175,26 @@ def connect_cluster(p, login, tail, cluster = 'cluster.rz.rwth-aacheb.de', optio
 def upload_file(p, login, path_file, tail, cluster = 'cluster.rz.rwth-aachen.de', path_server = '~/'):
     cmd = 'scp ' + path_file + ' ' + login + '@' + cluster + ':' + path_server + tail
     send_all(p, cmd)
-    
+
 def download_file(p, login, path_file, tail, path_server, cluster = 'cluster.rz.rwth-aachen.de'):
     cmd = 'scp ' + login + '@' + cluster + ':' + path_server + ' ' + path_file + tail
     send_all(p, cmd)
-    
+
 
 if __name__ == '__main__':
     if sys.platform == 'win32':
         shell, commands, tail = ('cmd', ('dir /w', 'echo HELLO WORLD'), '\r\n')
     else:
         shell, commands, tail = ('sh', ['ssh -Y -t -t cluster-x.rz.rwth-aachen.de -l ms299282', 'echo HELLO WORLD'], '\n')
-    
-    
+
+
     #open commandshell 
     a = Popen(shell, stdin = PIPE, stdout = PIPE)
-    
-    
+
+
     cluster = 'cluster-x.rz.rwth-aachen.de'
     login = 'ms299282'
-    
+
 #    upload_file(a, login, '/home/matthias/beamtest.py', tail)
     download_file(a, login, '/home/matthias/', tail, '~/beamtest.py')
     print recv_some(a)
@@ -202,20 +202,18 @@ if __name__ == '__main__':
     options = ['-Y',
                '-t',
                '-t']
-    
-    connect_cluster(a, login, tail, cluster = cluster, options = options)
-    
 
-    
+    connect_cluster(a, login, tail, cluster = cluster, options = options)
+
     print recv_some(a)
-    
+
     #remove old datas
     delete_old(a, 'beam', tail)
-    
+
     #solve new file
     solve_abaqus(a, 'beam', tail)
     print recv_some(a)
-    
+
     # close connection
     send_all(a, 'exit' + tail)
     print recv_some(a, e = 0)

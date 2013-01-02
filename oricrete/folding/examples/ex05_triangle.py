@@ -29,7 +29,7 @@ import thread
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 

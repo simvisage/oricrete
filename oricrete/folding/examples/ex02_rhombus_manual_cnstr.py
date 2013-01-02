@@ -27,7 +27,7 @@ import numpy as np
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def cp01(L_x = 4, L_y = 2, n_x = 2, n_y = 2, n_steps = 80):
 

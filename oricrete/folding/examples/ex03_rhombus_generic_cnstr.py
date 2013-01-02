@@ -27,7 +27,7 @@ import numpy as np
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def create_cp_dc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
          n_steps = 100):
@@ -136,11 +136,11 @@ def create_cp_fc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
     cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
     #cp.cnstr_rhs[-1] = -L_x * 0.34
 
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-    face_x_L = FF(Rf = x_ - L_x * (1 - 0.2 * t_))
-    face_y_0 = FF(Rf = y_ - 0)
-    face_y_L = FF(Rf = y_ - L_y * (1 - 0.1 * t_))#* x_ / L_x))
+    face_z_0 = CF(Rf = z_ - 0)
+    face_x_0 = CF(Rf = x_ - 0)
+    face_x_L = CF(Rf = x_ - L_x * (1 - 0.2 * t_))
+    face_y_0 = CF(Rf = y_ - 0)
+    face_y_L = CF(Rf = y_ - L_y * (1 - 0.1 * t_))#* x_ / L_x))
 
     cp.cnstr_lst = [(face_x_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
                     (face_z_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
@@ -193,31 +193,31 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
     cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
     #cp.cnstr_rhs[-1] = -L_x * 0.34
 
-#    face_z_0 = FF(Rf = z_ - (1 - x_ / L_x) * 0.2 * t_)
-    face_z_0 = FF(Rf = z_ - 0)
-    face_x_0 = FF(Rf = x_ - 0)
-#    face_x_L = FF(Rf = x_ - L_x * (1 - 0.2 * t_))
-#    face_y_0 = FF(Rf = y_ - 0)
-#    face_y_L = FF(Rf = y_ - L_y * (1 - 0.1 * t_))
+#    face_z_0 = CF(Rf = z_ - (1 - x_ / L_x) * 0.2 * t_)
+    face_z_0 = CF(Rf = z_ - 0)
+    face_x_0 = CF(Rf = x_ - 0)
+#    face_x_L = CF(Rf = x_ - L_x * (1 - 0.2 * t_))
+#    face_y_0 = CF(Rf = y_ - 0)
+#    face_y_L = CF(Rf = y_ - L_y * (1 - 0.1 * t_))
 #parallel movement bothsided
-    face_y_0 = FF(Rf = y_ - L_y * (0.05 * t_))# * x_ / L_x)
-    face_y_L = FF(Rf = y_ - L_y * (1 - 0.05 * t_))# * x_ / L_x)
+    face_y_0 = CF(Rf = y_ - L_y * (0.05 * t_))# * x_ / L_x)
+    face_y_L = CF(Rf = y_ - L_y * (1 - 0.05 * t_))# * x_ / L_x)
 
 #parallel movement: one side inclined
-#    face_y_0 = FF(Rf = y_ - L_y / 2.0 * (0.1 * t_) * x_ / L_x)
-#    face_y_L = FF(Rf = y_ - L_y * (1 - 0.05 * t_))# * x_ / L_x)
+#    face_y_0 = CF(Rf = y_ - L_y / 2.0 * (0.1 * t_) * x_ / L_x)
+#    face_y_L = CF(Rf = y_ - L_y * (1 - 0.05 * t_))# * x_ / L_x)
 
 #one side inclined, other side fixed
-#    face_y_0 = FF(Rf = y_ - 0)
-#    face_y_L = FF(Rf = y_ - L_y  + L_y * 0.1 * t_* x_ / L_x)
+#    face_y_0 = CF(Rf = y_ - 0)
+#    face_y_L = CF(Rf = y_ - L_y  + L_y * 0.1 * t_* x_ / L_x)
 
 ##symmetric inclined along x
-#    face_y_0 = FF(Rf = y_ - L_y / 2.0 * 0.1 * t_ * x_ / L_x)
-#    face_y_L = FF(Rf = y_ - L_y + L_y / 2.0 * 0.1 * t_ * x_ / L_x)
+#    face_y_0 = CF(Rf = y_ - L_y / 2.0 * 0.1 * t_ * x_ / L_x)
+#    face_y_L = CF(Rf = y_ - L_y + L_y / 2.0 * 0.1 * t_ * x_ / L_x)
 #
 ##symmetric inclined along both x and y
-#    face_y_0 = FF(Rf = y_ - L_y / 2.0 * 0.05 * t_ * y_ / L_y)
-#    face_y_L = FF(Rf = y_ - L_y + L_y / 2.0 * 0.05 * t_ * y_ / L_y)
+#    face_y_0 = CF(Rf = y_ - L_y / 2.0 * 0.05 * t_ * y_ / L_y)
+#    face_y_L = CF(Rf = y_ - L_y + L_y / 2.0 * 0.05 * t_ * y_ / L_y)
 
 #    cp.cnstr_lst = [(face_x_0, n_h[0, :]),
 #                    (face_z_0, n_h[0, :]),

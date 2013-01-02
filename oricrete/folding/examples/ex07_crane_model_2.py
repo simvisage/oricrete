@@ -30,7 +30,7 @@ from oricrete.folding.singularity_finder import SingularityFinder
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 
 

@@ -33,7 +33,7 @@ import string
 import copy
 # own Modules
 from crease_pattern import CreasePattern
-from ff_view import FFView
+from ff_view import CFView
 
 class CreasePatternView(HasTraits):
 
@@ -59,9 +59,15 @@ class CreasePatternView(HasTraits):
         bbmin, bbmax = self._get_extent()
         bb = bbmax - bbmin
         minbb = np.min(bb)
+
+        # @todo [Matthias] - why divided by 5
         fkt_bb = minbb / 5
+
+        # @todo [Matthias] - why divided by 2
         fkt_c_length = np.min(self.data.c_lengths) / 2
         minfkt = np.max([fkt_bb, fkt_c_length])
+
+        # @todo [Matthias] - what's this?
         if(minfkt > 0.3):
             minfkt = 0.3
         return minfkt
@@ -70,7 +76,7 @@ class CreasePatternView(HasTraits):
     fold_step_min = Int(0)
     fold_step_max = Property
     def _get_fold_step_max(self):
-        return self.data.iteration_nodes.shape[0] - 1
+        return self.data.fold_steps.shape[0] - 1
 
     fold_step = Int(0)
     last_step = Int(0)
@@ -202,7 +208,7 @@ class CreasePatternView(HasTraits):
         nodes = self.data.nodes
 
         fx, fy = np.average(nodes[:, (0, 1)], axis = 0)
-        fz_arr = self.data.iteration_nodes[:, :, 2]
+        fz_arr = self.data.fold_steps[:, :, 2]
         fz_min = np.min(fz_arr)
         fz_max = np.max(fz_arr)
         fz = (fz_min + fz_max) / 2.0
@@ -251,7 +257,7 @@ class CreasePatternView(HasTraits):
     def _get_extent(self):
         '''Get the lower left front corner and the upper right back corner.
         '''
-        nodes = self.data.iteration_nodes
+        nodes = self.data.fold_steps
         inodes = np.min(nodes, axis = 0), np.max(nodes, axis = 0)
         bb_min, bb_max = np.min(inodes[0], axis = 0), np.max(inodes[1], axis = 0)
         return bb_min, bb_max
@@ -297,15 +303,15 @@ class CreasePatternView(HasTraits):
         return line_pts_pipeline
 
     # Pipeline visualizing fold faces
-    ff_pipe_view = Property(List(FFView), depends_on = 'data')
+    ff_pipe_view = Property(List(CFView), depends_on = 'data')
     @cached_property
     def _get_ff_pipe_view(self):
 
-        ff_pipe_view = [FFView(self.scene, cnstr, self.xyz_grid,
-                                   self.data.iteration_nodes, self.scalefactor)
+        ff_pipe_view = [CFView(self.scene, cnstr, self.xyz_grid,
+                                   self.data.fold_steps, self.scalefactor)
                             for cnstr in self.data.cnstr_lst] + \
-                       [FFView(self.scene, cnstr, self.xyz_grid,
-                                   self.data.iteration_nodes, self.scalefactor)
+                       [CFView(self.scene, cnstr, self.xyz_grid,
+                                   self.data.fold_steps, self.scalefactor)
                             for cnstr in self.data.cnstr_caf]
 
         return ff_pipe_view
@@ -333,7 +339,7 @@ class CreasePatternView(HasTraits):
     def update_cp_pipeline(self):
 
         # Array of current foldstep
-        nodes = self.data.iteration_nodes[self.fold_step]
+        nodes = self.data.fold_steps[self.fold_step]
         x, y, z = copy.copy(nodes.T)
 
         # Raising factor for Foldstep 1
@@ -351,7 +357,7 @@ class CreasePatternView(HasTraits):
             return
 
         n = pts[:, 0]
-        nodes = self.data.iteration_nodes[self.fold_step]
+        nodes = self.data.fold_steps[self.fold_step]
         gp_nodes = nodes[n]
         x, y, z = copy.copy(gp_nodes.T)
         if(self.z_raising and (self.fold_step == 1)):
@@ -366,7 +372,7 @@ class CreasePatternView(HasTraits):
             return
 
         n = pts[:, 0]
-        nodes = self.data.iteration_nodes[self.fold_step]
+        nodes = self.data.fold_steps[self.fold_step]
         lp_nodes = nodes[n]
         x, y, z = copy.copy(lp_nodes.T)
         if(self.z_raising and (self.fold_step == 1)):
@@ -465,7 +471,7 @@ class CreasePatternView(HasTraits):
     # when parameters are changed, plot is updated
     @on_trait_change('fold_step, show_manual_cnstr, z_raising, raising_factor')
     def update_cnstr_pipeline(self):
-        nodes = self.data.iteration_nodes[self.fold_step]
+        nodes = self.data.fold_steps[self.fold_step]
         if self.show_manual_cnstr:
 
             # update constrain symbols
@@ -561,7 +567,7 @@ class CreasePatternView(HasTraits):
             frame = self.single_frame
         multiframe = True
         tdir = tempfile.mkdtemp()
-        n_steps = len(self.data.iteration_nodes)
+        n_steps = len(self.data.fold_steps)
         steps = np.array([0])
         if(frame > -1 and frame < n_steps):
             steps[0] = frame
