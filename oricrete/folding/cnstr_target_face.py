@@ -189,7 +189,7 @@ class ParamFaceOperator(HasTraits):
         args = np.hstack([r_pnt, x_pnt, [t]])
         return self.d_dist_xyz_fn(*args)
 
-class CnstrAttractorFace(HasTraits):
+class CnstrTargetFace(HasTraits):
     '''Calculate and maintain distances between
     a set of points X_arr and parametrically
     defined surface F.
@@ -253,7 +253,7 @@ if __name__ == '__main__':
     print 'r_pnt:\t\t\t\t', r_pnt
     print 'distance x_pnt - r_pnt:\t\t', cp.get_dist(r_pnt, x_pnt, 0)
 
-    caf = CnstrAttractorFace(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
+    caf = CnstrTargetFace(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
                              X_arr = [[0, 0.2, 1],
                                       [1, 4, -2],
                                       [7, 8, 9]])

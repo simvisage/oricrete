@@ -23,8 +23,8 @@ import numpy as np
 from oricrete.folding import \
     RhombusCreasePattern, CreasePatternView
 
-from oricrete.folding.cnstr_attractor_face import \
-    CnstrAttractorFace, r_, s_, t_
+from oricrete.folding.cnstr_target_face import \
+    CnstrTargetFace, r_, s_, t_
 
 def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                     n_steps = 100):
@@ -44,20 +44,20 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     n_v = cp.n_v
     n_i = cp.n_i
 
-    A = 0.2
+    A = 0.4
 
-    B = 0.2
+    B = 0.4
 
     s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
 
-    face_z_t = CnstrAttractorFace(F = [r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) + s_term])
-    n_arr = np.hstack([n_h[:, 1:-1].flatten(),
+    face_z_t = CnstrTargetFace(F = [r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) - s_term])
+    n_arr = np.hstack([n_h[:, :].flatten(),
                        n_i[:, :].flatten()])
     cp.cnstr_caf = [(face_z_t, n_arr)]
 
-    cp.cnstr_lhs = [[(n_h[0, 0], 0, 1.0)], # 0
-                    [(n_h[0, -1], 0, 1.0)], # 1
-                    [(n_h[0, -1], 1, 1.0), (n_h[0, 0], 1, 1.0)],
+    cp.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
+#                    [(n_h[0, -1], 0, 1.0)], # 1
+                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
 
     # lift node 0 in z-axes
@@ -67,8 +67,8 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 if __name__ == '__main__':
 
 
-    cp_fc = create_cp_fc_03(L_x = 4, L_y = 3, n_x = 4, n_y = 12,
-                         n_steps = 8)
+    cp_fc = create_cp_fc_03(L_x = 8, L_y = 4, n_x = 5, n_y = 12,
+                         n_steps = 10)
 
     print 't_arr',
     print cp_fc.t_arr

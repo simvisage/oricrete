@@ -1,7 +1,7 @@
 
 
-from oricrete.folding.cnstr_attractor_face import \
-    CnstrAttractorFace, r_, s_
+from oricrete.folding.cnstr_target_face import \
+    CnstrTargetFace, r_, s_
 from oricrete.folding.crease_pattern import \
     CreasePattern
 import numpy as np
@@ -9,7 +9,7 @@ from scipy.optimize import fmin_slsqp
 
 if __name__ == '__main__':
 
-    caf = CnstrAttractorFace(F = [r_ , s_, 1])
+    caf = CnstrTargetFace(F = [r_ , s_, 1])
 
     print 'x_arr:\n', caf.X_arr
     print 'r_arr:\n', caf.r_arr

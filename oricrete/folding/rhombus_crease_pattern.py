@@ -208,15 +208,6 @@ class RhombusCreasePattern(CreasePattern):
         # @todo: Matthias What does this method do? Better name and description
         self.nodes = np.vstack([self.nodes, nodes])
 
-    def get_t_for_fold_step(self, fold_step):
-        '''Get the index of the fold step array for the given time t'''
-
-        print 'get_t_for_fold_step', fold_step, self.t_arr
-        if(fold_step == 0):
-            return 0.
-        else:
-            return self.t_arr[fold_step]
-
 if __name__ == '__main__':
 
     cp = RhombusCreasePattern(n_steps = 100,

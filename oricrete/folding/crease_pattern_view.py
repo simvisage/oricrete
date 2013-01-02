@@ -548,7 +548,7 @@ class CreasePatternView(HasTraits):
     single_frame = Int(-1)
     animation_file = File
     def _animation_file_default(self):
-        return os.path.join('fig', 'oricrete.gif')
+        return os.path.join('fig', 'oricrete.swf')
 
     def _save_animation_fired(self):
         self.animation_maker()
@@ -572,22 +572,22 @@ class CreasePatternView(HasTraits):
 
         steps_forward = steps / self.animation_steps
         steps_backward = steps_forward + len(steps)
-        fnames_forward = [os.path.join(tdir, 'x%02d.jpg' % i)
+        fnames_forward = [os.path.join(tdir, 'x%02d.png' % i)
                           for i in steps_forward ]
-        fnames_backward = [os.path.join(tdir, 'x%02d.jpg' % i)
+        fnames_backward = [os.path.join(tdir, 'x%02d.png' % i)
                            for i in steps_backward ]
 
         for step, fname in zip(steps, fnames_forward):
             # Array of current foldstep
             self.fold_step = step
 
-            self.scene.mlab.savefig(fname, size = (800, 600))
+            self.scene.mlab.savefig(fname, size = (400, 300))
 
         if(multiframe):
             for step, fname in zip(steps[::-1], fnames_backward):
                 # Array of current foldstep
                 self.fold_step = step
-                self.scene.mlab.savefig(fname, size = (800, 600))
+                self.scene.mlab.savefig(fname, size = (400, 300))
 
         fnames = fnames_forward
         if(multiframe):
@@ -598,6 +598,7 @@ class CreasePatternView(HasTraits):
         import platform
         if platform.system() == 'Linux':
             os.system('convert ' + images + ' ' + destination)
+#            os.system('png2swf -o%s ' % destination + images)
         else:
             raise NotImplementedError, 'film production available only on linux'
         print 'animation saved in', destination

@@ -1,7 +1,7 @@
 
 
-from oricrete.folding.cnstr_attractor_face import \
-    CnstrAttractorFace, r_, s_, t_
+from oricrete.folding.cnstr_target_face import \
+    CnstrTargetFace, r_, s_, t_
 from oricrete.folding.crease_pattern import \
     CreasePattern
 from oricrete.folding.crease_pattern_view import \
@@ -11,7 +11,7 @@ from scipy.optimize import fmin_slsqp
 
 if __name__ == '__main__':
 
-    caf = CnstrAttractorFace(F = [r_ , s_, 0.2 + 0.2 * t_])
+    caf = CnstrTargetFace(F = [r_ , s_, 0.2 + 0.2 * t_])
 
     # trivial example with a single triangle positioned 
 

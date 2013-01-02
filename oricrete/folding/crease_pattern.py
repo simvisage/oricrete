@@ -21,8 +21,6 @@ from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
 import numpy as np
 from scipy.optimize import fmin_slsqp
 import sys
-from oricrete.folding.cnstr_attractor_face import \
-    CnstrAttractorFace, r_, s_
 
 class CreasePattern(HasTraits):
     '''
@@ -529,7 +527,7 @@ class CreasePattern(HasTraits):
         return self.get_dist_norm(x, self.t)
 
     #===========================================================================
-    # 
+    # Distance derivative with respect to change in nodal coords.
     #===========================================================================
     def get_d_dist_norm_x(self, x, t = 0):
         # build dist-vektor for all caf
@@ -573,7 +571,7 @@ class CreasePattern(HasTraits):
 
         for k in range(n_steps):
             print 'step', k,
-            #self.set_next_node(X)
+            #self.add_fold_step(X)
             i = 0
             self.cnstr_rhs = (k + 1.) / float(n_steps) * cnstr_rhs
             print 'rhs', self.cnstr_rhs
@@ -583,20 +581,20 @@ class CreasePattern(HasTraits):
                 nR = np.linalg.norm(R)
                 if nR < TOLERANCE:
                     print '==== converged in ', i, 'iterations ===='
-                    self.set_next_node(X)
+                    self.add_fold_step(X)
                     break
                 try:
                     dX = np.linalg.solve(dR, -R)
                     X += dX
                     if self.show_iter and i < 10:
-                        self.set_next_node(X)
+                        self.add_fold_step(X)
                         print'X%d:' % i
                         print X.reshape((-1, 3))
                     i += 1
                 except Exception as inst:
                     print '==== problems solving linalg in interation step %d  ====' % i
                     print '==== Exception message: ', inst
-                    self.set_next_node(X)
+                    self.add_fold_step(X)
                     return X
             else:
                 print '==== did not converge in %d interations ====' % i
@@ -632,19 +630,19 @@ class CreasePattern(HasTraits):
                 nR = np.linalg.norm(R)
                 if nR < TOLERANCE:
                     print '==== converged in ', i, 'iterations ===='
-                    self.set_next_node(X)
+                    self.add_fold_step(X)
                     break
                 try:
                     dX = np.linalg.solve(dR, -R)
 
                     X += dX
                     if self.show_iter:
-                        self.set_next_node(X)
+                        self.add_fold_step(X)
                     i += 1
                 except Exception as inst:
                     print '==== problems solving linalg in interation step %d  ====' % i
                     print '==== Exception message: ', inst
-                    self.set_next_node(X)
+                    self.add_fold_step(X)
                     return X
             else:
                 print '==== did not converge in %d interations ====' % i
@@ -659,7 +657,6 @@ class CreasePattern(HasTraits):
         # Sequential Least Squares optimization
         MAX_ITER = self.MAX_ITER
         TOLERANCE = self.TOLERANCE
-        n_steps = self.n_steps
         cnstr_rhs = np.copy(self.cnstr_rhs)
 
         if(len(self.cnstr_caf) > 0):
@@ -672,13 +669,13 @@ class CreasePattern(HasTraits):
                 info = fmin_slsqp(self.get_dist_norm_t, X0,
                                fprime = self.get_d_dist_norm_x_t,
                                f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
-                               acc = 1e-5, iter = 200,
+                               acc = 1e-5, iter = 100,
                                iprint = 1,
                                full_output = True,
                                epsilon = eps)
                 X, fx, n_iter, imode, smode = info
                 X = np.array(X)
-                self.set_next_node(X)
+                self.add_fold_step(X)
                 if imode != 0:
                     print smode
                     break
@@ -694,19 +691,19 @@ class CreasePattern(HasTraits):
                     nR = np.linalg.norm(R)
                     if nR < TOLERANCE:
                         print '==== converged in ', i, 'iterations ===='
-                        self.set_next_node(X)
+                        self.add_fold_step(X)
                         break
                     try:
                         dX = np.linalg.solve(dR, -R)
 
                         X += dX
                         if self.show_iter:
-                            self.set_next_node(X)
+                            self.add_fold_step(X)
                         i += 1
                     except Exception as inst:
                         print '==== problems solving linalg in interation step %d  ====' % i
                         print '==== Exception message: ', inst
-                        self.set_next_node(X)
+                        self.add_fold_step(X)
                         return X
                 else:
                     print '==== did not converge in %d interations ====' % i
@@ -746,33 +743,28 @@ class CreasePattern(HasTraits):
 
     def get_t_for_fold_step(self, fold_step):
         '''Get the index of the fold step array for the given time t'''
-
-        print 'get_t_for_fold_step', fold_step, self.t_arr
-#        if(fold_step == 0):
-#            return 0.
-#        else:
         return self.t_arr[fold_step]
 
-    iteration_nodes = Array(value = [], dtype = float)
+    fold_steps = Array(value = [], dtype = float)
 
-    def set_next_node(self, X_vct):
+    def add_fold_step(self, X_vct):
         '''
            Calculates the position of nodes for this iteration.
         '''
-        if(self.iteration_nodes.shape == (0,)):
-            self.iteration_nodes = [self.nodes]
+        if(self.fold_steps.shape == (0,)):
+            self.fold_steps = [self.nodes]
         X = X_vct.reshape(self.n_n, self.n_d)
 
         nextnode = self.nodes + X
 
-        self.iteration_nodes = np.vstack((self.iteration_nodes, [nextnode]))
+        self.fold_steps = np.vstack((self.fold_steps, [nextnode]))
 
     def get_cnstr_pos(self, iteration_step):
         '''
          Get the coordinates of the constraints.
         '''
         print 'get position'
-        nodes = self.iteration_nodes[iteration_step]
+        nodes = self.fold_steps[iteration_step]
         pts_p, faces_p = self.cnstr[0].get_cnstr_view(nodes, 1.0)
         pts_l = None
         con_l = None
@@ -783,11 +775,11 @@ class CreasePattern(HasTraits):
             print ' NO LINE POINTS'
             return
 
-        for p in range(len(self.iteration_nodes)):
+        for p in range(len(self.fold_steps)):
             cl = self.crease_lines[self.line_pts[i][1]]
-            p1 = self.iteration_nodes[p][cl[0]]
-            p2 = self.iteration_nodes[p][cl[1]]
-            p0 = self.iteration_nodes[p][self.line_pts[i][0]]
+            p1 = self.fold_steps[p][cl[0]]
+            p2 = self.fold_steps[p][cl[1]]
+            p0 = self.fold_steps[p][self.line_pts[i][0]]
 
             try:
                 rx = (p0[0] - p1[0]) / (p2[0] - p1[0])
@@ -808,8 +800,8 @@ class CreasePattern(HasTraits):
                 r = ry
             else:
                 r = rz
-
             print 'Step ', p, ': r = ', r
+
     def create_rcp_tex(self, name = 'rcp_output.tex', x = 15., y = 15.):
         n = self.nodes
         c = self.crease_lines
@@ -896,7 +888,7 @@ class CreasePattern(HasTraits):
         #=======================================================================
 
         f.write('\n  ### Nodeposition in every timestep ### \n')
-        inodes = self.iteration_nodes
+        inodes = self.fold_steps
         for i in range(2, len(inodes)):
             f.write('\n Iterationstep %i\n' % (i - 1))
             f.write(' Index\t X\t Y\t Z\n')
