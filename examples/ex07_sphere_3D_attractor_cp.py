@@ -49,7 +49,7 @@ if __name__ == '__main__':
     print 'initial R\n', cp.get_R(x0)
     print 'initial dR\n', cp.get_dR(x0)
 
-    cp.solve_fmin(x0)
+    cp.solve(x0)
 
     # Visualization
     cpv = CreasePatternView(data = cp, show_cnstr = True)

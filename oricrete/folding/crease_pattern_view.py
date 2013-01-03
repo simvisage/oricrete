@@ -309,10 +309,10 @@ class CreasePatternView(HasTraits):
 
         ff_pipe_view = [FaceView(self.scene, cnstr, self.xyz_grid,
                                    self.data.fold_steps, self.scalefactor)
-                            for cnstr in self.data.cnstr_lst] + \
+                            for cnstr in self.data.cf_lst] + \
                        [FaceView(self.scene, cnstr, self.xyz_grid,
                                    self.data.fold_steps, self.scalefactor)
-                            for cnstr in self.data.cnstr_caf]
+                            for cnstr in self.data.tf_lst]
 
         return ff_pipe_view
 

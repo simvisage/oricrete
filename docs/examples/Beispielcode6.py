@@ -11,7 +11,7 @@ def BeispielCode6():
     face_z_0 = CF(Rf = z_ - 0)
     face_x_0 = CF(Rf = x_ - 0)
     face_x_1_t = CF(Rf = x_ - 1.0 + 1. * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
+    cp.cf_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1])]
 

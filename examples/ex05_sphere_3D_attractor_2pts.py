@@ -60,7 +60,6 @@ if __name__ == '__main__':
     def f(x):
         x = x.reshape(cp.n_n, cp.n_d)
         X = cp.get_new_nodes(x)
-#       cp.set_next_node(x)
         caf.X_arr = X[2:] # [X[2]]
 #        dist2 = np.linalg.norm(caf.d_arr)
 #        caf.X_arr = [X[3]]
@@ -80,10 +79,6 @@ if __name__ == '__main__':
     print 'R', cp.get_R(x_sol)
     print 'lengths', cp.get_new_lengths(x_sol)
     print 'nodes', cp.get_new_nodes(x_sol)
-
-    # Visualization
-
-    cp.set_next_node(x_sol)
 
     cpv = CreasePatternView(data = cp, show_cnstr = True)
 

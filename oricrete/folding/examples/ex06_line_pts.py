@@ -32,9 +32,9 @@ from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def halfcrane_1stick(n_steps = 10, dx = 1.5):
-    
+
     """
-        
+
     """
 
     cp = CreasePattern(n_steps = n_steps)
@@ -47,15 +47,15 @@ def halfcrane_1stick(n_steps = 10, dx = 1.5):
     cp.crease_lines = [[ 0, 1 ],
                        [ 2, 3 ]
                        ]
-    
+
     cp.facets = [[0, 1, 3]]
 
     cp.grab_pts = []
-    
+
     cp.line_pts = [[3, 0],
                    #[4, 0]
                    ]
-    
+
     cp.cnstr_lhs = [[(3, 0, 1.0)],
                     [(1, 2, 1.0)],
                     [(1, 1, 1.0)],
@@ -67,34 +67,33 @@ def halfcrane_1stick(n_steps = 10, dx = 1.5):
                     ]
 
     cp.cnstr_rhs = [dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[5] = 0.0001
     X[9] = 0.0001
    # X[10] = 0.01
   #  X[11] = 0.01
     X *= 1
-    cp.set_next_node(X)
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
     #cp.show_iter = True
     X = cp.solve(X)
 
-    
-    
+
+
     return cp
 
 def halfcrane_2sticks(n_steps = 10, dx = 1.5):
-    
+
     """
-        
+
     """
 
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 5000)
-    
+
     cp.nodes = [[ 0, 0, 1.0 ],
                 [ 1, 0, 1.15 ],
                 [ 0.5, 0.5, -0.5],
@@ -105,15 +104,15 @@ def halfcrane_2sticks(n_steps = 10, dx = 1.5):
     cp.crease_lines = [[ 0, 1 ],
                        [ 2, 4 ],
                        [ 3, 4]]
-    
+
     cp.facets = [[0, 1, 4]]
 
     cp.grab_pts = []
-    
+
     cp.line_pts = [[4, 0],
                    #[4, 0]
                    ]
-    
+
     cp.cnstr_lhs = [[(1, 2, 1.0)],
                     [(1, 0, 1.0)],
                     [(1, 1, 1.0)],
@@ -126,7 +125,7 @@ def halfcrane_2sticks(n_steps = 10, dx = 1.5):
                     [(3, 0, 1.0)]]
 
     cp.cnstr_rhs = [dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[5] = 0.0001
     X[9] = 0.0001
@@ -135,7 +134,7 @@ def halfcrane_2sticks(n_steps = 10, dx = 1.5):
     X *= 1
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
     #cp.show_iter = True
@@ -144,13 +143,13 @@ def halfcrane_2sticks(n_steps = 10, dx = 1.5):
     return cp
 
 def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
-    
+
     """
-        
+
     """
 
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = [[ 0, 0, 1.0 ],
                 [ 1, 0, 1.15 ],
                 #[ 0.5, 0.5, -0.5],
@@ -166,15 +165,15 @@ def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
                        #[ 2, 5 ],
                        #[ 3, 6]
                        ]
-    
+
     cp.facets = [[0, 1, 2]]
 
     cp.grab_pts = []
-    
+
     cp.line_pts = [[2, 0],
                    #[4, 0]
                    ]
-    
+
     cp.cnstr_lhs = [[(1, 2, 1.0)],
                     [(1, 0, 1.0)],
                     [(1, 1, 1.0)],
@@ -193,7 +192,7 @@ def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
                     ]
 
     cp.cnstr_rhs = [dx, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[5] = 0.0001
     X[9] = 0.0001
@@ -202,7 +201,6 @@ def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
     X *= 1
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    cp.set_next_node(X)
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
     #cp.show_iter = True
@@ -211,9 +209,9 @@ def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
     return cp
 
 def line_test_crane(n_steps = 10, dx = 1.0):
-    
+
     """
-        
+
     """
 
     cp = CreasePattern(n_steps = n_steps)
@@ -243,19 +241,19 @@ def line_test_crane(n_steps = 10, dx = 1.0):
 #                       [ 7, 10 ],
 #                       [ 8, 11 ],
 #                       [ 8, 12 ],
-                       
+
 #                       [ 0, 9 ],
 #                       [ 1, 10],
 #                       [ 2, 11],
 #                       [ 3, 12]]
-    
+
     cp.facets = [[0, 1, 2]]
 
     cp.grab_pts = []
-    
+
     cp.line_pts = [[7, 0],
                    [8, 1]]
-    
+
     cp.cnstr_lhs = [[(4, 2, 1.0)],
                     #[(0, 1, 1.0)],
                     [(4, 0, 1.0)],
@@ -285,19 +283,18 @@ def line_test_crane(n_steps = 10, dx = 1.0):
                     [(0, 2, 1.0)],
                     [(2, 2, 1.0)],
                    # [(0, 1, 1.0)],
-                    
+
                     ]
 
     cp.cnstr_rhs = np.zeros((cp.n_dofs,))
     cp.cnstr_rhs[0] = dx
-    
+
     X = np.zeros((cp.n_dofs,), dtype = float)
     X[14] = 0.0001
     X[2] = 0.0001
    # X[10] = 0.01
   #  X[11] = 0.01
-    
-    cp.set_next_node(X)
+
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
     cp.show_iter = True
@@ -306,23 +303,23 @@ def line_test_crane(n_steps = 10, dx = 1.0):
     return cp
 
 def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
-    
+
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
-    cp.nodes = [[0, 0, 0],  #0
+
+    cp.nodes = [[0, 0, 0], #0
                 [0, 1, 0],
                 [1, 0, 0],
                 [1, 1, 0],
                 [2, 0, 0],
-                [2, 1, 0],  #5
+                [2, 1, 0], #5
                 [3, 0, 0],
                 [3, 1, 0],
                 [0, 0.5, 0],
                 [3, 0.5, 0],
-                [0.5, 0.5, 0],  #10
+                [0.5, 0.5, 0], #10
                 [1.5, 0.5, 0],
                 [2.5, 0.5, 0],
-                [0.5, 0.333, 0],    #13
+                [0.5, 0.333, 0], #13
                 [0.5, 0.667, 0],
                 [1.5, 0.333, 0],
                 [1.5, 0.667, 0],
@@ -340,8 +337,8 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                 [1.5, 0.333, 1.0],
                 [1.5, 0.667, 1.0]
                 ]
-    
-    cp.crease_lines = [[0, 2],  #0
+
+    cp.crease_lines = [[0, 2], #0
                        [0, 8],
                        [0, 10],
                        [1, 3],
@@ -361,13 +358,13 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                        [5, 12],
                        [6, 9],
                        [6, 12],
-                       [7, 9],  #20
+                       [7, 9], #20
                        [7, 12],
                        [8, 10],
                        [9, 12],
                        [10, 11],
                        [11, 12],
-                       [19, 20],    #26
+                       [19, 20], #26
                        [19, 21],
                        [22, 24],
                        [22, 25],
@@ -382,7 +379,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                        [17, 26],
                        [18, 27]
                        ]
-    
+
     cp.facets = [[0, 2, 10],
                  [2, 4, 11],
                  [4, 6, 12],
@@ -400,7 +397,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                  ]
     cp.line_pts = [[22, 26],
                    [23, 27]]
-    
+
     cp.grab_pts = [[13, 0],
                    [14, 7],
                    [15, 1],
@@ -408,7 +405,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                    [17, 2],
                    [18, 9]
                    ]
-    
+
     cp.cnstr_lhs = [[(19, 2, 1.0)],
                     [(19, 1, 1.0)],
                     [(19, 0, 1.0)],
@@ -429,7 +426,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                     [(23, 2, 1.0), (26, 2, -1.0)],
                     [(23, 2, 1.0), (27, 2, -1.0)],
                     [(14, 1, 1.0), (16, 1, -1.0)],
-                    
+
                     [(8, 2, 1.0)],
                     [(11, 1, 1.0)],
                     [(9, 2, 1.0)],
@@ -440,27 +437,27 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                     #[(13, 2, 1.0), (17, 2, -1.0)],
                     [(13, 1, 1.0), (15, 1, -1.0)]
                     ]
-    
+
     cp.cnstr_rhs = np.zeros((cp.n_dofs,))
     cp.cnstr_rhs[0] = dx
-    
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.00005
     X0[5] = 0.00005
     X0[20] = 0.00005
     X0[23] = 0.00005
-    
+
     X0[35] = 0.0003
-    
+
     X0[8] = 0.00025
     X0[11] = 0.00025
     X0[14] = 0.00025
     X0[17] = 0.00025
-    
+
     X0[32] = 0.00017
-    X0[38] = 0.00017 
-    
+    X0[38] = 0.00017
+
     X0[41] = 0.00016334
     X0[44] = 0.00016334
     X0[47] = 0.00028335
@@ -483,12 +480,10 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
     X0[86] = 0.00025
     X0[89] = 0.00025
     X0 *= 1
-    
-    np.set_printoptions(threshold='nan')
+
+    np.set_printoptions(threshold = 'nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -496,30 +491,30 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     #cp.show_iter = True 
     X = cp.solve(X0)
     #print'Iterationnodes', cp.iteration_nodes  
     return cp
 
 def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
-    
+
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
-    cp.nodes = [[0, 0, 0],  #0
+
+    cp.nodes = [[0, 0, 0], #0
                 [0, 1, 0],
                 [1, 0, 0],
                 [1, 1, 0],
                 [2, 0, 0],
-                [2, 1, 0],  #5
+                [2, 1, 0], #5
                 [3, 0, 0],
                 [3, 1, 0],
                 [0, 0.5, 0],
                 [3, 0.5, 0],
-                [0.5, 0.5, 0],  #10
+                [0.5, 0.5, 0], #10
                 [1.5, 0.5, 0],
                 [2.5, 0.5, 0],
-                [0.5, 0.333, 0],    #13
+                [0.5, 0.333, 0], #13
                 [0.5, 0.667, 0],
                 [1.5, 0.333, 0],
                 [1.5, 0.667, 0],
@@ -537,8 +532,8 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                 [1.5, 0.333, 1.0],
                 [1.5, 0.667, 1.0]
                 ]
-    
-    cp.crease_lines = [[0, 2],  #0
+
+    cp.crease_lines = [[0, 2], #0
                        [0, 8],
                        [0, 10],
                        [1, 3],
@@ -558,13 +553,13 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                        [5, 12],
                        [6, 9],
                        [6, 12],
-                       [7, 9],  #20
+                       [7, 9], #20
                        [7, 12],
                        [8, 10],
                        [9, 12],
                        [10, 11],
                        [11, 12],
-                       [19, 20],    #26
+                       [19, 20], #26
                        [19, 21],
                        [22, 24],
                        [22, 25],
@@ -581,7 +576,7 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                        [20, 8],
                        [9, 21]
                        ]
-    
+
     cp.facets = [[0, 2, 10],
                  [2, 4, 11],
                  [4, 6, 12],
@@ -599,7 +594,7 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                  ]
     cp.line_pts = [[22, 26],
                    [23, 27]]
-    
+
     cp.grab_pts = [[13, 0],
                    [14, 7],
                    [15, 1],
@@ -607,7 +602,7 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                    [17, 2],
                    [18, 9]
                    ]
-    
+
     cp.cnstr_lhs = [[(19, 2, 1.0)],
                     [(19, 1, 1.0)],
                     [(19, 0, 1.0)],
@@ -628,7 +623,7 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                     [(23, 2, 1.0), (26, 2, -1.0)],
                     [(23, 2, 1.0), (27, 2, -1.0)],
                     [(14, 1, 1.0), (16, 1, -1.0)],
-                    
+
                     #[(8, 2, 1.0)],
                     [(11, 1, 1.0)],
                     #[(9, 2, 1.0)],
@@ -639,27 +634,27 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
                     #[(13, 2, 1.0), (17, 2, -1.0)],
                     [(13, 1, 1.0), (15, 1, -1.0)]
                     ]
-    
+
     cp.cnstr_rhs = np.zeros((cp.n_dofs,))
     cp.cnstr_rhs[0] = dx
-    
+
     X0 = np.zeros((cp.n_dofs,), dtype = float)
-    
+
     X0[2] = 0.00005
     X0[5] = 0.00005
     X0[20] = 0.00005
     X0[23] = 0.00005
-    
+
     X0[35] = 0.0003
-    
+
     X0[8] = 0.00025
     X0[11] = 0.00025
     X0[14] = 0.00025
     X0[17] = 0.00025
-    
+
     X0[32] = 0.00017
-    X0[38] = 0.00017 
-    
+    X0[38] = 0.00017
+
     X0[41] = 0.00016334
     X0[44] = 0.00016334
     X0[47] = 0.00028335
@@ -682,12 +677,10 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
     X0[86] = 0.00025
     X0[89] = 0.00025
     X0 *= 1
-    
-    np.set_printoptions(threshold='nan')
+
+    np.set_printoptions(threshold = 'nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -695,17 +688,17 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     #cp.show_iter = True 
     X = cp.solve(X0)
     #print'Iterationnodes', cp.iteration_nodes
-    cp.get_line_position(0)  
+    cp.get_line_position(0)
     return cp
 
 def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
     """
         This example shows a 3x2 rhombus creasepattern.
-         
+
     """
     cpr = RhombusCreasePattern(n_steps = n_steps,
                               L_x = 3,
@@ -713,19 +706,19 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                               n_x = 3,
                               n_y = 4,
                               MAX_ITER = 5000)
-    
+
     X_rcp = cpr.generate_X0()
-    X_rcp = X_rcp.reshape((-1,3))
-    X_rcp[:,2] += 0.15
-   
+    X_rcp = X_rcp.reshape((-1, 3))
+    X_rcp[:, 2] += 0.15
+
     cp = CreasePattern(n_steps = n_steps, MAX_ITER = 500)
-    
+
     cp.nodes = cpr.nodes
-    
+
     cp.crease_lines = cpr.crease_lines
-    
+
     cp.facets = cpr.facets
-    
+
     grab_nodes = [[0.5, 0.333, 0],
                   [0.5, 0.667, 0],
                   [0.5, 1.333, 0],
@@ -738,8 +731,8 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                   [2.5, 0.666, 0],
                   [2.5, 1.333, 0],
                   [2.5, 1.667, 0]]#33
-    
-    crane_nodes = [[1.5, 0.5, 1.0],#34
+
+    crane_nodes = [[1.5, 0.5, 1.0], #34
                    [0, 0.5, 1],
                    [3, 0.5, 1],
                    [0.5, 0.5, 1.0],
@@ -750,8 +743,8 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                    [2.5, 0.667, 1.0],
                    [1.5, 0.333, 1.0],
                    [1.5, 0.667, 1.0],
-                   
-                   [1.5, 1.5, 1.0],#45
+
+                   [1.5, 1.5, 1.0], #45
                    [0, 1.5, 1],
                    [3, 1.5, 1],
                    [0.5, 1.5, 1.0],
@@ -761,31 +754,31 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                    [2.5, 1.333, 1.0],
                    [2.5, 1.667, 1.0],
                    [1.5, 1.333, 1.0],
-                   [1.5, 1.667, 1.0],#55
+                   [1.5, 1.667, 1.0], #55
                    ]
-    
-    cp.nodes = np.vstack([cp.nodes,grab_nodes])
-    cp.nodes = np.vstack([cp.nodes,crane_nodes])
-    
-    
+
+    cp.nodes = np.vstack([cp.nodes, grab_nodes])
+    cp.nodes = np.vstack([cp.nodes, crane_nodes])
+
+
     crane_cl = [#crane 1
-                [34, 35],#49
+                [34, 35], #49
                 [34, 36],
                 [37, 39],
                 [37, 40],
                 [38, 41],
                 [38, 42],
-                [34, 43],#55
+                [34, 43], #55
                 [34, 44],
-                
+
                 [39, 22],
-                [40, 23],#60
+                [40, 23], #60
                 [41, 30],
                 [42, 31],
                 [43, 26],
                 [44, 27],
                 #crane 2
-                [45, 46],#65
+                [45, 46], #65
                 [45, 47],
                 [48, 50],
                 [48, 51],
@@ -804,9 +797,9 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                 [35, 12],
                 [36, 14]
                 ]
-    
-    cp.crease_lines = np.vstack([cp.crease_lines,crane_cl])
-    
+
+    cp.crease_lines = np.vstack([cp.crease_lines, crane_cl])
+
     cp.grab_pts = [[22, 0],
                    [23, 14],
                    [26, 2],
@@ -825,8 +818,8 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                    [48, 63],
                    [49, 64]
                    ]
-    
-    
+
+
     cp.cnstr_lhs = [[(34, 2, 1.0)],
                     [(34, 0, 1.0)],
                     [(34, 2, 1.0), (45, 2, -1.0)],
@@ -846,7 +839,7 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                     [(36, 2, 1.0)],
                     [(34, 1, 1.0), (36, 1, -1.0)],
                     [(34, 1, 1.0), (35, 1, -1.0)],
-                    
+
                     [(45, 0, 1.0)],
                     [(45, 2, 1.0), (54, 2, -1.0)],
                     [(45, 2, 1.0), (55, 2, -1.0)],
@@ -864,12 +857,12 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                     [(47, 2, 1.0)],
                     [(45, 1, 1.0), (47, 1, -1.0)],
                     [(45, 1, 1.0), (46, 1, -1.0)],
-                    
+
                     [(35, 1, 1.0), (12, 1, -1.0)],
                     [(46, 1, 1.0), (13, 1, -1.0)],
                     #[(35, 1, 1.0), (46, 1, 1.0)],
                     #[(36, 1, 1.0), (47, 1, 1.0)],
-                    
+
                     [(4, 0, 1.0)],
                     [(1, 1, 1.0)],
                     #[(10, 1, 1.0)],
@@ -894,14 +887,14 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
 #                    [(14, 2, 1.0)],
 #                    [(15, 2, 1.0)]
                     ]
-    
+
     cp.cnstr_rhs = np.zeros((cp.n_dofs,))
     cp.cnstr_rhs[0] = dx
-    
-    
+
+
     X_ext = np.zeros((cp.n_dofs - len(X_rcp.reshape((-1,))),), dtype = float)
     X0 = np.hstack([X_rcp.reshape((-1,)), X_ext])
-    
+
     X0[68] = 0.3059
     X0[71] = 0.3059
     X0[74] = 0.3059
@@ -914,14 +907,14 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
     X0[95] = 0.3059
     X0[98] = 0.3059
     X0[101] = 0.3059
-    
+
     X0[104] = 0.45
     X0[137] = 0.45
     X0[131] = 0.45
     X0[134] = 0.45
     X0[164] = 0.45
     X0[167] = 0.45
-    
+
     X0[113] = 0.24
     X0[116] = 0.24
     X0[146] = 0.24
@@ -934,14 +927,12 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
     X0[155] = 0.24
     X0[158] = 0.24
     X0[161] = 0.24
-    
-    
+
+
     X0 *= 0.01
     #np.set_printoptions(threshold='nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -949,7 +940,7 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * 3 - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     #cp.show_iter = True    
     X = cp.solve(X0)
     return cp
@@ -968,9 +959,9 @@ if __name__ == '__main__':
     # initialise View
     cp.create_3D_tex('konzept13D.tex')
     cpv = CreasePatternView(data = cp, show_cnstr = True)
-    
+
     cpv.configure_traits()
-    
-        
-        
-    
+
+
+
+

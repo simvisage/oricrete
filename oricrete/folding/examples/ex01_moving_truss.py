@@ -81,7 +81,7 @@ def moving_truss_cp_ff(n_steps = 10, dx = -1.99):
     face_x_0 = CF(Rf = x_ - 0)
     face_xy_135 = CF(Rf = x_ + y_ - 1.0)
     face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
+    cp.cf_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_xy_135, [1]),
                     (face_x_1_t, [1])]
@@ -95,7 +95,7 @@ def moving_truss_cp_ff(n_steps = 10, dx = -1.99):
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
-    X = cp.solve_ff(X)
+    X = cp.solve(X)
 
     print '========== results =============='
     print 'solution X\n', X
@@ -117,7 +117,7 @@ def moving_truss_cp_ff_cnstr(n_steps = 10, dx = -1.99):
     face_z_0 = CF(Rf = z_ - 0)
     face_x_0 = CF(Rf = x_ - 0)
     face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
+    cp.cf_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1])]
 
@@ -136,7 +136,7 @@ def moving_truss_cp_ff_cnstr(n_steps = 10, dx = -1.99):
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
-    X = cp.solve_ff(X)
+    X = cp.solve(X)
 
     print '========== results =============='
     print 'solution X\n', X
@@ -166,7 +166,7 @@ def moving_truss_cp_circle(n_steps = 40):
     face_y_1_t = CF(Rf = x_ + sp.sin(1.0 * t_))
 # +3.14159/2.0    
 #    face_x_1_t = CF(Rf = y_ - 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
+    cp.cf_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1]),
                     (face_y_1_t, [1])]
@@ -182,7 +182,7 @@ def moving_truss_cp_circle(n_steps = 40):
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
-    X = cp.solve_ff(X)
+    X = cp.solve(X)
 
     print '========== results =============='
     print 'solution X\n', X
@@ -221,7 +221,7 @@ def moving_truss_cp_square(n_steps = 40):
                     - 1.0 * (t_ - 8) * sp.Heaviside(t_ - 8))
 # +3.14159/2.0    
 #    face_x_1_t = CF(Rf = y_ - 1.99 * t_)
-    cp.cnstr_lst = [(face_z_0, [0, 1]),
+    cp.cf_lst = [(face_z_0, [0, 1]),
                     (face_x_0, [0]),
                     (face_x_1_t, [1]),
                     (face_y_1_t, [1])]
@@ -237,7 +237,7 @@ def moving_truss_cp_square(n_steps = 40):
     print 'initial R\n', cp.get_R(X)
     print 'initial dR\n', cp.get_dR(X)
 
-    X = cp.solve_ff(X)
+    X = cp.solve(X)
 
     print '========== results =============='
     print 'solution X\n', X

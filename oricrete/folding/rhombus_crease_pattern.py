@@ -229,8 +229,6 @@ if __name__ == '__main__':
 
     print 'X0', X0
 
-    cp.set_next_node(X0)
-
     from crease_pattern_view import CreasePatternView
     my_model = CreasePatternView(data = cp, show_cnstr = True)
     my_model.configure_traits()

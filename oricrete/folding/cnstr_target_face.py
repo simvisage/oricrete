@@ -206,6 +206,9 @@ class CnstrTargetFace(HasTraits):
     def _X_arr_default(self):
         return np.array([[0, 0, 1]], dtype = 'f')
 
+    #===========================================================================
+    # Closest point projection of X points to the target surface
+    #===========================================================================
     r_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
     @cached_property
     def _get_r_arr(self):
@@ -213,6 +216,9 @@ class CnstrTargetFace(HasTraits):
         return np.array([self.pf_operator.get_r_pnt(r0_pnt, x_pnt, self.t)
                          for x_pnt in self.X_arr], dtype = 'f')
 
+    #===========================================================================
+    # Distance from the target surface
+    #===========================================================================
     d_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
     @cached_property
     def _get_d_arr(self):
@@ -225,6 +231,9 @@ class CnstrTargetFace(HasTraits):
         return np.array([self.pf_operator.get_d_dist_xyz(r_pnt, x_pnt, self.t)
                          for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
 
+    #===========================================================================
+    # Level set representation of the surface - used for visualization
+    #===========================================================================
     ls_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
     @cached_property
     def _get_ls_arr(self):

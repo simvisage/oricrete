@@ -83,7 +83,7 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
     y_nodes = n_i[0, 0] # + list(n_v[:, :].flatten())
 
 
-    cp.cnstr_lst = [(face_y_L2, [n_i[0, 0]]),
+    cp.cf_lst = [(face_y_L2, [n_i[0, 0]]),
                     (face_z_t, z_nodes),
 ##                    (face_x_L2, n_h[2, (0, -1)].flatten()),
 #                    (face_x_L2, n_h[n_h_idx, (0, -1)].flatten()),
@@ -143,7 +143,7 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
 
 #    z_nodes = n_h[:, :].flatten()
 
-#    cp.cnstr_lst = [(face_y_L2, [n_i[0, 0]]),
+#    cp.cf_lst = [(face_y_L2, [n_i[0, 0]]),
 #                    (face_z_t, z_nodes),
 ###                    (face_x_L2, n_h[2, (0, -1)].flatten()),
 ##                    (face_x_L2, n_h[n_h_idx, (0, -1)].flatten()),
@@ -159,7 +159,7 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
     z_nodes_field4 = n_h[(n_h_idx + 1):-1, 1].flatten()
 
 
-    cp.cnstr_lst = [(face_y_L0, [n_h[0, 0]]),
+    cp.cf_lst = [(face_y_L0, [n_h[0, 0]]),
                     (face_y_L0, [n_h[n_h_idx, -1]]),
                     (face_y_L0, [n_h[-1, 0]]),
                     (face_z_t, z_nodes_field1),
@@ -228,7 +228,7 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
     face_x_L2 = CF(Rf = x_ - L_x / 2)
 
-    cp.cnstr_lst = [(face_z_t, n_h[0, :]),
+    cp.cf_lst = [(face_z_t, n_h[0, :]),
                     (face_z_t, n_h[-1, :]),
                     (face_z_t, [n_h[1, 0]]),
                     ]
@@ -295,7 +295,7 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
 
 
-    cp.cnstr_lst = [(face_z_t, n_h[1:-1, 0]),
+    cp.cf_lst = [(face_z_t, n_h[1:-1, 0]),
                     (face_z_t, n_h[0, :]),
                     (face_z_t, n_h[-1, :])
                     ]
@@ -360,7 +360,7 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     n_arr = np.hstack([n_h[n_h_idx, :].flatten(),
                     n_h[0, :].flatten(),
                     n_h[-1, :].flatten()])
-    cp.cnstr_lst = [(face_z_t, n_arr)]
+    cp.cf_lst = [(face_z_t, n_arr)]
 
     print "edge1", n_h[0, :]
     print "edge2", n_h[-1, :]
@@ -369,34 +369,13 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 
 if __name__ == '__main__':
 
-
     cp_fc = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 4, n_y = 4,
                          n_steps = 20)
 
-    print 't_arr',
-    print cp_fc.t_arr
-
-    print 'number of fold face constraints'
-    print cp_fc.n_c_ff
-
     X0 = cp_fc.generate_X0()
-    cp_fc.set_next_node(X0)
 
-#    print 'n_dofs', cp_dc.n_dofs
-#    print 'n_c', cp_dc.n_c
-#    print 'necessary constraints', cp_dc.n_dofs - cp_dc.n_c
-#    print 'cnstr', len(cp_dc.cnstr_lhs)
+    X_fc = cp_fc.solve(X0)
 
-    #X_dc = cp_dc.solve(X0)
-
-#    X_fc = cp_fc.solve_ff(X0)
-
-#    print 'new nodes'
-#    print cp.get_new_nodes(X_vct)
-#    print 'new lengths'
-#    print cp.get_new_lengths(X_vct)
-
-    # initialise View
     my_model = CreasePatternView(data = cp_fc,
                                  ff_resolution = 30, show_cnstr = True)
     my_model.configure_traits()

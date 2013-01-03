@@ -51,7 +51,7 @@ if __name__ == '__main__':
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0, 0, 0.2, ]
 
     x0 = np.zeros((cp.n_dofs), dtype = float)
-    
+
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
     print 'initial R\n', cp.get_R(x0)
@@ -60,10 +60,9 @@ if __name__ == '__main__':
     def f(x):
         x = x.reshape(cp.n_n, cp.n_d)
         X = cp.get_new_nodes(x)
-#       cp.set_next_node(x)
         caf.X_arr = [X[2]]
         dist2 = np.linalg.norm(caf.d_arr)
-        return dist2 
+        return dist2
     d0 = f(x0)
     eps = d0 * 1e-4
 
@@ -76,15 +75,15 @@ if __name__ == '__main__':
     print 'R', cp.get_R(x_sol)
     print 'lengths', cp.get_new_lengths(x_sol)
     print 'nodes', cp.get_new_nodes(x_sol)
-    
+
     # Visualization
-    
-    cp.set_next_node(x_sol)
-    
+
+    cp.add_fold_step(x_sol)
+
     cpv = CreasePatternView(data = cp, show_cnstr = True)
 
     cpv.configure_traits()
-    
+
 
     # 1) introduce the mapping association to the surface
     #    similar to cnstr_face

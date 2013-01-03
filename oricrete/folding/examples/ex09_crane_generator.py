@@ -31,11 +31,11 @@ from oricrete.folding.singularity_finder import SingularityFinder
 # own Modules
 from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, CraneCreasePattern, CF, x_, y_, z_, t_
-    
+
 def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6):
     """
         This example shows a 3x2 rhombus creasepattern.
-         
+
     """
     cp = CraneCreasePattern(n_steps = n_steps,
                             dx = dx,
@@ -47,17 +47,15 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
     lhs = cp.generate_lhs()
 
     cp.cnstr_lhs = lhs
-    
+
     cp.cnstr_rhs = np.zeros((cp.n_dofs,))
     cp.cnstr_rhs[0] = dx
-    X0 = cp.X0 
-    
+    X0 = cp.X0
+
     X0 *= 1.0
     #np.set_printoptions(threshold='nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-    
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -65,20 +63,19 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * 3 - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     #cp.show_iter = True    
     X = cp.solve(X0)
     return cp
 
 if __name__ == '__main__':
 
-
     cp = rhombus_nxm_crane(n_steps = 80, L_x = 6, L_y = 5, n_x = 6, n_y = 10)
 
 
 
     # initialise View
-    
+
     cpv = CreasePatternView(data = cp, show_cnstr = True)
-    
+
     cpv.configure_traits()

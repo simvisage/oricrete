@@ -277,8 +277,6 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
 
-    cp.set_next_node(X0)
-
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
@@ -357,8 +355,6 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
 
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -483,8 +479,6 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     X0 *= 1
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -668,9 +662,6 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
     np.set_printoptions(threshold = 'nan')
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-
-
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -895,9 +886,6 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
 
-
-    cp.set_next_node(X0)
-
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
@@ -1038,9 +1026,6 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
 
-
-    cp.set_next_node(X0)
-
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
@@ -1150,8 +1135,6 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
 
-    cp.set_next_node(X0)
-
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
@@ -1260,8 +1243,6 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
     X0 *= 0.01
     print 'dR', cp.get_dR(X0)
     print 'R', cp.get_R(X0)
-
-    cp.set_next_node(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs

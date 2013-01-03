@@ -14,13 +14,11 @@
 
 from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
     Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
-    Str, Tuple, Interface, implements, Enum, List, Float, Dict, DelegatesTo
-
-from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
+    List, Float
 
 import numpy as np
+
 from scipy.optimize import fmin_slsqp
-import sys
 
 class CreasePattern(HasTraits):
     '''
@@ -67,19 +65,19 @@ class CreasePattern(HasTraits):
 
     facets = Array(value = [], dtype = 'int_')
 
-    cnstr_lst = List([])
-    cnstr_caf = List([])
+    cf_lst = List([])
+    tf_lst = List([])
 
     ff_lst = Property
     def _get_ff_lst(self):
-        return [ ff for ff, nodes in self.cnstr_lst ]
+        return [ ff for ff, nodes in self.cf_lst ]
 
-    # points for facetgrabbing [n,f]
-    # first indize gives node, second gives the facet 
+    # points for facet grabbing [n,f]
+    # first index gives node, second gives the facet 
     grab_pts = List()
 
-    # points moveable only on a creaseline [n,cl]
-    # first indice gives the node, scond the cleaseline
+    # points movable only on a crease line [n,cl]
+    # first index gives the node, second the crease line
     line_pts = List()
 
     # constrained node indices
@@ -124,8 +122,8 @@ class CreasePattern(HasTraits):
     def _get_n_c_ff(self):
         '''Number of constraints'''
         n_c = 0
-        # count the nodes in each entry in the cnstr_lst
-        for ff, nodes in self.cnstr_lst:
+        # count the nodes in each entry in the cf_lst
+        for ff, nodes in self.cf_lst:
             n_c += len(nodes)
         return n_c
 
@@ -420,14 +418,14 @@ class CreasePattern(HasTraits):
 
         return dR
 
-    def get_cnstr_R(self, X_vct):
+    def get_cnstr_R(self, X_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
         X = X_vct.reshape(self.n_n, self.n_d)
         Rc = np.zeros((len(self.cnstr_lhs),))
         for i, cnstr in enumerate(self.cnstr_lhs):
             for n, d, c in cnstr:
-                Rc[i] += c * X[n, d] - self.cnstr_rhs[i]
+                Rc[i] += c * X[n, d] - (self.cnstr_rhs[i] * t)
         return Rc
 
     def get_cnstr_dR(self, X_vct, t = 0.0):
@@ -447,7 +445,7 @@ class CreasePattern(HasTraits):
         Rf = np.zeros((self.n_c_ff,), dtype = 'float_')
 
         i = 0
-        for ff, nodes in self.cnstr_lst:
+        for ff, nodes in self.cf_lst:
             for n in nodes:
                 x, y, z = X[n]
                 Rf[i] = ff.Rf(x, y, z, t)
@@ -462,7 +460,7 @@ class CreasePattern(HasTraits):
         dRf = np.zeros((self.n_c_ff, self.n_dofs), dtype = 'float_')
 
         i = 0
-        for ff, nodes in self.cnstr_lst:
+        for ff, nodes in self.cf_lst:
             for n in nodes:
                 x, y, z = X[n]
                 dof = 3 * n
@@ -493,7 +491,7 @@ class CreasePattern(HasTraits):
 
     def get_R(self, X_vct, t = 0):
         R = np.hstack([self.get_length_R(X_vct),
-                          self.get_cnstr_R(X_vct),
+                          self.get_cnstr_R(X_vct, t),
                           self.get_cnstr_R_ff(X_vct, t),
                           self.get_grab_R(),
                           self.get_line_R(X_vct)
@@ -521,7 +519,7 @@ class CreasePattern(HasTraits):
         x = x.reshape(self.n_n, self.n_d)
         X = self.get_new_nodes(x)
         d_arr = np.array([])
-        for caf, nodes in self.cnstr_caf:
+        for caf, nodes in self.tf_lst:
             caf.X_arr = X[nodes]
             caf.t = t
             d_arr = np.append(d_arr, caf.d_arr)
@@ -540,7 +538,7 @@ class CreasePattern(HasTraits):
         d_xyz = np.zeros_like(x)
         X = self.get_new_nodes(x)
         dist_arr = np.array([])
-        for caf, nodes in self.cnstr_caf:
+        for caf, nodes in self.tf_lst:
             caf.X_arr = X[nodes]
             caf.t = t
             d_arr = caf.d_arr
@@ -554,74 +552,37 @@ class CreasePattern(HasTraits):
     def get_d_dist_norm_x_t(self, x):
         return self.get_d_dist_norm_x(x, self.t)
 
-    #===========================================================================
-    # Folding algorithm - Newton-Raphson
-    #===========================================================================
-
-    MAX_ITER = Int(50)
-    TOLERANCE = Float(1e-10)
-    n_steps = Int(20)
-    show_iter = Bool(False)
-
-    def solve(self, X0):
-
-        # make a copy of the start vector
-        X = np.copy(X0)
-
-        # Newton-Raphson iteration
-        MAX_ITER = self.MAX_ITER
-        TOLERANCE = self.TOLERANCE
-        n_steps = self.n_steps
-        cnstr_rhs = np.copy(self.cnstr_rhs)
-
-        for k in range(n_steps):
-            print 'step', k,
-            #self.add_fold_step(X)
-            i = 0
-            self.cnstr_rhs = (k + 1.) / float(n_steps) * cnstr_rhs
-            while i <= MAX_ITER:
-                dR = self.get_dR(X)
-                R = self.get_R(X)
-                nR = np.linalg.norm(R)
-                if nR < TOLERANCE:
-                    print '==== converged in ', i, 'iterations ===='
-                    self.add_fold_step(X)
-                    break
-                try:
-                    dX = np.linalg.solve(dR, -R)
-                    X += dX
-                    if self.show_iter and i < 10:
-                        self.add_fold_step(X)
-                        print'X%d:' % i
-                        print X.reshape((-1, 3))
-                    i += 1
-                except Exception as inst:
-                    print '==== problems solving linalg in interation step %d  ====' % i
-                    print '==== Exception message: ', inst
-                    self.add_fold_step(X)
-                    return X
-            else:
-                print '==== did not converge in %d interations ====' % i
-                return X
-
-        return X
-
-
     t_arr = Property(depends_on = 'n_steps')
     @cached_property
     def _get_t_arr(self):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
-    def solve_ff(self, X0):
+    show_iter = Bool(False, auto_set = False, enter_set = True)
 
+    MAX_ITER = Int(100, auto_set = False, enter_set = True)
+
+    #===========================================================================
+    # Solver dispatcher
+    #===========================================================================
+    def solve(self, X0):
+        '''Solve the problem with the appropriate solver
+        '''
+        if(len(self.tf_lst) > 0):
+            return self._solve_fmin(X0)
+        else:
+            return self._solve_nr(X0)
+
+    #===========================================================================
+    # Folding algorithm - Newton-Raphson
+    #===========================================================================
+    def _solve_nr(self, X0, acc = 1e-4):
+        '''Find the solution using the Newton-Raphson procedure.
+        '''
         # make a copy of the start vector
         X = np.copy(X0)
 
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
-        TOLERANCE = self.TOLERANCE
-        n_steps = self.n_steps
-        cnstr_rhs = np.copy(self.cnstr_rhs)
 
         for t in self.t_arr:
             print 'step', t,
@@ -632,7 +593,7 @@ class CreasePattern(HasTraits):
                 dR = self.get_dR(X, t)
                 R = self.get_R(X, t)
                 nR = np.linalg.norm(R)
-                if nR < TOLERANCE:
+                if nR < acc:
                     print '==== converged in ', i, 'iterations ===='
                     self.add_fold_step(X)
                     break
@@ -654,68 +615,32 @@ class CreasePattern(HasTraits):
 
         return X
 
-    def solve_fmin(self, X0):
-        # make a copy of the start vector
-        X = np.copy(X0)
-
-        # Sequential Least Squares optimization
-        MAX_ITER = self.MAX_ITER
-        TOLERANCE = self.TOLERANCE
-        cnstr_rhs = np.copy(self.cnstr_rhs)
-
-        if(len(self.cnstr_caf) > 0):
-            print '==== solving with SLSQP optimization ===='
-            d0 = self.get_dist_norm(X0)
-            eps = d0 * 1e-4
-            for step, time in enumerate(self.t_arr):
-                print 'step', step,
-                self.t = time
-                info = fmin_slsqp(self.get_dist_norm_t, X0,
-                               fprime = self.get_d_dist_norm_x_t,
-                               f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
-                               acc = 1e-5, iter = 100,
-                               iprint = 0,
-                               full_output = True,
-                               epsilon = eps)
-                X, fx, n_iter, imode, smode = info
-                X = np.array(X)
-                self.add_fold_step(X)
-                if imode == 0:
-                    print '(time: %g, iter: %d, fx: %g)' % (time, n_iter, fx)
-                else:
-                    print '(time: %g, %s)' % (time, smode)
-                    break
-        else:
-            print '==== solving with Newton-Raphson Iteration ===='
-            for t in self.t_arr:
-                print 'step', t,
-                i = 0
-                self.cnstr_rhs = t * cnstr_rhs
-                while i <= MAX_ITER:
-                    dR = self.get_dR(X, t)
-                    R = self.get_R(X, t)
-                    nR = np.linalg.norm(R)
-                    if nR < TOLERANCE:
-                        print '==== converged in ', i, 'iterations ===='
-                        self.add_fold_step(X)
-                        break
-                    try:
-                        dX = np.linalg.solve(dR, -R)
-
-                        X += dX
-                        if self.show_iter:
-                            self.add_fold_step(X)
-                        i += 1
-                    except Exception as inst:
-                        print '==== problems solving linalg in interation step %d  ====' % i
-                        print '==== Exception message: ', inst
-                        self.add_fold_step(X)
-                        return X
-                else:
-                    print '==== did not converge in %d interations ====' % i
-                    return X
-        return X
-
+    def _solve_fmin(self, X0):
+        '''Solve the problem using the
+        Sequential Least Square Quadratic Programming method.
+        '''
+        print '==== solving with SLSQP optimization ===='
+        d0 = self.get_dist_norm(X0)
+        eps = d0 * 1e-4
+        X = X0
+        for step, time in enumerate(self.t_arr):
+            print 'step', step,
+            self.t = time
+            info = fmin_slsqp(self.get_dist_norm_t, X,
+                           fprime = self.get_d_dist_norm_x_t,
+                           f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
+                           acc = 1e-5, iter = self.MAX_ITER,
+                           iprint = 0,
+                           full_output = True,
+                           epsilon = eps)
+            X, fx, n_iter, imode, smode = info
+            X = np.array(X)
+            self.add_fold_step(X)
+            if imode == 0:
+                print '(time: %g, iter: %d, fx: %g)' % (time, n_iter, fx)
+            else:
+                print '(time: %g, %s)' % (time, smode)
+                break
 
     #===============================================================================
     # methods and Information for Abaqus calculation

@@ -94,9 +94,7 @@ class FaceView(HasTraits):
         if self.show_ff_pipe:
 
             x, y, z = self.xyzgrid
-
             t = self.time_step
-            print 'time step', t
             Rf = self.ff.Rf(x, y, z, t)
 
             self.ff_pipe.mlab_source.set(scalars = Rf)

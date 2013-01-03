@@ -236,7 +236,6 @@ if __name__ == '__main__':
     # cp = cp05(L_x = 10, L_y = 5, n_x = 2, n_y = 4,
     # n_steps = 40, skew_coeff = 0.0)
     X0 = cp.generate_X0()
-    #cp.set_next_node(X0)
 
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c

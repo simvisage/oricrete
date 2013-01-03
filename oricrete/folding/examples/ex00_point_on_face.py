@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     cp = CreasePattern(nodes = [[0, 0, 0]], n_steps = 10)
 
-    cp.cnstr_lst = [(CF(Rf = z_ - x_ ** 2 - 0), [0]),
+    cp.cf_lst = [(CF(Rf = z_ - x_ ** 2 - 0), [0]),
                     (CF(Rf = y_ - x_ ** 2 - 0), [0]),
                     (CF(Rf = x_ - t_ - 0), [0])]
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     print 'R_ff', cp.get_cnstr_R_ff(X0, 1)
     print 'dR_ff', cp.get_cnstr_dR_ff(X0, 0)
-    print 'X ff final', cp.solve_ff(X0)
+    print 'X ff final', cp.solve(X0)
 
     cpv = CreasePatternView(data = cp, show_cnstr = True)
     cpv.configure_traits()

@@ -142,7 +142,7 @@ def create_cp_fc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
     face_y_0 = CF(Rf = y_ - 0)
     face_y_L = CF(Rf = y_ - L_y * (1 - 0.1 * t_))#* x_ / L_x))
 
-    cp.cnstr_lst = [(face_x_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
+    cp.cf_lst = [(face_x_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
                     (face_z_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
                     (face_y_0, n_h[:, 0]),
 #                    (face_x_L, []),
@@ -219,14 +219,14 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
 #    face_y_0 = CF(Rf = y_ - L_y / 2.0 * 0.05 * t_ * y_ / L_y)
 #    face_y_L = CF(Rf = y_ - L_y + L_y / 2.0 * 0.05 * t_ * y_ / L_y)
 
-#    cp.cnstr_lst = [(face_x_0, n_h[0, :]),
+#    cp.cf_lst = [(face_x_0, n_h[0, :]),
 #                    (face_z_0, n_h[0, :]),
 #                    (face_y_0, n_h[:, 0]),
 #                    (face_y_L, n_h[:, -1])]
 
     z_nodes = n_h[:, :].flatten()
     print z_nodes
-    cp.cnstr_lst = [(face_x_0, [n_h[0, 0]]),
+    cp.cf_lst = [(face_x_0, [n_h[0, 0]]),
                     (face_z_0, z_nodes),
                     (face_y_0, n_h[:, 0]),
                     (face_y_L, n_h[:, -1])]
@@ -241,7 +241,6 @@ if __name__ == '__main__':
                                   n_steps = 10)
 
     X0 = cp_dc.generate_X0()
-    #cp_fc.set_next_node(X0)
 
 #    print 'n_dofs', cp_dc.n_dofs
 #    print 'n_c', cp_dc.n_c
@@ -250,7 +249,7 @@ if __name__ == '__main__':
 
     X_dc = cp_dc.solve(X0)
 
-    #X_fc = cp_fc.solve_ff(X0)
+    #X_fc = cp_fc.solve(X0)
 
 #    print 'new nodes'
 #    print cp.get_new_nodes(X_vct)
