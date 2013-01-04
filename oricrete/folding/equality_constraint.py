@@ -14,7 +14,8 @@
 
 from etsproxy.traits.api import \
     HasStrictTraits, Interface, implements, WeakRef, \
-    Array, DelegatesTo, PrototypedFrom, cached_property, Property
+    Array, DelegatesTo, PrototypedFrom, cached_property, Property, \
+    List
 
 import numpy as np
 
@@ -376,21 +377,21 @@ class PointsOnSurface(EqualityConstraint):
 
         return Rf
 
-    def get_G_du(self, dX_vct, t = 0):
+    def get_G_du(self, u_vct, t = 0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.nodes + dX_vct.reshape(self.n_n, self.n_d)
-        dRf = np.zeros((self.n_c_ff, self.n_dofs), dtype = 'float_')
+        X = self.nodes + u_vct.reshape(self.n_n, self.n_d)
+        G_du = np.zeros((self.n_c_ff, self.n_dofs), dtype = 'float_')
 
         i = 0
         for ff, nodes in self.cf_lst:
             for n in nodes:
                 x, y, z = X[n]
                 dof = 3 * n
-                dRf[i, (dof, dof + 1, dof + 2) ] = ff.dRf(x, y, z, t)
+                G_du[i, (dof, dof + 1, dof + 2) ] = ff.dRf(x, y, z, t)
                 i += 1
 
-        return dRf
+        return G_du
 
 class DofConstraints(EqualityConstraint):
 
@@ -400,23 +401,118 @@ class DofConstraints(EqualityConstraint):
     cnstr_lhs = DelegatesTo('cp')
     cnstr_rhs = DelegatesTo('cp')
 
-    def get_G(self, X_vct, t):
+    def get_G(self, u_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = X_vct.reshape(self.n_n, self.n_d)
-        Rc = np.zeros((len(self.cnstr_lhs),))
+        u = u_vct.reshape(self.n_n, self.n_d)
+        G = np.zeros((len(self.cnstr_lhs),))
         for i, cnstr in enumerate(self.cnstr_lhs):
             for n, d, c in cnstr:
-                Rc[i] += c * X[n, d] - (self.cnstr_rhs[i] * t)
-        return Rc
+                G[i] += c * u[n, d] - (self.cnstr_rhs[i] * t)
+        return G
 
     def get_G_du(self, X_vct, t = 0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-        dRc = np.zeros((len(self.cnstr_lhs), self.n_dofs))
+        G_du = np.zeros((len(self.cnstr_lhs), self.n_dofs))
         for i, cnstr in enumerate(self.cnstr_lhs):
             for n, d, c in cnstr:
                 dof = 3 * n + d
-                dRc[i, dof] += c
-        return dRc
+                G_du[i, dof] += c
+        return G_du
 
+class Unfoldability(EqualityConstraint):
+    '''For the specified node associations require
+    the sum of the angles between adjacent crease lines be 2Pi
+    '''
+    nodes = DelegatesTo('cp')
+    crease_lines = DelegatesTo('cp')
+
+    connectivity = List([])
+
+    n_n = DelegatesTo('cp')
+    n_d = DelegatesTo('cp')
+    n_dofs = DelegatesTo('cp')
+    cnstr_lhs = DelegatesTo('cp')
+    cnstr_rhs = DelegatesTo('cp')
+
+    def get_G(self, u_vct, t):
+        ''' Calculate the residuum for given constraint equations
+        '''
+        u = u_vct.reshape(self.n_n, self.n_d)
+        x = self.nodes + u
+
+        G_lst = []
+        for v, n in self.connectivity:
+            c = x[n] - x[v]
+            # cycle through the neighbors
+            n_c = len(c)
+            idx_c = np.arange(n_c)
+            pairs = np.vstack([idx_c, idx_c + 1]).T
+            pairs[-1, -1] = 0
+
+            theta_lst = []
+            for left, right in pairs:
+                cl, cr = c[left], c[right]
+                ab = np.dot(cl, cr)
+                aa = np.linalg.norm(cl)
+                bb = np.linalg.norm(cr)
+                gamma = ab / (aa * bb)
+                theta = np.arccos(gamma)
+                theta_lst.append(theta)
+
+            theta_arr = np.array(theta_lst, dtype = 'f')
+            G_lst.append(np.sum(theta_arr) - 2 * np.pi)
+
+        return np.array(G_lst, dtype = 'f')
+
+    def get_G_du(self, u_vct, t = 0.0):
+        ''' Calculate the residuum for given constraint equations
+        '''
+        u = u_vct.reshape(self.n_n, self.n_d)
+        x = self.nodes + u
+
+        # number of foldable constraints
+        n_fc = len(self.connectivity)
+        G_du = np.zeros((n_fc, self.n_dofs), dtype = 'float_')
+
+        for i, (v, n) in enumerate(self.connectivity):
+            c = x[n] - x[v]
+            # cycle through the neighbors
+            n_c = len(c)
+            idx_c = np.arange(n_c)
+            pairs = np.vstack([idx_c, idx_c + 1]).T
+            pairs[-1, -1] = 0
+
+            for left, right in pairs:
+                a, b = c[left], c[right]
+                ab = np.dot(a, b)
+                aa = np.linalg.norm(a)
+                bb = np.linalg.norm(b)
+                gamma = ab / (aa * bb)
+
+                coeff = -1 / np.sqrt(1 - gamma)
+                theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
+                theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) ** 3 * (bb))
+
+                a_idx = n[left] * self.n_d
+                b_idx = n[right] * self.n_d
+                G_du[i, a_idx:a_idx + self.n_d] = theta_da
+                G_du[i, b_idx:b_idx + self.n_d] = theta_db
+
+        return G_du
+
+if __name__ == '__main__':
+    from crease_pattern import CreasePattern
+    cp = CreasePattern(nodes = [[0, 0, 0],
+                                 [1.0, 0.2, -.2],
+                                 [0.1, 1, 1],
+                                 [-1, -0.2, 0.1],
+                                 [0.1, -1, 0]])
+
+    uf = Unfoldability(cp, connectivity = [(0, [1, 2, 3, 4])])
+
+    u = np.zeros_like(cp.nodes).flatten()
+    print uf.get_G(u, 0)
+
+    print uf.get_G_du(u, 0)
