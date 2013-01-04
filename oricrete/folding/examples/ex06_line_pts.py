@@ -77,8 +77,8 @@ def halfcrane_1stick(n_steps = 10, dx = 1.5):
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
     #cp.show_iter = True
     X = cp.solve(X)
 
@@ -135,8 +135,8 @@ def halfcrane_2sticks(n_steps = 10, dx = 1.5):
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
     #cp.show_iter = True
     X = cp.solve(X)
 
@@ -201,8 +201,8 @@ def halfcrane_2sticks_bar(n_steps = 10, dx = 1.5):
     X *= 1
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
     #cp.show_iter = True
     X = cp.solve(X)
 
@@ -482,8 +482,8 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
     X0 *= 1
 
     np.set_printoptions(threshold = 'nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -679,8 +679,8 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
     X0 *= 1
 
     np.set_printoptions(threshold = 'nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -931,8 +931,8 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
 
     X0 *= 0.01
     #np.set_printoptions(threshold='nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs

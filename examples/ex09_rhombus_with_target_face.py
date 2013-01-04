@@ -55,7 +55,7 @@ class GT(HasTraits):
 #        y2 = ((x - Lx / 2) / Lx / 2) * fn_x(y)
 #        x2 = ((x - Lx / 2) / Lx / 2) * fn_x(x)
 
-        return np.c_[x, y + y2, z]
+        return np.c_[x, y, z]
 
 if __name__ == '__main__':
 

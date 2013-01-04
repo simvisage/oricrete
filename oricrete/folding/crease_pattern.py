@@ -18,6 +18,10 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 
 import numpy as np
 
+from equality_constraint import \
+    IEqualityConstraint, ConstantLength, GrabPoints, \
+    PointsOnLine, PointsOnSurface, DofConstraints
+
 from scipy.optimize import fmin_slsqp
 
 class CreasePattern(HasTraits):
@@ -76,7 +80,7 @@ class CreasePattern(HasTraits):
     # first index gives node, second gives the facet 
     grab_pts = List()
 
-    # points movable only on a crease line [n,cl]
+    # nodes movable only on a crease line [n,cl]
     # first index gives the node, second the crease line
     line_pts = List()
 
@@ -85,9 +89,9 @@ class CreasePattern(HasTraits):
     # stored in the constrained_x array
     #
     # define the constraint in the form
-    # crrs_lhs = [ [(node_1, dir_1, coeff_1),(node_2, dir_2, coeff_2)], # first constraint
+    # cnstr_lhs = [ [(node_1, dir_1, coeff_1),(node_2, dir_2, coeff_2)], # first constraint
     #              [(node_i, dir_i, coeff_i)], # second constraint
-    # ctrs_rhs = [ value_first, velue_second ]
+    # cnstr_rhs = [ value_first, velue_second ]
     # 
     # left-hand side coefficients of the constraint equations 
     cnstr_lhs = List()
@@ -168,33 +172,164 @@ class CreasePattern(HasTraits):
         c = self.c_vectors
         return np.sqrt(np.sum(c ** 2, axis = 1))
 
-    grab_pts_L = Property(Array, depends_on = 'nodes, facets, grab_pts')
+    #===========================================================================
+    # Equality constraints
+    #===========================================================================
+    equality_constraints = List(IEqualityConstraint)
+    def _equality_constraints_default(self):
+        return [ConstantLength(cp = self),
+                GrabPoints(cp = self),
+                PointsOnLine(cp = self),
+                PointsOnSurface(cp = self),
+                DofConstraints(cp = self)
+                ]
+
+    def get_G(self, u_vct, t = 0):
+        G_lst = [ eq_cnstr.get_G(u_vct, t) for eq_cnstr in self.equality_constraints ]
+        return np.hstack(G_lst)
+
+    def get_G_t(self, u_vct):
+        return self.get_G(u_vct, self.t)
+
+    def get_G_du(self, u_vct, t = 0):
+        G_dx_lst = [ eq_cnstr.get_G_du(u_vct, t) for eq_cnstr in self.equality_constraints ]
+        return np.vstack(G_dx_lst)
+
+    def get_G_du_t(self, X_vct):
+        return self.get_G_du(X_vct, self.t)
+
+    #===========================================================================
+    # Goal function
+    #===========================================================================
+    def get_f(self, x, t = 0):
+        # build dist-vektor for all caf
+        x = x.reshape(self.n_n, self.n_d)
+        X = self.get_new_nodes(x)
+        d_arr = np.array([])
+        for caf, nodes in self.tf_lst:
+            caf.X_arr = X[nodes]
+            caf.t = t
+            d_arr = np.append(d_arr, caf.d_arr)
+
+        return np.linalg.norm(d_arr)
+
+    def get_f_t(self, x):
+        return self.get_f(x, self.t)
+
+    #===========================================================================
+    # Distance derivative with respect to change in nodal coords.
+    #===========================================================================
+    def get_f_du(self, x, t = 0):
+        # build dist-vektor for all caf
+        x = x.reshape(self.n_n, self.n_d)
+        d_xyz = np.zeros_like(x)
+        X = self.get_new_nodes(x)
+        dist_arr = np.array([])
+        for caf, nodes in self.tf_lst:
+            caf.X_arr = X[nodes]
+            caf.t = t
+            d_arr = caf.d_arr
+            dist_arr = np.append(dist_arr, d_arr)
+            d_xyz[nodes] = caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
+
+        dist_norm = np.linalg.norm(dist_arr)
+        d_xyz[ np.isnan(d_xyz)] = 0.0
+        return d_xyz.flatten() / dist_norm
+
+    def get_f_du_t(self, x):
+        return self.get_f_du(x, self.t)
+
+    #===========================================================================
+    # Solver parameters
+    #===========================================================================
+    n_steps = Int(1, auto_set = False, enter_set = True)
+
+    t_arr = Property(depends_on = 'n_steps')
     @cached_property
-    def _get_grab_pts_L(self):
+    def _get_t_arr(self):
+        return np.linspace(1. / self.n_steps, 1., self.n_steps)
+
+    show_iter = Bool(False, auto_set = False, enter_set = True)
+
+    MAX_ITER = Int(100, auto_set = False, enter_set = True)
+
+    #===========================================================================
+    # Solver dispatcher
+    #===========================================================================
+    def solve(self, X0):
+        '''Solve the problem with the appropriate solver
         '''
-            Calculates the L vector for the Barycentric coordinates
-            Trick: assuming a tetraheder with fourth point on [ 0, 0, -1],
-                   if the grabpoint is choosen correctly (laying in the plane of the facet)
-                   L4 will be 0
+        if(len(self.tf_lst) > 0):
+            return self._solve_fmin(X0)
+        else:
+            return self._solve_nr(X0)
+
+    def _solve_nr(self, X0, acc = 1e-4):
+        '''Find the solution using the Newton-Raphson procedure.
         '''
-        n = self.nodes
-        f = self.facets
+        # make a copy of the start vector
+        X = np.copy(X0)
 
-        x4 = np.array([0, 0, -1])
-        L = np.array([])
+        # Newton-Raphson iteration
+        MAX_ITER = self.MAX_ITER
 
-        for i in self.grab_pts:
-            f_i = i[1] #actual facet index
-            T = np.c_[n[f[f_i][0]] - x4, n[f[f_i][1]] - x4]
-            T = np.c_[T, n[f[f_i][2]] - x4]
-            Tinv = np.linalg.inv(T)
+        for t in self.t_arr:
+            print 'step', t,
 
-            x = n[i[0]] - x4
-            Li = np.dot(Tinv, x)
-            L = np.append(L, Li)
+            i = 0
 
-        L = L.reshape(-1, 3)    # gives L1,L2,L3 for each grabpoint
-        return L
+            while i <= MAX_ITER:
+                dR = self.get_G_du(X, t)
+                R = self.get_G(X, t)
+                nR = np.linalg.norm(R)
+                if nR < acc:
+                    print '==== converged in ', i, 'iterations ===='
+                    self.add_fold_step(X)
+                    break
+                try:
+                    dX = np.linalg.solve(dR, -R)
+
+                    X += dX
+                    if self.show_iter:
+                        self.add_fold_step(X)
+                    i += 1
+                except Exception as inst:
+                    print '==== problems solving linalg in interation step %d  ====' % i
+                    print '==== Exception message: ', inst
+                    self.add_fold_step(X)
+                    return X
+            else:
+                print '==== did not converge in %d interations ====' % i
+                return X
+
+        return X
+
+    def _solve_fmin(self, X0, acc):
+        '''Solve the problem using the
+        Sequential Least Square Quadratic Programming method.
+        '''
+        print '==== solving with SLSQP optimization ===='
+        d0 = self.get_f(X0)
+        eps = d0 * 1e-4
+        X = X0
+        for step, time in enumerate(self.t_arr):
+            print 'step', step,
+            self.t = time
+            info = fmin_slsqp(self.get_f_t, X,
+                           fprime = self.get_f_du_t,
+                           f_eqcons = self.get_G_t, fprime_eqcons = self.get_G_du_t,
+                           acc = acc, iter = self.MAX_ITER,
+                           iprint = 0,
+                           full_output = True,
+                           epsilon = eps)
+            X, f, n_iter, imode, smode = info
+            X = np.array(X)
+            self.add_fold_step(X)
+            if imode == 0:
+                print '(time: %g, iter: %d, f: %g)' % (time, n_iter, f)
+            else:
+                print '(time: %g, %s)' % (time, smode)
+                break
 
     #===============================================================================
     # Verification procedures to check the compliance with the constant length criteria. 
@@ -222,430 +357,8 @@ class CreasePattern(HasTraits):
         return np.sqrt(np.sum(cV ** 2, axis = 1))
 
     #===============================================================================
-    # Get the predictor and corrector.
-    #===============================================================================
-
-    def get_length_R(self, X_vct):
-        ''' Calculate the residuum for constant crease length
-        given the fold vector dX.
-        '''
-        j = self.crease_lines[:, 1]
-        i = self.crease_lines[:, 0]
-
-#        X_vct[ self.cnstr_dofs ] = self.constraint_values
-        X = X_vct.reshape(self.n_n, self.n_d)
-        Xj = X[j]
-        Xi = X[i]
-
-        CXi = np.sum(self.c_vectors * Xi, axis = 1)
-        CXj = np.sum(self.c_vectors * Xj, axis = 1)
-
-        Xij = np.sum(Xi * Xj, axis = 1)
-        Xii = np.sum(Xi ** 2, axis = 1)
-        Xjj = np.sum(Xj ** 2, axis = 1)
-        R = 2 * CXj - 2 * CXi - 2 * Xij + Xii + Xjj
-
-        return R
-
-    def get_length_dR(self, X_vct):
-        ''' Calculate the jacobian of the residuum at the instantaneous
-        configuration dR
-        '''
-        i = self.crease_lines[:, 0]
-        j = self.crease_lines[:, 1]
-
-        X = X_vct.reshape(self.n_n, self.n_d)
-        Xj = X[j]
-        Xi = X[i]
-
-        dR_i = -2 * self.c_vectors + 2 * Xi - 2 * Xj
-        dR_j = 2 * self.c_vectors + 2 * Xj - 2 * Xi
-
-        dR = np.zeros((self.n_c, self.n_n, self.n_d), dtype = 'float_')
-
-        # running crease line index
-        if self.n_c > 0:
-            cidx = np.arange(self.n_c)
-
-            dR[ cidx, i, : ] += dR_i
-            dR[ cidx, j, : ] += dR_j
-
-        # reshape the 3D matrix to a 2D matrix 
-        # with rows for crease lines and columns representing 
-        # the derivatives with respect to the node displacements
-        # in 3d.
-        # 
-        dR = dR.reshape(self.n_c, self.n_n * self.n_d)
-        return dR
-
-    def get_line_R(self, X_vct):
-        line = np.array(self.line_pts)
-        if(len(line) == 0):
-            return []
-        cl = self.crease_lines[line[:, 1]]
-        X = X_vct.reshape(self.n_n, self.n_d)
-        p0 = self.nodes[line[:, 0]]
-        p1 = self.nodes[cl[:, 0]]
-        p2 = self.nodes[cl[:, 1]]
-        dp0 = X[line[:, 0]]
-        dp1 = X[cl[:, 0]]
-        dp2 = X[cl[:, 1]]
-
-        # @todo [Matthias] - this can be written in a more compact way.
-        # this must be self-explaining !
-        Rx = (p0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              dp0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              p1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              dp1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              p2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
-              dp2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
-        Ry = (p0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
-              dp0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
-              p1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
-              dp1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
-              p2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]) +
-              dp2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]))
-        Rz = (p0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              dp0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              p1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              dp1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              p2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
-              dp2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
-
-        R = np.zeros((len(Rx) * 2,))
-
-        # @todo: [Matthias] - what are these cases for? PEP8
-        for i in range(len(Rx)):
-            if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
-                R[i * 2] = Ry[i]
-                R[i * 2 + 1] = Rx[i]
-            elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
-                R[i * 2] = Rx[i]
-                R[i * 2 + 1] = Rz[i]
-            else:
-                R[i * 2] = Rx[i]
-                R[i * 2 + 1] = Ry[i]
-
-        return R.reshape((-1,))
-
-    def get_line_dR(self, X_vct):
-        ''' Calculate the jacobian of the residuum at the instantaneous
-        configuration dR
-        '''
-        line = np.array(self.line_pts)
-        if(len(line) == 0):
-            return np.zeros((self.n_l * 2, self.n_dofs))
-        cl = self.crease_lines[line[:, 1]]
-        X = X_vct.reshape(self.n_n, self.n_d)
-        p0 = self.nodes[line[:, 0]]
-        p1 = self.nodes[cl[:, 0]]
-        p2 = self.nodes[cl[:, 1]]
-        dp0 = X[line[:, 0]]
-        dp1 = X[cl[:, 0]]
-        dp2 = X[cl[:, 1]]
-        dR = np.zeros((len(line) * 2, self.n_dofs))
-
-        for i in range(len(line)):
-            if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
-                dR1 = self.get_line_dRf2(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
-                dR2 = self.get_line_dRf3(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
-            elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
-                dR1 = self.get_line_dRf1(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
-                dR2 = self.get_line_dRf3(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
-            else:
-                dR1 = self.get_line_dRf1(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
-                dR2 = self.get_line_dRf2(p0[i], p1[i], p2[i], dp0[i], dp1[i], dp2[i], line[i], cl[i])
-            dR[i * 2] = dR1
-            dR[i * 2 + 1] = dR2
-
-        return dR
-
-    def get_line_dRf1(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
-        dfdx0 = p2[2] + dp2[2] - p1[2] - dp1[2]
-        dfdx1 = p0[2] + dp0[2] - p2[2] - dp2[2]
-        dfdx2 = p1[2] + dp1[2] - p0[2] - dp0[2]
-
-        dfdz0 = p1[0] + dp1[0] - p2[0] - dp2[0]
-        dfdz1 = p2[0] + dp2[0] - p0[0] - dp0[0]
-        dfdz2 = p0[0] + dp0[0] - p1[0] - dp1[0]
-
-        dR = np.zeros((1, self.n_dofs))
-        dR[0, line[0] * 3] = dfdx0
-        dR[0, line[0] * 3 + 2] = dfdz0
-        dR[0, cl[0] * 3] = dfdx1
-        dR[0, cl[0] * 3 + 2] = dfdz1
-        dR[0, cl[1] * 3] = dfdx2
-        dR[0, cl[1] * 3 + 2] = dfdz2
-
-        return dR
-
-    def get_line_dRf2(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
-        dfdy0 = p2[2] + dp2[2] - p1[2] - dp1[2]
-        dfdy1 = p0[2] + dp0[2] - p2[2] - dp2[2]
-        dfdy2 = p1[2] + dp1[2] - p0[2] - dp0[2]
-
-        dfdz0 = p1[1] + dp1[1] - p2[1] - dp2[1]
-        dfdz1 = p2[1] + dp2[1] - p0[1] - dp0[1]
-        dfdz2 = p0[1] + dp0[1] - p1[1] - dp1[1]
-
-        dR = np.zeros((1, self.n_dofs))
-
-        dR[0, line[0] * 3 + 1] = dfdy0
-        dR[0, line[0] * 3 + 2] = dfdz0
-        dR[0, cl[0] * 3 + 1] = dfdy1
-        dR[0, cl[0] * 3 + 2] = dfdz1
-        dR[0, cl[1] * 3 + 1] = dfdy2
-        dR[0, cl[1] * 3 + 2] = dfdz2
-
-        return dR
-
-    def get_line_dRf3(self, p0, p1, p2, dp0, dp1, dp2, line, cl):
-        dfdx0 = p2[1] + dp2[1] - p1[1] - dp1[1]
-        dfdx1 = p0[1] + dp0[1] - p2[1] - dp2[1]
-        dfdx2 = p1[1] + dp1[1] - p0[1] - dp0[1]
-
-        dfdy0 = p1[0] + dp1[0] - p2[0] - dp2[0]
-        dfdy1 = p2[0] + dp2[0] - p0[0] - dp0[0]
-        dfdy2 = p0[0] + dp0[0] - p1[0] - dp1[0]
-
-        dR = np.zeros((1, self.n_dofs))
-        dR[0, line[0] * 3] = dfdx0
-        dR[0, line[0] * 3 + 1] = dfdy0
-        dR[0, cl[0] * 3] = dfdx1
-        dR[0, cl[0] * 3 + 1] = dfdy1
-        dR[0, cl[1] * 3] = dfdx2
-        dR[0, cl[1] * 3 + 1] = dfdy2
-
-        return dR
-
-    def get_cnstr_R(self, X_vct, t):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        X = X_vct.reshape(self.n_n, self.n_d)
-        Rc = np.zeros((len(self.cnstr_lhs),))
-        for i, cnstr in enumerate(self.cnstr_lhs):
-            for n, d, c in cnstr:
-                Rc[i] += c * X[n, d] - (self.cnstr_rhs[i] * t)
-        return Rc
-
-    def get_cnstr_dR(self, X_vct, t = 0.0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        dRc = np.zeros((len(self.cnstr_lhs), self.n_dofs))
-        for i, cnstr in enumerate(self.cnstr_lhs):
-            for n, d, c in cnstr:
-                dof = 3 * n + d
-                dRc[i, dof] += c
-        return dRc
-
-    def get_cnstr_R_ff(self, dX_vct, t = 0.0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        X = self.nodes + dX_vct.reshape(self.n_n, self.n_d)
-        Rf = np.zeros((self.n_c_ff,), dtype = 'float_')
-
-        i = 0
-        for ff, nodes in self.cf_lst:
-            for n in nodes:
-                x, y, z = X[n]
-                Rf[i] = ff.Rf(x, y, z, t)
-                i += 1
-
-        return Rf
-
-    def get_cnstr_dR_ff(self, dX_vct, t = 0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        X = self.nodes + dX_vct.reshape(self.n_n, self.n_d)
-        dRf = np.zeros((self.n_c_ff, self.n_dofs), dtype = 'float_')
-
-        i = 0
-        for ff, nodes in self.cf_lst:
-            for n in nodes:
-                x, y, z = X[n]
-                dof = 3 * n
-                dRf[i, (dof, dof + 1, dof + 2) ] = ff.dRf(x, y, z, t)
-                i += 1
-
-        return dRf
-
-    def get_grab_R(self):
-        return np.zeros(self.n_g * self.n_d,)
-
-    def get_grab_dR(self):
-        grab_lines = np.zeros((self.n_g * self.n_d, self.n_dofs))
-        for i in range(len(self.grab_pts)):
-            facet = self.facets[self.grab_pts[i][1]]
-            c = 0
-            for q in facet:
-                grab_lines[i * 3, q * 3] = self.grab_pts_L[i][c]
-                grab_lines[i * 3 + 1, q * 3 + 1] = self.grab_pts_L[i][c]
-                grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][c]
-                c += 1
-
-            grab_lines[i * 3, self.grab_pts[i][0] * 3 ] = -1
-            grab_lines[i * 3 + 1, self.grab_pts[i][0] * 3 + 1 ] = -1
-            grab_lines[i * 3 + 2, self.grab_pts[i][0] * 3 + 2 ] = -1
-
-        return grab_lines
-
-    def get_R(self, X_vct, t = 0):
-        R = np.hstack([self.get_length_R(X_vct),
-                          self.get_cnstr_R(X_vct, t),
-                          self.get_cnstr_R_ff(X_vct, t),
-                          self.get_grab_R(),
-                          self.get_line_R(X_vct)
-                          ])
-        return R
-
-    def get_R_t(self, X_vct):
-        return self.get_R(X_vct, self.t)
-
-    def get_dR(self, X_vct, t = 0):
-        dR_l = self.get_length_dR(X_vct)
-        dR_fc = self.get_cnstr_dR(X_vct, t)
-        dR_ff = self.get_cnstr_dR_ff(X_vct, t)
-        dR_gp = self.get_grab_dR()
-        dR_lp = self.get_line_dR(X_vct)
-
-        dR = np.vstack([dR_l, dR_fc, dR_ff, dR_gp, dR_lp ])
-        return dR
-
-    def get_dR_t(self, X_vct):
-        return self.get_dR(X_vct, self.t)
-
-    def get_dist_norm(self, x, t = 0):
-        # build dist-vektor for all caf
-        x = x.reshape(self.n_n, self.n_d)
-        X = self.get_new_nodes(x)
-        d_arr = np.array([])
-        for caf, nodes in self.tf_lst:
-            caf.X_arr = X[nodes]
-            caf.t = t
-            d_arr = np.append(d_arr, caf.d_arr)
-
-        return np.linalg.norm(d_arr)
-
-    def get_dist_norm_t(self, x):
-        return self.get_dist_norm(x, self.t)
-
-    #===========================================================================
-    # Distance derivative with respect to change in nodal coords.
-    #===========================================================================
-    def get_d_dist_norm_x(self, x, t = 0):
-        # build dist-vektor for all caf
-        x = x.reshape(self.n_n, self.n_d)
-        d_xyz = np.zeros_like(x)
-        X = self.get_new_nodes(x)
-        dist_arr = np.array([])
-        for caf, nodes in self.tf_lst:
-            caf.X_arr = X[nodes]
-            caf.t = t
-            d_arr = caf.d_arr
-            dist_arr = np.append(dist_arr, d_arr)
-            d_xyz[nodes] = caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
-
-        dist_norm = np.linalg.norm(dist_arr)
-        d_xyz[ np.isnan(d_xyz)] = 0.0
-        return d_xyz.flatten() / dist_norm
-
-    def get_d_dist_norm_x_t(self, x):
-        return self.get_d_dist_norm_x(x, self.t)
-
-    t_arr = Property(depends_on = 'n_steps')
-    @cached_property
-    def _get_t_arr(self):
-        return np.linspace(1. / self.n_steps, 1., self.n_steps)
-
-    show_iter = Bool(False, auto_set = False, enter_set = True)
-
-    MAX_ITER = Int(100, auto_set = False, enter_set = True)
-
-    #===========================================================================
-    # Solver dispatcher
-    #===========================================================================
-    def solve(self, X0):
-        '''Solve the problem with the appropriate solver
-        '''
-        if(len(self.tf_lst) > 0):
-            return self._solve_fmin(X0)
-        else:
-            return self._solve_nr(X0)
-
-    #===========================================================================
-    # Folding algorithm - Newton-Raphson
-    #===========================================================================
-    def _solve_nr(self, X0, acc = 1e-4):
-        '''Find the solution using the Newton-Raphson procedure.
-        '''
-        # make a copy of the start vector
-        X = np.copy(X0)
-
-        # Newton-Raphson iteration
-        MAX_ITER = self.MAX_ITER
-
-        for t in self.t_arr:
-            print 'step', t,
-
-            i = 0
-
-            while i <= MAX_ITER:
-                dR = self.get_dR(X, t)
-                R = self.get_R(X, t)
-                nR = np.linalg.norm(R)
-                if nR < acc:
-                    print '==== converged in ', i, 'iterations ===='
-                    self.add_fold_step(X)
-                    break
-                try:
-                    dX = np.linalg.solve(dR, -R)
-
-                    X += dX
-                    if self.show_iter:
-                        self.add_fold_step(X)
-                    i += 1
-                except Exception as inst:
-                    print '==== problems solving linalg in interation step %d  ====' % i
-                    print '==== Exception message: ', inst
-                    self.add_fold_step(X)
-                    return X
-            else:
-                print '==== did not converge in %d interations ====' % i
-                return X
-
-        return X
-
-    def _solve_fmin(self, X0):
-        '''Solve the problem using the
-        Sequential Least Square Quadratic Programming method.
-        '''
-        print '==== solving with SLSQP optimization ===='
-        d0 = self.get_dist_norm(X0)
-        eps = d0 * 1e-4
-        X = X0
-        for step, time in enumerate(self.t_arr):
-            print 'step', step,
-            self.t = time
-            info = fmin_slsqp(self.get_dist_norm_t, X,
-                           fprime = self.get_d_dist_norm_x_t,
-                           f_eqcons = self.get_R_t, fprime_eqcons = self.get_dR_t,
-                           acc = 1e-5, iter = self.MAX_ITER,
-                           iprint = 0,
-                           full_output = True,
-                           epsilon = eps)
-            X, fx, n_iter, imode, smode = info
-            X = np.array(X)
-            self.add_fold_step(X)
-            if imode == 0:
-                print '(time: %g, iter: %d, fx: %g)' % (time, n_iter, fx)
-            else:
-                print '(time: %g, %s)' % (time, smode)
-                break
-
-    #===============================================================================
     # methods and Information for Abaqus calculation
     #===============================================================================
-
     aligned_facets = Property(depends_on = 'facets')
     @cached_property
     def _get_aligned_facets(self):
@@ -872,18 +585,18 @@ if __name__ == '__main__':
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
                     , 1.0, 0.0, 0.0]
 
-    X = np.zeros((cp.n_dofs,), dtype = float)
-    X[1] = 0.01
+    u = np.zeros((cp.n_dofs,), dtype = float)
+    u[1] = 0.01
 
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial G\n', cp.get_G(u)
+    print 'initial dG\n', cp.get_G_du(u)
 
-    X = cp.solve(X)
+    u = cp.solve(u)
 
     print '========== results =============='
-    print 'solution X\n', X
-    print 'final positions\n', cp.get_new_nodes(X)
-    print 'final vectors\n', cp.get_new_vectors(X)
-    print 'final lengths\n', cp.get_new_lengths(X)
+    print 'solution u\n', u
+    print 'final positions\n', cp.get_new_nodes(u)
+    print 'final vectors\n', cp.get_new_vectors(u)
+    print 'final lengths\n', cp.get_new_lengths(u)

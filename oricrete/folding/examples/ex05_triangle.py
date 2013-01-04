@@ -74,8 +74,8 @@ def triangle_cp_cnstr(n_steps = 10, dx = -0.3299999999999):
 
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial G_du\n', cp.get_G_du(X)
 
 #    X = cp.solve(X)
 
@@ -130,8 +130,8 @@ def triangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial G_du\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
@@ -190,8 +190,8 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial G_du\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
@@ -274,8 +274,8 @@ def small_rhombus_grab_points(n_steps = 10, dx = 0.3333):
     X0[23] = 0.000167                # ! Anfangskonfiguration nicht zu ausgepraegt 
     X0[26] = 0.000167               #   waehle, grabpoints werden sonst abgehaengt
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -353,8 +353,8 @@ def small_rhombus_grab_stick(n_steps = 10, dx = 1.0):
     X0[23] = 0.000167               # ! Anfangskonfiguration nicht zu ausgepraegt 
     X0[26] = 0.000167               #   waehlen, grabpoints werden sonst abgehaengt
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -477,8 +477,8 @@ def two_rhombus_grab_points(n_steps = 10, dx = 1.0):
     X0[38] = 0.002083
     X0[41] = 0.002083               #   waehle, grabpoints werden sonst abgehaengt
     X0 *= 1
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -660,8 +660,8 @@ def rhombus_2x2_grab_points(n_steps = 10, dx = 1.0):
     X0 *= 1
 
     np.set_printoptions(threshold = 'nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -883,8 +883,8 @@ def rhombus_2x3_grab_points(n_steps = 10, dx = 1.0):
     X0 *= 1
 
    # np.set_printoptions(threshold='nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -1023,8 +1023,8 @@ def rhombus_3x1_grab_points(n_steps = 10, dx = 1.5):
     X0 *= 1
 
     # np.set_printoptions(threshold='nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -1132,8 +1132,8 @@ def rhombus_3x2_grab_points(n_steps = 10, dx = 1.5):
     X0[101] = 0.3059
 
     X0 *= 0.01
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -1241,8 +1241,8 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
     X0[101] = 0.3059
 
     X0 *= 0.01
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
