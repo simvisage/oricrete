@@ -53,14 +53,14 @@ if __name__ == '__main__':
 
     cp.cnstr_rhs = [0.0, 0.0, 0.0, ]# 0, 0, 0, ]
 
-    cp.cnstr_caf = [(caf, [1, 2, 3, 4, 5, 6])]
+    cp.tf_lst = [(caf, [1, 2, 3, 4, 5, 6])]
 
     x0 = np.zeros((cp.n_dofs), dtype = float)
 
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
-    print 'initial R\n', cp.get_R(x0)
-    print 'initial dR\n', cp.get_dR(x0)
+    print 'initial G\n', cp.get_G(x0)
+    print 'initial G_du\n', cp.get_G_du(x0)
 
     cp.solve(x0)
 

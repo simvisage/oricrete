@@ -266,8 +266,8 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.5):
     X0 *= 0.1000
 
     #np.set_printoptions(threshold='nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -1192,11 +1192,11 @@ def rhombus_3x2_fixed_sticks(n_steps = 10, dx = 1.5):
 
     X0 *= 0.01
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
     #np.set_printoptions(threshold='nan')
     #sf = SingularityFinder()
-    #sf.singul_test(cp.get_dR(X0))
+    #sf.singul_test(cp.get_G_du(X0))
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
@@ -1304,13 +1304,12 @@ def rhombus_3x2_fixed_sticks_2(n_steps = 10, dx = 0.5):
 
     X0 *= 0.01
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
     #np.set_printoptions(threshold='nan')
     #sf = SingularityFinder()
-    #sf.singul_test(cp.get_dR(X0))
+    #sf.singul_test(cp.get_G_du(X0))
 
-    print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
     print 'n_g', cp.n_g
@@ -1444,8 +1443,8 @@ def rhombus_3x2_y_fixed(n_steps = 10, dx = 1.0):
 
     X0 *= 0.01
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -1540,11 +1539,11 @@ def rhombus_3x3_fixed_sticks(n_steps = 10, dx = 0.5):
 
     X0 *= 0.01
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
     #np.set_printoptions(threshold='nan')
     #sf = SingularityFinder()
-    #sf.singul_test(cp.get_dR(X0))
+    #sf.singul_test(cp.get_G_du(X0))
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
@@ -1641,8 +1640,8 @@ def rhombus_3x2_moveable_sticks(n_steps = 10, dx = 0.5):
 
     X0 *= 0.01
 
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
+    print 'dR', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
 
     print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs

@@ -46,11 +46,11 @@ if __name__ == '__main__':
     cp.cnstr_rhs = [0.0, 0.0, 0.0, 0, 0, 0]
 
     x0 = np.zeros((cp.n_dofs), dtype = float)
-    
+
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
-    print 'initial R\n', cp.get_R(x0)
-    print 'initial dR\n', cp.get_dR(x0)
+    print 'initial G\n', cp.get_G(x0)
+    print 'initial G_du\n', cp.get_G_du(x0)
 
     def f(x):
         x = x.reshape(cp.n_n, cp.n_d)
@@ -62,13 +62,13 @@ if __name__ == '__main__':
     d0 = f(x0)
     eps = d0 * 1e-4
 
-    x_sol = fmin_slsqp(f, x0, f_eqcons = cp.get_R, fprime_eqcons = cp.get_dR, acc = 1e-8,
+    x_sol = fmin_slsqp(f, x0, f_eqcons = cp.get_G, fprime_eqcons = cp.get_G_du, acc = 1e-8,
                        epsilon = eps)
 
     print 'x_sol', x_sol
 
     print 'dist', f(x_sol)
-    print 'R', cp.get_R(x_sol)
+    print 'G', cp.get_G(x_sol)
     print 'lengths', cp.get_new_lengths(x_sol)
     print 'nodes', cp.get_new_nodes(x_sol)
 

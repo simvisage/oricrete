@@ -1244,7 +1244,6 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
     print 'G_du', cp.get_G_du(X0)
     print 'R', cp.get_G(X0)
 
-    print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
     print 'n_g', cp.n_g

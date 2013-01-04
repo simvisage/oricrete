@@ -304,7 +304,7 @@ class CreasePattern(HasTraits):
 
         return X
 
-    def _solve_fmin(self, X0, acc):
+    def _solve_fmin(self, X0, acc = 1e-4):
         '''Solve the problem using the
         Sequential Least Square Quadratic Programming method.
         '''

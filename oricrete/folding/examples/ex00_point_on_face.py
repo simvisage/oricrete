@@ -29,8 +29,6 @@ if __name__ == '__main__':
 
     X0 = np.zeros((cp.n_dofs,), dtype = float)
 
-    print 'R_ff', cp.get_cnstr_R_ff(X0, 1)
-    print 'dR_ff', cp.get_cnstr_dR_ff(X0, 0)
     print 'X ff final', cp.solve(X0)
 
     cpv = CreasePatternView(data = cp, show_cnstr = True)

@@ -55,8 +55,8 @@ def moving_truss_cp_cnstr(n_steps = 10, dx = -1.99):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
@@ -92,8 +92,8 @@ def moving_truss_cp_ff(n_steps = 10, dx = -1.99):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
@@ -133,8 +133,8 @@ def moving_truss_cp_ff_cnstr(n_steps = 10, dx = -1.99):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
@@ -179,8 +179,8 @@ def moving_truss_cp_circle(n_steps = 40):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
@@ -208,16 +208,16 @@ def moving_truss_cp_square(n_steps = 40):
 #    face_x_1_t = CF(Rf = x_ - 1.0 + 1.99 * t_)
 #    argument =  2*3.14159*t_   
 #    face_x_1_t = CF(Rf = y_ + 3 + sp.sin(argument))
-    face_x_1_t = CF(Rf = y_ - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
-                    + 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3) 
-                    + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5) 
-                    - 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7))
-    
-    face_y_1_t = CF(Rf = x_ + 1.0 * t_ * sp.Heaviside(t_) 
-                    - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1) 
-                    - 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3) 
+    face_x_1_t = CF(Rf = y_ - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1)
+                    + 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3)
                     + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5)
-                    + 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7) 
+                    - 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7))
+
+    face_y_1_t = CF(Rf = x_ + 1.0 * t_ * sp.Heaviside(t_)
+                    - 1.0 * (t_ - 1) * sp.Heaviside(t_ - 1)
+                    - 1.0 * (t_ - 3) * sp.Heaviside(t_ - 3)
+                    + 1.0 * (t_ - 5) * sp.Heaviside(t_ - 5)
+                    + 1.0 * (t_ - 7) * sp.Heaviside(t_ - 7)
                     - 1.0 * (t_ - 8) * sp.Heaviside(t_ - 8))
 # +3.14159/2.0    
 #    face_x_1_t = CF(Rf = y_ - 1.99 * t_)
@@ -234,8 +234,8 @@ def moving_truss_cp_square(n_steps = 40):
     print 'initial lengths\n', cp.c_lengths
     print 'initial vectors\n', cp.c_vectors
 
-    print 'initial R\n', cp.get_R(X)
-    print 'initial dR\n', cp.get_dR(X)
+    print 'initial R\n', cp.get_G(X)
+    print 'initial dR\n', cp.get_G_du(X)
 
     X = cp.solve(X)
 
