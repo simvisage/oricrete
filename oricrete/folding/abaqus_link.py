@@ -24,7 +24,8 @@ import scipy as sp
 class AbaqusLink(HasTraits):
     origin_nodes = Array(value = [], dtype = float, geometry = True)
     origin_facets = Array(value = [], dtype = 'int_', geometry = True)
-    n_splits = Int(2, geometry = True)
+    origin_cl = Array(value = [], dtype = 'int_', geometry = True)
+    n_split = Int(2, geometry = True)
     
     nodes = Property
     def get_nodes(self):
@@ -37,7 +38,21 @@ class AbaqusLink(HasTraits):
     _geometry = Property(depends_on = '+geometry')
     @cached_property
     def _get__geometry(self):
-        pass
+        L = 1 / self.n_split
+        inner_nodes = np.array([])
+        facets = np.array([])
+        crease_line_nodes = np.array([])
+        for f in self.origin_facets:
+            #build inner nodes
+            #build inner facets 
+            pass
+        for cl in self.origin_cl:
+            #build cl nodes
+            #build outer facets
+            
+        #add origin nodes with new nodes
+        
+        return
 
 if __name__ == '__main__':
     points = np.array([[0, 1, 0],
