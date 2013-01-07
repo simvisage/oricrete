@@ -500,7 +500,7 @@ class Unfoldability(EqualityConstraint):
 
                 coeff = -1 / np.sqrt(1 - gamma)
                 theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
-                theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) ** 3 * (bb))
+                theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) * (bb) ** 3)
 
                 a_idx = n[left] * self.n_d
                 b_idx = n[right] * self.n_d
