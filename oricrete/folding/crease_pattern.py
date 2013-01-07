@@ -14,7 +14,7 @@
 
 from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
     Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
-    List, Float
+    List, Dict, Str
 
 import numpy as np
 
@@ -175,24 +175,30 @@ class CreasePattern(HasTraits):
     #===========================================================================
     # Equality constraints
     #===========================================================================
-    equality_constraints = List(IEqualityConstraint)
-    def _equality_constraints_default(self):
-        return [ConstantLength(cp = self),
-                GrabPoints(cp = self),
-                PointsOnLine(cp = self),
-                PointsOnSurface(cp = self),
-                DofConstraints(cp = self)
-                ]
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                'cl' : ConstantLength(cp = self),
+                'gp' : GrabPoints(cp = self),
+                'pl' : PointsOnLine(cp = self),
+                'ps' : PointsOnSurface(cp = self),
+                'dc' : DofConstraints(cp = self)
+                }
+
+    eqcons_lst = Property(depends_on = 'eqcons')
+    @cached_property
+    def _get_eqcons_lst(self):
+        return self.eqcons.values()
 
     def get_G(self, u_vct, t = 0):
-        G_lst = [ eq_cnstr.get_G(u_vct, t) for eq_cnstr in self.equality_constraints ]
+        G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
         return np.hstack(G_lst)
 
     def get_G_t(self, u_vct):
         return self.get_G(u_vct, self.t)
 
     def get_G_du(self, u_vct, t = 0):
-        G_dx_lst = [ eq_cnstr.get_G_du(u_vct, t) for eq_cnstr in self.equality_constraints ]
+        G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
         return np.vstack(G_dx_lst)
 
     def get_G_du_t(self, X_vct):
@@ -256,13 +262,13 @@ class CreasePattern(HasTraits):
     #===========================================================================
     # Solver dispatcher
     #===========================================================================
-    def solve(self, X0):
+    def solve(self, X0, acc = 1e-4):
         '''Solve the problem with the appropriate solver
         '''
         if(len(self.tf_lst) > 0):
-            return self._solve_fmin(X0)
+            return self._solve_fmin(X0, acc)
         else:
-            return self._solve_nr(X0)
+            return self._solve_nr(X0, acc)
 
     def _solve_nr(self, X0, acc = 1e-4):
         '''Find the solution using the Newton-Raphson procedure.
@@ -328,8 +334,9 @@ class CreasePattern(HasTraits):
             if imode == 0:
                 print '(time: %g, iter: %d, f: %g)' % (time, n_iter, f)
             else:
-                print '(time: %g, %s)' % (time, smode)
+                print '(time: %g, iter: %d, f: %g, %s)' % (time, n_iter, f, smode)
                 break
+        return X
 
     #===============================================================================
     # Verification procedures to check the compliance with the constant length criteria. 
@@ -415,6 +422,8 @@ class CreasePattern(HasTraits):
         return (pts_l, con_l, pts_p, faces_p)
 
     def get_line_position(self, i):
+        ''' @todo: [Matthias] comment '''
+
         if(len(self.line_pts) == 0):
             print ' NO LINE POINTS'
             return
@@ -447,6 +456,7 @@ class CreasePattern(HasTraits):
             print 'Step ', p, ': r = ', r
 
     def create_rcp_tex(self, name = 'rcp_output.tex', x = 15., y = 15.):
+        ''' @todo: [Matthias] comment '''
         n = self.nodes
         c = self.crease_lines
         x_l = np.max(n[:, 0])
@@ -470,6 +480,7 @@ class CreasePattern(HasTraits):
         f.close()
 
     def create_3D_tex(self, name = 'standart3Doutput.tex', x = 5, y = 5, alpha = 140, beta = 30):
+        ''' @todo: [Matthias] comment '''
         n = self.nodes
         c = self.crease_lines
         f = open(name, 'w')
