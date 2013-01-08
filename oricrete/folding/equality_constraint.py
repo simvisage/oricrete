@@ -15,7 +15,7 @@
 from etsproxy.traits.api import \
     HasStrictTraits, Interface, implements, WeakRef, \
     Array, DelegatesTo, PrototypedFrom, cached_property, Property, \
-    List
+    List, Bool
 
 import numpy as np
 
@@ -36,6 +36,9 @@ class EqualityConstraint(HasStrictTraits):
 
     # link to the crease pattern
     cp = WeakRef
+
+    # Indicate the derivatives are unavailable
+    has_G_du = Bool(True)
 
     def __init__(self, cp, *args, **kw):
         self.cp = cp
@@ -439,8 +442,6 @@ class Unfoldability(EqualityConstraint):
     def get_G(self, u_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
-        print 'G, u\n', u_vct
-
         u = u_vct.reshape(self.n_n, self.n_d)
         x = self.nodes + u
 
@@ -467,14 +468,11 @@ class Unfoldability(EqualityConstraint):
             G_lst.append(np.sum(theta_arr) - 2 * np.pi)
 
         G_arr = np.array(G_lst, dtype = 'f')
-        print 'G_arr', G_arr
         return G_arr
 
     def get_G_du(self, u_vct, t = 0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-
-        print 'G_du: u\n', u_vct
 
         u = u_vct.reshape(self.n_n, self.n_d)
         x = self.nodes + u
@@ -500,7 +498,7 @@ class Unfoldability(EqualityConstraint):
 
                 coeff = -1 / np.sqrt(1 - gamma)
                 theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
-                theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) ** 3 * (bb))
+                theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) * (bb) ** 3)
 
                 a_idx = n[left] * self.n_d
                 b_idx = n[right] * self.n_d
