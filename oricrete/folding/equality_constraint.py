@@ -499,13 +499,22 @@ class Unfoldability(EqualityConstraint):
                 gamma = ab / (aa * bb)
 
                 coeff = -1 / np.sqrt(1 - gamma)
-                theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
-                theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) * (bb) ** 3)
+                
+                # WRONG BRACKETS ???
+                #theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
+                #theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) * (bb) ** 3)
+                theta_da = coeff * (b / (aa * bb) - (ab * a) / (aa ** 3 * bb))
+                theta_db = coeff * (a / (aa * bb) - (ab * b) / (aa * bb ** 3))
 
                 a_idx = n[left] * self.n_d
                 b_idx = n[right] * self.n_d
-                G_du[i, a_idx:a_idx + self.n_d] = theta_da
-                G_du[i, b_idx:b_idx + self.n_d] = theta_db
+                
+                # Values will be overwritten not added ???
+                #G_du[i, a_idx:a_idx + self.n_d] = theta_da
+                #G_du[i, b_idx:b_idx + self.n_d] = theta_db
+                
+                G_du[i, a_idx:a_idx + self.n_d] += theta_da
+                G_du[i, b_idx:b_idx + self.n_d] += theta_db
 
         return G_du
 
