@@ -77,6 +77,14 @@ class RhombusCreasePattern(CreasePattern):
     def _get_X_i(self):
         return self._geometry[8]
 
+    interior_vertices = Property
+    def _get_interior_vertices(self):
+        return self._geometry[9]
+
+    cycled_neighbors = Property
+    def _get_cycled_neighbors(self):
+        return self._geometry[10]
+
     #deformed nodes    
     xnodes = Property(depends_on = 'fx, nodes')
     def _get_xnodes(self):
@@ -146,6 +154,7 @@ class RhombusCreasePattern(CreasePattern):
         n_h = np.arange((n_x + 1) * (n_y / 2 + 1)).reshape((n_x + 1), (n_y / 2 + 1))
         n_v = np.arange((2 * n_y / 2)).reshape(2, n_y / 2) + n_h[-1, -1] + 1
         n_i = np.arange(n_x * n_y / 2).reshape(n_x, n_y / 2) + n_v[-1, -1] + 1
+        n_viv = np.vstack([n_v[0, :], n_i, n_v[-1, :]])
 
         # connectivity of nodes defining the crease pattern
 
@@ -165,6 +174,37 @@ class RhombusCreasePattern(CreasePattern):
         nodes = np.hstack([nodes, zero_z])
         crease_lines = np.vstack([e_h00, e_h90, e_v90, e_h45, e_i45, e_h135, e_i135, e_v00, e_i00])
 
+        #=======================================================================
+        # Connectivity mepping - neighbours of each vertex - closed
+        #=======================================================================
+
+        c_h = n_h[1:-1, 1:-1].flatten()
+
+        c_h235 = n_viv[1:-2, :-1].flatten()
+        c_h315 = n_viv[2:-1, :-1].flatten()
+        c_h000 = n_h[2:, 1:-1].flatten()
+        c_h045 = n_viv[2:-1, 1:].flatten()
+        c_h135 = n_viv[1:-2, 1:].flatten()
+        c_h180 = n_h[:-2, 1:-1].flatten()
+
+        conn_h = np.vstack([c_h235, c_h315, c_h000, c_h045, c_h135, c_h180])
+
+        c_viv = n_viv[1:-1, :].flatten()
+        c_viv235 = n_h[:-1, :-1].flatten()
+        c_viv315 = n_h[1:, :-1].flatten()
+        c_viv000 = n_viv[2:, :].flatten()
+        c_viv045 = n_h[1:, 1:].flatten()
+        c_viv135 = n_h[:-1, 1:].flatten()
+        c_viv180 = n_viv[:-2, :].flatten()
+
+        conn_viv = np.vstack([c_viv235, c_viv315, c_viv000, c_viv045, c_viv135, c_viv180])
+
+        interior_vertices = np.hstack([c_h, c_viv])
+        cycled_neighbors = np.hstack([conn_h, conn_viv])
+
+        #=======================================================================
+        # Construct the facet mappings
+        #=======================================================================
         n_h = n_h
         n_v = n_v
         n_i = n_i
@@ -181,7 +221,9 @@ class RhombusCreasePattern(CreasePattern):
         facets = np.vstack([f_h00, f_hi90, f_hl90, f_hr90,
                             g_h00, g_hi90, g_hl90, g_hr90])
 
-        return self.geo_transform(nodes), crease_lines, facets, n_h, n_v, n_i, X_h, X_v, X_i
+        return (self.geo_transform(nodes), crease_lines, facets,
+                n_h, n_v, n_i, X_h, X_v, X_i,
+                interior_vertices, cycled_neighbors)
 
     z0_ratio = Float(0.1)
 
@@ -212,7 +254,7 @@ if __name__ == '__main__':
                               L_x = 3,
                               L_y = 1,
                               n_x = 3,
-                              n_y = 2,
+                              n_y = 4,
                               show_iter = False,
                               MAX_ITER = 500,
                               fx = (xn_) ** 2,
@@ -226,10 +268,15 @@ if __name__ == '__main__':
     print 'required constraints', cp.n_dofs - cp.n_c
 
     X0 = cp.generate_X0()
+    cp.add_fold_step(X0)
 
     print 'X0', X0
 
-    from crease_pattern_view import CreasePatternView
-    my_model = CreasePatternView(data = cp, show_cnstr = True)
-    my_model.configure_traits()
+    print cp.interior_vertices
+
+    print cp.cycled_neighbors
+
+#    from crease_pattern_view import CreasePatternView
+#    my_model = CreasePatternView(data = cp, show_cnstr = True)
+#    my_model.configure_traits()
 

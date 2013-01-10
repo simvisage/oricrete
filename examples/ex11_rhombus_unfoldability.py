@@ -38,11 +38,11 @@ if __name__ == '__main__':
     cp = RhombusCreasePattern(n_steps = 1,
                               L_x = L_x,
                               L_y = L_y,
-                              n_x = 1,
-                              n_y = 2,
+                              n_x = 2,
+                              n_y = 6,
                               show_iter = False,
                               z0_ratio = 0.1,
-                              MAX_ITER = 200)
+                              MAX_ITER = 300)
     n_h = cp.n_h
     n_v = cp.n_v
     n_i = cp.n_i
@@ -51,19 +51,26 @@ if __name__ == '__main__':
 
     B = 0.1
 
-    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) * r_ / L_x
+    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
 
     face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (4 * A * r_ * (1 - r_ / L_x) - s_term)])
     n_arr = np.hstack([n_h[:, :].flatten(),
-                       n_v[:, :].flatten(),
+                       #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
     cp.tf_lst = [(face_z_t, n_arr)]
 
+    sym_cnstr_iy = [[(n1, 1, 1.0), (n2, 1, 1.0)] for
+                 n1, n2 in zip(n_i[:, 0], n_i[:, -1])]
+
+    sym_cnstr_ix = [[(n1, 0, 1.0), (n2, 0, -1.0)] for
+                 n1, n2 in zip(n_i[:, 0], n_i[:, -1])]
+
+    sym_cnstr_i0 = [[(n, 1, 1.0)] for n in n_i[:, 1]]
+
     cp.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
                    [(n_h[0, -1], 0, 1.0)], # 1
-#                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
-                    ]
+                    ] + sym_cnstr_iy + sym_cnstr_ix + sym_cnstr_i0
 
     cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
 
@@ -83,16 +90,19 @@ if __name__ == '__main__':
     u_no_constraint = cp.solve(u0 + 1e-6)
 
     cp.eqcons['cl'] = cl
-    u_constant_length = cp.solve(u0 + 1e-6)
+    u_constant_length = cp.solve(u0 + 1e-4)
 
     # 3 delete the constant length
     del cp.eqcons['cl']
-    uf = Unfoldability(cp, connectivity = [(6, [2, 5, 3, 1, 4, 0])])
-    print n_i
-    print n_h
-    print n_v
-    #uf = Unfoldability(cp, connectivity = [(n_i[0, 0], [n_h, 5, 3, 1, 4, 0])])
+
+    connectivity = [(vertex, neighbors) for vertex, neighbors in
+                    zip(cp.interior_vertices, cp.cycled_neighbors.T)]
+    print 'connectivity', connectivity
+
+    uf = Unfoldability(cp, connectivity = connectivity)
     cp.eqcons['uf'] = uf
+
+    # the derivatives are not correct 
     cp.use_G_du = False
     u_unfoldable = cp.solve(u0 + 1e-6, acc = 1e-4)
 
@@ -107,11 +117,10 @@ if __name__ == '__main__':
                         n_steps = 1,
                         show_iter = True,
                         z0_ratio = 0.1,
+                        time_arr = np.linspace(1, 0, 2),
                         MAX_ITER = 200)
 
-    face_z_0 = CnstrTargetFace(F = [r_, s_, 0])
-
-    cp2.tf_lst = [(face_z_0, n_arr)]
+    cp2.tf_lst = [(face_z_t, n_arr)]
 
     cp2.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
 #                       [(n_h[1, -1], 0, 1.0)], # 1
@@ -133,6 +142,10 @@ if __name__ == '__main__':
     print 'G_cl(uf_unfoldable)', uf.get_G(u_unfoldable, 0)
     print 'u_flattened(z)', (u_unfoldable + u_unfolded).reshape(cp2.n_n, cp2.n_d)[:, 2]
 
+    my_model = CreasePatternView(data = cp,
+                                 ff_resolution = 30,
+                                 show_cnstr = True)
+    my_model.configure_traits()
 
     my_model = CreasePatternView(data = cp2,
                                  ff_resolution = 30,

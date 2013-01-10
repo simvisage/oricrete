@@ -249,10 +249,15 @@ class CreasePattern(HasTraits):
     # Solver parameters
     #===========================================================================
     n_steps = Int(1, auto_set = False, enter_set = True)
+    def _n_steps_changed(self):
+        self.t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
 
-    t_arr = Property(depends_on = 'n_steps')
-    @cached_property
-    def _get_t_arr(self):
+    time_arr = Array(float, auto_set = False, enter_set = True)
+    def _time_arr_changed(self, t_arr):
+        self.t_arr = t_arr
+
+    t_arr = Array(float)
+    def _t_arr_default(self):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
     show_iter = Bool(False, auto_set = False, enter_set = True)

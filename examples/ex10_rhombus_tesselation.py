@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     L_x = 8
     L_y = 4
-    cp = RhombusCreasePattern(n_steps = 1,
+    cp = RhombusCreasePattern(n_steps = 4,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = 3,
@@ -103,36 +103,35 @@ if __name__ == '__main__':
 
     X0 = cp.generate_X0()
 
-    X_fc = cp.solve(X0 + 1e-6, constant_length = False)
+    X_fc = cp.solve(X0 + 1e-6)
 
     #
-    print 'nodes'
-    new_nodes = cp.get_new_nodes(X_fc)
-    cp2 = CreasePattern(nodes = new_nodes,
-                        crease_lines = cp.crease_lines,
-                        facets = cp.facets,
-                        n_steps = 1,
-                        show_iter = True,
-                        z0_ratio = 0.1,
-                        MAX_ITER = 200)
-
-    face_z_t = CnstrTargetFace(F = [r_, s_, 0])
-
-    cp2.tf_lst = [(face_z_t, n_arr)]
-
-    cp2.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
-#                       [(n_h[1, -1], 0, 1.0)], # 1
-#                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
-                    ]
-    cp2.cnstr_rhs = np.zeros((len(cp2.cnstr_lhs),), dtype = float)
-
-    X0 = -1e-3 * np.linalg.norm(X_fc) * X_fc
-
-    X_fc = cp2.solve(X0, constant_length = True)
-
-    my_model = CreasePatternView(data = cp2,
+#    print 'nodes'
+#    new_nodes = cp.get_new_nodes(X_fc)
+#    cp2 = CreasePattern(nodes = new_nodes,
+#                        crease_lines = cp.crease_lines,
+#                        facets = cp.facets,
+#                        n_steps = 1,
+#                        show_iter = True,
+#                        z0_ratio = 0.1,
+#                        MAX_ITER = 200)
+#
+#    face_z_t = CnstrTargetFace(F = [r_, s_, 0])
+#
+#    cp2.tf_lst = [(face_z_t, n_arr)]
+#
+#    cp2.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
+##                       [(n_h[1, -1], 0, 1.0)], # 1
+##                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
+#                    ]
+#    cp2.cnstr_rhs = np.zeros((len(cp2.cnstr_lhs),), dtype = float)
+#
+#    X0 = -1e-3 * np.linalg.norm(X_fc) * X_fc
+#
+#    X_fc = cp2.solve(X0, constant_length = True)
+#
+    my_model = CreasePatternView(data = cp,
                                  ff_resolution = 30,
                                  show_cnstr = True)
     my_model.configure_traits()
-
 

@@ -465,7 +465,11 @@ class Unfoldability(EqualityConstraint):
                 theta_lst.append(theta)
 
             theta_arr = np.array(theta_lst, dtype = 'f')
-            G_lst.append(np.sum(theta_arr) - 2 * np.pi)
+            theta = np.sum(theta_arr) - 2 * np.pi
+#            zt_arg = 4 - ((4 * np.pi - theta) ** 2) / np.pi ** 2
+#            zt = np.sign(zt_arg) / 2 * np.sqrt(np.fabs(zt_arg))
+
+            G_lst.append(theta)
 
         G_arr = np.array(G_lst, dtype = 'f')
         return G_arr
