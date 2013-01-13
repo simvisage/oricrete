@@ -15,7 +15,7 @@
 from etsproxy.traits.api import \
     HasStrictTraits, Interface, implements, WeakRef, \
     Array, DelegatesTo, PrototypedFrom, cached_property, Property, \
-    List
+    List, Bool
 
 import numpy as np
 
@@ -36,6 +36,9 @@ class EqualityConstraint(HasStrictTraits):
 
     # link to the crease pattern
     cp = WeakRef
+
+    # Indicate the derivatives are unavailable
+    has_G_du = Bool(True)
 
     def __init__(self, cp, *args, **kw):
         self.cp = cp
@@ -439,8 +442,6 @@ class Unfoldability(EqualityConstraint):
     def get_G(self, u_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
-        print 'G, u\n', u_vct
-
         u = u_vct.reshape(self.n_n, self.n_d)
         x = self.nodes + u
 
@@ -464,17 +465,18 @@ class Unfoldability(EqualityConstraint):
                 theta_lst.append(theta)
 
             theta_arr = np.array(theta_lst, dtype = 'f')
-            G_lst.append(np.sum(theta_arr) - 2 * np.pi)
+            theta = np.sum(theta_arr) - 2 * np.pi
+#            zt_arg = 4 - ((4 * np.pi - theta) ** 2) / np.pi ** 2
+#            zt = np.sign(zt_arg) / 2 * np.sqrt(np.fabs(zt_arg))
+
+            G_lst.append(theta)
 
         G_arr = np.array(G_lst, dtype = 'f')
-        print 'G_arr', G_arr
         return G_arr
 
     def get_G_du(self, u_vct, t = 0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-
-        print 'G_du: u\n', u_vct
 
         u = u_vct.reshape(self.n_n, self.n_d)
         x = self.nodes + u

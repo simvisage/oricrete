@@ -249,10 +249,15 @@ class CreasePattern(HasTraits):
     # Solver parameters
     #===========================================================================
     n_steps = Int(1, auto_set = False, enter_set = True)
+    def _n_steps_changed(self):
+        self.t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
 
-    t_arr = Property(depends_on = 'n_steps')
-    @cached_property
-    def _get_t_arr(self):
+    time_arr = Array(float, auto_set = False, enter_set = True)
+    def _time_arr_changed(self, t_arr):
+        self.t_arr = t_arr
+
+    t_arr = Array(float)
+    def _t_arr_default(self):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
     show_iter = Bool(False, auto_set = False, enter_set = True)
@@ -310,6 +315,8 @@ class CreasePattern(HasTraits):
 
         return X
 
+    use_G_du = True
+
     def _solve_fmin(self, X0, acc = 1e-4):
         '''Solve the problem using the
         Sequential Least Square Quadratic Programming method.
@@ -318,12 +325,17 @@ class CreasePattern(HasTraits):
         d0 = self.get_f(X0)
         eps = d0 * 1e-4
         X = X0
+        get_G_du_t = None
         for step, time in enumerate(self.t_arr):
             print 'step', step,
             self.t = time
+            if self.use_G_du:
+                get_G_du_t = self.get_G_du_t
+
             info = fmin_slsqp(self.get_f_t, X,
                            fprime = self.get_f_du_t,
-                           f_eqcons = self.get_G_t, fprime_eqcons = self.get_G_du_t,
+                           f_eqcons = self.get_G_t,
+                           fprime_eqcons = get_G_du_t,
                            acc = acc, iter = self.MAX_ITER,
                            iprint = 0,
                            full_output = True,
