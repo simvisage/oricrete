@@ -175,7 +175,7 @@ class CraneCreasePattern(RhombusCreasePattern):
     def _get_grab_pts(self):
         '''
             fetching all grabpoints from:
-            - RhombusCreasepattern
+            - Creasepattern
         '''
         gp = np.array(copy.copy(self._grab_points), dtype = int)
         gp[:, 0] += (len(self._geometry[0]))
@@ -208,14 +208,14 @@ class CraneCreasePattern(RhombusCreasePattern):
         '''
         X_rcp = self._X_rcp
         X_face_zero = X_rcp[self.facets[0]]
-        L = self.grab_pts_L[0]
+        L = self.eqcons['gp'].grab_pts_L[0]
         X_z_GP_zero = np.dot(X_face_zero[:, 2].T, L)
         X_rcp[:, 2] -= X_z_GP_zero
         X_ext = np.zeros((self.n_dofs - len(X_rcp) * self.n_d,), dtype = float)
         X0 = np.hstack([X_rcp.reshape((-1)), X_ext]).reshape((-1, 3))
         for i in range(len(self.grab_pts)):
             X_face = X0[self.facets[self.grab_pts[i][1]]]
-            L = self.grab_pts_L[i]
+            L = self.eqcons['gp'].grab_pts_L[i]
             z = np.dot(X_face[:, 2].T, L)
             X0[self.grab_pts[i][0], 2] = z
         pos = (len(self._geometry[0]) + self.n_x)
@@ -295,5 +295,5 @@ class CraneCreasePattern(RhombusCreasePattern):
         else:
             x = self.n_x / 2 - 1
             pos1 = x * (self.N_y + 1) 
-            lhs.append([(pos1, 1, 1.0), (pos1 + (self.N_y + 1), 1, -1.0)])        
+            lhs.append([(pos1 + (self.N_y + 1), 1, 1.0), (pos1 + 2 * (self.N_y + 1), 1, -1.0)])        
         return lhs
