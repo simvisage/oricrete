@@ -41,6 +41,40 @@ class CreasePatternView(HasTraits):
     data = Instance(CreasePattern)
 
     # plotting stuff
+    
+    # View
+    get_view = Button
+    set_view = Button
+    
+    azimuth = Float(0)
+    elevation = Float(0)
+    distance = Float(0)
+    f_point = Array(np.float, (1, 3))
+    
+    def _get_view_fired(self):
+        view = self.scene.mlab.view()
+        self.azimuth = view[0]
+        self.elevation = view[1]
+        self.distance = view[2]
+        self.f_point = view[3].reshape((1, 3))
+        print view
+        
+    def _set_view_fired(self):
+        print self.f_point
+        self.scene.mlab.view(self.azimuth,
+                self.elevation,
+                self.distance,
+                self.f_point.reshape((3,)))
+            
+    
+    roof_height = Property(depends_on = 'fold_step')
+    def _get_roof_height(self):
+        nodes = self.data.fold_steps[self.fold_step]
+        height = nodes[6][2] - nodes[0][2]
+        print height
+        return height
+    
+    
     scene = Instance(MlabSceneModel)
     def _scene_default(self):
         return MlabSceneModel()
@@ -52,9 +86,11 @@ class CreasePatternView(HasTraits):
         self.scene.mlab.figure(fig, fgcolor = (0, 0, 0),
                                bgcolor = (1, 1, 1))
         return fig
+    
+    
 
-    scalefactor = Property(Float, depends_on = 'data')
-    def _get_scalefactor(self):
+    scalefactor_init = Property(Float, depends_on = 'data')
+    def _get_scalefactor_init(self):
 
         bbmin, bbmax = self._get_extent()
         bb = bbmax - bbmin
@@ -66,11 +102,11 @@ class CreasePatternView(HasTraits):
         # @todo [Matthias] - why divided by 2
         fkt_c_length = np.min(self.data.c_lengths) / 2
         minfkt = np.max([fkt_bb, fkt_c_length])
-
-        # @todo [Matthias] - what's this?
-        if(minfkt > 0.3):
-            minfkt = 0.3
+        
+        minfkt = 0.2
         return minfkt
+    
+    scalefactor = Range(0.0, 1.0, 0.0)
 
     # range of fold steps
     fold_step_min = Int(0)
@@ -84,7 +120,7 @@ class CreasePatternView(HasTraits):
 
     show_manual_cnstr = Bool(False)
     z_raising = Bool(False)
-    raising_factor = Float(1000.0)
+    raising_factor = Float(10.0)
     cnstr = Property
     @cached_property
     def _get_cnstr(self):
@@ -216,6 +252,7 @@ class CreasePatternView(HasTraits):
 
     @on_trait_change('scene.activated')
     def scene_activated(self):
+        self.scalefactor = self.scalefactor_init
         # old constrain visualization
         self.update_cnstr_pipeline()
         # new constrain visualization
@@ -224,6 +261,7 @@ class CreasePatternView(HasTraits):
         self.set_focal_point()
         self.update_grab_pts_pipeline()
         self.update_line_pts_pipeline()
+        
 
     cp_pipeline = Property(Instance(PipelineBase))
     @cached_property
@@ -332,7 +370,7 @@ class CreasePatternView(HasTraits):
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)
 
-    @on_trait_change('fold_step, z_raising, raising_factor')
+    @on_trait_change('fold_step, z_raising, raising_factor, scalefactor')
     def update_cp_pipeline(self):
 
         # Array of current foldstep
@@ -348,7 +386,7 @@ class CreasePatternView(HasTraits):
 
     @on_trait_change('fold_step, z_raising, raising_factor')
     def update_grab_pts_pipeline(self):
-
+        
         pts = np.array(self.data.grab_pts)
         if len(pts) == 0:
             return
@@ -545,7 +583,12 @@ class CreasePatternView(HasTraits):
     #===========================================================================
     # Export animation of the folding process 
     #===========================================================================
-
+    print_view = Button
+    
+    def _print_view_fired(self):
+        print self.scene.mlab.view()
+    
+    
     save_animation = Button
     animation_steps = Int(1)
     single_frame = Int(-1)
@@ -584,13 +627,13 @@ class CreasePatternView(HasTraits):
             # Array of current foldstep
             self.fold_step = step
 
-            self.scene.mlab.savefig(fname, size = (400, 300))
+            self.scene.mlab.savefig(fname, size = (800, 600))
 
         if(multiframe):
             for step, fname in zip(steps[::-1], fnames_backward):
                 # Array of current foldstep
                 self.fold_step = step
-                self.scene.mlab.savefig(fname, size = (400, 300))
+                self.scene.mlab.savefig(fname, size = (800, 600))
 
         fnames = fnames_forward
         if(multiframe):
@@ -615,9 +658,16 @@ class CreasePatternView(HasTraits):
                              Group(Item('show_manual_cnstr'),
                                    Item('z_raising', label = 'Z-Raising for Foldstep 1'),
                                    Item('raising_factor'),
-                                   Item('scalefactor')),
+                                   Item('scalefactor'),
+                                   Item('roof_height'),
+                                   Item('get_view'),
+                                   Item('set_view'),
+                                   Item('azimuth'),
+                                   Item('elevation'),
+                                   Item('distance'),
+                                   Item('f_point')),
                              Group(Item('save_animation', show_label = False),
-                                   Item('animation_steps', tooltip =
+                                   Item('animation_steps', tooltip = 
                                         'gives the distance of foldsteps between the frames (1 = every foldstep; 2 = every second foldstep; ...'),
                                     Item('single_frame', tooltip = 'choose a iterationstep for a single picture, else their will be an animation rendered'),
                                     Item('animation_file', show_label = False),
