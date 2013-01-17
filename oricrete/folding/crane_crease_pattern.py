@@ -77,7 +77,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         '''
             Predeformation of the Crease Pattern
         '''
-        X_rcp = self.generate_X0()
+        X_rcp = self._generate_X0()
         X_rcp = X_rcp.reshape((-1, 3))
         return X_rcp 
     
@@ -198,8 +198,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         lp = np.append(lp, lp_gp)
         return lp.reshape((-1, 2))
     
-    X0 = Property(depends_on = 'L_x, L_y, n_x, n_y, +geometry, _X_rcp, n_dofs, grab_pts')
-    @cached_property
+    X0 = Property()
     def _get_X0(self):
         '''
             fetching all predeformations from:
@@ -232,7 +231,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         return X0.reshape((-1))
         
     
-    def _get_generate_X0(self):
+    def _generate_X0(self):
         '''
             generator for the predeformation of Rhombus Creasepattern
         '''
@@ -248,8 +247,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         X0 = np.zeros((len(self._geometry[0]), self.n_d,), dtype = 'float')
         X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
         X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 10.0
-
+        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 5.0
         return X0.flatten()
     
 
