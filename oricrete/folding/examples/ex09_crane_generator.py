@@ -54,10 +54,8 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
 
     X0 *= 1.0
     #np.set_printoptions(threshold='nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
 
-    print 'L_vct', cp.grab_pts_L
+
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
     print 'n_g', cp.n_g
