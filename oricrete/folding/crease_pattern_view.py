@@ -12,28 +12,26 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.mayavi.core.api import PipelineBase
-from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, \
-    MlabSceneModel
-from etsproxy.mayavi.modules.api import Axes
-
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
-    Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Bool, File, Array, List, Float
-from etsproxy.traits.ui.api import \
-    View, Item, Group, ButtonEditor, RangeEditor, VGroup, HGroup, HSplit, Tabbed, \
-    ViewSubElement, VGrid, Include, TreeEditor, TreeNode, Handler, ListEditor
-from etsproxy.mayavi import mlab
-from etsproxy.mayavi.core.api import Engine
-
-import tempfile
-import os
-import numpy as np
-import string
-import copy
-# own Modules
 from crease_pattern import CreasePattern
+from etsproxy.mayavi import mlab
+from etsproxy.mayavi.core.api import Engine, PipelineBase
+from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
+from etsproxy.mayavi.modules.api import Axes
+from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+    Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, Button, \
+    Int, Bool, File, Array, List, Float
+from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor, RangeEditor, \
+    VGroup, HGroup, HSplit, Tabbed, ViewSubElement, VGrid, Include, TreeEditor, \
+    TreeNode, Handler, ListEditor
 from face_view import FaceView
+import copy
+import numpy as np
+import os
+import string
+import tempfile
+
+
+# own Modules
 
 class CreasePatternView(HasTraits):
 
@@ -60,19 +58,12 @@ class CreasePatternView(HasTraits):
         print view
         
     def _set_view_fired(self):
-        print self.f_point
         self.scene.mlab.view(self.azimuth,
                 self.elevation,
                 self.distance,
                 self.f_point.reshape((3,)))
             
     
-    roof_height = Property(depends_on = 'fold_step')
-    def _get_roof_height(self):
-        nodes = self.data.fold_steps[self.fold_step]
-        height = nodes[6][2] - nodes[0][2]
-        print height
-        return height
     
     
     scene = Instance(MlabSceneModel)
@@ -102,8 +93,8 @@ class CreasePatternView(HasTraits):
         # @todo [Matthias] - why divided by 2
         fkt_c_length = np.min(self.data.c_lengths) / 2
         minfkt = np.max([fkt_bb, fkt_c_length])
-        
-        minfkt = 0.2
+        if(minfkt > 0.3):
+            minfkt = 0.3
         return minfkt
     
     scalefactor = Range(0.0, 1.0, 0.0)
@@ -257,6 +248,7 @@ class CreasePatternView(HasTraits):
         self.update_cnstr_pipeline()
         # new constrain visualization
         self.update_cp_pipeline()
+        self.tube_pipeline
         #self.update_face_view()
         self.set_focal_point()
         self.update_grab_pts_pipeline()
@@ -281,15 +273,21 @@ class CreasePatternView(HasTraits):
         if len(self.data.facets) > 0:
             cp_pipe = self.scene.mlab.triangular_mesh(x, y, z, self.data.facets)
             cp_pipe.mlab_source.dataset.lines = self.data.crease_lines
-            tube = self.scene.mlab.pipeline.tube(cp_pipe, tube_radius = 0.1 * self.scalefactor)
-            self.scene.mlab.pipeline.surface(tube, color = (1.0, 1.0, 0.9))
+            
             self.scene.mlab.pipeline.surface(cp_pipe, color = (0.6, 0.6, 0.6))
         else:
             cp_pipe = self.scene.mlab.points3d(x, y, z, scale_factor = 0.2)
             cp_pipe.mlab_source.dataset.lines = self.data.crease_lines
-            tube = self.scene.mlab.pipeline.tube(cp_pipe, tube_radius = 0.1 * self.scalefactor)
-            self.scene.mlab.pipeline.surface(tube, color = (1.0, 1.0, 0.9))
+            
         return cp_pipe
+    
+    tube_pipeline = Property(Instance(PipelineBase))
+    @cached_property
+    def _get_tube_pipeline(self):
+        tube = self.scene.mlab.pipeline.tube(self.cp_pipeline, tube_radius = 0.1 * self.scalefactor)
+        self.scene.mlab.pipeline.surface(tube, color = (1.0, 1.0, 0.9))
+        return tube
+        
 
     # @todo: make dependent on iteration nodes.
     def _get_extent(self):
@@ -370,7 +368,11 @@ class CreasePatternView(HasTraits):
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)
 
-    @on_trait_change('fold_step, z_raising, raising_factor, scalefactor')
+    @on_trait_change('scalefactor')
+    def update_tube_pipeline(self):
+        self.tube_pipeline.filter.radius = 0.1 * self.scalefactor
+        
+    @on_trait_change('fold_step, z_raising, raising_factor')
     def update_cp_pipeline(self):
 
         # Array of current foldstep
@@ -383,7 +385,8 @@ class CreasePatternView(HasTraits):
 
         # set new position of 3D Points
         self.cp_pipeline.mlab_source.reset(x = x, y = y, z = z)
-
+        
+        
     @on_trait_change('fold_step, z_raising, raising_factor')
     def update_grab_pts_pipeline(self):
         
@@ -659,7 +662,6 @@ class CreasePatternView(HasTraits):
                                    Item('z_raising', label = 'Z-Raising for Foldstep 1'),
                                    Item('raising_factor'),
                                    Item('scalefactor'),
-                                   Item('roof_height'),
                                    Item('get_view'),
                                    Item('set_view'),
                                    Item('azimuth'),
