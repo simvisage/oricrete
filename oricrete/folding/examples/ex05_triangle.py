@@ -154,7 +154,7 @@ def twotriangle_stick_cnstr(n_steps = 10, dx = -0.3299999999999):
                 [ 1, 0, 0 ],
                 [ 1, 1, 0],
                 [0.667, 0.333, 0],
-                [0.66, 0.33, 2],
+                [0.66, 0.33, 1],
                 [ 0, 1, 0]]
 
     cp.crease_lines = [[ 0, 1 ],
@@ -1257,7 +1257,7 @@ def rhombus_3x2_grab_points_for_crane(n_steps = 10, dx = 1.5):
 if __name__ == '__main__':
 #    cp = triangle_cp_cnstr(n_steps = 40)
 #    cp = triangle_stick_cnstr(n_steps = 40)
-#    cp = twotriangle_stick_cnstr(n_steps = 40)
+    cp = twotriangle_stick_cnstr(n_steps = 40, dx = -0.2)
 #    cp = small_rhombus_grab_points(n_steps = 80)
 #    cp = small_rhombus_grab_stick(n_steps = 40)
 #    cp = two_rhombus_grab_points(n_steps = 40)
@@ -1265,7 +1265,7 @@ if __name__ == '__main__':
 #    cp = rhombus_2x3_grab_points(n_steps = 40)
 #    cp = rhombus_3x1_grab_points(n_steps = 80)
 #    cp = rhombus_3x2_grab_points(n_steps = 40)
-    cp = rhombus_3x2_grab_points_for_crane(n_steps = 40)
+#    cp = rhombus_3x2_grab_points_for_crane(n_steps = 40)
 
     # initialise View
 
