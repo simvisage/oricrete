@@ -78,11 +78,11 @@ class CreasePattern(HasTraits):
 
     # points for facet grabbing [n,f]
     # first index gives node, second gives the facet 
-    grab_pts = List()
+    grab_pts = List([])
 
     # nodes movable only on a crease line [n,cl]
     # first index gives the node, second the crease line
-    line_pts = List()
+    line_pts = List([])
 
     # constrained node indices
     # define the pairs (node, dimension) affected by the constraint
@@ -270,6 +270,10 @@ class CreasePattern(HasTraits):
     def solve(self, X0, acc = 1e-4):
         '''Solve the problem with the appropriate solver
         '''
+        
+#        # save predeformation from start vector
+#        self.add_fold_step(X0)
+#        
         if(len(self.tf_lst) > 0):
             return self._solve_fmin(X0, acc)
         else:

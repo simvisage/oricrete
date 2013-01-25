@@ -77,7 +77,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         '''
             Predeformation of the Crease Pattern
         '''
-        X_rcp = self.generate_X0()
+        X_rcp = self._generate_X0()
         X_rcp = X_rcp.reshape((-1, 3))
         return X_rcp 
     
@@ -175,7 +175,7 @@ class CraneCreasePattern(RhombusCreasePattern):
     def _get_grab_pts(self):
         '''
             fetching all grabpoints from:
-            - RhombusCreasepattern
+            - Creasepattern
         '''
         gp = np.array(copy.copy(self._grab_points), dtype = int)
         gp[:, 0] += (len(self._geometry[0]))
@@ -198,8 +198,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         lp = np.append(lp, lp_gp)
         return lp.reshape((-1, 2))
     
-    X0 = Property(depends_on = 'L_x, L_y, n_x, n_y, +geometry, _X_rcp, n_dofs, grab_pts')
-    @cached_property
+    X0 = Property()
     def _get_X0(self):
         '''
             fetching all predeformations from:
@@ -208,14 +207,14 @@ class CraneCreasePattern(RhombusCreasePattern):
         '''
         X_rcp = self._X_rcp
         X_face_zero = X_rcp[self.facets[0]]
-        L = self.grab_pts_L[0]
+        L = self.eqcons['gp'].grab_pts_L[0]
         X_z_GP_zero = np.dot(X_face_zero[:, 2].T, L)
         X_rcp[:, 2] -= X_z_GP_zero
         X_ext = np.zeros((self.n_dofs - len(X_rcp) * self.n_d,), dtype = float)
         X0 = np.hstack([X_rcp.reshape((-1)), X_ext]).reshape((-1, 3))
         for i in range(len(self.grab_pts)):
             X_face = X0[self.facets[self.grab_pts[i][1]]]
-            L = self.grab_pts_L[i]
+            L = self.eqcons['gp'].grab_pts_L[i]
             z = np.dot(X_face[:, 2].T, L)
             X0[self.grab_pts[i][0], 2] = z
         pos = (len(self._geometry[0]) + self.n_x)
@@ -232,7 +231,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         return X0.reshape((-1))
         
     
-    def _get_generate_X0(self):
+    def _generate_X0(self):
         '''
             generator for the predeformation of Rhombus Creasepattern
         '''
@@ -248,8 +247,7 @@ class CraneCreasePattern(RhombusCreasePattern):
         X0 = np.zeros((len(self._geometry[0]), self.n_d,), dtype = 'float')
         X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
         X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 10.0
-
+        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 5.0
         return X0.flatten()
     
 
@@ -295,5 +293,5 @@ class CraneCreasePattern(RhombusCreasePattern):
         else:
             x = self.n_x / 2 - 1
             pos1 = x * (self.N_y + 1) 
-            lhs.append([(pos1, 1, 1.0), (pos1 + (self.N_y + 1), 1, -1.0)])        
+            lhs.append([(pos1 + (self.N_y + 1), 1, 1.0), (pos1 + 2 * (self.N_y + 1), 1, -1.0)])        
         return lhs
