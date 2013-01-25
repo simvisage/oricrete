@@ -20,6 +20,7 @@ from etsproxy.mayavi.modules.axes import Axes
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int
+    
 from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
 from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine
@@ -30,7 +31,7 @@ from oricrete.folding.singularity_finder import SingularityFinder
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+   CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
     '''
@@ -230,22 +231,20 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
 #    X0[89] = 0.00025
     X0 *= 1
     
-    np.set_printoptions(threshold='nan')
-    print 'dR', cp.get_dR(X0)
-    print 'R', cp.get_R(X0)
-   
-    cp.set_next_node(X0)
 
-    print 'L_vct', cp.grab_pts_L
+    np.set_printoptions(threshold = 'nan')
+    print 'G_du', cp.get_G_du(X0)
+    print 'R', cp.get_G(X0)
+
+#    print 'L_vct', cp.grab_pts_L
     print 'n_dofs', cp.n_dofs
     print 'n_c', cp.n_c
     print 'n_g', cp.n_g
     print 'necessary constraints', cp.n_dofs - cp.n_c - cp.n_g * cp.n_d - cp.n_l * 2
     print 'cnstr', len(cp.cnstr_lhs)
-    
+
     #cp.show_iter = True 
     X = cp.solve(X0)
-    cp.save_output(name="model3_1.txt")
     #print'Iterationnodes', cp.iteration_nodes
     #cp.get_line_position(0)  
     return cp
