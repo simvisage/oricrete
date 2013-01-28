@@ -59,13 +59,13 @@ class GT(HasTraits):
 
 if __name__ == '__main__':
 
-    L_x = 29.7
-    L_y = 21.0
+    L_x = 1.4
+    L_y = 0.8
     cp = RhombusCreasePattern(n_steps = 5,
                               L_x = L_x,
                               L_y = L_y,
-                              n_x = 3,
-                              n_y = 18,
+                              n_x = 4,
+                              n_y = 4,
                               #geo_transform = GT(L_x = L_x, L_y = L_y),
                               show_iter = False,
                               z0_ratio = 0.1,
@@ -74,25 +74,28 @@ if __name__ == '__main__':
     n_v = cp.n_v
     n_i = cp.n_i
 
-    A = 0.4
-
-    B = 0.4
-
-    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
-
-    face_z_t = CnstrTargetFace(F = [r_, s_, 2 * A * t_ * r_ * (1 - r_ / L_x) - s_term])
-    n_arr = np.hstack([n_h[:, :].flatten(),
-                       n_v[:, :].flatten(),
-                       n_i[:, :].flatten()
+    face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (r_ * (1 - r_ / L_x))]) #- s_ / 8 * (1 - s_ / L_y))])
+    n_arr = np.hstack([n_h[::, (0, 2)].flatten(),
+                       n_h[(0, 1, 3, 4), 1].flatten(),
+     #                  n_v[:, :].flatten(),
+                       n_i[1:-1, :].flatten()
                        ])
     cp.tf_lst = [(face_z_t, n_arr)]
 
-    cp.cnstr_lhs = [#[(n_h[1, 0], 0, 1.0)], # 0
-#                   [(n_h[0, -1], 0, 1.0)], # 1
-                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
+    cp.cnstr_lhs = [[(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1)], # 0
+                    [(n_h[0, 0], 1, 1.0), (n_h[2, 0], 1, -1)], # 1
+                    [(n_h[0, 0], 1, 1.0), (n_h[3, 0], 1, -1)], # 1
+                    [(n_h[0, 0], 1, 1.0), (n_h[4, 0], 1, -1)], # 1
+                    [(n_h[0, -1], 1, 1.0), (n_h[1, -1], 1, -1)], # 0
+                    [(n_h[0, -1], 1, 1.0), (n_h[2, -1], 1, -1)], # 1
+                    [(n_h[0, -1], 1, 1.0), (n_h[3, -1], 1, -1)], # 1
+                    [(n_h[0, -1], 1, 1.0), (n_h[4, -1], 1, -1)], # 1
+#                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
 
     cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
+
+    #del cp.eqcons['cl']
 
     # @todo - renaming of methods
     # @todo - projection on the caf - to get the initial vector
@@ -103,10 +106,10 @@ if __name__ == '__main__':
 
     X0 = cp.generate_X0()
 
-    X_fc = cp.solve(X0 + 1e-6)
+    X_fc = cp.solve(X0 - 1e-8)
 
     my_model = CreasePatternView(data = cp,
-                                 ff_resolution = 30,
+                                 ff_resolution = 100,
                                  show_cnstr = True)
     my_model.configure_traits()
 

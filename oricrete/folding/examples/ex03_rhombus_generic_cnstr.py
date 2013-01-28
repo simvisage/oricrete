@@ -240,7 +240,7 @@ if __name__ == '__main__':
     cp_fc = create_cp_fc_inclined(L_x = 80, L_y = 8, n_x = 10, n_y = 16,
                                   n_steps = 10)
 
-    X0 = cp_dc.generate_X0()
+    X0 = cp_fc.generate_X0()
 
 #    print 'n_dofs', cp_dc.n_dofs
 #    print 'n_c', cp_dc.n_c

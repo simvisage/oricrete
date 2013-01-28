@@ -33,44 +33,71 @@ from oricrete.folding.equality_constraint import \
 
 if __name__ == '__main__':
 
-    L_x = 8
-    L_y = 4
+    n_x = 3
+    n_y = 8
+    L_x = 49.7
+    L_y = 31.0
     cp = RhombusCreasePattern(n_steps = 1,
                               L_x = L_x,
                               L_y = L_y,
-                              n_x = 2,
-                              n_y = 6,
+                              n_x = n_x,
+                              n_y = n_y,
                               show_iter = False,
                               z0_ratio = 0.1,
-                              MAX_ITER = 300)
+                              MAX_ITER = 100)
     n_h = cp.n_h
     n_v = cp.n_v
     n_i = cp.n_i
 
-    A = 0.1
+    A = 0.4
 
-    B = 0.1
+    B = 1.0
 
-    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
+    s_term = A * t_ * s_ * (1 - s_ / L_y) #* r_ / L_x
 
-    face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (4 * A * r_ * (1 - r_ / L_x) - s_term)])
+    face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
     cp.tf_lst = [(face_z_t, n_arr)]
 
+    n_y2 = n_y / 2
+
     sym_cnstr_iy = [[(n1, 1, 1.0), (n2, 1, 1.0)] for
-                 n1, n2 in zip(n_i[:, 0], n_i[:, -1])]
+                    n1, n2 in zip(n_i[:, 0], n_i[:, -1])] + \
+                    [[(n1, 1, 1.0), (n2, 1, 1.0)] for
+                    n1, n2 in zip(n_h[:, 0], n_h[:, -1])]
 
     sym_cnstr_ix = [[(n1, 0, 1.0), (n2, 0, -1.0)] for
-                 n1, n2 in zip(n_i[:, 0], n_i[:, -1])]
+                    n1, n2 in zip(n_i[:, 0], n_i[:, -1])] + \
+                    [[(n1, 0, 1.0), (n2, 0, -1.0)] for
+                    n1, n2 in zip(n_h[:, 0], n_h[:, -1])]
 
-    sym_cnstr_i0 = [[(n, 1, 1.0)] for n in n_i[:, 1]]
+    sym_cnstr_iy2 = [[(n1, 1, 1.0), (n2, 1, 1.0)] for
+                    n1, n2 in zip(n_i[:, 1], n_i[:, -2])] + \
+                    [[(n1, 1, 1.0), (n2, 1, 1.0)] for
+                    n1, n2 in zip(n_h[:, 1], n_h[:, -2])]
 
-    cp.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
-                   [(n_h[0, -1], 0, 1.0)], # 1
-                    ] + sym_cnstr_iy + sym_cnstr_ix + sym_cnstr_i0
+    sym_cnstr_ix2 = [[(n1, 0, 1.0), (n2, 0, -1.0)] for
+                    n1, n2 in zip(n_i[:, 1], n_i[:, -2])] + \
+                    [[(n1, 0, 1.0), (n2, 0, -1.0)] for
+                    n1, n2 in zip(n_h[:, 1], n_h[:, -2])]
+
+    link_left_x = [[(n_h[0, 0], 0, 1.0), (n2, 0, -1.0)] for
+                    n2 in n_h[0, 1:]]
+
+    link_right_x = [[(n_h[-1, 0], 0, 1.0), (n2, 0, -1.0)] for
+                    n2 in n_h[-1, 1:]]
+
+
+    sym_cnstr_i0 = [[(n, 1, 1.0)] for n in n_h[:, 2]]
+
+    cp.cnstr_lhs = [[(n_i[1, 0], 0, 1.0)], # 0
+                   [(n_i[0, -1], 0, 1.0)], # 1
+                    ] + link_left_x + link_right_x + sym_cnstr_i0
+                    #+ sym_cnstr_iy + sym_cnstr_ix + sym_cnstr_iy2 
+                    #+ sym_cnstr_ix2
 
     cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
 
@@ -117,7 +144,7 @@ if __name__ == '__main__':
                         n_steps = 1,
                         show_iter = True,
                         z0_ratio = 0.1,
-                        time_arr = np.linspace(1, 0, 2),
+                        time_arr = np.linspace(1, 0, 10),
                         MAX_ITER = 200)
 
     cp2.tf_lst = [(face_z_t, n_arr)]

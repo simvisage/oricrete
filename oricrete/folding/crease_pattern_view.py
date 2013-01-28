@@ -314,7 +314,7 @@ class CreasePatternView(HasTraits):
         x, y, z = np.mgrid[x0[0]:x1[0]:ff_r,
                            x0[1]:x1[1]:ff_r,
                            x0[2]:x1[2]:ff_r]
-        return x, y, z
+        return x, y, z * 2.0
 
     grab_pts_pipeline = Property(Instance(PipelineBase), depends_on = 'data')
     @cached_property
