@@ -29,7 +29,7 @@ class AbaqusLink(HasTraits):
     data = Instance(CreasePattern)
     # Iterationstep is initialised as last step
     iterationstep = Int(-1)
-     # Number of segments each creaseline will be splitted up
+    # Number of segments each creaseline will be splitted up
     n_split = Int(2, geometry = True)
     
     
@@ -67,7 +67,7 @@ class AbaqusLink(HasTraits):
     _origin_facets = Property(Array(value = [], dtype = 'int_', geometry = True), depends_on = 'data')
     @cached_property
     def _get__origin_facets(self):
-        return self.data.facets
+        return self.data.aligned_facets
     
     _origin_cl = Property(Array(value = [], dtype = 'int_', geometry = True), depends_on = 'data')
     @cached_property
@@ -88,10 +88,16 @@ class AbaqusLink(HasTraits):
     
     nodes = Property
     def _get_nodes(self):
+        '''
+        Returns all nodes after mesh refinement
+        '''
         return self._geometry[0]
     
     facets = Property
     def _get_facets(self):
+        '''
+        Returns all facets after mesh refinement
+        '''
         return self._geometry[1]
     
     _n_origin_nodes = Property(depends_on = '_origin_nodes')
@@ -299,6 +305,9 @@ class AbaqusLink(HasTraits):
     material_name = Str('concrete')
     materials = Dict({"concrete":[3.0e10, 0.2, 2500], # [Young's modulus in N/m3, poissions ratio, density in kg/m3]
                       "steel":[21.0e10, 0.3, 7880]})
+    thickness = Float(0.06) # Thickness in meter
+    bounded_nodes = Array(np.int, value = [1, 2, 3, 13, 14, 15])
+    
  
     _inp_head = Property(Str, depends_on = 'model_name')
     @cached_property
@@ -316,7 +325,7 @@ class AbaqusLink(HasTraits):
     @cached_property
     def _get__inp_nodes(self):
         n = self.nodes
-        nodes = "*Node\n"
+        nodes = "*Node,\t nset=node-1\n"
         for i in range(len(n)):
             temp_node = ' %i,\t %.4f,\t %.4f,\t %.4f\n' % (i + 1, n[i][0], n[i][1], n[i][2])
             nodes += temp_node
@@ -326,63 +335,127 @@ class AbaqusLink(HasTraits):
     @cached_property
     def _get__inp_elements(self):
         f = self.facets
-        facets = "*Element,\t type=" + self.element_type + "\n"
+        facets = "*Element,\t elset=STRUC,\t type=" + self.element_type + "\n"
         for i in range(len(f)):
             temp_facet = ' %i,\t %i,\t %i,\t %i\t \n' % (i + 1, f[i][0] + 1, f[i][1] + 1, f[i][2] + 1)
             facets += temp_facet
         return facets
     
-    _inp_sets = Property(Str, depends_on = 'nodes, facets')
+    _inp_sets = Property(Str, depends_on = 'nodes, facets, bounded_nodes')
     @cached_property
     def _get__inp_sets(self):
-        set_str = '*Nset, nset=_PickedSet2, generate\n 1,\t %i,\t 1\n\
-*Elset, elset=_PickedSet2, generate\n 1,\t %i,\t 1\n' % (len(self.nodes), len(self.facets))
+        set_str = '*Nset, nset=nodes, instance=Part-A, generate\n 1,\t %i,\t 1\n\
+*Elset, elset=Struc, instance=Part-A, generate\n 1,\t %i,\t 1\n\
+*Elset, elset=_Surf-1_SNEG,  internal, instance=Part-A, generate\n 1,\t %i,\t 1\n' % (len(self.nodes), len(self.facets), len(self.facets))
+        set_str += '*Nset, nset=boundery, instance=Part-A\n'
+        for i in self.bounded_nodes:
+            print i
+            set_str += '%i, ' % (i)
+        set_str += '\n'
         return set_str
     
-    _inp_bottom = Property(Str)
+    
+    
+    _inp_section = Property(Str, depends_on = 'thickness, material_name')
     @cached_property
-    def _get__inp_bottom(self):
-        bottom = "*Nset, nset=Set-1\n\
-1,   2,    3\n\
-13, 14,   15\n\
-** Section: Section-1\n\
-*Shell Section, elset=_PickedSet2, material=Steel\n\
-0.006\n\
-**  \n\
-** \n\
+    def _get__inp_section(self):
+        section = "** Section: Section-1\n\
+*Shell Section, elset=Struc, material="
+        section += self.material_name + '\n'
+        section += '%f \n' % (self.thickness)
+        return section
+    
+
+    _inp_part = Property(Str, depends_on = '_inp_nodes, _inp_elements, _inp_section')
+    @cached_property
+    def _get__inp_part(self):
+        part = '*Part, NAME=Part-1\n'
+        part += self._inp_nodes
+        part += self._inp_elements
+        part += self._inp_section
+        part += '*end Part\n'
+        return part
+    
+    _inp_instance = Property(Str)
+    @cached_property
+    def _get__inp_instance(self):
+        instance = '*Instance, NAME=PART-A, PART=Part-1\n\
+*END INSTANCE\n'
+        return instance
+    
+    _inp_surface = Property(Str)
+    @cached_property
+    def _get__inp_surface(self):
+        surf = '*Surface, type=ELEMENT, name=Surf-1\n\
+_Surf-1_SNEG, SNEG\n'
+        return surf
+    
+    _inp_material = Property(Str, depends_on = 'material_name')
+    @cached_property
+    def _get__inp_material(self):
+        material = '**\n\
 ** MATERIALS\n\
 ** \n\
-*Material, name=Steel\n\
-*Elastic\n\
-1e+09, 0.3\n\
-** ----------------------------------------------------------------\n\
-**\n\
+*Material, name='
+        material += self.material_name + '\n'
+        material += '*Elastic\n'
+        mat_values = self.materials[self.material_name]
+        material += '%f,\t %f \n' % (mat_values[0], mat_values[1])
+        material += '**\n *DENSITY\n %f\n' % (mat_values[2])
+        material += '** ----------------------------------------------------------------\n'
+        return material
+    
+    _inp_assembly = Property(Str, depends_on = 'nodes, facets')
+    @cached_property
+    def _get__inp_assembly(self):
+        assembly = '*Assembly, NAME = Assembly1\n'
+        assembly += self._inp_instance
+        assembly += self._inp_sets
+        assembly += self._inp_surface
+        assembly += '*End Assembly\n'
+        return assembly
+    
+    _inp_loadcases = Property(Str)
+    @cached_property
+    def _get__inp_loadcases(self):
+        load = '**\n\
 ** STEP: Step-1\n\
 ** \n\
 *Step, name=Step-1\n\
 *Static\n\
 0.1, 1., 1e-05, 0.1\n\
+**\n\
 ** \n\
 ** BOUNDARY CONDITIONS\n\
 ** \n\
 ** Name: BC-1\n\
 *Boundary\n\
-Set-1, Encastre\n\
+boundery, Encastre\n\
 ** \n\
 ** LOADS\n\
 ** \n\
 ** Name: Load-1   Type: Pressure\n\
-*CLOAD\n\
-8, 2, -800\n\
-** \n\
+*DLOAD\n\
+Struc, GRAV, 9.81, 0.0, 0.0, -1.0\n'
+        return load
+    
+    _inp_output = Property(Str)
+    @cached_property
+    def _get__inp_output(self):
+        out = '**\n\
 ** OUTPUT REQUESTS\n\
 ** \n\
 *Restart, write, frequency=0\n\
 ** \n\
 ** FIELD OUTPUT: F-Output-1\n\
 ** \n\
-*Output, field, variable=PRESELECT\n\
-** \n\
+*Output, field\n\
+*Node Output\n\
+CF, RF, U\n\
+*Element Output\n\
+ALPHA, ALPHAN, CS11, CTSHR, MISES, MISESMAX, MISESONLY, PRESSONLY, PS, S, SF, SM, SSAVG, TRIAX, TSHR, VS\n\
+*Output, history, frequency=0\n\
+**\n\
 ** HISTORY OUTPUT: H-Output-1\n\
 ** \n\
 *Output, history, variable=PRESELECT\n\
@@ -391,36 +464,36 @@ U,\n\
 RF,\n\
 *EL PRINT\n\
 S,\n\
-*End Step\n"
-        return bottom
-        
-    
-    
-    
+*End Step'
+        return out
+
     def build_inp(self):
         # Data head
         head = self._inp_head
-        # nodes:
-        nodes = self._inp_nodes
-        # elements
-        elements = self._inp_elements
-        # Set's
-        set_str = self._inp_sets
+        # part
+        part = self._inp_part
+        # Assembly
+        assembly = self._inp_assembly
+        # Material
+        material = self._inp_material
         # Data bottom
-        bottom = self._inp_bottom
+        loadcases = self._inp_loadcases
+        output = self._inp_output
         
-        inp_file = open('test.inp', 'w')
+        inp_file = open(self.model_name + '.inp', 'w')
         inp_file.write(head)
-        inp_file.write(nodes)
-        inp_file.write(elements)
-        inp_file.write(set_str)
-        inp_file.write(bottom)
+        inp_file.write(part)
+        inp_file.write(assembly)
+        inp_file.write(material)
+        inp_file.write(loadcases)
+        inp_file.write(output)
+        
         inp_file.close()
         print'inp file written'
             
 
 if __name__ == '__main__':
-    from oricrete.folding.examples.ex09_crane_generator import rhombus_nxm_crane
+    from oricrete.folding.examples.ex04_rhombus_ref_surface import create_cp_fc_03
     points = np.array([[0, 0, 0],
                        [1, 0, 0],
                        [0, 1, 0],
@@ -438,7 +511,9 @@ if __name__ == '__main__':
     
     facet = [[0, 1, 2],
              [1, 3, 2]]
-    cp = rhombus_nxm_crane(n_steps = 80, L_x = 6, L_y = 5, n_x = 6, n_y = 10, dx = 1.4)
+    cp = create_cp_fc_03(n_steps = 80, L_x = 4, L_y = 2, n_x = 4, n_y = 4)
+    X0 = cp.generate_X0()
+    X_fc = cp.solve(X0)
 #    cp = CreasePattern()
 #    cp.nodes = points
 #    cp.crease_lines = cl
@@ -458,7 +533,7 @@ if __name__ == '__main__':
 
     
     
-    al = AbaqusLink(data = cp, n_split = 4)
+    al = AbaqusLink(data = cp, n_split = 10)
     al.build_inp()
     cp1 = CreasePattern()
     cp1.nodes = al.nodes
