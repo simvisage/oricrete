@@ -37,18 +37,14 @@ class RhombusCreasePattern(CreasePattern):
     new_nodes = Array(value = [], dtype = float)
     new_crease_lines = Array(value = [], dtype = int)
 
-    nodes = Property(depends_on = 'new_nodes')
+    nodes = Property
     def _get_nodes(self):
-        #nodes = np.vstack([self._geometry[0], self.new_nodes])
         return self._geometry[0]
-        #return nodes
-
+        
     crease_lines = Property
     def _get_crease_lines(self):
-        #cl = np.vstack([self._geometry[1], self.new_crease_lines])
         return self._geometry[1]
-        #return cl
-
+        
     facets = Property
     def _get_facets(self):
         return self._geometry[2]
@@ -244,9 +240,7 @@ class RhombusCreasePattern(CreasePattern):
 
         return X0.flatten()
 
-    def set_new_nodes(self, nodes = []):
-        # @todo: Matthias What does this method do? Better name and description
-        self.nodes = np.vstack([self.nodes, nodes])
+
 
 if __name__ == '__main__':
 
