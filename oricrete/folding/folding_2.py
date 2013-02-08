@@ -21,7 +21,9 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
 from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, x_, y_, z_, t_
 
-class Folding(HasTraits):
+class Folding2(HasTraits):
+    """Description of this class
+    """
     # Main Creasepattern Object
     # ToDo: Change of cp type, means handling of rhombuscreasepattern modells
     cp = CreasePattern()
@@ -62,7 +64,11 @@ class Folding(HasTraits):
     
     def get_x_0(self, index):
         '''
-        Initial position of a specified node
+        Initial position of specified nodes
+        
+        Args:
+            index (int): index is a single node-index or a int-List
+            for multiple nodes. Also numpy arrays can be given.
         '''
         return self.x_0[index]
     
@@ -76,50 +82,80 @@ class Folding(HasTraits):
     
     def get_v_0(self, index):
         '''
-        Initial vector of a specified creaseline
+        Initial vector of specified creaselines
+        
+        Args:
+            index (int): index is a single creaseline-index or a int-List
+            for multiple creaselines. Also numpy arrays can be given.
         '''
         return self.v_0[index]
     
-    # node position in timestep t
-    def get_x(self, timestep = 0, index = None):
+    
+    x = Property()
+    def _get_x(self):
         '''
-            This method returns the nodeposition of the nodes in timestep t
-            x(t)
-            also the output of the nodepositions in specified nodes can be done
-            by setting the index value. For index = None all nodes will be output
-            index can be an array too, with node indexes, so multiple points
-            can be output
+        Nodeposition of every node in every timestep
+        '''
+        return self.cp.fold_steps
+    # node position in timestep t
+    def get_x(self, timestep = 0.0, index = None):
+        '''
+            Nodeposition of nodes in timestep t.
             
-            Note: if the problem isn't solved, only the initial nodes
-            will be output
+            x(t)
+            
+            Kwargs:
+                timestep (float): Timestep between 0.0 and 1.0. Value is
+                rounded to the next existing timestep!
+                
+                index (int): index is a single node-index or a int-List
+                for multiple nodes. Also numpy-arrays can be given. 
+                If index=None, all nodes will be returned.
+            
+            ..note:: If the problem isn't solved, only the initial nodes
+            will be returned.
         '''
         output = []
         if(self.solved and timestep != 0):
             foldtemp = (len(self.cp.fold_steps) - 1) * timestep # 1.0 for indexing
             foldstep = int(foldtemp + 0.5) # 0.5 for exact rounding, 
             if index == None:
-                output = self.cp.fold_steps[foldstep]
+                output = self.x[foldstep]
             else:
-                output = self.cp.fold_steps[foldstep][index]
+                output = self.x[foldstep][index]
         else:
             output = self.N
         return output
     
-    
-    # displacement in timestep t
-    def get_u(self, timestep = 0, index = None):
+    u = Property
+    def _get_u(self):
         '''
-            This method returns the displacements of the nodes in timestep t
-            to the initial position:
-            u(t) = x(t) - x0
-            if timestep = 0 the predefined deformation will be output
-            also the output of the displacement in specified nodes can be done
-            by setting the index value. For index = None all nodes will be output
-            index can be an array too, with node indexes, so multiple points
-            can be output
+        displacement of every node in every timestep, from initial position to
+        position in timestep
+        '''
+        return self.x - self.x_0
+    
+    
+    
+        
+    # displacement in timestep t
+    def get_u(self, timestep = 0.0, index = None):
+        '''
+            Displacements of the nodes in timestep t to the initial position:
             
-            Note: if the problem isn't solved, only the predefined displacements
-            will be output
+            u(t) = x(t) - x0
+            
+            Kwargs:
+                timestep (float): Timestep between 0.0 and 1.0. Value is 
+                rounded to the next exact timestep.
+                If timestep = 0.0 predeformation will be returned.
+            
+                index (int): Node-index or a int-List for multiple nodes. 
+                Also numpy-arrays can be given. 
+                If index=None, all nodes will be returned.
+            
+            ..note:: If the problem isn't solved, only the predefined 
+            displacements will be returned.
         '''
         output = []
         if(self.solved and timestep != 0):
@@ -136,9 +172,52 @@ class Folding(HasTraits):
                 output = self.u_0[index]
         return output
     
+    v = Property()
+    def _get_v(self):
+        '''
+        Creaseline vectors in every timestep
+        '''
+        i = self.L[:, 0]
+        j = self.L[:, 1]
+        return self.x[:, j] - self.x[:, i]
+    
     # creaseline vectors in timestep t
     def get_v(self, timestep = 0, index = None):
-        pass
+        '''
+            Creaseline-vector in timestep t.
+            
+            vij(t) = xj(t) - xi(t)
+            
+            Kwargs:
+                timestep (float): Timestep between 0.0 and 1.0. Value is 
+                rounded to the next exact timestep.
+                
+                index (int): Creaseline-Index or a int-List for multiple 
+                Creaselines. Also numpy-arrays can be given. 
+                If index=None, all Creaseline-Vectors will be returned.
+        '''
+        output = []
+        if(self.solved):
+            foldtemp = (len(self.cp.fold_steps) - 1) * timestep # 1.0 for indexing
+            foldstep = int(foldtemp + 0.5) # 0.5 for exact rounding, 
+            output = self.v[foldstep]
+            if(index != None):
+                output = output[index]
+        else:
+            output = self.v
+        return output
+            
+                
+    l = Property()
+    def _get_l(self):
+        '''
+        Lenght of every creaseline in every timestep.
+        
+        l = sqrt(sum(v^2))
+        '''
+        v = self.v ** 2
+        return np.sqrt(np.sum(v, axis = 2))
+    
     
     
         
@@ -175,7 +254,12 @@ if __name__ == '__main__':
     cp.cp.solve(X0)
     cp.solved = True
     
-    print 'x(0.5): ', cp.get_u(timestep = 0.54)
+    print 'x(0.54): ', cp.get_x(timestep = 0.54)
+    print 'v(0.54): ', cp.get_v(timestep = 0.54)
+    
+    print cp.u
+    
+    
     
         
         
