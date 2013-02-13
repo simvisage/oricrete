@@ -16,7 +16,7 @@ import numpy as np
 
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Float
+    Button, Int, Float, Array
     
 from oricrete.folding import \
     CreasePattern, RhombusCreasePattern, CreasePatternView, x_, y_, z_, t_
@@ -26,7 +26,10 @@ class Folding2(HasTraits):
     """
     # Main Creasepattern Object
     # ToDo: Change of cp type, means handling of rhombuscreasepattern modells
-    cp = CreasePattern()
+    cp = Instance(CreasePattern)
+    def _cp_default(self):
+        return CreasePattern()
+    
     solved = False
     
     def __str__(self):
@@ -38,7 +41,8 @@ class Folding2(HasTraits):
         
     
     # Nodes
-    N = Property()
+    N = Property(depends_on = 'cp.nodes')
+    @cached_property
     def _get_N(self):
         return self.cp.nodes
     
@@ -47,12 +51,23 @@ class Folding2(HasTraits):
         self.cp.nodes = value
     
     # Creaselines    
-    L = Property
+    L = Property(depends_on = 'cp.crease_lines')
+    @cached_property
     def _get_L(self):
         return self.cp.crease_lines
     
     def _set_L(self, values):
+        # ToDo: check input values
         self.cp.crease_lines = values
+        
+    # Facets
+    F = Property(depends_on = 'cp.facets')
+    def _get_F(self):
+        return self.cp.facets
+    
+    def _set_F(self, values):
+        # ToDo: check input values
+        self.cp.facets = values
     
     # initial configuration    
     x_0 = Property
@@ -206,8 +221,34 @@ class Folding2(HasTraits):
         else:
             output = self.v
         return output
+    
+    # predeformation
+    u_0 = Array
+    def _u_0_default(self):
+        return np.zeros((0,), dtype = 'float_')
+    
+    @on_trait_change('N')
+    def _u_0_update(self):
+        '''
+        Automaticaly update the predeformation Array to the new number of 
+        Nodes.
+        '''
+        n_u_0 = len(self.u_0)
+        size = self.cp.n_n * self.cp.n_d - n_u_0
+        if(size > 0):
+            temp = np.zeros((size,), dtype = 'float_')
+            self.u_0 = np.hstack([self.u_0, temp])
+        elif(size < 0):
+            del_list = range(size, 0, 1)
+            del_list = [x + n_u_0 for x in del_list]
+            self.u_0 = np.delete(self.u_0, del_list, None)
             
-                
+    def u_0_reset(self):
+        '''
+        Reset the predeformation Array to a zero Array.
+        '''
+        self.u_0 = np.zeros((self.cp.n_n * self.cp.n_d,), dtype = 'float_')
+            
     l = Property()
     def _get_l(self):
         '''
@@ -219,13 +260,31 @@ class Folding2(HasTraits):
         return np.sqrt(np.sum(v, axis = 2))
     
     
-    
+    def solve(self, u_0 = None):
+        '''Solve the Problem
+        
+        Kwargs:
+            u_0 (list or array): Predeformation in every degree of freedom.
+            If u_0 = None the intern predeformation will be used.
+        '''
+        if (u_0 == None):
+            try:
+                self.cp.solve(self.u_0)
+                self.solved = True
+            except:
+                self.solved = False
+        else:
+            try:
+                self.cp.solve(u_0)
+                self.solved = True
+            except:
+                self.solved = False        
         
         
         
         
 if __name__ == '__main__':
-    cp = Folding()
+    cp = Folding2()
     
     cp.N = [[0, 0, 0],
             [1, 0, 0],
@@ -237,8 +296,8 @@ if __name__ == '__main__':
             [2, 3],
             [3, 0],
             [1, 3]]
-    cp.cp.facets = [[0, 1, 3],
-                    [1, 2, 3]]
+    cp.F = [[0, 1, 3],
+            [1, 2, 3]]
     cp.cp.cnstr_lhs = [[(1, 2, 1.0)],
                        [(0, 0, 1.0)],
                        [(0, 1, 1.0)],
@@ -248,16 +307,15 @@ if __name__ == '__main__':
                        [(2, 2, 1.0)]]
     cp.cp.cnstr_rhs = np.zeros((len(cp.cp.cnstr_lhs)), dtype = float)
     cp.cp.cnstr_rhs[0] = 0.5
-    X0 = np.zeros(cp.cp.n_dofs, dtype = float)
-    X0[0] = 0.05
+    cp.u_0[0] = 0.05
     cp.cp.n_steps = 10
-    cp.cp.solve(X0)
-    cp.solved = True
+    cp.solve()
     
-    print 'x(0.54): ', cp.get_x(timestep = 0.54)
-    print 'v(0.54): ', cp.get_v(timestep = 0.54)
+    print 'x(0.54): \n', cp.get_x(timestep = 0.54)
+    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
+   
     
-    print cp.u
+    
     
     
     
