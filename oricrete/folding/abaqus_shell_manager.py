@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
     #open commandshell 
     a = Popen(shell, stdin = PIPE, stdout = PIPE)
-
+    
 
     cluster = 'cluster-x.rz.rwth-aachen.de'
     login = 'ms299282'
