@@ -162,7 +162,7 @@ def delete_old(p, filename, tail):
 def solve_abaqus(p, filename, tail):
     send_all(p, 'abaqus job=' + filename + tail)
 
-def load_abaqus(p, filename, tail):
+def open_abaqus(p, tail):
     send_all(p, 'abaqus cae ' + tail)
 
 def connect_cluster(p, login, tail, cluster = 'cluster.rz.rwth-aacheb.de', options = []):
@@ -171,6 +171,7 @@ def connect_cluster(p, login, tail, cluster = 'cluster.rz.rwth-aacheb.de', optio
         cmd += i + ' '
     cmd += cluster + ' -l ' + login + tail
     send_all(p, cmd)
+    
 
 def upload_file(p, login, path_file, tail, cluster = 'cluster.rz.rwth-aachen.de', path_server = '~/'):
     cmd = 'scp ' + path_file + ' ' + login + '@' + cluster + ':' + path_server + tail
@@ -179,25 +180,31 @@ def upload_file(p, login, path_file, tail, cluster = 'cluster.rz.rwth-aachen.de'
 def download_file(p, login, path_file, tail, path_server, cluster = 'cluster.rz.rwth-aachen.de'):
     cmd = 'scp ' + login + '@' + cluster + ':' + path_server + ' ' + path_file + tail
     send_all(p, cmd)
-
-
-if __name__ == '__main__':
+    
+def close_connection(p, tail):
+    send_all(p, 'exit' + tail)
+    p.kill()
+    
+def open_shell():
     if sys.platform == 'win32':
         shell, commands, tail = ('cmd', ('dir /w', 'echo HELLO WORLD'), '\r\n')
     else:
         shell, commands, tail = ('sh', ['ssh -Y -t -t cluster-x.rz.rwth-aachen.de -l ms299282', 'echo HELLO WORLD'], '\n')
-
-
-    #open commandshell 
     a = Popen(shell, stdin = PIPE, stdout = PIPE)
+    return a
+
+
+if __name__ == '__main__':
+    tail = '\n'
+    #open commandshell 
+    a = open_shell()
     
 
     cluster = 'cluster-x.rz.rwth-aachen.de'
     login = 'ms299282'
 
-#    upload_file(a, login, '/home/matthias/beamtest.py', tail)
-    download_file(a, login, '/home/matthias/', tail, '~/beamtest.py')
-    print recv_some(a)
+
+
     #connect to server
     options = ['-Y',
                '-t',
@@ -208,10 +215,9 @@ if __name__ == '__main__':
     print recv_some(a)
 
     #remove old datas
-    delete_old(a, 'beam', tail)
-
+    
     #solve new file
-    solve_abaqus(a, 'beam', tail)
+    solve_abaqus(a, 'test_name', tail)
     print recv_some(a)
 
     # close connection

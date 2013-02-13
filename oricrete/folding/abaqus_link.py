@@ -20,9 +20,11 @@ from copy import copy
 import numpy as np
 from scipy.optimize import fmin_slsqp
 from scipy.spatial import Delaunay
+import subprocess
 import sys
 import scipy as sp
 from oricrete.folding import CreasePattern, CreasePatternView
+import abaqus_shell_manager as asm
 
 class AbaqusLink(HasTraits):
     # data source
@@ -33,12 +35,15 @@ class AbaqusLink(HasTraits):
     n_split = Int(2, geometry = True)
     
     
-    _cp_node_index = Property(depends_on = 'data')
+    
+    
+    _cp_node_index = Property(depends_on = 'data.nodes, data')
     @cached_property
     def _get__cp_node_index(self):
-        ''' identify all indexes of the crease pattern nodes
-            that means all nodes laying in z = 0 plane,(in t = 0)
-            aren't grab points or line points
+        ''' Indexlist of all Nodes in Creasepattern Plane.
+        
+        Identify all indexes of the crease pattern nodes laying in 
+        z = 0 plane (in t = 0) and aren't grab points or line points.
         '''
         n = self.data.nodes
         index = np.ma.array(range(0, len(n)))
@@ -57,24 +62,24 @@ class AbaqusLink(HasTraits):
         return final_index
             
     
-    _origin_nodes = Property(Array(value = [], dtype = float, geometry = True), depends_on = 'data, iterationstep')
+    _origin_nodes = Property(Array(value = [], dtype = float, geometry = True), depends_on = 'data.nodes, data, iterationstep')
     @cached_property
     def _get__origin_nodes(self):
         return self.data.fold_steps[self.iterationstep][self._cp_node_index]
         
          
     
-    _origin_facets = Property(Array(value = [], dtype = 'int_', geometry = True), depends_on = 'data')
+    _origin_facets = Property(Array(value = [], dtype = 'int_', geometry = True), depends_on = 'data.facets, data')
     @cached_property
     def _get__origin_facets(self):
         return self.data.aligned_facets
     
-    _origin_cl = Property(Array(value = [], dtype = 'int_', geometry = True), depends_on = 'data')
+    _origin_cl = Property(Array(value = [], dtype = 'int_', geometry = True), depends_on = 'data.crease_lines, data')
     @cached_property
     def _get__origin_cl(self):
         '''
-            For meshrefinement only creaselines in the creasepatten can be used! z=0 in t=0
-            reject crane sticks etc
+            For meshrefinement only creaselines in the creasepatten are necessary! 
+            They are laing on z=0 in t=0, so crane sticks etc. are rejected. 
         '''
         cl = self.data.crease_lines
         o_n = self._cp_node_index
@@ -490,7 +495,120 @@ S,\n\
         
         inp_file.close()
         print'inp file written'
-            
+        
+#=======================================================================
+# Connection to server and solving of the problem
+#=======================================================================
+    # Abaqus Shell Manager Datas:
+    cluster = 'cluster-x.rz.rwth-aachen.de'
+    login = 'ms299282'
+    options = ['-Y',
+               '-t',
+               '-t']
+
+    tail = '\n'
+    
+
+    def abaqus_solve(self):
+        ''' Solve FE with Abaqus on RWTH Cluster.
+        
+        The previouse generated input file will be uploaded on the cluster System 
+        of the RWTH and solved by Abaqus. Finally the result file will be 
+        downloaded.
+        
+        .. note:: You need a public key connection to the Cluster System. An intsallationguide 
+        is following at the end. You need this key on every computer you want to run this
+        code from.
+        
+        .. note:: You have to change the login ID to your own TIM ID.
+        
+        .. note:: This code can only be run from an Unix machine!
+        
+        ToDo:
+        - enable this code to Windows
+        - make a better output of cluster
+        - implement exception handling
+        - killing the connection
+        '''
+        # Initialise connection
+        p = asm.open_shell()
+        #establish connection
+        asm.connect_cluster(p, self.login, self.tail, cluster = self.cluster, options = self.options)
+        print asm.recv_some(p)
+        # delete old files with same name
+        asm.delete_old(p, self.model_name, self.tail)
+        print asm.recv_some(p)
+        # upload the input file
+        asm.upload_file(p, self.login, self.model_name + '.inp', self.tail)
+        print asm.recv_some(p)
+        # start abaqus solver on server
+        asm.solve_abaqus(p, self.model_name, self.tail)
+        print asm.recv_some(p)
+        # close connection
+        asm.close_connection(p, self.tail)
+        # open new connection for downloading results
+        p = asm.open_shell()
+        asm.download_file(p, self.login, self.model_name + '.dat', self.tail, self.model_name + '.dat')
+        print asm.recv_some(p)
+        p.kill()
+        
+        
+    def abaqus_cae(self):
+        # Initialise connection
+        p = asm.open_shell()
+        #establish connection
+        asm.connect_cluster(p, self.login, self.tail, cluster = self.cluster, options = self.options)
+        print asm.recv_some(p)
+        asm.open_abaqus(p, self.tail)
+        print asm.recv_some(p)
+        asm.close_connection(p, self.tail)
+        
+
+        
+    
+        
+#===============================================================================
+# Installation guide for a publickey for autoconnection on Unix Systems
+#===============================================================================
+'''
+This guide is copied from:
+http://wp.uberdose.com/2006/10/16/ssh-automatic-login/
+
+SSH Automatic Login
+
+Of course this is not the right phrase for it. It should be something like 
+key-based authorization with SSH. Or simply publickey authorization. 
+Or unattended ssh login. But I guess you know what I mean.
+
+Here are the steps:
+
+1.  Create a public ssh key, if you haven't one already.
+    Look at ~/.ssh. If you see a file named id_dsa.pub then you obviously 
+    already have a public key. If not, simply create one. ssh-keygen -t dsa 
+    should do the trick.
+    Please note that there are other types of keys, e.g. RSA instead of DSA. 
+    I simply recomend DSA, but keep that in mind if you run into errors.
+2.  Make sure your .ssh dir is 700:
+    chmod 700 ~/.ssh
+3.  Get your public ssh key on the server you want to login automatically.
+    A simple scp ~/.ssh/id_dsa.pub remoteuser@remoteserver.com: is ok.
+4.  Append the contents of your public key to the ~/.ssh/authorized_keys and remove it.
+    Important: This must be done on the server you just copied your public key to. 
+    Otherwise you wouldn't have had to copy it on your server.
+    Simply issue something like cat id_dsa.pub >> .ssh/authorized_keys while at your home directory.
+5.  Instead of steps 3 and 4, you can issue something like this:
+    cat ~/.ssh/id_dsa.pub | ssh -l remoteuser remoteserver.com 'cat >> ~/.ssh/authorized_keys'
+6.  Remove your public key from the home directory on the server.
+7.  Done!
+    You can now login:
+    ssh -l remoteuser remoteserver.com or ssh remoteuser@remoteserver.com without getting asked for a password.
+
+That's all you need to do.
+
+'''
+        
+        
+         
 
 if __name__ == '__main__':
     from oricrete.folding.examples.ex04_rhombus_ref_surface import create_cp_fc_03
@@ -499,7 +617,6 @@ if __name__ == '__main__':
                        [0, 1, 0],
                        [1, 1, 0]])
     
-    
     cl = [[0, 1],
           [1, 2],
           [2, 0],
@@ -507,58 +624,17 @@ if __name__ == '__main__':
           [3, 2]
           ]
     
-    
-    
     facet = [[0, 1, 2],
              [1, 3, 2]]
     cp = create_cp_fc_03(n_steps = 80, L_x = 4, L_y = 2, n_x = 4, n_y = 4)
     X0 = cp.generate_X0()
     X_fc = cp.solve(X0)
-#    cp = CreasePattern()
-#    cp.nodes = points
-#    cp.crease_lines = cl
-#    cp.facets = facet
-#    cp.cnstr_lhs = [[(1, 2, 1.0)],
-#              [(0, 0, 1.0)],
-#              [(0, 1, 1.0)],
-#              [(0, 2, 1.0)],
-#              [(2, 0, 1.0)],
-#              [(2, 2, 1.0)],
-#              [(3, 2, 1.0)]]
-#    cp.cnstr_rhs = np.zeros(cp.n_dofs)
-#    cp.cnstr_rhs[0] = 0.5
-#    X0 = np.zeros(cp.n_dofs)
-#    X0[0] = 0.025
-#    cp.solve(X0)
-
     
     
     al = AbaqusLink(data = cp, n_split = 10)
+    al.model_name = 'test_name'
     al.build_inp()
-    cp1 = CreasePattern()
-    cp1.nodes = al.nodes
-    cp1.facets = al.facets
-    cp1.add_fold_step(np.zeros(cp1.n_dofs))
+    al.abaqus_solve()
+    al.abaqus_cae()
     
-    cpv = CreasePatternView(data = cp1)
-    cpv.configure_traits()
-#    
-#    al.n_split = 5
-#    al.facets
-#    
-#    cp = CreasePattern()
-#    cp.nodes = al.nodes
-#    print al.nodes
-#    print al.facets
-#    
-#    cp.crease_lines = cl
-#    cp.facets = al.facets
-#    x0 = np.zeros((cp.n_dofs), dtype = float)
-#    cp.add_fold_step(x0)
-#    cpv = CreasePatternView(data = cp)
-#    cpv.configure_traits()
-#    al.build_inp()
-#    cp.create_rcp_tex()
-    
-    
-    
+  
