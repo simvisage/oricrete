@@ -40,6 +40,10 @@ class Folding2(HasTraits):
         return '' 
         
     
+    #===========================================================================
+    # Geometrical Datas
+    #===========================================================================
+    
     # Nodes
     N = Property(depends_on = 'cp.nodes')
     @cached_property
@@ -62,12 +66,120 @@ class Folding2(HasTraits):
         
     # Facets
     F = Property(depends_on = 'cp.facets')
+    @cached_property
     def _get_F(self):
         return self.cp.facets
     
     def _set_F(self, values):
         # ToDo: check input values
         self.cp.facets = values
+        
+    # Grab Points
+    GP = Property(depends_on = 'cp.grab_pts')
+    def _get_GP(self):
+        return self.cp.grab_pts
+    
+    def _set_GP(self, values):
+        # ToDo: check input values
+        self.cp.grab_pts = values
+        
+    # Line Points
+    LP = Property(depends_on = 'cp.line_pts')
+    @cached_property
+    def _get_LP(self):
+        return self.cp.line_pts
+    
+    def _set_LP(self, values):
+        # ToDo: check input values
+        self.cp.line_pts = values
+        
+    # predeformation
+    u_0 = Array
+    def _u_0_default(self):
+        return np.zeros((0,), dtype = 'float_')
+    
+    @on_trait_change('N')
+    def _u_0_update(self):
+        '''
+        Automaticaly update the predeformation Array to the new number of 
+        Nodes.
+        '''
+        n_u_0 = len(self.u_0)
+        size = self.cp.n_n * self.cp.n_d - n_u_0
+        if(size > 0):
+            temp = np.zeros((size,), dtype = 'float_')
+            self.u_0 = np.hstack([self.u_0, temp])
+        elif(size < 0):
+            del_list = range(size, 0, 1)
+            del_list = [x + n_u_0 for x in del_list]
+            self.u_0 = np.delete(self.u_0, del_list, None)
+            
+    def u_0_reset(self):
+        '''
+        Reset the predeformation Array to a zero Array.
+        '''
+        self.u_0 = np.zeros((self.cp.n_n * self.cp.n_d,), dtype = 'float_')
+    
+    #===========================================================================
+    # Constrain Datas
+    #===========================================================================
+        
+    # lhs system for standard constraints
+    cnstr_lhs = Property(depends_on = 'cp.cnstr_lhs')
+    @cached_property
+    def _get_cnstr_lhs(self):
+        return self.cp.cnstr_lhs
+    
+    def _set_cnstr_lhs(self, values):
+        # ToDo: check values
+        self.cp.cnstr_lhs = values
+        
+    # rhs system for standard constraints
+    cnstr_rhs = Property(depends_on = 'cp.cnstr_rhs')
+    @cached_property
+    def _get_cnstr_rhs(self):
+        return self.cp.cnstr_rhs
+    
+    def _set_cnstr_rhs(self, values):
+        self.cp.cnstr_rhs = values
+        
+    @on_trait_change('cnstr_lhs')
+    def _cnstr_rhs_update(self):
+        '''
+        Automaticaly update the rhs Array to the new number of 
+        standard constraints.
+        '''
+        n_cnstr_rhs = len(self.cnstr_rhs)
+        size = len(self.cnstr_lhs) - n_cnstr_rhs
+        if(size > 0):
+            temp = np.zeros((size,), dtype = 'float_')
+            self.cnstr_rhs = np.hstack([self.cnstr_rhs, temp])
+        elif(size < 0):
+            del_list = range(size, 0, 1)
+            del_list = [x + n_cnstr_rhs for x in del_list]
+            self.cnstr_rhs = np.delete(self.cnstr_rhs, del_list, None)
+            
+    def reset_cnstr_rhs(self):
+        n_cnstr_rhs = len(self.cnstr_rhs)
+        self.cnstr_rhs = np.zeros((n_cnstr_rhs,), dtype = 'float_')
+    
+    #===========================================================================
+    # 
+    #===========================================================================
+    
+    # number of calculation steps
+    n_steps = Property(depends_on = 'cp.n_steps')
+    @cached_property
+    def _get_n_steps(self):
+        return self.cp.n_steps
+    
+    def _set_n_steps(self, values):
+        # ToDo. check values
+        self.cp.n_steps = values
+        
+    #===========================================================================
+    # Output datas
+    #===========================================================================
     
     # initial configuration    
     x_0 = Property
@@ -150,9 +262,6 @@ class Folding2(HasTraits):
         '''
         return self.x - self.x_0
     
-    
-    
-        
     # displacement in timestep t
     def get_u(self, timestep = 0.0, index = None):
         '''
@@ -222,32 +331,7 @@ class Folding2(HasTraits):
             output = self.v
         return output
     
-    # predeformation
-    u_0 = Array
-    def _u_0_default(self):
-        return np.zeros((0,), dtype = 'float_')
     
-    @on_trait_change('N')
-    def _u_0_update(self):
-        '''
-        Automaticaly update the predeformation Array to the new number of 
-        Nodes.
-        '''
-        n_u_0 = len(self.u_0)
-        size = self.cp.n_n * self.cp.n_d - n_u_0
-        if(size > 0):
-            temp = np.zeros((size,), dtype = 'float_')
-            self.u_0 = np.hstack([self.u_0, temp])
-        elif(size < 0):
-            del_list = range(size, 0, 1)
-            del_list = [x + n_u_0 for x in del_list]
-            self.u_0 = np.delete(self.u_0, del_list, None)
-            
-    def u_0_reset(self):
-        '''
-        Reset the predeformation Array to a zero Array.
-        '''
-        self.u_0 = np.zeros((self.cp.n_n * self.cp.n_d,), dtype = 'float_')
             
     l = Property()
     def _get_l(self):
@@ -259,26 +343,35 @@ class Folding2(HasTraits):
         v = self.v ** 2
         return np.sqrt(np.sum(v, axis = 2))
     
+    #===========================================================================
+    # Methodes
+    #===========================================================================
     
-    def solve(self, u_0 = None):
+    def solve(self, u_0 = None, n_steps = None):
         '''Solve the Problem
         
         Kwargs:
             u_0 (list or array): Predeformation in every degree of freedom.
             If u_0 = None the intern predeformation will be used.
+            
+            n_steps (int): Reset the n_steps of the creasepattern element 
+            for calculation. None means standard value is taken.
         '''
+        temp_u_0 = u_0
         if (u_0 == None):
-            try:
-                self.cp.solve(self.u_0)
-                self.solved = True
-            except:
-                self.solved = False
-        else:
-            try:
-                self.cp.solve(u_0)
-                self.solved = True
-            except:
-                self.solved = False        
+            temp_u_0 = self.u_0
+        if (n_steps != None):
+            self.n_steps = n_steps
+        try:
+            self.cp.solve(temp_u_0)
+            self.solved = True
+        except:
+            self.solved = False 
+            
+    def show(self):
+        cpv = CreasePatternView()
+        cpv.data = self.cp
+        cpv.configure_traits()       
         
         
         
@@ -289,8 +382,9 @@ if __name__ == '__main__':
     cp.N = [[0, 0, 0],
             [1, 0, 0],
             [1, 1, 0],
-            [0, 1, 0]]
-    
+            [0, 1, 0],
+            [0.2, 0.2, 0],
+            [0.5, 0.5, 0.0]]
     cp.L = [[0, 1],
             [1, 2],
             [2, 3],
@@ -298,21 +392,25 @@ if __name__ == '__main__':
             [1, 3]]
     cp.F = [[0, 1, 3],
             [1, 2, 3]]
-    cp.cp.cnstr_lhs = [[(1, 2, 1.0)],
-                       [(0, 0, 1.0)],
-                       [(0, 1, 1.0)],
-                       [(0, 2, 1.0)],
-                       [(3, 0, 1.0)],
-                       [(3, 2, 1.0)],
-                       [(2, 2, 1.0)]]
-    cp.cp.cnstr_rhs = np.zeros((len(cp.cp.cnstr_lhs)), dtype = float)
-    cp.cp.cnstr_rhs[0] = 0.5
-    cp.u_0[0] = 0.05
-    cp.cp.n_steps = 10
-    cp.solve()
+    cp.GP = [[4, 0]]
+    cp.LP = [[5, 4]]
+    cp.cnstr_lhs = [[(1, 2, 1.0)],
+                    [(0, 0, 1.0)],
+                    [(0, 1, 1.0)],
+                    [(0, 2, 1.0)],
+                    [(3, 0, 1.0)],
+                    [(3, 2, 1.0)],
+                    [(2, 2, 1.0)],
+                    [(5, 0, 1.0)],
+                    ]
+    cp.cnstr_rhs[0] = 0.5
+    cp.u_0[5] = 0.05
+    cp.u_0[17] = 0.025
+    cp.solve(n_steps = 50)
     
     print 'x(0.54): \n', cp.get_x(timestep = 0.54)
     print 'v(0.54): \n', cp.get_v(timestep = 0.54)
+    cp.show()
    
     
     
