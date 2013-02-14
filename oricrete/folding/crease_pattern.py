@@ -96,7 +96,9 @@ class CreasePattern(HasTraits):
     # left-hand side coefficients of the constraint equations 
     cnstr_lhs = List()
     # right-hand side values of the constraint equations
-    cnstr_rhs = Array(value = [], dtype = float)
+    cnstr_rhs = Array()
+    def _cnstr_rhs_default(self):
+        return np.zeros((0,), dtype = 'float_')
     # list of Constrain-Objects
     cnstr = Array(value = [])
 
