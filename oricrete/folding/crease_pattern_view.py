@@ -63,9 +63,6 @@ class CreasePatternView(HasTraits):
                 self.distance,
                 self.f_point.reshape((3,)))
             
-    
-    
-    
     scene = Instance(MlabSceneModel)
     def _scene_default(self):
         return MlabSceneModel()
@@ -78,25 +75,12 @@ class CreasePatternView(HasTraits):
                                bgcolor = (1, 1, 1))
         return fig
     
-    
-
     scalefactor_init = Property(Float, depends_on = 'data')
     def _get_scalefactor_init(self):
-
-        bbmin, bbmax = self._get_extent()
-        bb = bbmax - bbmin
-        minbb = np.min(bb)
-
-        # @todo [Matthias] - why divided by 5
-        fkt_bb = minbb / 5
-
-        # @todo [Matthias] - why divided by 2
-        fkt_c_length = np.min(self.data.c_lengths) / 2
-        minfkt = np.max([fkt_bb, fkt_c_length])
-        if(minfkt > 0.3):
-            minfkt = 0.3
-        return minfkt
-    
+        min_length = np.min(self.data.c_lengths)
+        faktor = min_length * 0.25
+        return faktor
+        
     scalefactor = Range(0.0, 1.0, 0.0)
 
     # range of fold steps
@@ -709,23 +693,45 @@ class CreasePatternView(HasTraits):
                 height = 1.0
                 )
 
-
-
-
-
-
-
-
-
-
-
-
-
 #===============================================================================
 # Test Pattern
 #===============================================================================
 
-
-
 if __name__ == '__main__':
-    pass
+    # little example with all visual elements
+    # ToDo: suface missing
+    cp = CreasePattern()
+    
+    cp.nodes = [[0, 0, 0],
+            [1, 0, 0],
+            [1, 1, 0],
+            [0, 1, 0],
+            [0.2, 0.2, 0],
+            [0.5, 0.5, 0.0]]
+    cp.crease_lines = [[0, 1],
+            [1, 2],
+            [2, 3],
+            [3, 0],
+            [1, 3]]
+    cp.facets = [[0, 1, 3],
+            [1, 2, 3]]
+    cp.grab_pts = [[4, 0]]
+    cp.line_pts = [[5, 4]]
+    cp.cnstr_lhs = [[(1, 2, 1.0)],
+                    [(0, 0, 1.0)],
+                    [(0, 1, 1.0)],
+                    [(0, 2, 1.0)],
+                    [(3, 0, 1.0)],
+                    [(3, 2, 1.0)],
+                    [(2, 2, 1.0)],
+                    [(5, 0, 1.0)]]
+    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)                    
+    cp.cnstr_rhs[0] = 0.5
+    cp.n_steps = 10
+    u_0 = np.zeros((cp.n_n * cp.n_d,), dtype = float)
+    u_0[5] = 0.05
+    u_0[17] = 0.025
+    cp.solve(X0 = u_0)
+    cpv = CreasePatternView(data = cp)
+    cpv.configure_traits()
+    
