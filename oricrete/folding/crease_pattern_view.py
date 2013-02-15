@@ -40,6 +40,7 @@ class CreasePatternView(HasTraits):
 
     # plotting stuff
     
+    show_node_index = Bool(False)
     # View
     get_view = Button
     set_view = Button
@@ -238,7 +239,7 @@ class CreasePatternView(HasTraits):
         self.update_grab_pts_pipeline()
         self.update_line_pts_pipeline()
         
-
+        
     cp_pipeline = Property(Instance(PipelineBase))
     @cached_property
     def _get_cp_pipeline(self):
@@ -299,6 +300,28 @@ class CreasePatternView(HasTraits):
                            x0[1]:x1[1]:ff_r,
                            x0[2]:x1[2]:ff_r]
         return x, y, z * 2.0
+    
+    node_index_pipeline = Property(Array(Instance(PipelineBase)))
+    @cached_property
+    def _get_node_index_pipeline(self):
+        text = np.array([])
+        pts = self.data.nodes
+        x, y, z = pts.T
+        for i in range(len(pts)):
+            temp_text = self.scene.mlab.text3d(x[i], y[i], z[i] + 0.2 * self.scalefactor, str(i), scale = 0.05)
+            temp_text.actor.actor.visibility = int(self.show_node_index)
+            text = np.hstack([text, temp_text])
+        return text
+    
+    @on_trait_change('fold_step, show_node_index')
+    def update_text(self):
+        pts = self.data.fold_steps[self.fold_step]
+        x, y, z = pts.T
+        self.scene.disable_render = True
+        for i in range(len(self.node_index_pipeline)):
+            self.node_index_pipeline[i].actor.actor.visibility = int(self.show_node_index)
+            self.node_index_pipeline[i].actor.actor.position = np.array([x[i], y[i], z[i] + 0.2 * self.scalefactor]) 
+        self.scene.disable_render = False         
 
     grab_pts_pipeline = Property(Instance(PipelineBase), depends_on = 'data')
     @cached_property
@@ -348,9 +371,10 @@ class CreasePatternView(HasTraits):
             timestep = 0.0
         else:
             timestep = self.data.get_t_for_fold_step(self.fold_step - 1)
-
+        self.scene.disable_render = True    
         for ffview in self.ff_pipe_view:
             ffview.update(self.fold_step , timestep)
+        self.scene.disable_render = False
 
     @on_trait_change('scalefactor')
     def update_tube_pipeline(self):
@@ -368,7 +392,9 @@ class CreasePatternView(HasTraits):
             z *= self.raising_factor
 
         # set new position of 3D Points
+        self.scene.disable_render = True
         self.cp_pipeline.mlab_source.reset(x = x, y = y, z = z)
+        self.scene.disable_render = False
         
         
     @on_trait_change('fold_step, z_raising, raising_factor')
@@ -384,7 +410,9 @@ class CreasePatternView(HasTraits):
         x, y, z = copy.copy(gp_nodes.T)
         if(self.z_raising and (self.fold_step == 1)):
             z *= self.raising_factor
+        self.scene.disable_render = True
         self.grab_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
+        self.scene.disable_render = False
 
     @on_trait_change('fold_step, z_raising, raising_factor')
     def update_line_pts_pipeline(self):
@@ -399,7 +427,9 @@ class CreasePatternView(HasTraits):
         x, y, z = copy.copy(lp_nodes.T)
         if(self.z_raising and (self.fold_step == 1)):
             z *= self.raising_factor
+        self.scene.disable_render = True
         self.line_pts_pipeline.mlab_source.reset(x = x, y = y, z = z)
+        self.scene.disable_render = False
 
     #===============================================================================
     # Pipelines for OLD constrain visualization
@@ -495,7 +525,7 @@ class CreasePatternView(HasTraits):
     def update_cnstr_pipeline(self):
         nodes = self.data.fold_steps[self.fold_step]
         if self.show_manual_cnstr:
-
+            self.scene.disable_render = True
             # update constrain symbols
 
             cn_f, cd_f, cn_c, cc_c, cd_c, cn_l, cd_l = self.cnstr
@@ -555,10 +585,11 @@ class CreasePatternView(HasTraits):
 
             self.cc_arrow.mlab_source.reset(x = x, y = y, z = z)
             self.cc_arrow.mlab_source.dataset.lines = cc_c
-
+            self.scene.disable_render = False
 
     @on_trait_change('show_manual_cnstr')
     def update_visible_cnstr_pipeline(self):
+            self.scene.disable_render = True
             self.cnstr_pipeline.visible = self.show_manual_cnstr
             self.cf_cross.visible = self.show_manual_cnstr
             self.cl_arrow.visible = self.show_manual_cnstr
@@ -566,6 +597,7 @@ class CreasePatternView(HasTraits):
 
             if not self.show_manual_cnstr:
                 self.cc_arrow.mlab_source.dataset.lines = []
+            self.scene.disable_render = False
 
     #===========================================================================
     # Export animation of the folding process 
@@ -643,6 +675,7 @@ class CreasePatternView(HasTraits):
     view1 = View(
            HSplit(Group(
                              Group(Item('show_manual_cnstr'),
+                                   Item('show_node_index'),
                                    Item('z_raising', label = 'Z-Raising for Foldstep 1'),
                                    Item('raising_factor'),
                                    Item('scalefactor'),
