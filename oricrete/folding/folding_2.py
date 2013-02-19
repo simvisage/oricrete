@@ -16,10 +16,16 @@ import numpy as np
 
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Float, Array
+    Button, Int, Float, Array, Bool
     
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, x_, y_, z_, t_
+    CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
+    
+from oricrete.folding.cnstr_target_face import \
+    CnstrTargetFace, r_, s_
+
+from oricrete.folding.equality_constraint import \
+    Unfoldability
 
 class Folding2(HasTraits):
     """Description of this class
@@ -30,7 +36,7 @@ class Folding2(HasTraits):
     def _cp_default(self):
         return CreasePattern()
     
-    solved = False
+    
     
     def __str__(self):
         print 'N:\n', self.N
@@ -93,6 +99,11 @@ class Folding2(HasTraits):
         # ToDo: check input values
         self.cp.line_pts = values
         
+    # Surfaces as ConstraintControlFace for any Surface Cnstr
+    S = Array()
+    def _S_default(self):
+        return np.zeros((0,))
+    
     # predeformation
     u_0 = Array
     def _u_0_default(self):
@@ -162,6 +173,28 @@ class Folding2(HasTraits):
     def reset_cnstr_rhs(self):
         n_cnstr_rhs = len(self.cnstr_rhs)
         self.cnstr_rhs = np.zeros((n_cnstr_rhs,), dtype = 'float_')
+        
+    TF = Property(depends_on = 'cp.tf_lst')
+    @cached_property
+    def _get_TF(self):
+        return self.cp.tf_lst
+    
+    def _set_TF(self, values):
+        #ToDo: Check values
+        self.cp.tf_lst = values
+        
+    CF = Property(depends_on = 'cp.cf_lst')
+    @cached_property
+    def _get_CF(self):
+        return self.cp.cf_lst
+    
+    def _set_CF(self, values):
+        #ToDo: check values
+        temp = []
+        for i in values:
+            cf = CF(Rf = i[0])
+            temp.append(tuple([cf, np.array(i[1])]))
+        self.cp.cf_lst = temp
     
     #===========================================================================
     # 
@@ -347,6 +380,8 @@ class Folding2(HasTraits):
     # Methodes
     #===========================================================================
     
+    solved = Bool(False)
+    
     def solve(self, u_0 = None, n_steps = None):
         '''Solve the Problem
         
@@ -374,11 +409,11 @@ class Folding2(HasTraits):
         cpv.configure_traits()       
         
         
-        
-        
+      
 if __name__ == '__main__':
     cp = Folding2()
-    
+    cp.S = [z_ - 0.5 * t_,
+            z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]
     cp.N = [[0, 0, 0],
             [1, 0, 0],
             [1, 1, 0],
@@ -394,7 +429,9 @@ if __name__ == '__main__':
             [1, 2, 3]]
     cp.GP = [[4, 0]]
     cp.LP = [[5, 4]]
-    cp.cnstr_lhs = [[(1, 2, 1.0)],
+    cp.CF = [[cp.S[0], [1]]]
+    print cp.cp.cf_lst
+    cp.cnstr_lhs = [#[(1, 2, 1.0)],
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
@@ -403,13 +440,13 @@ if __name__ == '__main__':
                     [(2, 2, 1.0)],
                     [(5, 0, 1.0)],
                     ]
-    cp.cnstr_rhs[0] = 0.5
+#    cp.cnstr_rhs[0] = 0.5
     cp.u_0[5] = 0.05
     cp.u_0[17] = 0.025
     cp.solve(n_steps = 50)
     
     print 'x(0.54): \n', cp.get_x(timestep = 0.54)
-    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
+#    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
     cp.show()
    
     
