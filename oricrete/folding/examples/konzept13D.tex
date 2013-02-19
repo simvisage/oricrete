@@ -1,0 +1,22 @@
+\psset{xunit=5.000cm,yunit=5.000cm,Alpha=140.000,Beta=30.000}
+ \begin{pspicture}(0,0)
+ \pstThreeDCoor
+  \pstThreeDNode(0.000,0.000,1.000){0}
+  \pstThreeDNode(1.000,0.000,1.500){1}
+  \pstThreeDNode(0.500,0.000,0.000){2}
+  \pstThreeDNode(0.100,0.000,1.050){3}
+ \psset{linecolor=black}
+  \pstThreeDLine(0.000,0.000,1.000)(1.000,0.000,1.500)
+ \psset{linecolor=black}
+  \pstThreeDLine(0.500,0.000,0.000)(0.100,0.000,1.050)
+ \psset{dotstyle=*,linecolor=gray}
+  \pstThreeDDot(0.000,0.000,1.000)
+  \pstThreeDDot(1.000,0.000,1.500)
+  \pstThreeDDot(0.500,0.000,0.000)
+  \pstThreeDDot(0.100,0.000,1.050)
+ \psset{linecolor=black}
+  \pstThreeDPut(0.000,0.000,1.000){0}
+  \pstThreeDPut(1.000,0.000,1.500){1}
+  \pstThreeDPut(0.500,0.000,0.000){2}
+  \pstThreeDPut(0.100,0.000,1.050){3}
+ \end{pspicture}

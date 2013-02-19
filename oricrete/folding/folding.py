@@ -17,16 +17,16 @@ import numpy as np
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Float
-    
+
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, FF, x_, y_, z_, t_
+    CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 class Folding(HasTraits):
     '''
     API Class for oricrete packet
-    
+
     '''
-    
+
     #===========================================================================
     #  Input funktions
     #===========================================================================
@@ -36,23 +36,23 @@ class Folding(HasTraits):
         check if nodes are double
         '''
         pass
-    
+
     def add_nodes(self, x, y, z):
         '''
         Add one or more nodes to the existing nodes
         check if nodes are double or very close
         '''
         pass
-    
+
     def delete_nodes(self, nodes):
         '''
         delete all submitted nodes from nodelist, if they exist
         optional deleting via index
-        check if any other element has to be deleted 
+        check if any other element has to be deleted
         change every other element, cnstr and list because index of nodes will change!!
         '''
         pass
-    
+
     def set_creaselines(self, node1, node2):
         '''
         Set's a new set of creaselines, old creaselines will be overwritten
@@ -64,7 +64,7 @@ class Folding(HasTraits):
         add new nodes to nodelist
         '''
         pass
-    
+
     def add_creaselines(self, node1, node2):
         '''
         Add one or more creaselines to the existing nodes
@@ -76,7 +76,7 @@ class Folding(HasTraits):
         add new nodes to nodelist
         '''
         pass
-    
+
     def delete_creaselines(self, cl):
         '''
         delete all submitted creaselines from creaselinelist, if they exist
@@ -87,8 +87,8 @@ class Folding(HasTraits):
         check if cl or nodes existing,
         check weather reverse cl definition exists
         '''
-        pass 
-    
+        pass
+
     def set_facets(self, node1, node2, node3):
         '''
         Set's a new set of facets, old facets will be overwritten
@@ -100,7 +100,7 @@ class Folding(HasTraits):
         check double facets
         '''
         pass
-    
+
     def add_facets(self, node1, node2, node3):
         '''
         Add one or more facets to the existing facets
@@ -112,7 +112,7 @@ class Folding(HasTraits):
         check double facets
         '''
         pass
-    
+
     def delete_facets(self, facets):
         '''
         delete all submitted facets from facetslist
@@ -125,7 +125,7 @@ class Folding(HasTraits):
         check double facets
         '''
         pass
-    
+
     def set_grabpoint(self, node, facet):
         '''
         Set's a new set of grabpoints, old grabpoints will be overwritten
@@ -138,7 +138,7 @@ class Folding(HasTraits):
         create new facet if it wont exist
         '''
         pass
-    
+
     def add_grabpoints(self, node, facet):
         '''
         Add one or more grabpoints to the existing grabpoints
@@ -151,7 +151,7 @@ class Folding(HasTraits):
         create new facet if it wont exist
         '''
         pass
-    
+
     def delete_grabpoints(self, grabpoints):
         '''
         delete all submitted grabpoints from grabpointlist
@@ -160,10 +160,10 @@ class Folding(HasTraits):
         type 3: [n1, [n2,n3,n4]]
         vary type 3 with node coordinates instead of indexes
         type 4: [gp] with gp as index of gplist
-        option: delete coupled elements as well        
+        option: delete coupled elements as well
         '''
         pass
-    
+
     def set_linepoints(self, node, creaseline):
         '''
         Set's a new set of linepoints, old linepoints will be overwritten
@@ -176,7 +176,7 @@ class Folding(HasTraits):
         create new cl if it wont exist
         '''
         pass
-    
+
     def add_linepoints(self, node, creaseline):
         '''
         Add one or more linepoints to the existing linepoints
@@ -189,7 +189,7 @@ class Folding(HasTraits):
         create new facet if it wont exist
         '''
         pass
-    
+
     def delete_linepoints(self, linepoints):
         '''
         delete all submitted linepoints from linepointlist
@@ -198,10 +198,10 @@ class Folding(HasTraits):
         type 3: [n1, [n2,n3]]
         vary type 3 with node coordinates instead of indexes
         type 4: [lp] with lp as index of lplist
-        option: delete coupled elements as well        
+        option: delete coupled elements as well
         '''
         pass
-    
+
     def set_sufaces(self, surfacefunctions):
         '''
         set's a new set of surfaces which can be used for different constrain types,
@@ -209,14 +209,14 @@ class Folding(HasTraits):
         type 1: give the function of the surface as sympy
         '''
         pass
-        
+
     def add_surfaces(self, surfacefunctions):
         '''
         add's one or more surfaces to surface list
         type 1: give the function of the surface as sympy
         '''
         pass
-    
+
     def delete_sufaces(self, surfacefunctions):
         '''
         delete submitted surfaces from surface list
@@ -225,12 +225,12 @@ class Folding(HasTraits):
         delete all connected constrains as well
         '''
         pass
-    
+
     #===========================================================================
     #  classic constraints may be divided as fixed cnstr directly given with rhs value
     #  and connected cnstr with rhs alway 0.0, so rhs system is automaticaly setup
     #===========================================================================
-    
+
     def set_constraints_fixed(self, node, dir, fac = 1.0, rhs = 0.0):
         '''
         classic constraints for each node
@@ -241,7 +241,7 @@ class Folding(HasTraits):
         vary with no tuple inside
         '''
         pass
-    
+
     def add_constraints_fixed(self, node, dir, fac = 1.0, rhs = 0.0):
         '''
         classic constraints for each node
@@ -252,19 +252,19 @@ class Folding(HasTraits):
         vary with no tuple inside
         '''
         pass
-    
+
     def delete_constraints_fixed(self, node, dir = -1):
         '''
         Delete fixed constraint
         dir = -1  deleting all directions
         '''
-    
+
     def set_constraints_connected(self, node1, node2, dir1, dir2, fac1 = 1.0, fac2 = -1.0, rhs = 0.0):
         pass
-    
+
     def add_constraints_connected(self, node1, node2, dir1, dir2, fac1 = 1.0, fac2 = -1.0, rhs = 0.0):
         pass
-    
+
     def delete_constraints_connected(self, node1, node2):
         '''
         Delete coneccted constraints
@@ -272,26 +272,26 @@ class Folding(HasTraits):
         type 2: node = [n1,dir], fixature of an special direction will be deleted
         '''
         pass
-    
+
     def delete_constraints(self, node):
         '''
         Delete all constraints with this node
         '''
         pass
-    
+
     def enable_constraints(self, node1, dir1 = -1, node2 = None, dir2 = -1):
         '''
         activates constraints for solving
         '''
         pass
-    
+
     def disable_constraints(self, node1, dir1 = -1, node2 = None, dir2 = -1):
         '''
         deactivate constraints for solving
         '''
         pass
-    
-        
-        
-        
-    
+
+
+
+
+
