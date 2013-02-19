@@ -100,8 +100,14 @@ class Folding2(HasTraits):
         self.cp.line_pts = values
         
     # Surfaces as ConstraintControlFace for any Surface Cnstr
-    S = Array()
-    def _S_default(self):
+    TS = Array()
+    def _TS_default(self):
+        #Target Surfaces
+        return np.zeros((0,))
+    
+    CS = Array()
+    def _CS_default(self):
+        # Control Surfaces
         return np.zeros((0,))
     
     # predeformation
@@ -180,8 +186,13 @@ class Folding2(HasTraits):
         return self.cp.tf_lst
     
     def _set_TF(self, values):
-        #ToDo: Check values
-        self.cp.tf_lst = values
+        #ToDo: check values
+        temp = []
+        for i in values:
+            face = i[0]
+            ctf = CnstrTargetFace(F = list(face))
+            temp.append(tuple([ctf, np.array(i[1])]))
+        self.cp.tf_lst = temp
         
     CF = Property(depends_on = 'cp.cf_lst')
     @cached_property
@@ -192,7 +203,7 @@ class Folding2(HasTraits):
         #ToDo: check values
         temp = []
         for i in values:
-            cf = CF(Rf = i[0])
+            cf = CF(Rf = i[0][0])
             temp.append(tuple([cf, np.array(i[1])]))
         self.cp.cf_lst = temp
     
@@ -412,8 +423,8 @@ class Folding2(HasTraits):
       
 if __name__ == '__main__':
     cp = Folding2()
-    cp.S = [z_ - 0.5 * t_,
-            z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]
+    cp.TS = [[r_ , s_, 0.01 + t_ * (0.5)]]
+    cp.CS = [[z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]]
     cp.N = [[0, 0, 0],
             [1, 0, 0],
             [1, 1, 0],
@@ -429,8 +440,10 @@ if __name__ == '__main__':
             [1, 2, 3]]
     cp.GP = [[4, 0]]
     cp.LP = [[5, 4]]
-    cp.CF = [[cp.S[0], [1]]]
-    print cp.cp.cf_lst
+
+    cp.CF = [[cp.CS[0], [1]]]    
+#    cp.TF = [[cp.TS[0], [1]]]
+    
     cp.cnstr_lhs = [#[(1, 2, 1.0)],
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
@@ -446,7 +459,7 @@ if __name__ == '__main__':
     cp.solve(n_steps = 50)
     
     print 'x(0.54): \n', cp.get_x(timestep = 0.54)
-#    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
+    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
     cp.show()
    
     
