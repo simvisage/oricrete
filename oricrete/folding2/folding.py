@@ -63,7 +63,7 @@ class Folding(HasTraits):
     #===========================================================================
     # Solver dispatcher
     #===========================================================================
-    def solve(self, acc = 1e-4):
+    def _solve(self, acc = 1e-4):
         '''Solve the problem with the appropriate solver
         '''
 
@@ -556,7 +556,7 @@ if __name__ == '__main__':
 #    cp.cnstr_rhs[0] = 0.5
     cp.u0[5] = 0.05
     cp.u0[17] = 0.025
-    cp.solve()
+    cp._solve()
 
     print 'x(0.54): \n', cp.get_x(timestep = 0.54)
     print 'v(0.54): \n', cp.get_v(timestep = 0.54)
