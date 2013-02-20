@@ -70,6 +70,13 @@ class CreasePattern(HasTraits):
     # points for facet grabbing [n,f]
     # first index gives node, second gives the facet 
     grab_pts = List([])
+    
+    cf_lst = List([])
+    tf_lst = List([])
+
+    ff_lst = Property
+    def _get_ff_lst(self):
+        return [ ff for ff, nodes in self.cf_lst ]
 
     # nodes movable only on a crease line [n,cl]
     # first index gives the node, second the crease line
@@ -87,9 +94,10 @@ class CreasePattern(HasTraits):
     # left-hand side coefficients of the constraint equations 
     cnstr_lhs = List()
     # right-hand side values of the constraint equations
-    cnstr_rhs = Array()
-    def _cnstr_rhs_default(self):
-        return np.zeros((0,), dtype = 'float_')
+    cnstr_rhs = Property(depends_on = 'cnstr_lhs')
+    @cached_property
+    def _get_cnstr_rhs(self):
+        return np.zeros((len(self.cnstr_lhs),), dtype = 'float_')
     # list of Constrain-Objects
     cnstr = Array(value = [])
 
@@ -168,61 +176,9 @@ class CreasePattern(HasTraits):
     u0 = Property(depends_on = 'nodes')
     @cached_property
     def _get_u0(self):
-        print 'generating u_0'
         return np.zeros((self.n_n * self.n_d,), dtype = 'float_')
 
-    #===========================================================================
-    # Equality constraints
-    #===========================================================================
-    eqcons = Dict(Str, IEqualityConstraint)
-    def _eqcons_default(self):
-        return {
-                'cl' : ConstantLength(cp = self),
-                'gp' : GrabPoints(cp = self),
-                'pl' : PointsOnLine(cp = self),
-                'ps' : PointsOnSurface(cp = self),
-                'dc' : DofConstraints(cp = self)
-                }
-
-    eqcons_lst = Property(depends_on = 'eqcons')
-    @cached_property
-    def _get_eqcons_lst(self):
-        return self.eqcons.values()
-
-    def get_G(self, u_vct, t = 0):
-        G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
-        return np.hstack(G_lst)
-
-    def get_G_t(self, u_vct):
-        return self.get_G(u_vct, self.t)
-
-    def get_G_du(self, u_vct, t = 0):
-        G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
-        return np.vstack(G_dx_lst)
-
-    def get_G_du_t(self, X_vct):
-        return self.get_G_du(X_vct, self.t)
-
-
-    #===========================================================================
-    # Solver parameters
-    #===========================================================================
-    n_steps = Int(1, auto_set = False, enter_set = True)
-    def _n_steps_changed(self):
-        self.t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
-
-    time_arr = Array(float, auto_set = False, enter_set = True)
-    def _time_arr_changed(self, t_arr):
-        self.t_arr = t_arr
-
-    t_arr = Array(float)
-    def _t_arr_default(self):
-        return np.linspace(1. / self.n_steps, 1., self.n_steps)
-
-    show_iter = Bool(False, auto_set = False, enter_set = True)
-
-    MAX_ITER = Int(100, auto_set = False, enter_set = True)
-
+    
     #===============================================================================
     # Verification procedures to check the compliance with the constant length criteria. 
     #===============================================================================

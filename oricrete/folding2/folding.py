@@ -16,7 +16,7 @@ import numpy as np
 
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Float, Array, Bool, List
+    Button, Int, Float, Array, Bool, List, Dict
 
 from crease_pattern import \
     CreasePattern
@@ -24,11 +24,14 @@ from crease_pattern import \
 from cnstr_control_face import \
     CF
 
-from crease_pattern_view import \
-    CreasePatternView
+
 
 from cnstr_target_face import \
     CnstrTargetFace, r_, s_
+    
+from equality_constraint import \
+    IEqualityConstraint, ConstantLength, GrabPoints, \
+    PointsOnLine, PointsOnSurface, DofConstraints
 
 from scipy.optimize import fmin_slsqp
 
@@ -59,6 +62,25 @@ class Folding(HasTraits):
 
     N = DelegatesTo('cp', 'nodes')
     L = DelegatesTo('cp')
+    
+    #===========================================================================
+    # Solver parameters
+    #===========================================================================
+    n_steps = Int(1, auto_set = False, enter_set = True)
+    def _n_steps_changed(self):
+        self.t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
+
+    time_arr = Array(float, auto_set = False, enter_set = True)
+    def _time_arr_changed(self, t_arr):
+        self.t_arr = t_arr
+
+    t_arr = Array(float)
+    def _t_arr_default(self):
+        return np.linspace(1. / self.n_steps, 1., self.n_steps)
+
+    show_iter = Bool(False, auto_set = False, enter_set = True)
+
+    MAX_ITER = Int(100, auto_set = False, enter_set = True)
 
     #===========================================================================
     # Solver dispatcher
@@ -96,14 +118,14 @@ class Folding(HasTraits):
                 nR = np.linalg.norm(R)
                 if nR < acc:
                     print '==== converged in ', i, 'iterations ===='
-                    self.add_fold_step(X)
+                    self.cp.add_fold_step(X)
                     break
                 try:
                     dX = np.linalg.solve(dR, -R)
 
                     X += dX
                     if self.show_iter:
-                        self.add_fold_step(X)
+                        self.cp.add_fold_step(X)
                     i += 1
                 except Exception as inst:
                     print '==== problems solving linalg in interation step %d  ====' % i
@@ -143,7 +165,7 @@ class Folding(HasTraits):
                            epsilon = eps)
             X, f, n_iter, imode, smode = info
             X = np.array(X)
-            self.add_fold_step(X)
+            self.cp.add_fold_step(X)
             if imode == 0:
                 print '(time: %g, iter: %d, f: %g)' % (time, n_iter, f)
             else:
@@ -200,58 +222,59 @@ class Folding(HasTraits):
         return ''
 
     #===========================================================================
+    # Equality constraints
+    #===========================================================================
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                'cl' : ConstantLength(cp = self.cp),
+                'gp' : GrabPoints(cp = self.cp),
+                'pl' : PointsOnLine(cp = self.cp),
+                'ps' : PointsOnSurface(cp = self.cp),
+                'dc' : DofConstraints(cp = self.cp)
+                }
+
+    eqcons_lst = Property(depends_on = 'eqcons')
+    @cached_property
+    def _get_eqcons_lst(self):
+        return self.eqcons.values()
+
+    def get_G(self, u_vct, t = 0):
+        G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
+        return np.hstack(G_lst)
+
+    def get_G_t(self, u_vct):
+        return self.get_G(u_vct, self.t)
+
+    def get_G_du(self, u_vct, t = 0):
+        G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
+        return np.vstack(G_dx_lst)
+
+    def get_G_du_t(self, X_vct):
+        return self.get_G_du(X_vct, self.t)
+
+
+    
+
+    #===========================================================================
     # Geometrical Datas
     #===========================================================================
-
+    
     # Nodes
-    N = Property(depends_on = 'cp.nodes')
-    @cached_property
-    def _get_N(self):
-        return self.cp.nodes
-
-    def _set_N(self, value):
-        # ToDo: check input values
-        self.cp.nodes = value
-
-    # Creaselines    
-    L = Property(depends_on = 'cp.crease_lines')
-    @cached_property
-    def _get_L(self):
-        return self.cp.crease_lines
-
-    def _set_L(self, values):
-        # ToDo: check input values
-        self.cp.crease_lines = values
-
+    N = DelegatesTo('cp', 'nodes')
+    
+    # Crease_lines
+    L = DelegatesTo('cp', 'crease_lines')
+    
     # Facets
-    F = Property(depends_on = 'cp.facets')
-    @cached_property
-    def _get_F(self):
-        return self.cp.facets
-
-    def _set_F(self, values):
-        # ToDo: check input values
-        self.cp.facets = values
+    F = DelegatesTo('cp', 'facets')
 
     # Grab Points
-    GP = Property(depends_on = 'cp.grab_pts')
-    def _get_GP(self):
-        return self.cp.grab_pts
-
-    def _set_GP(self, values):
-        # ToDo: check input values
-        self.cp.grab_pts = values
-
+    GP = DelegatesTo('cp', 'grab_pts')
+    
     # Line Points
-    LP = Property(depends_on = 'cp.line_pts')
-    @cached_property
-    def _get_LP(self):
-        return self.cp.line_pts
-
-    def _set_LP(self, values):
-        # ToDo: check input values
-        self.cp.line_pts = values
-
+    LP = DelegatesTo('cp', 'line_pts')
+    
     # Surfaces as ConstraintControlFace for any Surface Cnstr
     TS = Array()
     def _TS_default(self):
@@ -263,50 +286,18 @@ class Folding(HasTraits):
         # Control Surfaces
         return np.zeros((0,))
 
-    u0 = DelegatesTo('cp')
+    u0 = DelegatesTo('cp', 'u0')
 
     #===========================================================================
     # Constrain Datas
     #===========================================================================
 
     # lhs system for standard constraints
-    cnstr_lhs = Property(depends_on = 'cp.cnstr_lhs')
-    @cached_property
-    def _get_cnstr_lhs(self):
-        return self.cp.cnstr_lhs
-
-    def _set_cnstr_lhs(self, values):
-        # ToDo: check values
-        self.cp.cnstr_lhs = values
+    cnstr_lhs = DelegatesTo('cp', 'cnstr_lhs')
 
     # rhs system for standard constraints
-    cnstr_rhs = Property(depends_on = 'cp.cnstr_rhs')
-    @cached_property
-    def _get_cnstr_rhs(self):
-        return self.cp.cnstr_rhs
-
-    def _set_cnstr_rhs(self, values):
-        self.cp.cnstr_rhs = values
-
-    @on_trait_change('cnstr_lhs')
-    def _cnstr_rhs_update(self):
-        '''
-        Automaticaly update the rhs Array to the new number of
-        standard constraints.
-        '''
-        n_cnstr_rhs = len(self.cnstr_rhs)
-        size = len(self.cnstr_lhs) - n_cnstr_rhs
-        if(size > 0):
-            temp = np.zeros((size,), dtype = 'float_')
-            self.cnstr_rhs = np.hstack([self.cnstr_rhs, temp])
-        elif(size < 0):
-            del_list = range(size, 0, 1)
-            del_list = [x + n_cnstr_rhs for x in del_list]
-            self.cnstr_rhs = np.delete(self.cnstr_rhs, del_list, None)
-
-    def reset_cnstr_rhs(self):
-        n_cnstr_rhs = len(self.cnstr_rhs)
-        self.cnstr_rhs = np.zeros((n_cnstr_rhs,), dtype = 'float_')
+    cnstr_rhs = DelegatesTo('cp', 'cnstr_rhs')
+    
 
     TF = Property(depends_on = 'cp.tf_lst')
     @cached_property
@@ -340,15 +331,13 @@ class Folding(HasTraits):
     #===========================================================================
 
     # number of calculation steps
-    n_steps = Property(depends_on = 'cp.n_steps')
-    @cached_property
-    def _get_n_steps(self):
-        return self.cp.n_steps
-
-    def _set_n_steps(self, values):
-        # ToDo. check values
-        self.cp.n_steps = values
-
+    n_steps = Int(10)
+    
+    fold_steps = DelegatesTo('cp', 'fold_steps')
+    
+    def get_t_for_fold_step(self, fold_step):
+        '''Get the index of the fold step array for the given time t'''
+        return self.t_arr[fold_step]
     #===========================================================================
     # Output datas
     #===========================================================================
@@ -514,8 +503,10 @@ class Folding(HasTraits):
         return np.sqrt(np.sum(v, axis = 2))
 
     def show(self):
+        from crease_pattern_view import \
+            CreasePatternView
         cpv = CreasePatternView()
-        cpv.data = self.cp
+        cpv.data = self
         cpv.configure_traits()
 
 if __name__ == '__main__':
@@ -556,8 +547,9 @@ if __name__ == '__main__':
 #    cp.cnstr_rhs[0] = 0.5
     cp.u0[5] = 0.05
     cp.u0[17] = 0.025
+    print cp.u0
     cp.solve()
 
-    print 'x(0.54): \n', cp.get_x(timestep = 0.54)
-    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
+#    print 'x(0.54): \n', cp.get_x(timestep = 0.54)
+#    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
     cp.show()
