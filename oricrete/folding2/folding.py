@@ -406,7 +406,7 @@ if __name__ == '__main__':
     cp = Folding()
 
     from cnstr_target_face import r_, s_, t_, x_, y_, z_
-
+    cp.n_steps = 10
     cp.TS = [[r_ , s_, 0.01 + t_ * (0.5)]]
     cp.CS = [[z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]]
     cp.N = [[0, 0, 0],
@@ -426,10 +426,10 @@ if __name__ == '__main__':
     cp.LP = [[5, 4]]
 
     
-#    cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
+    cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
 #    cp.tf_lst = [(CnstrTargetFace(F = cp.TS[0].tolist()), [1])]
 
-    cp.cnstr_lhs = [[(1, 2, 1.0)],
+    cp.cnstr_lhs = [#[(1, 2, 1.0)],
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
@@ -438,7 +438,7 @@ if __name__ == '__main__':
                     [(2, 2, 1.0)],
                     [(5, 0, 1.0)],
                     ]
-    cp.cnstr_rhs[0] = 0.9
+#    cp.cnstr_rhs[0] = 0.9
     cp.u_0[5] = 0.05
     cp.u_0[17] = 0.025
 #    print cp.u_0
