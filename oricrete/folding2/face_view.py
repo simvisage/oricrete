@@ -11,7 +11,7 @@ from etsproxy.mayavi.modules.api import Axes
 
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Bool, File, Array, List, Float, TraitType
+    Button, Int, Bool, File, Array, List, Float, TraitType, WeakRef
 
 from etsproxy.traits.ui.api import \
     View, Item, Group, ButtonEditor, RangeEditor, VGroup, HGroup, HSplit, Tabbed, \
@@ -26,26 +26,29 @@ class FaceView(HasTraits):
     '''
      This class manages the visualization of CnstrControlFace constrains
     '''
+    data = WeakRef
+    
+    xyz_grid = DelegatesTo('data')
+    x_t = DelegatesTo('data')
+    scene = DelegatesTo('data')
+    scalefactor = DelegatesTo('data')
+    
     show_ff_pipe = Bool(True)
     show_ff_nodes = Bool(False)
     fold_step = Int(0)
     time_step = Float(0.0)
     name = Str('Nr 1')
-
+    
     # constrain opacity
     opacity_min = Int(0)
     opacity_max = Int(100)
 
     opacity = Int(20)
 
-    def __init__(self, scene, cnstr, xyzgrid, nodes, scalefactor, *args, **kw):
+    def __init__(self, cnstr, *args, **kw):
         super(FaceView, self).__init__(*args, **kw)
         self.ff = cnstr[0]
-        self.xyzgrid = xyzgrid
-        self.nodes = nodes
         self.nodes_id = cnstr[1]
-        self.scene = scene
-        self.scalefactor = scalefactor
         self.ff_pipe
 
     def update(self, fold_step, time_step):
@@ -55,7 +58,7 @@ class FaceView(HasTraits):
     ff_pipe = Property(Instance(PipelineBase))
     @cached_property
     def _get_ff_pipe(self):
-        x, y, z = self.xyzgrid
+        x, y, z = self.xyz_grid
         ff_pipe = self.scene.mlab.contour3d(x, y, z, lambda x, y, z: self.ff.Rf(x, y, z, 0.0),
                                                   contours = [0.0])
         ff_pipe.visible = self.show_ff_pipe
@@ -66,8 +69,8 @@ class FaceView(HasTraits):
     ff_nodes = Property(Instance(PipelineBase))
     @cached_property
     def _get_ff_nodes(self):
-        x, y, z = self.nodes[0][self.nodes_id].T
-        ff_nodes = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor, color = (0.5, 0., 0.))
+        x, y, z = self.x_t[0][self.nodes_id].T
+        ff_nodes = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.5, color = (0.5, 0., 0.))
         ff_nodes.visible = self.show_ff_nodes
         return ff_nodes
 
@@ -93,14 +96,14 @@ class FaceView(HasTraits):
     def update_ff(self):
         if self.show_ff_pipe:
 
-            x, y, z = self.xyzgrid
+            x, y, z = self.xyz_grid
             t = self.time_step
             Rf = self.ff.Rf(x, y, z, t)
 
             self.ff_pipe.mlab_source.set(scalars = Rf)
 
         if self.show_ff_nodes:
-            x, y, z = self.nodes[self.fold_step][self.nodes_id].T
+            x, y, z = self.x_t[self.fold_step][self.nodes_id].T
             self.ff_nodes.mlab_source.reset(x = x, y = y, z = z)
 
     view = View(Item('show_ff_pipe'),

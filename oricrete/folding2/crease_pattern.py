@@ -82,25 +82,6 @@ class CreasePattern(HasTraits):
     # first index gives the node, second the crease line
     line_pts = List([])
 
-    # constrained node indices
-    # define the pairs (node, dimension) affected by the constraint
-    # stored in the constrained_x array
-    #
-    # define the constraint in the form
-    # cnstr_lhs = [ [(node_1, dir_1, coeff_1),(node_2, dir_2, coeff_2)], # first constraint
-    #              [(node_i, dir_i, coeff_i)], # second constraint
-    # cnstr_rhs = [ value_first, velue_second ]
-    # 
-    # left-hand side coefficients of the constraint equations 
-    cnstr_lhs = List()
-    # right-hand side values of the constraint equations
-    cnstr_rhs = Property(depends_on = 'cnstr_lhs')
-    @cached_property
-    def _get_cnstr_rhs(self):
-        return np.zeros((len(self.cnstr_lhs),), dtype = 'float_')
-    # list of Constrain-Objects
-    cnstr = Array(value = [])
-
     #===============================================================================
     # Enumeration of dofs 
     #===============================================================================
@@ -180,31 +161,6 @@ class CreasePattern(HasTraits):
 
 
     #===============================================================================
-    # Verification procedures to check the compliance with the constant length criteria. 
-    #===============================================================================
-    def get_new_nodes(self, X_vct):
-        '''
-            Calculates the lengths of the crease lines.
-        '''
-        X = X_vct.reshape(self.n_n, self.n_d)
-        return self.nodes + X
-
-    def get_new_vectors(self, X_vct):
-        '''
-            Calculates the lengths of the crease lines.
-        '''
-        cX = self.get_new_nodes(X_vct)
-        cl = self.crease_lines
-        return cX[ cl[:, 1] ] - cX[ cl[:, 0] ]
-
-    def get_new_lengths(self, X_vct):
-        '''
-            Calculates the lengths of the crease lines.
-        '''
-        cV = self.get_new_vectors(X_vct)
-        return np.sqrt(np.sum(cV ** 2, axis = 1))
-
-    #===============================================================================
     # methods and Information for Abaqus calculation
     #===============================================================================
     aligned_facets = Property(depends_on = 'facets')
@@ -228,28 +184,11 @@ class CreasePattern(HasTraits):
         return a_f
 
 
-
     #===============================================================================
-    # methods and Informations for visualization
+    # methods 
     #===============================================================================
 
-    def get_t_for_fold_step(self, fold_step):
-        '''Get the index of the fold step array for the given time t'''
-        return self.t_arr[fold_step]
 
-    fold_steps = Array(value = [], dtype = float)
-
-    def add_fold_step(self, X_vct):
-        '''
-           Calculates the position of nodes for this iteration.
-        '''
-        if(self.fold_steps.shape == (0,)):
-            self.fold_steps = [self.nodes]
-        X = X_vct.reshape(self.n_n, self.n_d)
-
-        nextnode = self.nodes + X
-
-        self.fold_steps = np.vstack((self.fold_steps, [nextnode]))
 
     def get_cnstr_pos(self, iteration_step):
         '''

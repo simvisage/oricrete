@@ -24,8 +24,6 @@ from crease_pattern import \
 from cnstr_control_face import \
     CF
 
-
-
 from cnstr_target_face import \
     CnstrTargetFace, r_, s_
 
@@ -42,12 +40,91 @@ class Folding(HasTraits):
     cp_changed
     cnstr_changed
     """
+    
     # Main Creasepattern Object
     # ToDo: Change of cp type, means handling of rhombuscreasepattern modells
     cp = Instance(CreasePattern)
     def _cp_default(self):
         return CreasePattern()
 
+    #===========================================================================
+    # Geometrical Datas
+    #===========================================================================
+
+    # Nodes
+    N = DelegatesTo('cp', 'nodes')
+
+    # Crease_lines
+    L = DelegatesTo('cp', 'crease_lines')
+
+    # Facets
+    F = DelegatesTo('cp', 'facets')
+
+    # Grab Points
+    GP = DelegatesTo('cp', 'grab_pts')
+
+    # Line Points
+    LP = DelegatesTo('cp', 'line_pts')
+
+    # Surfaces as ConstraintControlFace for any Surface Cnstr
+    TS = Array()
+    def _TS_default(self):
+        #Target Surfaces
+        return np.zeros((0,))
+
+    CS = Array()
+    def _CS_default(self):
+        # Control Surfaces
+        return np.zeros((0,))
+
+    u_0 = DelegatesTo('cp', 'u_0')
+    
+    n_c = DelegatesTo('cp')
+    n_n = DelegatesTo('cp')
+    n_d = DelegatesTo('cp')
+    n_g = DelegatesTo('cp')
+    n_l = DelegatesTo('cp')
+    n_dofs = DelegatesTo('cp') 
+    
+    n_c_ff = Property
+    def _get_n_c_ff(self):
+        '''Number of constraints'''
+        n_c = 0
+        # count the nodes in each entry in the cf_lst
+        for ff, nodes in self.cf_lst:
+            n_c += len(nodes)
+        return n_c
+    
+    fold_steps = DelegatesTo('cp', 'fold_steps')
+
+    def get_t_for_fold_step(self, fold_step):
+        '''Get the index of the fold step array for the given time t'''
+        return self.t_arr[fold_step]
+    
+    #===========================================================================
+    # Constrain Datas
+    #===========================================================================
+    
+    # constrained node indices
+    # define the pairs (node, dimension) affected by the constraint
+    # stored in the constrained_x array
+    #
+    # define the constraint in the form
+    # cnstr_lhs = [ [(node_1, dir_1, coeff_1),(node_2, dir_2, coeff_2)], # first constraint
+    #              [(node_i, dir_i, coeff_i)], # second constraint
+    # cnstr_rhs = [ value_first, velue_second ]
+    # 
+    # left-hand side coefficients of the constraint equations 
+    cnstr_lhs = List()
+    # right-hand side values of the constraint equations
+    cnstr_rhs = Property(depends_on = 'cnstr_lhs')
+    @cached_property
+    def _get_cnstr_rhs(self):
+        return np.zeros((len(self.cnstr_lhs),), dtype = 'float_')
+    
+    # list of Constrain-Objects
+    cnstr = Array(value = [])
+  
     cf_lst = List([])
     tf_lst = List([])
 
@@ -55,13 +132,41 @@ class Folding(HasTraits):
     def _get_ff_lst(self):
         return [ ff for ff, nodes in self.cf_lst ]
 
-
     cp_changed = Bool(False)
 
     cnstr_changed = Bool(False)
 
-    N = DelegatesTo('cp', 'nodes')
-    L = DelegatesTo('cp')
+    #===========================================================================
+    # Equality constraints
+    #===========================================================================
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                'cl' : ConstantLength(cp = self),
+                'gp' : GrabPoints(cp = self),
+                'pl' : PointsOnLine(cp = self),
+                'ps' : PointsOnSurface(cp = self),
+                'dc' : DofConstraints(cp = self)
+                }
+
+    eqcons_lst = Property(depends_on = 'eqcons')
+    @cached_property
+    def _get_eqcons_lst(self):
+        return self.eqcons.values()
+
+    def get_G(self, u_vct, t = 0):
+        G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
+        return np.hstack(G_lst)
+
+    def get_G_t(self, u_vct):
+        return self.get_G(u_vct, self.t)
+
+    def get_G_du(self, u_vct, t = 0):
+        G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
+        return np.vstack(G_dx_lst)
+
+    def get_G_du_t(self, X_vct):
+        return self.get_G_du(X_vct, self.t)
 
     #===========================================================================
     # Solver parameters
@@ -91,10 +196,6 @@ class Folding(HasTraits):
         '''Solve the problem with the appropriate solver
         '''
 
-#        # save predeformation from start vector
-#        self.add_fold_step(X0)
-#        
-
         if(len(self.tf_lst) > 0):
             return self._solve_fmin(self.u_0, self.acc)
         else:
@@ -108,8 +209,8 @@ class Folding(HasTraits):
 
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
-
-        u_t = []
+        u_t0 = np.zeros((self.cp.n_n * self.cp.n_d,))
+        u_t = [u_t0]
 
         for t in self.t_arr:
             print 'step', t,
@@ -122,24 +223,23 @@ class Folding(HasTraits):
                 nR = np.linalg.norm(R)
                 if nR < acc:
                     print '==== converged in ', i, 'iterations ===='
-                    u_t.append(X)
+                    u_t.append(np.copy(X))
                     break
                 try:
                     dX = np.linalg.solve(dR, -R)
 
                     X += dX
                     if self.show_iter:
-                        u_t.append(X)
+                        u_t.append(np.copy(X))
                     i += 1
                 except Exception as inst:
                     print '==== problems solving linalg in interation step %d  ====' % i
                     print '==== Exception message: ', inst
-                    u_t.append(X)
+                    u_t.append(np.copy(X))
                     return u_t
             else:
                 print '==== did not converge in %d interations ====' % i
                 return u_t
-
         return np.array(u_t, dtype = 'f')
 
     use_G_du = True
@@ -152,7 +252,8 @@ class Folding(HasTraits):
         d0 = self.get_f(X0)
         eps = d0 * 1e-4
         X = X0
-        u_t = []
+        u_t0 = np.zeros((self.cp.n_n * self.cp.n_d,))
+        u_t = [u_t0]
         get_G_du_t = None
         for step, time in enumerate(self.t_arr):
             print 'step', step,
@@ -170,13 +271,13 @@ class Folding(HasTraits):
                            epsilon = eps)
             X, f, n_iter, imode, smode = info
             X = np.array(X)
-            u_t.append(X)
+            u_t.append(np.copy(X))
             if imode == 0:
                 print '(time: %g, iter: %d, f: %g)' % (time, n_iter, f)
             else:
                 print '(time: %g, iter: %d, f: %g, %s)' % (time, n_iter, f, smode)
                 break
-        return u_t
+        return np.array(u_t, dtype = 'f')
 
     #===========================================================================
     # Goal function
@@ -218,131 +319,32 @@ class Folding(HasTraits):
 
     def get_f_du_t(self, x):
         return self.get_f_du(x, self.t)
+    
+    #===============================================================================
+    # Verification procedures to check the compliance with the constant length criteria. 
+    #===============================================================================
+    def get_new_nodes(self, X_vct):
+        '''
+            Calculates the lengths of the crease lines.
+        '''
+        X = X_vct.reshape(self.n_n, self.n_d)
+        return self.N + X
 
-    def __str__(self):
-        print 'N:\n', self.N
-        print 'L:\n', self.L
-        print 'x0:\n', self.x_0
-        print 'v0:\n', self.v_0
-        return ''
+    def get_new_vectors(self, X_vct):
+        '''
+            Calculates the lengths of the crease lines.
+        '''
+        cX = self.get_new_nodes(X_vct)
+        cl = self.L
+        return cX[ cl[:, 1] ] - cX[ cl[:, 0] ]
 
-    #===========================================================================
-    # Equality constraints
-    #===========================================================================
-    eqcons = Dict(Str, IEqualityConstraint)
-    def _eqcons_default(self):
-        return {
-                'cl' : ConstantLength(cp = self.cp),
-                'gp' : GrabPoints(cp = self.cp),
-                'pl' : PointsOnLine(cp = self.cp),
-                'ps' : PointsOnSurface(cp = self.cp),
-                'dc' : DofConstraints(cp = self.cp)
-                }
+    def get_new_lengths(self, X_vct):
+        '''
+            Calculates the lengths of the crease lines.
+        '''
+        cV = self.get_new_vectors(X_vct)
+        return np.sqrt(np.sum(cV ** 2, axis = 1))
 
-    eqcons_lst = Property(depends_on = 'eqcons')
-    @cached_property
-    def _get_eqcons_lst(self):
-        return self.eqcons.values()
-
-    def get_G(self, u_vct, t = 0):
-        G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
-        return np.hstack(G_lst)
-
-    def get_G_t(self, u_vct):
-        return self.get_G(u_vct, self.t)
-
-    def get_G_du(self, u_vct, t = 0):
-        G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
-        return np.vstack(G_dx_lst)
-
-    def get_G_du_t(self, X_vct):
-        return self.get_G_du(X_vct, self.t)
-
-
-
-
-    #===========================================================================
-    # Geometrical Datas
-    #===========================================================================
-
-    # Nodes
-    N = DelegatesTo('cp', 'nodes')
-
-    # Crease_lines
-    L = DelegatesTo('cp', 'crease_lines')
-
-    # Facets
-    F = DelegatesTo('cp', 'facets')
-
-    # Grab Points
-    GP = DelegatesTo('cp', 'grab_pts')
-
-    # Line Points
-    LP = DelegatesTo('cp', 'line_pts')
-
-    # Surfaces as ConstraintControlFace for any Surface Cnstr
-    TS = Array()
-    def _TS_default(self):
-        #Target Surfaces
-        return np.zeros((0,))
-
-    CS = Array()
-    def _CS_default(self):
-        # Control Surfaces
-        return np.zeros((0,))
-
-    u_0 = DelegatesTo('cp', 'u_0')
-
-    #===========================================================================
-    # Constrain Datas
-    #===========================================================================
-
-    # lhs system for standard constraints
-    cnstr_lhs = DelegatesTo('cp', 'cnstr_lhs')
-
-    # rhs system for standard constraints
-    cnstr_rhs = DelegatesTo('cp', 'cnstr_rhs')
-
-
-    TF = Property(depends_on = 'cp.tf_lst')
-    @cached_property
-    def _get_TF(self):
-        return self.cp.tf_lst
-
-    def _set_TF(self, values):
-        #ToDo: check values
-        temp = []
-        for i in values:
-            face = i[0]
-            ctf = CnstrTargetFace(F = list(face))
-            temp.append(tuple([ctf, np.array(i[1])]))
-        self.cp.tf_lst = temp
-
-    CF = Property(depends_on = 'cp.cf_lst')
-    @cached_property
-    def _get_CF(self):
-        return self.cp.cf_lst
-
-    def _set_CF(self, values):
-        #ToDo: check values
-        temp = []
-        for i in values:
-            cf = CF(Rf = i[0][0])
-            temp.append(tuple([cf, np.array(i[1])]))
-        self.cp.cf_lst = temp
-
-    #===========================================================================
-    # 
-    #===========================================================================
-
-    # number of calculation steps
-    n_steps = Int(10)
-
-    fold_steps = DelegatesTo('cp', 'fold_steps')
-
-    def get_t_for_fold_step(self, fold_step):
-        '''Get the index of the fold step array for the given time t'''
-        return self.t_arr[fold_step]
     #===========================================================================
     # Output datas
     #===========================================================================
@@ -353,17 +355,7 @@ class Folding(HasTraits):
         '''
         Initial position of all nodes
         '''
-        return self.cp.nodes
-
-    def get_x_0(self, index):
-        '''
-        Initial position of specified nodes
-
-        Args:
-            index (int): index is a single node-index or a int-List
-            for multiple nodes. Also numpy arrays can be given.
-        '''
-        return self.x_0[index]
+        return self.N
 
     # initial creaseline vectors
     v_0 = Property
@@ -373,129 +365,25 @@ class Folding(HasTraits):
         '''
         return self.cp.c_vectors
 
-    def get_v_0(self, index):
-        '''
-        Initial vector of specified creaselines
-
-        Args:
-            index (int): index is a single creaseline-index or a int-List
-            for multiple creaselines. Also numpy arrays can be given.
-        '''
-        return self.v_0[index]
-
-
-    x = Property()
-    def _get_x(self):
+    x_t = Property()
+    def _get_x_t(self):
         '''
         Nodeposition of every node in every timestep
         '''
-        return self.cp.fold_steps
-    # node position in timestep t
-    def get_x(self, timestep = 0.0, index = None):
-        '''
-            Nodeposition of nodes in timestep t.
-
-            x(t)
-
-            Kwargs:
-                timestep (float): Timestep between 0.0 and 1.0. Value is
-                rounded to the next existing timestep!
-
-                index (int): index is a single node-index or a int-List
-                for multiple nodes. Also numpy-arrays can be given.
-                If index=None, all nodes will be returned.
-
-            ..note:: If the problem isn't solved, only the initial nodes
-            will be returned.
-        '''
-        output = []
-        if(self.solved and timestep != 0):
-            foldtemp = (len(self.cp.fold_steps) - 1) * timestep # 1.0 for indexing
-            foldstep = int(foldtemp + 0.5) # 0.5 for exact rounding, 
-            if index == None:
-                output = self.x[foldstep]
-            else:
-                output = self.x[foldstep][index]
-        else:
-            output = self.N
-        return output
-
-    u = Property
-    def _get_u(self):
-        '''
-        displacement of every node in every timestep, from initial position to
-        position in timestep
-        '''
-        return self.x - self.x_0
-
-    # displacement in timestep t
-    def get_u(self, timestep = 0.0, index = None):
-        '''
-            Displacements of the nodes in timestep t to the initial position:
-
-            u(t) = x(t) - x0
-
-            Kwargs:
-                timestep (float): Timestep between 0.0 and 1.0. Value is
-                rounded to the next exact timestep.
-                If timestep = 0.0 predeformation will be returned.
-
-                index (int): Node-index or a int-List for multiple nodes.
-                Also numpy-arrays can be given.
-                If index=None, all nodes will be returned.
-
-            ..note:: If the problem isn't solved, only the predefined
-            displacements will be returned.
-        '''
-        output = []
-        if(self.solved and timestep != 0):
-            if index == None:
-                output = self.get_x(timestep) - self.x_0
-            else:
-                temp = self.get_x(timestep) - self.x_0
-                output = temp[index]
-        else:
-            # put out only predefined displacements
-            if index == None:
-                output = self.u_0
-            else:
-                output = self.u_0[index]
-        return output
-
-    v = Property()
-    def _get_v(self):
+        x = []
+        for u in self.u_t:
+            temp = self.N + u.reshape(-1, 3)
+            x.append(temp)
+        return np.array(x, dtype = 'f')
+    
+    v_t = Property()
+    def _get_v_t(self):
         '''
         Creaseline vectors in every timestep
         '''
         i = self.L[:, 0]
         j = self.L[:, 1]
-        return self.x[:, j] - self.x[:, i]
-
-    # creaseline vectors in timestep t
-    def get_v(self, timestep = 0, index = None):
-        '''
-            Creaseline-vector in timestep t.
-
-            vij(t) = xj(t) - xi(t)
-
-            Kwargs:
-                timestep (float): Timestep between 0.0 and 1.0. Value is
-                rounded to the next exact timestep.
-
-                index (int): Creaseline-Index or a int-List for multiple
-                Creaselines. Also numpy-arrays can be given.
-                If index=None, all Creaseline-Vectors will be returned.
-        '''
-        output = []
-        if(self.solved):
-            foldtemp = (len(self.cp.fold_steps) - 1) * timestep # 1.0 for indexing
-            foldstep = int(foldtemp + 0.5) # 0.5 for exact rounding, 
-            output = self.v[foldstep]
-            if(index != None):
-                output = output[index]
-        else:
-            output = self.v
-        return output
+        return self.x_t[:, j] - self.x_t[:, i]
 
     l = Property()
     def _get_l(self):
@@ -504,7 +392,7 @@ class Folding(HasTraits):
 
         l = sqrt(sum(v^2))
         '''
-        v = self.v ** 2
+        v = self.v_t ** 2
         return np.sqrt(np.sum(v, axis = 2))
 
     def show(self):
@@ -537,10 +425,11 @@ if __name__ == '__main__':
     cp.GP = [[4, 0]]
     cp.LP = [[5, 4]]
 
-    cp.CF = [[cp.CS[0], [1]]]
-#    cp.TF = [[cp.TS[0], [1]]]
+    
+#    cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
+#    cp.tf_lst = [(CnstrTargetFace(F = cp.TS[0].tolist()), [1])]
 
-    cp.cnstr_lhs = [#[(1, 2, 1.0)],
+    cp.cnstr_lhs = [[(1, 2, 1.0)],
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
@@ -549,12 +438,11 @@ if __name__ == '__main__':
                     [(2, 2, 1.0)],
                     [(5, 0, 1.0)],
                     ]
-#    cp.cnstr_rhs[0] = 0.5
+    cp.cnstr_rhs[0] = 0.9
     cp.u_0[5] = 0.05
     cp.u_0[17] = 0.025
-    print cp.u_0
-    print cp.u_t
+#    print cp.u_0
+#    print cp.x_t
+    cp.show()
 
-#    print 'x(0.54): \n', cp.get_x(timestep = 0.54)
-#    print 'v(0.54): \n', cp.get_v(timestep = 0.54)
-#    cp.show()
+

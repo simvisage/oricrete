@@ -36,6 +36,7 @@ class EqualityConstraint(HasStrictTraits):
 
     # link to the crease pattern
     cp = WeakRef
+    
 
     # Indicate the derivatives are unavailable
     has_G_du = Bool(True)
@@ -51,25 +52,25 @@ class ConstantLength(EqualityConstraint):
     # to be submitted to the equality constraint.
     # by default, all crease lines are included.
     # However, it is possible to redefine them. 
-    crease_lines = PrototypedFrom('cp')
+    L = PrototypedFrom('cp')
     n_c = DelegatesTo('cp')
 
-    nodes = DelegatesTo('cp')
+    N = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
 
     #===========================================================================
     # Dependent interim results
     #===========================================================================
-    crease_line_vectors = Property(Array, depends_on = 'nodes, crease_lines')
+    crease_line_vectors = Property(Array, depends_on = 'N, L')
     @cached_property
     def _get_crease_line_vectors(self):
         '''
             Calculates the direction vectors of the crease lines.
         '''
-        n = self.nodes[...]
+        n = self.N[...]
 
-        cl = self.crease_lines
+        cl = self.L
         return n[ cl[:, 1] ] - n[ cl[:, 0] ]
 
     crease_line_lengths = Property(Array, depends_on = 'nodes, crease_lines')
@@ -86,8 +87,8 @@ class ConstantLength(EqualityConstraint):
         given the fold vector dX.
         '''
 
-        j = self.crease_lines[:, 1]
-        i = self.crease_lines[:, 0]
+        j = self.L[:, 1]
+        i = self.L[:, 0]
 
         u = u_vct.reshape(self.n_n, self.n_d)
         u_j = u[j]
@@ -108,8 +109,8 @@ class ConstantLength(EqualityConstraint):
         given the fold vector dX.
 
         '''
-        i = self.crease_lines[:, 0]
-        j = self.crease_lines[:, 1]
+        i = self.L[:, 0]
+        j = self.L[:, 1]
 
         u = u_vct.reshape(self.n_n, self.n_d)
         u_i = u[i]
@@ -142,14 +143,14 @@ class GrabPoints(EqualityConstraint):
     n_g = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
     n_dofs = DelegatesTo('cp')
-    nodes = DelegatesTo('cp')
-    facets = DelegatesTo('cp')
-    grab_pts = DelegatesTo('cp')
+    N = DelegatesTo('cp')
+    F = DelegatesTo('cp')
+    GP = DelegatesTo('cp')
 
     #===========================================================================
     # Grab point specification
     #===========================================================================
-    grab_pts_L = Property(Array, depends_on = 'nodes, facets, grab_pts')
+    grab_pts_L = Property(Array, depends_on = 'N, F, GP')
     @cached_property
     def _get_grab_pts_L(self):
         '''Calculates the L vector for the Barycentric coordinates
@@ -157,13 +158,13 @@ class GrabPoints(EqualityConstraint):
            if the grabpoint is choosen correctly (laying in the plane of the facet)
            L4 will be 0
         '''
-        n = self.nodes
-        f = self.facets
+        n = self.N
+        f = self.F
 
         x4 = np.array([0, 0, -1])
         L = np.array([])
 
-        for i in self.grab_pts:
+        for i in self.GP:
             f_i = i[1] #actual facet index
             T = np.c_[n[f[f_i][0]] - x4, n[f[f_i][1]] - x4]
             T = np.c_[T, n[f[f_i][2]] - x4]
@@ -188,8 +189,8 @@ class GrabPoints(EqualityConstraint):
 
         '''
         grab_lines = np.zeros((self.n_g * self.n_d, self.n_dofs))
-        for i in range(len(self.grab_pts)):
-            facet = self.facets[self.grab_pts[i][1]]
+        for i in range(len(self.GP)):
+            facet = self.F[self.GP[i][1]]
             c = 0
             for q in facet:
                 grab_lines[i * 3, q * 3] = self.grab_pts_L[i][c]
@@ -197,9 +198,9 @@ class GrabPoints(EqualityConstraint):
                 grab_lines[i * 3 + 2, q * 3 + 2] = self.grab_pts_L[i][c]
                 c += 1
 
-            grab_lines[i * 3, self.grab_pts[i][0] * 3 ] = -1
-            grab_lines[i * 3 + 1, self.grab_pts[i][0] * 3 + 1 ] = -1
-            grab_lines[i * 3 + 2, self.grab_pts[i][0] * 3 + 2 ] = -1
+            grab_lines[i * 3, self.GP[i][0] * 3 ] = -1
+            grab_lines[i * 3 + 1, self.GP[i][0] * 3 + 1 ] = -1
+            grab_lines[i * 3 + 2, self.GP[i][0] * 3 + 2 ] = -1
 
         return grab_lines
 
@@ -207,24 +208,24 @@ class PointsOnLine(EqualityConstraint):
     '''Grab points are included in the nodes attribute of the crease pattern.
     Their position is constrained within a facet using triangle coordinates.
     '''
-    line_pts = DelegatesTo('cp')
+    LP = DelegatesTo('cp')
     n_l = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
     n_dofs = DelegatesTo('cp')
-    crease_lines = DelegatesTo('cp')
-    nodes = DelegatesTo('cp')
+    L = DelegatesTo('cp')
+    N = DelegatesTo('cp')
 
     def get_G(self, u_vct, t):
 
-        line = np.array(self.line_pts)
+        line = np.array(self.LP)
         if(len(line) == 0):
             return []
-        cl = self.crease_lines[line[:, 1]]
+        cl = self.L[line[:, 1]]
         X = u_vct.reshape(self.n_n, self.n_d)
-        p0 = self.nodes[line[:, 0]]
-        p1 = self.nodes[cl[:, 0]]
-        p2 = self.nodes[cl[:, 1]]
+        p0 = self.N[line[:, 0]]
+        p1 = self.N[cl[:, 0]]
+        p2 = self.N[cl[:, 1]]
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
@@ -270,14 +271,14 @@ class PointsOnLine(EqualityConstraint):
         ''' Calculate the jacobian of the residuum at the instantaneous
         configuration dR
         '''
-        line = np.array(self.line_pts)
+        line = np.array(self.LP)
         if(len(line) == 0):
             return np.zeros((self.n_l * 2, self.n_dofs))
-        cl = self.crease_lines[line[:, 1]]
+        cl = self.L[line[:, 1]]
         X = u_vct.reshape(self.n_n, self.n_d)
-        p0 = self.nodes[line[:, 0]]
-        p1 = self.nodes[cl[:, 0]]
-        p2 = self.nodes[cl[:, 1]]
+        p0 = self.N[line[:, 0]]
+        p1 = self.N[cl[:, 0]]
+        p2 = self.N[cl[:, 1]]
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
@@ -358,7 +359,7 @@ class PointsOnLine(EqualityConstraint):
 
 class PointsOnSurface(EqualityConstraint):
 
-    nodes = DelegatesTo('cp')
+    N = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
     n_dofs = DelegatesTo('cp')
@@ -368,7 +369,7 @@ class PointsOnSurface(EqualityConstraint):
     def get_G(self, dX_vct, t = 0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.nodes + dX_vct.reshape(self.n_n, self.n_d)
+        X = self.N + dX_vct.reshape(self.n_n, self.n_d)
         Rf = np.zeros((self.n_c_ff,), dtype = 'float_')
 
         i = 0
@@ -383,7 +384,7 @@ class PointsOnSurface(EqualityConstraint):
     def get_G_du(self, u_vct, t = 0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.nodes + u_vct.reshape(self.n_n, self.n_d)
+        X = self.N + u_vct.reshape(self.n_n, self.n_d)
         G_du = np.zeros((self.n_c_ff, self.n_dofs), dtype = 'float_')
 
         i = 0
@@ -428,8 +429,8 @@ class Unfoldability(EqualityConstraint):
     '''For the specified node associations require
     the sum of the angles between adjacent crease lines be 2Pi
     '''
-    nodes = DelegatesTo('cp')
-    crease_lines = DelegatesTo('cp')
+    N = DelegatesTo('cp')
+    L = DelegatesTo('cp')
 
     connectivity = List([])
 
@@ -443,7 +444,7 @@ class Unfoldability(EqualityConstraint):
         ''' Calculate the residuum for given constraint equations
         '''
         u = u_vct.reshape(self.n_n, self.n_d)
-        x = self.nodes + u
+        x = self.N + u
 
         G_lst = []
         for v, n in self.connectivity:
@@ -479,7 +480,7 @@ class Unfoldability(EqualityConstraint):
         '''
 
         u = u_vct.reshape(self.n_n, self.n_d)
-        x = self.nodes + u
+        x = self.N + u
 
         # number of foldable constraints
         n_fc = len(self.connectivity)
