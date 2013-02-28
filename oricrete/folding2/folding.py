@@ -29,7 +29,7 @@ from cnstr_target_face import \
 
 from equality_constraint import \
     IEqualityConstraint, ConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints
+    PointsOnLine, PointsOnSurface, DofConstraints, Unfoldability
 
 from scipy.optimize import fmin_slsqp
 
@@ -65,6 +65,9 @@ class Folding(HasTraits):
 
     # Line Points
     LP = DelegatesTo('cp', 'line_pts')
+    
+    # Connectivitys
+    connectivity = DelegatesTo('cp', 'connectivity')
 
     # Surfaces as ConstraintControlFace for any Surface Cnstr
     TS = Array()
@@ -156,6 +159,8 @@ class Folding(HasTraits):
 
     def get_G(self, u_vct, t = 0):
         G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
+        if(G_lst == []):
+            return []
         return np.hstack(G_lst)
 
     def get_G_t(self, u_vct):
@@ -163,6 +168,8 @@ class Folding(HasTraits):
 
     def get_G_du(self, u_vct, t = 0):
         G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
+        if(G_dx_lst == []):
+            return []
         return np.vstack(G_dx_lst)
 
     def get_G_du_t(self, X_vct):
@@ -171,10 +178,20 @@ class Folding(HasTraits):
     #===========================================================================
     # Solver parameters
     #===========================================================================
+    unfold = Bool(False)
+    
+    @on_trait_change('unfold', 'n_steps')
+    def _t_arr_change(self):
+        t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
+        if(self.unfold):
+            t_arr = t_arr[::-1]
+            t_arr -= 1. / self.n_steps
+        self.t_arr = t_arr
+    
     n_steps = Int(1, auto_set = False, enter_set = True)
     def _n_steps_changed(self):
         self.t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
-
+        
     time_arr = Array(float, auto_set = False, enter_set = True)
     def _time_arr_changed(self, t_arr):
         self.t_arr = t_arr
@@ -190,7 +207,7 @@ class Folding(HasTraits):
     acc = Float(1e-4, auto_set = False, enter_set = True)
 
     # Displacement history for the current folding process
-    u_t = Property(depends_on = 'cp_changed')
+    u_t = Property(depends_on = 'cp_changed, N')
     @cached_property
     def _get_u_t(self):
         '''Solve the problem with the appropriate solver
@@ -401,7 +418,34 @@ class Folding(HasTraits):
         cpv = CreasePatternView()
         cpv.data = self
         cpv.configure_traits()
+        
+        
+class Initialization(Folding):
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                }
+    
+    t_init = Float(0.001)
+    def _t_init_changed(self):   
+        self.t_arr = np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
+    
+    n_steps = Int(1, auto_set = False, enter_set = True)
+    def _n_steps_changed(self):
+        self.t_arr = np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
+            
+    t_arr = Array(float)
+    def _t_arr_default(self):
+        return np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
 
+    
+class FormFinding(Folding):
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                'uf' : Unfoldability(cp = self)
+                }
+    
 if __name__ == '__main__':
     cp = Folding()
 

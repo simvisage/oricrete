@@ -66,6 +66,8 @@ class CreasePattern(HasTraits):
         return np.zeros((0, 2), dtype = 'int_')
 
     facets = Array(value = [], dtype = 'int_')
+    
+    connectivity = List([])
 
     # points for facet grabbing [n,f]
     # first index gives node, second gives the facet 

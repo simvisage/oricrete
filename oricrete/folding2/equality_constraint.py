@@ -432,7 +432,7 @@ class Unfoldability(EqualityConstraint):
     N = DelegatesTo('cp')
     L = DelegatesTo('cp')
 
-    connectivity = List([])
+    connectivity = DelegatesTo('cp')
 
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
