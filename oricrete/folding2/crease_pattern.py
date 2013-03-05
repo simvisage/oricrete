@@ -155,11 +155,19 @@ class CreasePattern(HasTraits):
         '''
         c = self.c_vectors
         return np.sqrt(np.sum(c ** 2, axis = 1))
+    
+    _u_0 = Array
+    def __u_0_default(self):
+        return np.zeros((self.n_n * self.n_d,), dtype = 'float_')
 
-    u_0 = Property(depends_on = 'nodes')
+    u_0 = Property(depends_on = 'nodes, _u_0')
     @cached_property
     def _get_u_0(self):
-        return np.zeros((self.n_n * self.n_d,), dtype = 'float_')
+        return self._u_0
+    
+    def _set_u_0(self, values):
+        self._u_0 = values.reshape((self.n_n * self.n_d,))
+        
 
 
     #===============================================================================
