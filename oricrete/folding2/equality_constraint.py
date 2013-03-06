@@ -205,8 +205,9 @@ class GrabPoints(EqualityConstraint):
         return grab_lines
 
 class PointsOnLine(EqualityConstraint):
-    '''Grab points are included in the nodes attribute of the crease pattern.
-    Their position is constrained within a facet using triangle coordinates.
+    '''PointsOnLine are included in the nodes attribute of the crease pattern.
+    Their position is constrained within a creaseline-element and at least one other
+    constraining Element.
     '''
     LP = DelegatesTo('cp')
     n_l = DelegatesTo('cp')
@@ -229,36 +230,32 @@ class PointsOnLine(EqualityConstraint):
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
-
-        # @todo [Matthias] - this can be written in a more compact way.
-        # this must be self-explaining !
-        Rx = (p0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              dp0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              p1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              dp1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              p2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
-              dp2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
-        Ry = (p0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
-              dp0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
-              p1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
-              dp1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
-              p2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]) +
-              dp2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]))
-        Rz = (p0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              dp0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              p1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              dp1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              p2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
-              dp2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
-
+        
+        ri = p1 + dp1
+        rj = p2 + dp2
+        rij = p0 + dp0
+        
+        # parameter free determinant Form of the line
+        R = np.cross((rj - ri), (rij - ri))
+        
+        # sorting of the residuum for same arangement as G_du
+        # ToDo: Redesigne G_du
+        Rx = R[:, 1]
+        Ry = R[:, 0] * -1
+        Rz = R[:, 2] * -1
+        
         R = np.zeros((len(Rx) * 2,))
 
-        # @todo: [Matthias] - what are these cases for? PEP8
+        # linepoint Elements take only two equations!
+        # if line lays in a system axis the representing equation
+        # will be zero, so it will be singular
         for i in range(len(Rx)):
             if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
+                # check if line lays on x-axis
                 R[i * 2] = Ry[i]
-                R[i * 2 + 1] = Rx[i]
+                R[i * 2 + 1] = Rz[i]
             elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
+                #check if line lays on y-axis
                 R[i * 2] = Rx[i]
                 R[i * 2 + 1] = Rz[i]
             else:
