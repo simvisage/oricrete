@@ -32,13 +32,9 @@ if __name__ == '__main__':
     cp.F = [[0, 1, 3],
             [1, 2, 3]]
     
-    cp.cnstr_lhs = [[(0, 0, 1.0)],
-                    [(0, 1, 1.0)],
-                    [(0, 2, 1.0)]]
-    
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
     
-#    cp.t_init = 0.5
+    cp.t_init = 0.5
     
     cp.tf_lst = [(caf, [1, 2])]
     print cp.t_arr

@@ -30,10 +30,12 @@ from cnstr_target_face import \
 from equality_constraint import \
     IEqualityConstraint, ConstantLength, GrabPoints, \
     PointsOnLine, PointsOnSurface, DofConstraints, Unfoldability
+    
+from copy import copy
 
 from scipy.optimize import fmin_slsqp
 
-class Folding(HasTraits):
+class FoldingPhase(HasTraits):
     """Description of this class
 
     State notifiers:
@@ -129,8 +131,7 @@ class Folding(HasTraits):
     cnstr = Array(value = [])
   
     cf_lst = List([])
-    tf_lst = List([])
-
+    
     ff_lst = Property
     def _get_ff_lst(self):
         return [ ff for ff, nodes in self.cf_lst ]
@@ -145,11 +146,6 @@ class Folding(HasTraits):
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(cp = self),
-                'gp' : GrabPoints(cp = self),
-                'pl' : PointsOnLine(cp = self),
-                'ps' : PointsOnSurface(cp = self),
-                'dc' : DofConstraints(cp = self)
                 }
 
     eqcons_lst = Property(depends_on = 'eqcons')
@@ -178,14 +174,10 @@ class Folding(HasTraits):
     #===========================================================================
     # Solver parameters
     #===========================================================================
-    unfold = Bool(False)
     
     @on_trait_change('unfold', 'n_steps')
     def _t_arr_change(self):
         t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
-        if(self.unfold):
-            t_arr = t_arr[::-1]
-            t_arr -= 1. / self.n_steps
         self.t_arr = t_arr
     
     n_steps = Int(1, auto_set = False, enter_set = True)
@@ -200,6 +192,8 @@ class Folding(HasTraits):
     def _t_arr_default(self):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
+    # show_iter saves the first 10 iterationsteps, so they'll can be 
+    # analized
     show_iter = Bool(False, auto_set = False, enter_set = True)
 
     MAX_ITER = Int(100, auto_set = False, enter_set = True)
@@ -212,11 +206,7 @@ class Folding(HasTraits):
     def _get_u_t(self):
         '''Solve the problem with the appropriate solver
         '''
-
-        if(len(self.tf_lst) > 0):
-            return self._solve_fmin(self.u_0, self.acc)
-        else:
-            return self._solve_nr(self.u_0, self.acc)
+        return self._solve_nr(self.u_0, self.acc)
 
     def _solve_nr(self, X0, acc = 1e-4):
         '''Find the solution using the Newton-Raphson procedure.
@@ -413,14 +403,27 @@ class Folding(HasTraits):
         return np.sqrt(np.sum(v, axis = 2))
 
     def show(self):
+        '''
+        Start's a view of the actual element
+        '''
         from crease_pattern_view import \
             CreasePatternView
-        cpv = CreasePatternView()
-        cpv.data = self
+        cpv = CreasePatternView(data = self)
         cpv.configure_traits()
         
         
-class Initialization(Folding):
+class Initialization(FoldingPhase):
+    '''Initialization of the pattern for a first predeformation.
+    
+    The creasepattern object will be mapped on an targetface, without any 
+    constraints. This will be done for time_step = 0.001, so theirs only
+    a little deformation.
+    
+    t_init (float): Timestep wich is used for the final mapping. Default = 0.001
+    
+    '''
+    tf_list = List([])
+    
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
@@ -437,14 +440,87 @@ class Initialization(Folding):
     t_arr = Array(float)
     def _t_arr_default(self):
         return np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
+    
+    u_t = Property(depends_on = 'cp_changed, N')
+    @cached_property
+    def _get_u_t(self):
+        '''Solve the problem with the appropriate solver
+        '''
+
+        if(len(self.tf_lst) > 0):
+            return self._solve_fmin(self.u_0, self.acc)
+        else:
+            return self._solve_nr(self.u_0, self.acc)
 
     
-class FormFinding(Folding):
+class FormFinding(FoldingPhase):
+    '''FormFinding forms the creasepattern, so flatfold conditions are fulfilled
+    
+    The creasepattern is iterabaly deformed, till every inner node fulfilles 
+    the condition, that the sum of the angels between the connecting 
+    creaselines is at least 2*pi. Every other constraints are deactivated.
+    
+    For this condition the connectivity must be putted in the object.
+    
+    
+    
+    '''
+    tf_lst = List([])
+    
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
                 'uf' : Unfoldability(cp = self)
                 }
+        
+    u_t = Property(depends_on = 'cp_changed, N')
+    @cached_property
+    def _get_u_t(self):
+        '''Solve the problem with the appropriate solver
+        '''
+
+        if(len(self.tf_lst) > 0):
+            return self._solve_fmin(self.u_0, self.acc)
+        else:
+            return self._solve_nr(self.u_0, self.acc)
+        
+class Folding(FoldingPhase):
+    
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                'cl' : ConstantLength(cp = self),
+                'gp' : GrabPoints(cp = self),
+                'pl' : PointsOnLine(cp = self),
+                'ps' : PointsOnSurface(cp = self),
+                'dc' : DofConstraints(cp = self)
+                }
+    # unfold reverse t_arr, so a optimized pattern can be unfold, back to flat
+    unfold = Bool(False)
+    
+    @on_trait_change('unfold', 'n_steps')
+    def _t_arr_change(self):
+        t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
+        if(self.unfold):
+            t_arr = t_arr[::-1]
+            t_arr -= 1. / self.n_steps
+        self.t_arr = t_arr
+        
+    tf_lst = List([])
+    u_t = Property(depends_on = 'cp_changed, N')
+    @cached_property
+    def _get_u_t(self):
+        '''Solve the problem with the appropriate solver
+        '''
+
+        if(len(self.tf_lst) > 0):
+            return self._solve_fmin(self.u_0, self.acc)
+        else:
+            return self._solve_nr(self.u_0, self.acc)
+    
+    
+    
+                
     
 if __name__ == '__main__':
     cp = Folding()
@@ -458,7 +534,8 @@ if __name__ == '__main__':
             [1, 1, 0],
             [0, 1, 0],
             [0.2, 0.2, 0],
-            [0.5, 0.5, 0.0]]
+            [0.5, 0.5, 0.0],
+            [0.6, 0.4, 0.0]]
     cp.L = [[0, 1],
             [1, 2],
             [2, 3],
@@ -467,7 +544,8 @@ if __name__ == '__main__':
     cp.F = [[0, 1, 3],
             [1, 2, 3]]
     cp.GP = [[4, 0]]
-    cp.LP = [[5, 4]]
+    cp.LP = [[5, 4],
+             [6, 4]]
 
     
     cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
@@ -481,10 +559,12 @@ if __name__ == '__main__':
                     [(3, 2, 1.0)],
                     [(2, 2, 1.0)],
                     [(5, 0, 1.0)],
+                    [(6, 0, 1.0)]
                     ]
 #    cp.cnstr_rhs[0] = 0.9
     cp.u_0[5] = 0.05
     cp.u_0[17] = 0.025
+    cp.u_0[20] = 0.03
 #    print cp.u_0
 #    print cp.x_t
     cp.show()

@@ -468,8 +468,9 @@ class Unfoldability(EqualityConstraint):
 #            zt = np.sign(zt_arg) / 2 * np.sqrt(np.fabs(zt_arg))
 
             G_lst.append(theta)
-
+            
         G_arr = np.array(G_lst, dtype = 'f')
+        
         return G_arr
 
     def get_G_du(self, u_vct, t = 0.0):
@@ -490,7 +491,7 @@ class Unfoldability(EqualityConstraint):
             idx_c = np.arange(n_c)
             pairs = np.vstack([idx_c, idx_c + 1]).T
             pairs[-1, -1] = 0
-
+            
             for left, right in pairs:
                 a, b = c[left], c[right]
                 ab = np.dot(a, b)
@@ -498,7 +499,7 @@ class Unfoldability(EqualityConstraint):
                 bb = np.linalg.norm(b)
                 gamma = ab / (aa * bb)
 
-                coeff = -1 / np.sqrt(1 - gamma)
+                coeff = -1 / np.sqrt(1 - gamma ** 2)
                 
                 # WRONG BRACKETS ???
                 #theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
@@ -515,7 +516,7 @@ class Unfoldability(EqualityConstraint):
                 
                 G_du[i, a_idx:a_idx + self.n_d] += theta_da
                 G_du[i, b_idx:b_idx + self.n_d] += theta_db
-
+                
         return G_du
 
 if __name__ == '__main__':

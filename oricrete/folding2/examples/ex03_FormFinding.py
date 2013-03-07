@@ -61,6 +61,7 @@ if __name__ == '__main__':
     uf = Folding(cp = ff.cp, tf_lst = ff.tf_lst, n_steps = 10)
     uf.N = ff.x_t[-1]
     uf.unfold = True
-    uf.show()
+    print 'x_t', uf.x_t[-1]
+    #uf.show()
     
     

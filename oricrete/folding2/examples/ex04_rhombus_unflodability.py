@@ -21,8 +21,8 @@ import numpy as np
 if __name__ == '__main__':
     n_x = 3
     n_y = 8
-    L_x = 49.7
-    L_y = 31.0
+    L_x = 4.97
+    L_y = 3.10
     cp = RhombusCreasePattern(L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,

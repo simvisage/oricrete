@@ -41,9 +41,8 @@ if __name__ == '__main__':
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
     
     cp.tf_lst = [(caf, [1, 2, 3])]
-    
-    end = cp.x_t[-1]
     cp.show()
+    end = cp.x_t[-1]
     cp.N = end
     
     cp.unfold = True
