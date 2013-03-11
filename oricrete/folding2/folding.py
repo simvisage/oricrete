@@ -82,7 +82,7 @@ class FoldingPhase(HasTraits):
         # Control Surfaces
         return np.zeros((0,))
 
-    u_0 = DelegatesTo('cp', 'u_0')
+    
     
     n_c = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
@@ -106,6 +106,21 @@ class FoldingPhase(HasTraits):
         '''Get the index of the fold step array for the given time t'''
         return self.t_arr[fold_step]
     
+    _u_0 = Array
+    def __u_0_default(self):
+        return np.zeros((self.n_n * self.n_d,), dtype = 'float_')
+    
+    @on_trait_change('nodes')
+    def _u_0_changed(self):
+        self._u_0 = np.zeros((self.n_n * self.n_d,), dtype = 'float_')
+
+    u_0 = Property(depends_on = '_u_0')
+    @cached_property
+    def _get_u_0(self):
+        return self._u_0
+    
+    def _set_u_0(self, values):
+        self._u_0 = values.reshape((self.n_n * self.n_d,))
     #===========================================================================
     # Constrain Datas
     #===========================================================================
@@ -130,6 +145,7 @@ class FoldingPhase(HasTraits):
     # list of Constrain-Objects
     cnstr = Array(value = [])
   
+    tf_lst = List([])
     cf_lst = List([])
     
     ff_lst = Property
@@ -422,14 +438,14 @@ class Initialization(FoldingPhase):
     t_init (float): Timestep wich is used for the final mapping. Default = 0.001
     
     '''
-    tf_list = List([])
+    
     
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
                 }
     
-    t_init = Float(0.001)
+    t_init = Float(0.01)
     def _t_init_changed(self):   
         self.t_arr = np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
     
@@ -465,7 +481,7 @@ class FormFinding(FoldingPhase):
     
     
     '''
-    tf_lst = List([])
+    
     
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
@@ -490,8 +506,6 @@ class Folding(FoldingPhase):
     def _eqcons_default(self):
         return {
                 'cl' : ConstantLength(cp = self),
-                'gp' : GrabPoints(cp = self),
-                'pl' : PointsOnLine(cp = self),
                 'ps' : PointsOnSurface(cp = self),
                 'dc' : DofConstraints(cp = self)
                 }
@@ -506,7 +520,7 @@ class Folding(FoldingPhase):
             t_arr -= 1. / self.n_steps
         self.t_arr = t_arr
         
-    tf_lst = List([])
+    
     u_t = Property(depends_on = 'cp_changed, N')
     @cached_property
     def _get_u_t(self):
@@ -517,13 +531,61 @@ class Folding(FoldingPhase):
             return self._solve_fmin(self.u_0, self.acc)
         else:
             return self._solve_nr(self.u_0, self.acc)
+        
+class Lifting(FoldingPhase):
     
+    eqcons = Dict(Str, IEqualityConstraint)
+    def _eqcons_default(self):
+        return {
+                'cl' : ConstantLength(cp = self),
+                'gp' : GrabPoints(cp = self),
+                'pl' : PointsOnLine(cp = self),
+                'ps' : PointsOnSurface(cp = self),
+                'dc' : DofConstraints(cp = self)
+                }
     
+    # target face for u_0 initialization
+    init_tf_lst = List([])
     
-                
+    _u_0_pattern = Property(depends_on = ('init_tf_lst, N'))
+    @cached_property   
+    def _get__u_0_pattern(self):
+        ''' u_0_pattern builds the u_0 vector for all nodes with z=0.
+            The form is mapped on the first init_tf_lst target face.
+        '''
+        u_0_pattern = []
+        if(len(self.init_tf_lst) > 0):
+            N = []
+            for i in self.N:
+                if(i[2] == 0):
+                    N.append(i)
+            init = Initialization(cp = copy(self.cp), tf_lst = self.init_tf_lst)
+            init.N = N
+            u_0_pattern = init.u_t[-1]
+            
+        return u_0_pattern
+        
+    
+    u_0 = Property(depends_on = '_u_0')
+    def _get_u_0(self):
+        u_0 = self._u_0
+        # initialize u_0_pattern
+        for i in range(len(self._u_0_pattern)):
+            u_0[i] = self._u_0_pattern[i]
+        u_0 = self._u_0.reshape((-1, 3))
+        # set all GP to the right new position
+        GP_L = self.eqcons['gp'].grab_pts_L
+        for i in range(len(GP_L)):
+            n = self.GP[i][0]
+            f = self.F[self.GP[i][1]]
+            nodes = u_0[f]
+            gp = nodes[0] * GP_L[i][0] + nodes[1] * GP_L[i][1] + nodes[2] * GP_L[i][2]
+            u_0[n] = gp
+        return u_0.reshape((-1,))
+            
     
 if __name__ == '__main__':
-    cp = Folding()
+    cp = Lifting()
 
     from cnstr_target_face import r_, s_, t_, x_, y_, z_
     cp.n_steps = 10
@@ -563,10 +625,7 @@ if __name__ == '__main__':
                     ]
 #    cp.cnstr_rhs[0] = 0.9
     cp.u_0[5] = 0.05
-    cp.u_0[17] = 0.025
-    cp.u_0[20] = 0.03
-#    print cp.u_0
-#    print cp.x_t
+
     cp.show()
 
 
