@@ -799,7 +799,7 @@ def rhombus_3x3_crane(n_steps = 10, dx = 0.7):
 if __name__ == '__main__':
 
 #    cp = rhombus_3x1_crane(n_steps = 80)
-#    cp = rhombus_3x2_crane(n_steps = 80)    
-    cp = rhombus_3x3_crane(n_steps = 80)
+    cp = rhombus_3x2_crane(n_steps = 80)    
+#    cp = rhombus_3x3_crane(n_steps = 80)
 
     cp.show()

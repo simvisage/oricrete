@@ -32,7 +32,7 @@ if __name__ == '__main__':
     n_h = cp.n_h
     n_v = cp.n_v
     n_i = cp.n_i
-
+    print cp.connectivity
     A = 0.4
 
     B = 1.0
@@ -56,4 +56,5 @@ if __name__ == '__main__':
     uf = Folding(cp = copy(cp), tf_lst = [(face_z_t, n_arr)], n_steps = 50, MAX_ITER = 500)
     uf.N = ff.x_t[-1]
     uf.unfold = True
+    
     uf.show()

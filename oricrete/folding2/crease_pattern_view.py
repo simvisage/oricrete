@@ -374,8 +374,12 @@ class CreasePatternView(HasTraits):
         self.scene.disable_render = False
 
     @on_trait_change('scalefactor')
-    def update_tube_pipeline(self):
+    def update_scalefactor(self):
         self.tube_pipeline.filter.radius = 0.1 * self.scalefactor
+        if(len(self.data.GP) > 0):
+            self.grab_pts_pipeline.glyph.glyph.scale_factor = self.scalefactor * 0.25
+        if(len(self.data.LP) > 0):
+            self.line_pts_pipeline.glyph.glyph.scale_factor = self.scalefactor * 0.25
 
     @on_trait_change('fold_step, z_raising, raising_factor')
     def update_cp_pipeline(self):

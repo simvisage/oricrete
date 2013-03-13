@@ -229,7 +229,6 @@ class FoldingPhase(HasTraits):
         '''
         # make a copy of the start vector
         X = np.copy(X0)
-
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
         u_t0 = np.zeros((self.cp.n_n * self.cp.n_d,))
@@ -445,7 +444,7 @@ class Initialization(FoldingPhase):
         return {
                 }
     
-    t_init = Float(0.01)
+    t_init = Float(0.05)
     def _t_init_changed(self):   
         self.t_arr = np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
     
@@ -495,10 +494,9 @@ class FormFinding(FoldingPhase):
         '''Solve the problem with the appropriate solver
         '''
 
-        if(len(self.tf_lst) > 0):
-            return self._solve_fmin(self.u_0, self.acc)
-        else:
-            return self._solve_nr(self.u_0, self.acc)
+        
+        return self._solve_fmin(self.u_0, self.acc)
+        
         
 class Folding(FoldingPhase):
     

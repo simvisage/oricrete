@@ -47,14 +47,12 @@ if __name__ == '__main__':
             [3, 6, 5],
             [3, 4, 6]]
     
-    ff.cnstr_lhs = []
-    
-    
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
     
     ff.tf_lst = [(caf, [0, 1, 2, 3, 4, 5, 6])]
     
     ff.connectivity = [(3, [0, 1, 4, 6, 5, 2])]
+    
     ff.show()
     
     # Unfolding
@@ -62,6 +60,6 @@ if __name__ == '__main__':
     uf.N = ff.x_t[-1]
     uf.unfold = True
     print 'x_t', uf.x_t[-1]
-    #uf.show()
+    uf.show()
     
     

@@ -150,6 +150,11 @@ class CraneCreasePattern(RhombusCreasePattern):
         nodes = np.append(nodes, self._crane.crane_nodes)
         return nodes.reshape((-1, 3))
     
+    n_n_pattern = Property(depends_on = '+geometry')
+    @cached_property
+    def _get_n_n_pattern(self):
+        return len(self._geometry[0])
+    
     crease_lines = Property
     @cached_property
     def _get_crease_lines(self):

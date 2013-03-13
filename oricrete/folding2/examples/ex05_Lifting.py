@@ -15,6 +15,7 @@
 from oricrete.folding2.folding import Folding, Initialization, FormFinding, Lifting
 from oricrete.folding2.crease_pattern import CreasePattern
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace, x_, y_, z_, r_, s_, t_
+from oricrete.folding2 import CnstrControlFace
 
 
 if __name__ == '__main__':
@@ -40,7 +41,7 @@ if __name__ == '__main__':
              [6, 4]]
 
     
-    cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
+    cp.cf_lst = [(CnstrControlFace(Rf = cp.CS[0][0]), [1])]
     cp.cnstr_lhs = [#[(1, 2, 1.0)],
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
@@ -51,9 +52,9 @@ if __name__ == '__main__':
                     [(5, 0, 1.0)],
                     [(6, 0, 1.0)]
                     ]
-    cp.u_0[5] = 0.05
-    cp.u_0[17] = 0.025
-    cp.u_0[20] = 0.03
+    
+    cp.init_tf_lst = [(CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)]), [0, 1, 2, 3])]
+    
     cp.show()
     
     

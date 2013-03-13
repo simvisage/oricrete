@@ -599,7 +599,6 @@ if __name__ == '__main__':
 
 #    cp = rhombus_3x1_crane_sticks(n_steps = 80)
     cp = rhombus_3x2_crane(n_steps = 80)
-    
     cp.show()
 
 

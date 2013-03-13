@@ -16,8 +16,8 @@ import numpy as np
 
 # own Modules
 from oricrete.folding2 import \
-    CreasePattern, RhombusCreasePattern, CraneCreasePattern, CF, x_, y_, z_, t_, r_, s_
-from oricrete.folding2.folding import Lifting, Initialization
+    CraneCreasePattern, CF, x_, y_, z_, t_, r_, s_
+from oricrete.folding2.folding import Lifting
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
 
@@ -44,10 +44,10 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
     
     cp.cnstr_lhs = ccp.generate_lhs()
     
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.30])
-    arr = np.arange(26)
-    arr = np.delete(arr, [15, 16, 17, 18])
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.30])
+    arr = np.arange(ccp.n_n_pattern)
+    del_arr = range(ccp.n_n_pattern - n_x * int(n_y / 2) - n_y, ccp.n_n_pattern - n_x * int(n_y / 2))
+    arr = np.delete(arr, del_arr)
     cp.init_tf_lst = [(caf, arr)]
 
     cp.cnstr_rhs[0] = dx
@@ -62,9 +62,7 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
 
 if __name__ == '__main__':
 
-    cp = rhombus_nxm_crane(n_steps = 80, L_x = 4, L_y = 2, n_x = 4, n_y = 4)
-
-
+    cp = rhombus_nxm_crane(n_steps = 80, L_x = 50, L_y = 50, n_x = 12, n_y = 24)
 
     # initialise View
 
