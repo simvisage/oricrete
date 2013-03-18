@@ -38,10 +38,16 @@ class CraneModel(HasTraits):
         return self.n_y / 2
 #===============================================================================
 # Framework model setup
+# This Framework builds the main structure, the crane elements for each segmentrow
+# of the Creasepattern are installed 
+# The model datas are onesized and will be scaled to the real values
 #===============================================================================
     _framework_model_nodes = Property(depends_on = 'n_x')
     @cached_property
     def _get__framework_model_nodes(self):
+        '''
+        Returns the nodes model of the framework in onesize
+        '''
         fw_n = [[-1, -1, 0],
                 [1, -1, 0],
                 [1, 1, 0],
@@ -57,6 +63,9 @@ class CraneModel(HasTraits):
     _framework_model_cl = Property(depends_on = 'n_x')
     @cached_property
     def _get__framework_model_cl(self):
+        '''
+        Returns the creaseline model
+        '''
         fw_cl = [[0, 3],
                 [1, 2],
                 [4, 5],
@@ -69,6 +78,9 @@ class CraneModel(HasTraits):
     _framework_model_lhs = Property(depends_on = 'n_x')
     @cached_property
     def _get__framework_model_lhs(self):
+        '''
+        Returns the constraints model
+        '''
         fw_lhs = [[(0, 2, 1.0)],
                   [(0, 1, 1.0)],
                   [(0, 0, 1.0)],
@@ -76,23 +88,12 @@ class CraneModel(HasTraits):
                   [(3, 2, 1.0)],
                   [(1, 2, 1.0)],
                   [(1, 1, 1.0)],
-                  #[(1, 0, 1.0)],
-                  #[(2, 0, 1.0)],
                   [(2, 2, 1.0)],
                   [(4, 0, 1.0)],
                   [(5, 0, 1.0)],
                   [(4, 1, 1.0)],
                   [(4, 2, 1.0), (5, 2, -1.0)],
-#                  [(6, 0, 1.0)],
-#                  [(6, 1, 1.0)],
-#                  [(6, 2, 1.0)],
-#                  [(7, 0, 1.0)],
-#                  [(7, 1, 1.0)],
-#                  [(8, 0, 1.0)],
-#                  [(8, 1, 1.0)],
-#                  [(8, 2, 1.0)],
-#                  [(9, 0, 1.0)],
-#                  [(9, 1, 1.0)]
+
                   ]
         return fw_lhs
     
@@ -102,6 +103,9 @@ class CraneModel(HasTraits):
 
 #===============================================================================
 # Crane model setup
+# This model represents one single cranesegment, which is used for every 
+# segmentrow of the Creasepattern
+# The model datas are onesized and will be scaled to the real values
 #===============================================================================
     
     _crane_model2_nodes = Property(depends_on = 'n_x')
@@ -128,7 +132,13 @@ class CraneModel(HasTraits):
     @cached_property
     def _get__crane_model_nodes(self):
         '''
-            returns a node modell of the used crane for one row
+            Returns a node modell of a crane segment.
+            Dependent on the number of elements in x-direction (n_x)
+            the type of crane will be changed.
+            Even number of Elements build an crane with eight connections,
+            odd numbers build a crane with six connections.
+            This is, because even creaspatterns has no central element,
+            where the crane can connect.
         '''
         nodes = [[0, 0, 0],
                  [-1., 0, 0],
@@ -159,10 +169,8 @@ class CraneModel(HasTraits):
     @cached_property
     def _get__crane_model_cl(self):
         '''
-            returns a creaseline model of the used crane
+            Returns a creaseline model of the crane element
         '''
-#        cl = [[0, 1],
-#              [0, 2]]
         cl = []
         nodes = self._crane_model_nodes
         for i in range(3, len(nodes)):
@@ -180,10 +188,6 @@ class CraneModel(HasTraits):
                 if(abs(nodes[i][0]) == 1 / float(self.n_x - 1)):
                     if(nodes[i][1] == 0):
                         cl.append([i, 0])
-#                        if(nodes[i][0] < 0):
-#                            cl.append([i, 1])
-#                        else:
-#                            cl.append([i, 2])
         return cl   
     
     _crane_model2_line_pts = Property(depends_on = '_crane_model_nodes')
@@ -211,12 +215,14 @@ class CraneModel(HasTraits):
     _crane_model_line_pts = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__crane_model_line_pts(self):
+        # Linepoints on the craneelement
         line_pts = None
         return line_pts
     
     _crane_model_lp_fw = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__crane_model_lp_fw(self):
+        # Linepoints of the craneelement connectet to the framework
         lp = [[1, 0],
               [2, 1],
               [0, 2]]
@@ -231,6 +237,9 @@ class CraneModel(HasTraits):
     _crane_model_X0 = Property(depends_on = '_crane_model_nodes, X0_height, L_x, n_x')
     @cached_property
     def _get__crane_model_X0(self):
+        '''
+        Predeformation model of one craneelement.
+        '''
         X0_index = []
         if(self.n_x % 2 == 0):
             X0_index = [[0, 1.],
@@ -255,6 +264,10 @@ class CraneModel(HasTraits):
     _gp_crane_cl = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__gp_crane_cl(self):
+        '''
+        Returns the creaselines which connect the craneelements with the creasepattern.
+        This is the full connected craneelement.
+        '''
         cl = []
         if(self.n_x % 2 == 0):
             cl = [[0, 3],
@@ -279,6 +292,10 @@ class CraneModel(HasTraits):
     _gp_crane_cl_middel = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__gp_crane_cl_middel(self):
+        '''
+        Returns the creaselines which connect the craneelements with the creasepattern.
+        This leaves the left connections away.
+        '''
         cl = []
         if(self.n_x % 2 == 0):
             cl = [
@@ -288,8 +305,6 @@ class CraneModel(HasTraits):
                   [self.n_x - 2 + 1, 6],
                   [self.n_x - 2 + 2, 8],
                   [self.n_x - 2 + 3, 9],
-#                  [self.n_x * 2 - 2, 11],
-#                  [self.n_x * 2 - 1, 12]
                   ]
         else:
             cl = [
@@ -297,22 +312,23 @@ class CraneModel(HasTraits):
                   [1, 4],
                   [self.n_x - 1, 5],
                   [self.n_x , 6],
-#                  [self.n_x * 2 - 2, 7],
-#                  [self.n_x * 2 - 1, 8]
                   ]
         return cl
     
     _gp_crane_cl_left = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__gp_crane_cl_left(self):
+        '''
+        Returns the creaselines which connect the craneelements with the creasepattern.
+        This leaves the left connections away. Also the left connections on the middel,
+        by the eight point crane element.
+        '''
         cl = []
         if(self.n_x % 2 == 0):
             cl = [[0, 3],
                   [1, 4],
                   [self.n_x - 2, 5],
                   [self.n_x - 2 + 1, 6],
-#                  [self.n_x - 2 + 2, 8],
-#                  [self.n_x - 2 + 3, 9]
                   ]
         else:
             cl = [[0, 3],
@@ -322,116 +338,17 @@ class CraneModel(HasTraits):
                   ]
         return cl
     
-    
-    
-    _gp_crane_cl_front = Property(depends_on = '_crane_model_nodes')
-    @cached_property
-    def _get__gp_crane_cl_front(self):
-        cl = []
-        if(self.n_x % 2 == 0):
-            cl = [
-#                  [0, 3],
-#                  [1, 4],
-#                  [self.n_x - 2, 5],
-#                  [self.n_x - 2 + 1, 6],
-#                  [self.n_x - 2 + 2, 8],
-#                  [self.n_x - 2 + 3, 9],
-                  [self.n_x * 2 - 2, 11],
-#                  [self.n_x * 2 - 1, 12]
-                  ]
-        else:
-            cl = [
-#                  [0, 3],
-#                  [1, 4],
-#                  [self.n_x - 1, 5],
-#                  [self.n_x , 6],
-                  [self.n_x * 2 - 2, 7],
-#                  [self.n_x * 2 - 1, 8]
-                  ]
-        return cl
-    
-    _gp_crane_cl_left_front = Property(depends_on = '_crane_model_nodes')
-    @cached_property
-    def _get__gp_crane_cl_left_front(self):
-        cl = []
-        if(self.n_x % 2 == 0):
-            cl = [
-                  [0, 3],
-#                  [1, 4],
-                  [self.n_x - 2, 5],
-#                  [self.n_x - 2 + 1, 6],
-#                  [self.n_x - 2 + 2, 8],
-#                  [self.n_x - 2 + 3, 9]
-                  ]
-        else:
-            cl = [[0, 3],
-#                  [1, 4],
-                  [self.n_x - 1, 5],
-#                  [self.n_x , 6]
-                  ]
-        return cl
-    
-    _gp_crane_cl_back = Property(depends_on = '_crane_model_nodes')
-    @cached_property
-    def _get__gp_crane_cl_back(self):
-        cl = []
-        if(self.n_x % 2 == 0):
-            cl = [
-#                  [0, 3],
-#                  [1, 4],
-#                  [self.n_x - 2, 5],
-#                  [self.n_x - 2 + 1, 6],
-#                  [self.n_x - 2 + 2, 8],
-#                  [self.n_x - 2 + 3, 9],
-#                  [self.n_x * 2 - 2, 11],
-                  [self.n_x * 2 - 1, 12]
-                  ]
-        else:
-            cl = [
-#                  [0, 3],
-#                  [1, 4],
-#                  [self.n_x - 1, 5],
-#                  [self.n_x , 6],
-#                  [self.n_x * 2 - 2, 7],
-                  [self.n_x * 2 - 1, 8]
-                  ]
-        return cl
-    
-    _gp_crane_cl_left_back = Property(depends_on = '_crane_model_nodes')
-    @cached_property
-    def _get__gp_crane_cl_left_back(self):
-        cl = []
-        if(self.n_x % 2 == 0):
-            cl = [
-#                  [0, 3],
-                  [1, 4],
-#                  [self.n_x - 2, 5],
-                  [self.n_x - 2 + 1, 6],
-#                  [self.n_x - 2 + 2, 8],
-#                  [self.n_x - 2 + 3, 9]
-                  ]
-        else:
-            cl = [
-#                  [0, 3],
-                  [1, 4],
-#                  [self.n_x - 1, 5],
-                  [self.n_x , 6]
-                  ]
-        return cl
-        
 #===============================================================================
 #     lhs modell setup
 #===============================================================================
     _crane_lhs_model = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__crane_lhs_model(self):
+        '''
+        Returns the model of the lhs constraints for one craneelement
+        '''
         if(self.n_x % 2 == 0):
             lhs = [
-#                   [(0, 0, 1.0)],
-#                   [(1, 2, 1.0)],
-#                   [(2, 2, 1.0)],
-#                   [(1, 0, 1.0)],
-#                   [(2, 0, 1.0)],
                    [(7, 2, 1.0), (0, 2, -1.0)],
                    [(10, 2, 1.0), (0, 2, -1.0)],
                    [(1, 1, 1.0), (0, 1, -1.0)],
@@ -458,11 +375,6 @@ class CraneModel(HasTraits):
         
         else:
             lhs = [
-#                   [(0, 0, 1.0)],
-#                   [(1, 2, 1.0)],
-#                   [(2, 2, 1.0)],
-#                   [(1, 0, 1.0)],
-#                   [(2, 0, 1.0)],
                    [(1, 1, 1.0), (0, 1, -1.0)],
                    [(0, 1, 1.0), (2, 1, -1.0)],
                    [(3, 2, 1.0), (1, 2, -1.0)],
@@ -482,19 +394,24 @@ class CraneModel(HasTraits):
     _crane_lhs_gp_model = Property(depends_on = '_crane_model_nodes')
     @cached_property
     def _get__crane_lhs_gp_model(self):
+        # GrabPoints on the craneelement
         lhs = []
         return lhs
     
     
                        
 #===============================================================================
-#  Crane global setup 
+#  Crane global setup
+#  Stack all model infos together with the given geometrical datas.
 #===============================================================================
 
     
     crane_nodes = Property(depends_on = '_crane_model_nodes, H_crane, L_gp, n_y, L_x, L_y, n_x')
     @cached_property
     def _get_crane_nodes(self):
+        '''
+        Returns an array with all nodes of the crane
+        '''
         crane_nodes = np.array(copy.copy(self._framework_model_nodes), dtype = float)
         if(crane_nodes != []):
             crane_nodes[:, 0] *= self.L_x * float(1 - 1 / float(self.n_x)) / 2.
@@ -515,6 +432,9 @@ class CraneModel(HasTraits):
     
     crane_creaselines = Property(depends_on = 'crane_nodes')
     def _get_crane_creaselines(self):
+        '''
+        Returns an array with all creaselines of the crane
+        '''
         crane_creaselines = []
         crane_creaselines.append(self._framework_model_cl)
         for i in range(self.n_y / 2):
@@ -525,6 +445,9 @@ class CraneModel(HasTraits):
     
     crane_line_pts = Property(depends_on = '_crane_model_line_pts')
     def _get_crane_line_pts(self):
+        '''
+        Returns an array with all line points of the crane.
+        '''
         lp = np.array([], dtype = int)
         for i in range(self.n_y / 2):
             temp = np.array(copy.copy(self._crane_model_lp_fw), dtype = int)
@@ -542,6 +465,9 @@ class CraneModel(HasTraits):
     
     crane_gp_creaselines = Property(depends_on = 'crane_nodes, y_deformation')
     def _get_crane_gp_creaselines(self):
+        '''
+        Returns an array with all creaselines, which connects the crane with the creasepattern
+        '''
         # setup list for fullcrane elements
         if(self.y_deformation):
             if(self.n_x % 2 != 0):
@@ -616,6 +542,9 @@ class CraneModel(HasTraits):
     
     crane_lhs = Property(depends_on = 'crane_nodes, n_x, n_y, L_x, L_y')
     def _get_crane_lhs(self):
+        '''
+        Returns an array with the full list of lhs constraints of the crane
+        '''
         lhs = []
         index_c = len(self._crane_model_nodes)
         index_fw = len(self._framework_model_nodes)
@@ -652,6 +581,9 @@ class CraneModel(HasTraits):
     
     X0_index = Property(depends_on = ' X0_height, n_y, n_x, _crane_model_X0')
     def _get_X0_index(self):
+        '''
+        Returns an array with the complete predeformation of the crane
+        '''
         X0_index = []
         index_c = len(self._crane_model_nodes)
         index_fw = len(self._framework_model_nodes)
