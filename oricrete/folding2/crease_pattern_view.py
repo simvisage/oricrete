@@ -29,7 +29,7 @@ import numpy as np
 import os
 import string
 import tempfile
-from folding import Folding
+from foldingphase import Folding
 
 # own Modules
 

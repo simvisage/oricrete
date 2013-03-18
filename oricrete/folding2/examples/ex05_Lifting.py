@@ -12,7 +12,7 @@
 #
 # Created on Mar 5, 2013 by: matthias
 
-from oricrete.folding2.folding import Folding, Initialization, FormFinding, Lifting
+from oricrete.folding2.foldingphase import Folding, Initialization, FormFinding, Lifting
 from oricrete.folding2.crease_pattern import CreasePattern
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace, x_, y_, z_, r_, s_, t_
 from oricrete.folding2 import CnstrControlFace

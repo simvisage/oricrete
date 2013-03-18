@@ -18,7 +18,7 @@ import numpy as np
 # own Modules
 from oricrete.folding2 import \
     CreasePattern, RhombusCreasePattern, CF, x_, y_, z_, t_, r_, s_
-from oricrete.folding2.folding import Lifting, Initialization
+from oricrete.folding2.foldingphase import Lifting, Initialization
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
 def rhombus_3x1_crane(n_steps = 10, dx = 1.0):

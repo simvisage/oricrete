@@ -18,10 +18,6 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 
 import numpy as np
 
-from equality_constraint import \
-    IEqualityConstraint, ConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints
-
 class CreasePattern(HasTraits):
     '''
     Structure of triangulated Crease-Patterns

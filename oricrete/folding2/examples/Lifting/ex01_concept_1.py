@@ -17,7 +17,7 @@ import numpy as np
 # own Modules
 from oricrete.folding2 import \
     CreasePattern, RhombusCreasePattern, CF, x_, y_, z_, t_, r_, s_
-from oricrete.folding2.folding import Lifting, Initialization
+from oricrete.folding2.foldingphase import Lifting, Initialization
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
 
@@ -597,8 +597,10 @@ if __name__ == '__main__':
 
 #    cp = rhombus_3x1_crane(n_steps = 80)
 
-#    cp = rhombus_3x1_crane_sticks(n_steps = 80)
-    cp = rhombus_3x2_crane(n_steps = 80)
+    cp = rhombus_3x1_crane_sticks(n_steps = 80)
+
+    # not working
+#    cp = rhombus_3x2_crane(n_steps = 80)
     cp.show()
 
 

@@ -17,7 +17,7 @@ import numpy as np
 # own Modules
 from oricrete.folding2 import \
     CraneCreasePattern, CF, x_, y_, z_, t_, r_, s_
-from oricrete.folding2.folding import Lifting
+from oricrete.folding2.foldingphase import Lifting
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
 
@@ -62,7 +62,7 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
 
 if __name__ == '__main__':
 
-    cp = rhombus_nxm_crane(n_steps = 80, L_x = 50, L_y = 50, n_x = 12, n_y = 24)
+    cp = rhombus_nxm_crane(n_steps = 80, L_x = 6, L_y = 6, n_x = 6, n_y = 12)
 
     # initialise View
 
