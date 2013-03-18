@@ -36,13 +36,7 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
                               H_crane = 1.0
                               )
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
-    cp.N = ccp.nodes
-    cp.L = ccp.crease_lines
-    cp.F = ccp.facets
-    cp.GP = ccp.grab_pts.tolist()
-    cp.LP = ccp.line_pts.tolist()
-    
-    cp.cnstr_lhs = ccp.generate_lhs()
+    cp.cp_geo(ccp)
     
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.30])
     arr = np.arange(ccp.n_n_pattern)
@@ -62,7 +56,7 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
 
 if __name__ == '__main__':
 
-    cp = rhombus_nxm_crane(n_steps = 80, L_x = 6, L_y = 6, n_x = 6, n_y = 12)
+    cp = rhombus_nxm_crane(n_steps = 80, L_x = 4, L_y = 3, n_x = 4, n_y = 6)
 
     # initialise View
 

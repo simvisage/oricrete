@@ -18,8 +18,8 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Float, Array, Bool, List, Dict
 
-from crease_pattern import \
-    CreasePattern
+from oricrete.folding2 import \
+    CreasePattern, RhombusCreasePattern, CraneCreasePattern
 
 from cnstr_control_face import \
     CF
@@ -121,6 +121,19 @@ class FoldingPhase(HasTraits):
     
     def _set_u_0(self, values):
         self._u_0 = values.reshape((self.n_n * self.n_d,))
+        
+    def cp_geo(self, creasepattern):
+        '''
+        cp_geo copys alle geometrical datas from a given creasepattern-object
+        '''
+        self.N = copy(creasepattern.nodes)
+        self.L = copy(creasepattern.crease_lines)
+        self.F = copy(creasepattern.facets)
+        if(type(creasepattern) == type(CraneCreasePattern())):
+            self.GP = copy(creasepattern.grab_pts.tolist())
+            self.LP = copy(creasepattern.line_pts.tolist())
+            self.cnstr_lhs = copy(creasepattern.generate_lhs())
+        
     #===========================================================================
     # Constrain Datas
     #===========================================================================

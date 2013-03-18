@@ -270,12 +270,8 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.5):
     arr = np.delete(arr, [12, 13, 14, 15])
     cp.init_tf_lst = [(caf, arr)]
 
-    cp.N = cpr.nodes
-
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
-
+    cp.cp_geo(cpr)
+    
     grab_nodes = [[0.5, 0.333, 0],
                   [0.5, 0.667, 0],
                   [0.5, 1.333, 0],
@@ -437,11 +433,7 @@ def rhombus_3x2_crane_fixed_sticks(n_steps = 10, dx = 0.7):
     arr = np.delete(arr, [12, 13, 14, 15])
     cp.init_tf_lst = [(caf, arr)]
 
-    cp.N = cpr.nodes
-
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
+    cp.cp_geo(cpr)
 
     grab_nodes = [[0.5, 0.333, 0],
                   [0.5, 0.667, 0],
@@ -609,11 +601,7 @@ def rhombus_3x2_crane_y_fixed(n_steps = 10, dx = 0.5):
     arr = np.delete(arr, [12, 13, 14, 15])
     cp.init_tf_lst = [(caf, arr)]
 
-    cp.N = cpr.nodes
-    
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
+    cp.cp_geo(cpr)
 
     grab_nodes = [[0.5, 0.333, 0],
                   [0.5, 0.667, 0],
@@ -789,18 +777,13 @@ def rhombus_3x3_crane_fixed_sticks(n_steps = 10, dx = 0.5):
                               n_y = 6,
                               MAX_ITER = 5000)
 
-    init = Initialization(cp = cpr)
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
-    arr = np.arange(cpr.n_n)
-    init.tf_lst = [(caf, arr)]
-    
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
-
-    cp.N = cpr.nodes
-
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.25])
+    arr = np.arange(cpr.n_n)
+    arr = np.delete(arr, [16, 17, 18, 19, 20, 21])
+    cp.init_tf_lst = [(caf, arr)]
+    
+    cp.cp_geo(cpr)
 
     grab_nodes = [[0.5, 0.333, 0], #31
                   [0.5, 0.667, 0],
@@ -992,28 +975,6 @@ def rhombus_3x3_crane_fixed_sticks(n_steps = 10, dx = 0.5):
                    [82, 108],
 
                    ]
-    for i in range(len(init.u_t[-1])):
-        cp.u_0[i] = init.u_t[-1][i]
-
-    cp.u_0[95] = 0.03059
-    cp.u_0[98] = 0.03059
-    cp.u_0[101] = 0.03059
-    cp.u_0[104] = 0.03059
-    cp.u_0[107] = 0.03059
-    cp.u_0[110] = 0.03059
-    cp.u_0[113] = 0.04389
-    cp.u_0[116] = 0.04389
-    cp.u_0[119] = 0.04389
-    cp.u_0[122] = 0.04389
-    cp.u_0[125] = 0.04389
-    cp.u_0[128] = 0.04389
-    cp.u_0[131] = 0.03059
-    cp.u_0[134] = 0.03059
-    cp.u_0[137] = 0.03059
-    cp.u_0[140] = 0.03059
-    cp.u_0[143] = 0.03059
-    cp.u_0[146] = 0.03059
-
     return cp
 
 def rhombus_3x2_fixed_sticks(n_steps = 10, dx = 1.5):
@@ -1519,14 +1480,14 @@ def rhombus_3x2_moveable_sticks(n_steps = 10, dx = 0.5):
 if __name__ == '__main__':
 #    cp = rhombus_3x1_crane(n_steps = 80)
 #    cp = rhombus_3x2_fixed_sticks(n_steps = 80)
-    cp = rhombus_3x2_fixed_sticks_2(n_steps = 80)
+#    cp = rhombus_3x2_fixed_sticks_2(n_steps = 80)
     
     # working bad
 #    cp = rhombus_3x2_moveable_sticks(n_steps = 80)
 #    cp = rhombus_3x2_y_fixed(n_steps = 120)
 
     #not working
-#    cp = rhombus_3x3_fixed_sticks(n_steps = 80)
+    cp = rhombus_3x3_fixed_sticks(n_steps = 80)
     
     cp.show()
 

@@ -225,11 +225,7 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.7):
     arr = np.delete(arr, [12, 13, 14, 15])
     cp.init_tf_lst = [(caf, arr)]
 
-    cp.N = cpr.nodes
-
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
+    cp.cp_geo(cpr)
 
     grab_nodes = [[0.5, 0.333, 0],
                   [0.5, 0.667, 0],
@@ -553,13 +549,8 @@ def rhombus_3x3_crane(n_steps = 10, dx = 0.7):
     arr = np.delete(arr, [16, 17, 18, 19, 20, 21])
     cp.init_tf_lst = [(caf, arr)]
     
-
-    cp.N = cpr.nodes
-
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
-
+    cp.cp_geo(cpr)
+    
     grab_nodes = [[0.5, 0.333, 0], #31
                   [0.5, 0.667, 0],
                   [0.5, 1.333, 0],
