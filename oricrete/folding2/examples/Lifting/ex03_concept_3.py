@@ -221,9 +221,11 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.7):
 
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
-    arr = np.arange(cpr.n_n)
-    arr = np.delete(arr, [12, 13, 14, 15])
-    cp.init_tf_lst = [(caf, arr)]
+    n_arr = np.hstack([cpr.n_h[:, :].flatten(),
+                       #cpr.n_v[:, :].flatten(),
+                       cpr.n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
     cp.cp_geo(cpr)
 
@@ -545,9 +547,11 @@ def rhombus_3x3_crane(n_steps = 10, dx = 0.7):
     
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
-    arr = np.arange(cpr.n_n)
-    arr = np.delete(arr, [16, 17, 18, 19, 20, 21])
-    cp.init_tf_lst = [(caf, arr)]
+    n_arr = np.hstack([cpr.n_h[:, :].flatten(),
+                       #cpr.n_v[:, :].flatten(),
+                       cpr.n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
     
     cp.cp_geo(cpr)
     

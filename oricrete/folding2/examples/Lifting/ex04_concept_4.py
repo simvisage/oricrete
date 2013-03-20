@@ -39,10 +39,11 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
     cp.cp_geo(ccp)
     
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.30])
-    arr = np.arange(ccp.n_n_pattern)
-    del_arr = range(ccp.n_n_pattern - n_x * int(n_y / 2) - n_y, ccp.n_n_pattern - n_x * int(n_y / 2))
-    arr = np.delete(arr, del_arr)
-    cp.init_tf_lst = [(caf, arr)]
+    n_arr = np.hstack([ccp.n_h[:, :].flatten(),
+                       #ccp.n_v[:, :].flatten(),
+                       ccp.n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
     cp.cnstr_rhs[0] = dx
     

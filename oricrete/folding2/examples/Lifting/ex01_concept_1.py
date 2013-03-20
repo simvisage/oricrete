@@ -404,14 +404,13 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
     
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
-    arr = np.arange(cpr.n_n)
-    arr = np.delete(arr, [12, 13, 14, 15])
-    cp.init_tf_lst = [(caf, arr)]
+    n_arr = np.hstack([cpr.n_h[:, :].flatten(),
+                       #cpr.n_v[:, :].flatten(),
+                       cpr.n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
-    cp.N = cpr.nodes
-    cp.L = cpr.crease_lines
-
-    cp.F = cpr.facets
+    cp.cp_geo(cpr)
 
     grab_nodes = [[0.5, 0.333, 0],
                   [0.5, 0.667, 0],
