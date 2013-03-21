@@ -143,7 +143,8 @@ class CreasePattern(HasTraits):
     @cached_property
     def _get_aligned_facets(self):
         '''
-        alignes all faces, so the normal is 
+        Alignes all faces, so the normal is in same direction. This
+        is necessary for the export to Abaqus.
         '''
         a_f = []
         for i in self.facets:
@@ -181,7 +182,13 @@ class CreasePattern(HasTraits):
         return (pts_l, con_l, pts_p, faces_p)
 
     def get_line_position(self, i):
-        ''' @todo: [Matthias] comment '''
+        '''
+        This method prints the procentual position of a linepoint element on
+        his line over all timesteps.
+        
+        i [int]: This value represents the index of a linepoint element,
+                 which should be reviewed.
+        '''
 
         if(len(self.line_pts) == 0):
             print ' NO LINE POINTS'
@@ -215,7 +222,12 @@ class CreasePattern(HasTraits):
             print 'Step ', p, ': r = ', r
 
     def create_rcp_tex(self, name = 'rcp_output.tex', x = 15., y = 15.):
-        ''' @todo: [Matthias] comment '''
+        ''' 
+        This methode returns a *.tex file with the top view of the
+        creasepattern and the nodeindex of every node. This file 
+        can be implemented into a latex documentation, using package 
+        pst-all.
+        '''
         n = self.nodes
         c = self.crease_lines
         x_l = np.max(n[:, 0])
@@ -239,7 +251,12 @@ class CreasePattern(HasTraits):
         f.close()
 
     def create_3D_tex(self, name = 'standart3Doutput.tex', x = 5, y = 5, alpha = 140, beta = 30):
-        ''' @todo: [Matthias] comment '''
+        ''' 
+        This methode returns a *.tex file with a 3D view of the
+        creasepattern and the nodeindex of every node, as a sketch. This file 
+        can be implemented into a latex documentation, using package 
+        pst-3dplot. 
+        '''
         n = self.nodes
         c = self.crease_lines
         f = open(name, 'w')
@@ -265,64 +282,6 @@ class CreasePattern(HasTraits):
         f.write(' \\end{pspicture}' + '\n')
 #        f.write(' \\end{pdfdisplay}' + '\n')
         f.close()
-
-    def save_output(self, name = 'OutputData.txt'):
-        '''
-            Creates an output file which contains the basic creaspattern information and the
-            Nodeposition in every timestep
-        '''
-        f = open(name, 'w')
-        n = self.nodes
-        cl = self.crease_lines
-        fc = self.aligned_facets
-
-        #=======================================================================
-        # Basic Informations: Nodes, Creaselines, Facets
-        #=======================================================================
-
-        # Nodes
-        f.write(' This Outputfile contains all basic geometrical datas of a Creasepattern and \n')
-        f.write(' the Coordinates of each Node in every timestep, after solving the system. \n \n')
-        f.write(' ### Basic Informations ### \n \n')
-        f.write(' NODES \n')
-        f.write(' Index\t X\t Y\t Z\n')
-        for i in range(len(n)):
-            f.write(' %i\t %.4f\t %.4f\t %.4f\n' % (i, n[i][0], n[i][1], n[i][2]))
-        f.write('\n CREASELINES \n')
-        f.write(' Index\t Node1\t Node2\n')
-        for i in range(len(cl)):
-            f.write(' %i\t %i\t %i\n' % (i, cl[i][0], cl[i][1]))
-        f.write('\n FACETS \n')
-        f.write(' Index\t Node1\t Node2\t Node3\t \n')
-        for i in range(len(fc)):
-            f.write(' %i\t %i\t %i\t %i\t \n' % (i, fc[i][0], fc[i][1], fc[i][2]))
-
-        #=======================================================================
-        # Nodepostion in every timestep
-        #=======================================================================
-
-        f.write('\n  ### Nodeposition in every timestep ### \n')
-        inodes = self.fold_steps
-        for i in range(2, len(inodes)):
-            f.write('\n Iterationstep %i\n' % (i - 1))
-            f.write(' Index\t X\t Y\t Z\n')
-            for p in range(len(inodes[i])):
-                f.write(' %i\t %.4f\t %.4f\t %.4f\n' % (p, inodes[i][p][0], inodes[i][p][1], inodes[i][p][2]))
-
-        f.close()
-
-        node = open(name[:-4] + 'Node.inp', 'w')
-        for i in range(2, len(inodes)):
-            node.write('*Node\n')
-            for p in range(len(inodes[i])):
-                node.write(' %i,\t %.4f,\t %.4f,\t %.4f\n' % (p + 1, inodes[i][p][0], inodes[i][p][1], inodes[i][p][2]))
-            node.write('\n')
-        node.close()
-        faces = open(name[:-4] + 'Element.inp', 'w')
-        faces.write('*Element,\t type=M3D3\n')
-        for i in range(len(fc)):
-            faces.write(' %i,\t %i,\t %i,\t %i,\t \n' % (i + 1, fc[i][0] + 1, fc[i][1] + 1, fc[i][2] + 1))
-        faces.close()
 
 if __name__ == '__main__':
 

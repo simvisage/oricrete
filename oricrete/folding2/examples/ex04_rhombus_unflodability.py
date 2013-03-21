@@ -49,7 +49,7 @@ if __name__ == '__main__':
     init = Initialization(cp = cp, tf_lst = [(face_z_t, n_arr)], t_init = 1.0)
     init.show()
     
-    ff = FormFinding(cp = copy(cp), tf_lst = [(face_z_t, n_arr)], MAX_ITER = 200)
+    ff = FormFinding(cp = copy(cp), tf_lst = [(face_z_t, n_arr)], MAX_ITER = 50)
     ff.N = init.x_t[-1]
     ff.show()
     

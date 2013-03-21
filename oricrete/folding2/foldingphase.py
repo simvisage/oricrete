@@ -82,8 +82,6 @@ class FoldingPhase(HasTraits):
         # Control Surfaces
         return np.zeros((0,))
 
-    
-    
     n_c = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
@@ -112,6 +110,7 @@ class FoldingPhase(HasTraits):
     
     @on_trait_change('nodes')
     def _u_0_changed(self):
+        # Resize _u_0 to the new numper of dofs.
         self._u_0 = np.zeros((self.n_n * self.n_d,), dtype = 'float_')
 
     u_0 = Property(depends_on = '_u_0')
@@ -458,7 +457,10 @@ class Initialization(FoldingPhase):
                 }
     
     t_init = Float(0.05)
-    def _t_init_changed(self):   
+    def _t_init_changed(self):
+        '''
+        Timestep which is used for the initialization mapping.
+        ''' 
         self.t_arr = np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
     
     n_steps = Int(1, auto_set = False, enter_set = True)
@@ -467,6 +469,7 @@ class Initialization(FoldingPhase):
             
     t_arr = Array(float)
     def _t_arr_default(self):
+        # Set timearray to the only given timestep which is t_init.
         return np.linspace(self.t_init / self.n_steps, self.t_init, self.n_steps)
     
     u_t = Property(depends_on = 'cp_changed, N')
@@ -488,13 +491,8 @@ class FormFinding(FoldingPhase):
     the condition, that the sum of the angels between the connecting 
     creaselines is at least 2*pi. Every other constraints are deactivated.
     
-    For this condition the connectivity must be putted in the object.
-    
-    
-    
+    For this condition the connectivity of all inner nodes must be putted in the object.
     '''
-    
-    
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
@@ -504,14 +502,25 @@ class FormFinding(FoldingPhase):
     u_t = Property(depends_on = 'cp_changed, N')
     @cached_property
     def _get_u_t(self):
-        '''Solve the problem with the appropriate solver
+        '''unfoldability can only be solved with least square methode
         '''
-
-        
         return self._solve_fmin(self.u_0, self.acc)
         
         
 class Folding(FoldingPhase):
+    '''Folding folds a creaspattern while using the classic constraints like 
+    cosntant length, dof constraints and surface constraints.
+    
+    This class is for analyzation of the foldprocess of a creasepattern.
+    All classic constraints can be use. Only special elements, like GP and LP
+    are not included. But controlfacets and targetfacets are supported.
+    
+    unfold [Bool]: The unfold trait gives the Folding class the possibility
+                   to reverse the time array. So it's possible to unfold
+                   a structure. If you optimize a pattern with FormFinding
+                   you can unfold it at least with Folding to it's flatten 
+                   shape.
+    '''
     
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
@@ -525,6 +534,7 @@ class Folding(FoldingPhase):
     
     @on_trait_change('unfold', 'n_steps')
     def _t_arr_change(self):
+        # time array will be reversed if unfold is true
         t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
         if(self.unfold):
             t_arr = t_arr[::-1]
@@ -537,14 +547,22 @@ class Folding(FoldingPhase):
     def _get_u_t(self):
         '''Solve the problem with the appropriate solver
         '''
-
         if(len(self.tf_lst) > 0):
             return self._solve_fmin(self.u_0, self.acc)
         else:
             return self._solve_nr(self.u_0, self.acc)
         
 class Lifting(FoldingPhase):
+    ''' Lifting class is for lifting a creasepattern with a crane.
     
+    Lifting takes all equality constraints and is used to simulate
+    the lifting act with a cranestructure.
+    To be able to lift the structure, you need to have a predeformation u_0.
+    In Lifting you can set an tragetface to init_tf_lst and with this 
+    targetface, Lifting will initialize a predeformation fully automatically.
+    Instead of this you can although put in your own predeformation.
+    
+    '''
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
@@ -568,12 +586,11 @@ class Lifting(FoldingPhase):
         if(len(self.init_tf_lst) > 0):
             N = []
             for i in self.N:
-                if(i[2] == 0):
+                if(i[2] == 0): # Find all nodes of the oricrete element laying in z=0
                     N.append(i)
             init = Initialization(cp = copy(self.cp), tf_lst = self.init_tf_lst)
             init.N = N
             u_0_pattern = init.u_t[-1]
-            
         return u_0_pattern
         
     

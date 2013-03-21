@@ -1487,7 +1487,7 @@ def rhombus_3x2_moveable_sticks(n_steps = 10, dx = 0.5):
 
 if __name__ == '__main__':
 #    cp = rhombus_3x1_crane(n_steps = 80)
-#    cp = rhombus_3x2_fixed_sticks(n_steps = 80)
+    cp = rhombus_3x2_fixed_sticks(n_steps = 80)
 #    cp = rhombus_3x2_fixed_sticks_2(n_steps = 80)
     
     # working bad
@@ -1495,7 +1495,7 @@ if __name__ == '__main__':
 #    cp = rhombus_3x2_y_fixed(n_steps = 120)
 
     #not working
-    cp = rhombus_3x3_fixed_sticks(n_steps = 80)
+#    cp = rhombus_3x3_fixed_sticks(n_steps = 80)
     
     cp.show()
 

@@ -493,19 +493,6 @@ class Unfoldability(EqualityConstraint):
             pairs = np.vstack([idx_c, idx_c + 1]).T
             pairs[-1, -1] = 0
             
-#            theta_lst = []
-#            for left, right in pairs:
-#                cl, cr = c[left], c[right]
-#                ab = np.dot(cl, cr)
-#                aa = np.linalg.norm(cl)
-#                bb = np.linalg.norm(cr)
-#                gamma = ab / (aa * bb)
-#                theta = np.arccos(gamma)
-#                theta_lst.append(theta)
-#
-#            theta_arr = np.array(theta_lst, dtype = 'f')
-#            theta = np.sum(theta_arr)
-            
             for left, right in pairs:
                 a, b = c[left], c[right]
                 ab = np.dot(a, b)
@@ -520,9 +507,6 @@ class Unfoldability(EqualityConstraint):
                 theta_da = coeff * (b / (aa * bb) - (ab * a) / (aa ** 3 * bb))
                 theta_db = coeff * (a / (aa * bb) - (ab * b) / (aa * bb ** 3))
                 
-#                theta_da = -2 * theta * (coeff * (b / (aa * bb) - (ab * a) / (aa ** 3 * bb))) / np.sqrt(np.abs(4 * np.pi ** 2 - theta ** 2))
-#                theta_db = -2 * theta * (coeff * (a / (aa * bb) - (ab * b) / (aa * bb ** 3))) / np.sqrt(np.abs(4 * np.pi ** 2 - theta ** 2))
-
                 a_idx = n[left] * self.n_d
                 b_idx = n[right] * self.n_d
                 

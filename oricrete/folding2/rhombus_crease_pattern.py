@@ -88,6 +88,12 @@ class RhombusCreasePattern(CreasePattern):
     
     connectivity = Property
     def _get_connectivity(self):
+        '''
+        The connectivity represents all inner nodes [n] of the creasepattern and
+        their connected nodes [cn].
+        
+        (n,[cn1,cn2,...,cni])
+        '''
         con = [(vertex, neighbors) for vertex, neighbors in
                     zip(self.interior_vertices, self.cycled_neighbors.T)]
         return con
