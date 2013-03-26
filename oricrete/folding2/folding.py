@@ -40,7 +40,7 @@ class Folding(HasTraits):
     cp_changed
     cnstr_changed
     """
-    
+
     # Main Creasepattern Object
     # ToDo: Change of cp type, means handling of rhombuscreasepattern modells
     cp = Instance(CreasePattern)
@@ -78,14 +78,14 @@ class Folding(HasTraits):
         return np.zeros((0,))
 
     u_0 = DelegatesTo('cp', 'u_0')
-    
+
     n_c = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
     n_g = DelegatesTo('cp')
     n_l = DelegatesTo('cp')
-    n_dofs = DelegatesTo('cp') 
-    
+    n_dofs = DelegatesTo('cp')
+
     n_c_ff = Property
     def _get_n_c_ff(self):
         '''Number of constraints'''
@@ -94,17 +94,17 @@ class Folding(HasTraits):
         for ff, nodes in self.cf_lst:
             n_c += len(nodes)
         return n_c
-    
+
     fold_steps = DelegatesTo('cp', 'fold_steps')
 
     def get_t_for_fold_step(self, fold_step):
         '''Get the index of the fold step array for the given time t'''
         return self.t_arr[fold_step]
-    
+
     #===========================================================================
     # Constrain Datas
     #===========================================================================
-    
+
     # constrained node indices
     # define the pairs (node, dimension) affected by the constraint
     # stored in the constrained_x array
@@ -121,10 +121,10 @@ class Folding(HasTraits):
     @cached_property
     def _get_cnstr_rhs(self):
         return np.zeros((len(self.cnstr_lhs),), dtype = 'float_')
-    
+
     # list of Constrain-Objects
     cnstr = Array(value = [])
-  
+
     cf_lst = List([])
     tf_lst = List([])
 
@@ -319,7 +319,7 @@ class Folding(HasTraits):
 
     def get_f_du_t(self, x):
         return self.get_f_du(x, self.t)
-    
+
     #===============================================================================
     # Verification procedures to check the compliance with the constant length criteria. 
     #===============================================================================
@@ -375,7 +375,7 @@ class Folding(HasTraits):
             temp = self.N + u.reshape(-1, 3)
             x.append(temp)
         return np.array(x, dtype = 'f')
-    
+
     v_t = Property()
     def _get_v_t(self):
         '''
@@ -425,7 +425,6 @@ if __name__ == '__main__':
     cp.GP = [[4, 0]]
     cp.LP = [[5, 4]]
 
-    
     cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
 #    cp.tf_lst = [(CnstrTargetFace(F = cp.TS[0].tolist()), [1])]
 
