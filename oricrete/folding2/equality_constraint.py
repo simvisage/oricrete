@@ -205,8 +205,9 @@ class GrabPoints(EqualityConstraint):
         return grab_lines
 
 class PointsOnLine(EqualityConstraint):
-    '''Grab points are included in the nodes attribute of the crease pattern.
-    Their position is constrained within a facet using triangle coordinates.
+    '''PointsOnLine are included in the nodes attribute of the crease pattern.
+    Their position is constrained within a creaseline-element and at least one other
+    constraining Element.
     '''
     LP = DelegatesTo('cp')
     n_l = DelegatesTo('cp')
@@ -229,36 +230,32 @@ class PointsOnLine(EqualityConstraint):
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
-
-        # @todo [Matthias] - this can be written in a more compact way.
-        # this must be self-explaining !
-        Rx = (p0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              dp0[:, 2] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              p1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              dp1[:, 2] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              p2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
-              dp2[:, 2] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
-        Ry = (p0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
-              dp0[:, 2] * (p1[:, 1] + dp1[:, 1] - p2[:, 1] - dp2[:, 1]) +
-              p1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
-              dp1[:, 2] * (p2[:, 1] + dp2[:, 1] - p0[:, 1] - dp0[:, 1]) +
-              p2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]) +
-              dp2[:, 2] * (p0[:, 1] + dp0[:, 1] - p1[:, 1] - dp1[:, 1]))
-        Rz = (p0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              dp0[:, 1] * (p1[:, 0] + dp1[:, 0] - p2[:, 0] - dp2[:, 0]) +
-              p1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              dp1[:, 1] * (p2[:, 0] + dp2[:, 0] - p0[:, 0] - dp0[:, 0]) +
-              p2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]) +
-              dp2[:, 1] * (p0[:, 0] + dp0[:, 0] - p1[:, 0] - dp1[:, 0]))
-
+        
+        ri = p1 + dp1
+        rj = p2 + dp2
+        rij = p0 + dp0
+        
+        # parameter free determinant Form of the line
+        R = np.cross((rj - ri), (rij - ri))
+        
+        # sorting of the residuum for same arangement as G_du
+        # ToDo: Redesigne G_du
+        Rx = R[:, 1]
+        Ry = R[:, 0] * -1
+        Rz = R[:, 2] * -1
+        
         R = np.zeros((len(Rx) * 2,))
 
-        # @todo: [Matthias] - what are these cases for? PEP8
+        # linepoint Elements take only two equations!
+        # if line lays in a system axis the representing equation
+        # will be zero, so it will be singular
         for i in range(len(Rx)):
             if((p1[i][0] == p2[i][0])and(p1[i][2] == p2[i][2])):
+                # check if line lays on x-axis
                 R[i * 2] = Ry[i]
-                R[i * 2 + 1] = Rx[i]
+                R[i * 2 + 1] = Rz[i]
             elif((p1[i][1] == p2[i][1])and(p1[i][2] == p2[i][2])):
+                #check if line lays on y-axis
                 R[i * 2] = Rx[i]
                 R[i * 2 + 1] = Rz[i]
             else:
@@ -432,7 +429,7 @@ class Unfoldability(EqualityConstraint):
     N = DelegatesTo('cp')
     L = DelegatesTo('cp')
 
-    connectivity = List([])
+    connectivity = DelegatesTo('cp')
 
     n_n = DelegatesTo('cp')
     n_d = DelegatesTo('cp')
@@ -467,12 +464,14 @@ class Unfoldability(EqualityConstraint):
 
             theta_arr = np.array(theta_lst, dtype = 'f')
             theta = np.sum(theta_arr) - 2 * np.pi
+#            theta = np.sqrt(np.abs(4 * np.pi ** 2 - np.sum(theta_arr) ** 2))
 #            zt_arg = 4 - ((4 * np.pi - theta) ** 2) / np.pi ** 2
 #            zt = np.sign(zt_arg) / 2 * np.sqrt(np.fabs(zt_arg))
 
             G_lst.append(theta)
-
+            
         G_arr = np.array(G_lst, dtype = 'f')
+        
         return G_arr
 
     def get_G_du(self, u_vct, t = 0.0):
@@ -493,32 +492,43 @@ class Unfoldability(EqualityConstraint):
             idx_c = np.arange(n_c)
             pairs = np.vstack([idx_c, idx_c + 1]).T
             pairs[-1, -1] = 0
-
+            
+#            theta_lst = []
+#            for left, right in pairs:
+#                cl, cr = c[left], c[right]
+#                ab = np.dot(cl, cr)
+#                aa = np.linalg.norm(cl)
+#                bb = np.linalg.norm(cr)
+#                gamma = ab / (aa * bb)
+#                theta = np.arccos(gamma)
+#                theta_lst.append(theta)
+#
+#            theta_arr = np.array(theta_lst, dtype = 'f')
+#            theta = np.sum(theta_arr)
+            
             for left, right in pairs:
                 a, b = c[left], c[right]
                 ab = np.dot(a, b)
                 aa = np.linalg.norm(a)
                 bb = np.linalg.norm(b)
                 gamma = ab / (aa * bb)
-
+                
+                # Right version, but more problems: coeff = -1 / np.sqrt(1 - gamma ** 2)
+                
                 coeff = -1 / np.sqrt(1 - gamma)
                 
-                # WRONG BRACKETS ???
-                #theta_da = coeff * (b / (aa) * (bb) - (ab * a) / (aa) ** 3 * (bb))
-                #theta_db = coeff * (a / (aa) * (bb) - (ab * b) / (aa) * (bb) ** 3)
                 theta_da = coeff * (b / (aa * bb) - (ab * a) / (aa ** 3 * bb))
                 theta_db = coeff * (a / (aa * bb) - (ab * b) / (aa * bb ** 3))
+                
+#                theta_da = -2 * theta * (coeff * (b / (aa * bb) - (ab * a) / (aa ** 3 * bb))) / np.sqrt(np.abs(4 * np.pi ** 2 - theta ** 2))
+#                theta_db = -2 * theta * (coeff * (a / (aa * bb) - (ab * b) / (aa * bb ** 3))) / np.sqrt(np.abs(4 * np.pi ** 2 - theta ** 2))
 
                 a_idx = n[left] * self.n_d
                 b_idx = n[right] * self.n_d
                 
-                # Values will be overwritten not added ???
-                #G_du[i, a_idx:a_idx + self.n_d] = theta_da
-                #G_du[i, b_idx:b_idx + self.n_d] = theta_db
-                
                 G_du[i, a_idx:a_idx + self.n_d] += theta_da
                 G_du[i, b_idx:b_idx + self.n_d] += theta_db
-
+                
         return G_du
 
 if __name__ == '__main__':

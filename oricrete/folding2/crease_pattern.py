@@ -18,41 +18,11 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 
 import numpy as np
 
-from equality_constraint import \
-    IEqualityConstraint, ConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints
-
 class CreasePattern(HasTraits):
     '''
     Structure of triangulated Crease-Patterns
-
-    @todo: define triangle constraints given by a tripple
-    of node numbers and by a corresponding tripple of
-    the weighting factors specifying the point within
-    the triangle in form of area coordinates.
-
-    The constraint is established by introducing the
-    equations
-    R1 := L1 * n1_x + L2 * n2_x + L3 * n3_x - n4_x = 0
-    R2 := L1 * n1_y + L2 * n2_y + L3 * n3_y - n4_y = 0
-    R3 := L1 * n1_z + L2 * n2_z + L3 * n3_z - n4_z = 0
-
-    As a result a new point n4 has been introduced
-    into the system that can be used in further constraints.
-
-    Should there be an array/list of dependent nodes?
-    How should these nodes be referenced when specifying
-    further constraints? crease_lines?
-
-    Should there be a property taking over the role of the
-    current nodes array? The dependent nodes might be
-    specified separately as an arbitrary linear dependency
-    between the other nodes.
-
-    1. visualization of the nodes can be done separately
-       for the primary and dependent nodes.
-    2. crease lines should be called simply lines
     '''
+    
     #===============================================================================
     # Input data structure 
     #===============================================================================
@@ -60,18 +30,26 @@ class CreasePattern(HasTraits):
     # all nodes in X,Y,Z array    
     nodes = Array(value = [], dtype = float)
 
-    # all crease lines as index-table
+    # all crease lines as index-table [n1, n2]
     crease_lines = Array
     def _crease_lines_default(self):
         return np.zeros((0, 2), dtype = 'int_')
 
+    # all facets as index-table [n1, n2, n3]
     facets = Array(value = [], dtype = 'int_')
+    
+    # connectivity for unfoldability [n, [n1, n2, ..., ni]]
+    # first index of inner node, second array all nodes wich are 
+    # connected in counter clockwise arangement
+    connectivity = List([])
 
     # points for facet grabbing [n,f]
     # first index gives node, second gives the facet 
     grab_pts = List([])
 
+    # controllface
     cf_lst = List([])
+    # targetface
     tf_lst = List([])
 
     ff_lst = Property
@@ -153,11 +131,9 @@ class CreasePattern(HasTraits):
         '''
         c = self.c_vectors
         return np.sqrt(np.sum(c ** 2, axis = 1))
-
-    u_0 = Property(depends_on = 'nodes')
-    @cached_property
-    def _get_u_0(self):
-        return np.zeros((self.n_n * self.n_d,), dtype = 'float_')
+    
+    
+        
 
 
     #===============================================================================
@@ -166,6 +142,9 @@ class CreasePattern(HasTraits):
     aligned_facets = Property(depends_on = 'facets')
     @cached_property
     def _get_aligned_facets(self):
+        '''
+        alignes all faces, so the normal is 
+        '''
         a_f = []
         for i in self.facets:
             v1 = np.array(self.nodes[i[1]] - self.nodes[i[0]])
