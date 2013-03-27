@@ -14,11 +14,27 @@ else:
     import select
     import fcntl
 
+ 
 class Popen(subprocess.Popen):
+    '''
+    This class is a code-snipped from: 
+    http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0CDgQFjAA&url=http%3A%2F%2Fcode.activestate.com%2Frecipes%2F440554-module-to-allow-asynchronous-subprocess-use-on-win%2Fdownload%2F1%2F&ei=L81SUc6YFdOM4gSWoYHoBQ&usg=AFQjCNEpnjK5yQO8OdMuevJP4gToOp7yvQ&sig2=DgbTCRxkDcR3PSbBOWFdhA&bvm=bv.44342787,d.bGE&cad=rja
+    
+    ToDo:
+    This code can't interpret answers from the cluster,
+    so it just waits some time (default 5 sec) and then 
+    starting the next input. So it won't catch any errors!!!
+    '''
     def recv(self, maxsize = None):
+        '''
+        Standard output stream from cluster.
+        '''
         return self._recv('stdout', maxsize)
 
     def recv_err(self, maxsize = None):
+        '''
+        Standard error stream from cluster.
+        '''
         return self._recv('stderr', maxsize)
 
     def send_recv(self, input = '', maxsize = None):
@@ -119,6 +135,9 @@ class Popen(subprocess.Popen):
 message = "Other end disconnected!"
 
 def recv_some(p, t = 5, e = 1, tr = 5, stderr = 0):
+    '''
+    Recieving all answers from cluster in default 5 sec.
+    '''
     if tr < 1:
         tr = 1
     x = time.time() + t
@@ -141,6 +160,9 @@ def recv_some(p, t = 5, e = 1, tr = 5, stderr = 0):
     return ''.join(y)
 
 def send_all(p, data):
+    '''
+    Send a row of commands to the shell.
+    '''
     while len(data):
         sent = p.send(data)
         if sent is None:
@@ -148,6 +170,14 @@ def send_all(p, data):
         data = buffer(data, sent)
 
 def delete_old(p, filename, tail):
+    '''
+    Delete all old files with the filename and these endings laying on the 
+    cluster.
+    
+    p [Popen]: A active shell.
+    filename [string]: Actual file.
+    tail [string]: Closing escape sequence (WIN and Unix are different)
+    '''
     endings = ['.com', '.log', '.cae', '.dat',
                '.jnl', '.msg', '.odb', '.prt',
                '.sim', '.sta', '.xml', '.stt',
@@ -160,12 +190,34 @@ def delete_old(p, filename, tail):
         send_all(p, cmd)
 
 def solve_abaqus(p, filename, tail):
+    '''
+    Start a abaqus job with the *.inp file.
+    
+    p [Popen]: A active shell.
+    filename [string]: Actual file.
+    tail [string]: Closing escape sequence (WIN and Unix are different)
+    '''
     send_all(p, 'abaqus job=' + filename + tail)
 
 def open_abaqus(p, tail):
+    '''
+    Starts the Abaqus CAE.
+    
+    p [Popen]: A active shell.
+    tail [string]: Closing escape sequence (WIN and Unix are different)
+    '''
     send_all(p, 'abaqus cae ' + tail)
 
 def connect_cluster(p, login, tail, cluster = 'cluster.rz.rwth-aacheb.de', options = []):
+    '''
+    Connects to the cluster.
+    
+    p [Popen]: A active shell.
+    login [string]: Working login name.
+    tail [string]: Closing escape sequence (WIN and Unix are different)
+    cluster [string]: Path of the cluster.
+    options [List]: List of option strings.
+    '''
     cmd = 'ssh '
     for i in options:
         cmd += i + ' '
@@ -174,18 +226,47 @@ def connect_cluster(p, login, tail, cluster = 'cluster.rz.rwth-aacheb.de', optio
     
 
 def upload_file(p, login, path_file, tail, cluster = 'cluster.rz.rwth-aachen.de', path_server = '~/'):
+    '''
+    Uploads an explicit *.inp file to the cluster.
+    
+    p [Popen]: A active shell.
+    login [string]: Working login name.
+    path_file [string]: path of the file, which should be uploaded.
+    tail [string]: Closing escape sequence (WIN and Unix are different)
+    cluster [string]: Path of the cluster.
+    path_server [string]: Path where the file should be uploaded to. Default 
+                          is home.
+    '''
     cmd = 'scp ' + path_file + ' ' + login + '@' + cluster + ':' + path_server + tail
     send_all(p, cmd)
 
 def download_file(p, login, path_file, tail, path_server, cluster = 'cluster.rz.rwth-aachen.de'):
+    '''
+    Download an explicit *.inp file from the cluster.
+    
+    p [Popen]: A active shell.
+    login [string]: Working login name.
+    path_file [string]: path of the file, where it should be downloaded.
+    tail [string]: Closing escape sequence (WIN and Unix are different)
+    path_server [string]: Path where the file lays, which should be downloaded to.
+    cluster [string]: Path of the cluster.
+    '''
     cmd = 'scp ' + login + '@' + cluster + ':' + path_server + ' ' + path_file + tail
     send_all(p, cmd)
     
 def close_connection(p, tail):
+    '''
+    Kills the shell.
+    '''
     send_all(p, 'exit' + tail)
     p.kill()
     
 def open_shell():
+    '''
+    Opens a new shell.
+    
+    Returns a Popen object with the active shell.
+    '''
     if sys.platform == 'win32':
         shell, commands, tail = ('cmd', ('dir /w', 'echo HELLO WORLD'), '\r\n')
     else:
