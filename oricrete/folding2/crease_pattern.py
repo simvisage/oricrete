@@ -303,29 +303,25 @@ if __name__ == '__main__':
 
     cp.grab_pts = [[3, 0],
                    [4, 0]]
+    
+    from oricrete.folding2.foldingphase import Lifting
+    
+    lift = Lifting(cp = cp, n_steps = 10)
 
-    cp.cnstr_lhs = [[(0, 0, 1.0)],
+    lift.cnstr_lhs = [[(0, 0, 1.0)],
                     [(0, 1, 1.0)],
                     [(0, 2, 1.0)],
                     [(1, 1, 1.0)],
                     [(1, 2, 1.0)],
                     [(3, 2, 1.0)]]
 
-    cp.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
+    lift.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
                     , 1.0, 0.0, 0.0]
 
-    u = np.zeros((cp.n_dofs,), dtype = float)
-    u[1] = 0.01
+    lift.u_0[1] = 0.01
+    
+    lift.show()
 
-    print 'initial lengths\n', cp.c_lengths
-    print 'initial vectors\n', cp.c_vectors
-    print 'initial G\n', cp.get_G(u)
-    print 'initial dG\n', cp.get_G_du(u)
+    
 
-    u = cp.solve(u)
-
-    print '========== results =============='
-    print 'solution u\n', u
-    print 'final positions\n', cp.get_new_nodes(u)
-    print 'final vectors\n', cp.get_new_vectors(u)
-    print 'final lengths\n', cp.get_new_lengths(u)
+    

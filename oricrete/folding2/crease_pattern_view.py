@@ -803,23 +803,24 @@ class CreasePatternView(HasTraits):
 if __name__ == '__main__':
     # little example with all visual elements
     # ToDo: suface missing
-    cp = CreasePattern()
+    from oricrete.folding2.foldingphase import Lifting
+    cp = Lifting(n_steps = 10)
 
-    cp.nodes = [[0, 0, 0],
+    cp.N = [[0, 0, 0],
             [1, 0, 0],
             [1, 1, 0],
             [0, 1, 0],
             [0.2, 0.2, 0],
             [0.5, 0.5, 0.0]]
-    cp.crease_lines = [[0, 1],
+    cp.L = [[0, 1],
             [1, 2],
             [2, 3],
             [3, 0],
             [1, 3]]
-    cp.facets = [[0, 1, 3],
+    cp.F = [[0, 1, 3],
             [1, 2, 3]]
-    cp.grab_pts = [[4, 0]]
-    cp.line_pts = [[5, 4]]
+    cp.GP = [[4, 0]]
+    cp.LP = [[5, 4]]
     cp.cnstr_lhs = [[(1, 2, 1.0)],
                     [(0, 0, 1.0)],
                     [(0, 1, 1.0)],
@@ -828,13 +829,9 @@ if __name__ == '__main__':
                     [(3, 2, 1.0)],
                     [(2, 2, 1.0)],
                     [(5, 0, 1.0)]]
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
     cp.cnstr_rhs[0] = 0.5
     cp.n_steps = 10
-    u_0 = np.zeros((cp.n_n * cp.n_d,), dtype = float)
-    u_0[5] = 0.05
-    u_0[17] = 0.025
-    cp.solve(X0 = u_0)
-    cpv = CreasePatternView(data = cp)
-    cpv.configure_traits()
+    cp.u_0[5] = 0.05
+    cp.u_0[17] = 0.025
+    cp.show()
 
