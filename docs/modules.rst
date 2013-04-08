@@ -2,9 +2,9 @@
 Modules
 =======
 
-.. automodule:: spirrid
+.. automodule:: oricrete
    :members:
    
-.. autoclass:: SPIRRID
+.. autoclass:: oricrete.folding2.Folding
    :members:  
 

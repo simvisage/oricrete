@@ -11,10 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   front
-   intro
-   examples_folding2/index
-   modules
+   Beispoielcode1.py
 
 Indices and tables
 ==================
