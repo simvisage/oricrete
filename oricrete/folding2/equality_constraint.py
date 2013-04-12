@@ -34,53 +34,69 @@ class EqualityConstraint(HasStrictTraits):
 
     implements(IEqualityConstraint)
 
-    # link to the crease pattern
-    cp = WeakRef
-    
+    reshaping = WeakRef
+    '''Link to the reshaping tool.
+    '''
 
-    # Indicate the derivatives are unavailable
+    N = DelegatesTo('reshaping')
+    '''Nodal coordinates
+    '''
+
     has_G_du = Bool(True)
+    '''Indicates the derivatives are unavailable for a given
+    type of constraint.
+    '''
 
-    def __init__(self, cp, *args, **kw):
-        self.cp = cp
+    def __init__(self, reshaping, *args, **kw):
+        '''Initialization requiring the reshaping tool.
+        '''
+        self.reshaping = reshaping
         super(HasStrictTraits, self).__init__(*args, **kw)
 
-
 class ConstantLength(EqualityConstraint):
+    '''Constant length constraint.
+    '''
 
-    # node-to-node array specifying the lines 
-    # to be submitted to the equality constraint.
-    # by default, all crease lines are included.
-    # However, it is possible to redefine them. 
-    L = PrototypedFrom('cp')
-    n_c = DelegatesTo('cp')
+    L = PrototypedFrom('reshaping')
+    '''Node-to-node array specifying the lines.
+    to be submitted to the equality constraint.
+    by default, all crease lines are included.
+    However, it is possible to redefine them.
+    '''
 
-    N = DelegatesTo('cp')
-    n_n = DelegatesTo('cp')
-    n_d = DelegatesTo('cp')
+    n_N = DelegatesTo('reshaping')
+    '''Number of nodes
+    '''
+
+    n_L = DelegatesTo('reshaping')
+    '''Number of crease lines
+    '''
+
+    n_D = DelegatesTo('reshaping')
+    '''Number of dimensions
+    '''
 
     #===========================================================================
     # Dependent interim results
     #===========================================================================
-    crease_line_vectors = Property(Array, depends_on = 'N, L')
+    crease_line_vectors = Property(Array, depends_on='N, L')
+    '''Direction vectors of the crease lines
+    involved in the constant-length constraints.
+    '''
     @cached_property
     def _get_crease_line_vectors(self):
-        '''
-            Calculates the direction vectors of the crease lines.
-        '''
         n = self.N[...]
-
         cl = self.L
         return n[ cl[:, 1] ] - n[ cl[:, 0] ]
 
-    crease_line_lengths = Property(Array, depends_on = 'nodes, crease_lines')
+    crease_line_lengths = Property(Array, depends_on='nodes, crease_lines')
+    '''Lengths of the crease lines involved
+    in the constant-length constraints.
+    '''
     @cached_property
     def _get_crease_line_lengths(self):
-        '''
-            Calculates the lengths of the crease lines.
-        '''
         c = self.crease_line_vectors
-        return np.sqrt(np.sum(c ** 2, axis = 1))
+        return np.sqrt(np.sum(c ** 2, axis=1))
 
     def get_G(self, u_vct, t):
         ''' Calculate the residuum for constant crease length
@@ -90,16 +106,16 @@ class ConstantLength(EqualityConstraint):
         j = self.L[:, 1]
         i = self.L[:, 0]
 
-        u = u_vct.reshape(self.n_n, self.n_d)
+        u = u_vct.reshape(self.n_N, self.n_D)
         u_j = u[j]
         u_i = u[i]
 
-        v_u_i = np.sum(self.crease_line_vectors * u_i, axis = 1)
-        v_u_j = np.sum(self.crease_line_vectors * u_j, axis = 1)
+        v_u_i = np.sum(self.crease_line_vectors * u_i, axis=1)
+        v_u_j = np.sum(self.crease_line_vectors * u_j, axis=1)
 
-        u_ij = np.sum(u_i * u_j, axis = 1)
-        u_ii = np.sum(u_i ** 2, axis = 1)
-        u_jj = np.sum(u_j ** 2, axis = 1)
+        u_ij = np.sum(u_i * u_j, axis=1)
+        u_ii = np.sum(u_i ** 2, axis=1)
+        u_jj = np.sum(u_j ** 2, axis=1)
         G = 2 * v_u_j - 2 * v_u_i - 2 * u_ij + u_ii + u_jj
 
         return G
@@ -112,18 +128,18 @@ class ConstantLength(EqualityConstraint):
         i = self.L[:, 0]
         j = self.L[:, 1]
 
-        u = u_vct.reshape(self.n_n, self.n_d)
+        u = u_vct.reshape(self.n_N, self.n_D)
         u_i = u[i]
         u_j = u[j]
 
         G_du_i = -2 * self.crease_line_vectors + 2 * u_i - 2 * u_j
         G_du_j = 2 * self.crease_line_vectors + 2 * u_j - 2 * u_i
 
-        G_du = np.zeros((self.n_c, self.n_n, self.n_d), dtype = 'float_')
+        G_du = np.zeros((self.n_L, self.n_N, self.n_D), dtype='float_')
 
         # running crease line index
-        if self.n_c > 0:
-            cidx = np.arange(self.n_c)
+        if self.n_L > 0:
+            cidx = np.arange(self.n_L)
 
             G_du[ cidx, i, : ] += G_du_i
             G_du[ cidx, j, : ] += G_du_j
@@ -133,24 +149,24 @@ class ConstantLength(EqualityConstraint):
         # the derivatives with respect to the node displacements
         # in 3d.
         # 
-        G_du = G_du.reshape(self.n_c, self.n_n * self.n_d)
+        G_du = G_du.reshape(self.n_L, self.n_N * self.n_D)
         return G_du
 
 class GrabPoints(EqualityConstraint):
     '''Grab points are included in the nodes attribute of the crease pattern.
     Their position is constrained within a facet using triangle coordinates.
     '''
-    n_g = DelegatesTo('cp')
-    n_d = DelegatesTo('cp')
-    n_dofs = DelegatesTo('cp')
-    N = DelegatesTo('cp')
-    F = DelegatesTo('cp')
-    GP = DelegatesTo('cp')
+    n_dofs = DelegatesTo('reshaping')
+    N = DelegatesTo('reshaping')
+    F = DelegatesTo('reshaping')
+    GP = DelegatesTo('reshaping')
+    n_GP = DelegatesTo('reshaping')
+    n_D = DelegatesTo('reshaping')
 
     #===========================================================================
     # Grab point specification
     #===========================================================================
-    grab_pts_L = Property(Array, depends_on = 'N, F, GP')
+    grab_pts_L = Property(Array, depends_on='N, F, GP')
     @cached_property
     def _get_grab_pts_L(self):
         '''Calculates the L vector for the Barycentric coordinates
@@ -181,14 +197,14 @@ class GrabPoints(EqualityConstraint):
         ''' Calculate the residuum for constant crease length
         given the fold vector dX.
         '''
-        return np.zeros(self.n_g * self.n_d,)
+        return np.zeros(self.n_GP * self.n_D,)
 
     def get_G_du(self, u_vct, t):
         ''' Calculate the residuum for constant crease length
         given the fold vector dX.
 
         '''
-        grab_lines = np.zeros((self.n_g * self.n_d, self.n_dofs))
+        grab_lines = np.zeros((self.n_GP * self.n_D, self.n_dofs))
         for i in range(len(self.GP)):
             facet = self.F[self.GP[i][1]]
             c = 0
@@ -209,13 +225,13 @@ class PointsOnLine(EqualityConstraint):
     Their position is constrained within a creaseline-element and at least one other
     constraining Element.
     '''
-    LP = DelegatesTo('cp')
-    n_l = DelegatesTo('cp')
-    n_n = DelegatesTo('cp')
-    n_d = DelegatesTo('cp')
-    n_dofs = DelegatesTo('cp')
-    L = DelegatesTo('cp')
-    N = DelegatesTo('cp')
+    LP = DelegatesTo('reshaping')
+    n_LP = DelegatesTo('reshaping')
+    n_N = DelegatesTo('reshaping')
+    n_D = DelegatesTo('reshaping')
+    n_dofs = DelegatesTo('reshaping')
+    L = DelegatesTo('reshaping')
+    N = DelegatesTo('reshaping')
 
     def get_G(self, u_vct, t):
 
@@ -223,27 +239,27 @@ class PointsOnLine(EqualityConstraint):
         if(len(line) == 0):
             return []
         cl = self.L[line[:, 1]]
-        X = u_vct.reshape(self.n_n, self.n_d)
+        X = u_vct.reshape(self.n_N, self.n_D)
         p0 = self.N[line[:, 0]]
         p1 = self.N[cl[:, 0]]
         p2 = self.N[cl[:, 1]]
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
-        
+
         ri = p1 + dp1
         rj = p2 + dp2
         rij = p0 + dp0
-        
+
         # parameter free determinant Form of the line
         R = np.cross((rj - ri), (rij - ri))
-        
+
         # sorting of the residuum for same arangement as G_du
         # ToDo: Redesigne G_du
         Rx = R[:, 1]
         Ry = R[:, 0] * -1
         Rz = R[:, 2] * -1
-        
+
         R = np.zeros((len(Rx) * 2,))
 
         # linepoint Elements take only two equations!
@@ -270,9 +286,9 @@ class PointsOnLine(EqualityConstraint):
         '''
         line = np.array(self.LP)
         if(len(line) == 0):
-            return np.zeros((self.n_l * 2, self.n_dofs))
+            return np.zeros((self.n_LP * 2, self.n_dofs))
         cl = self.L[line[:, 1]]
-        X = u_vct.reshape(self.n_n, self.n_d)
+        X = u_vct.reshape(self.n_N, self.n_D)
         p0 = self.N[line[:, 0]]
         p1 = self.N[cl[:, 0]]
         p2 = self.N[cl[:, 1]]
@@ -356,18 +372,18 @@ class PointsOnLine(EqualityConstraint):
 
 class PointsOnSurface(EqualityConstraint):
 
-    N = DelegatesTo('cp')
-    n_n = DelegatesTo('cp')
-    n_d = DelegatesTo('cp')
-    n_dofs = DelegatesTo('cp')
-    n_c_ff = DelegatesTo('cp')
-    cf_lst = DelegatesTo('cp')
+    N = DelegatesTo('reshaping')
+    n_N = DelegatesTo('reshaping')
+    n_D = DelegatesTo('reshaping')
+    n_dofs = DelegatesTo('reshaping')
+    n_c_ff = DelegatesTo('reshaping')
+    cf_lst = DelegatesTo('reshaping')
 
-    def get_G(self, dX_vct, t = 0.0):
+    def get_G(self, dX_vct, t=0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.N + dX_vct.reshape(self.n_n, self.n_d)
-        Rf = np.zeros((self.n_c_ff,), dtype = 'float_')
+        X = self.N + dX_vct.reshape(self.n_N, self.n_D)
+        Rf = np.zeros((self.n_c_ff,), dtype='float_')
 
         i = 0
         for ff, nodes in self.cf_lst:
@@ -378,11 +394,11 @@ class PointsOnSurface(EqualityConstraint):
 
         return Rf
 
-    def get_G_du(self, u_vct, t = 0):
+    def get_G_du(self, u_vct, t=0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.N + u_vct.reshape(self.n_n, self.n_d)
-        G_du = np.zeros((self.n_c_ff, self.n_dofs), dtype = 'float_')
+        X = self.N + u_vct.reshape(self.n_N, self.n_D)
+        G_du = np.zeros((self.n_c_ff, self.n_dofs), dtype='float_')
 
         i = 0
         for ff, nodes in self.cf_lst:
@@ -392,27 +408,28 @@ class PointsOnSurface(EqualityConstraint):
                 G_du[i, (dof, dof + 1, dof + 2) ] = ff.dRf(x, y, z, t)
                 i += 1
 
+        print 'G_du', G_du
         return G_du
 
 class DofConstraints(EqualityConstraint):
 
-    n_n = DelegatesTo('cp')
-    n_d = DelegatesTo('cp')
-    n_dofs = DelegatesTo('cp')
-    cnstr_lhs = DelegatesTo('cp')
-    cnstr_rhs = DelegatesTo('cp')
+    n_N = DelegatesTo('reshaping')
+    n_D = DelegatesTo('reshaping')
+    n_dofs = DelegatesTo('reshaping')
+    cnstr_lhs = DelegatesTo('reshaping')
+    cnstr_rhs = DelegatesTo('reshaping')
 
     def get_G(self, u_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
-        u = u_vct.reshape(self.n_n, self.n_d)
+        u = u_vct.reshape(self.n_N, self.n_D)
         G = np.zeros((len(self.cnstr_lhs),))
         for i, cnstr in enumerate(self.cnstr_lhs):
             for n, d, c in cnstr:
                 G[i] += c * u[n, d] - (self.cnstr_rhs[i] * t)
         return G
 
-    def get_G_du(self, X_vct, t = 0.0):
+    def get_G_du(self, X_vct, t=0.0):
         ''' Calculate the residuum for given constraint equations
         '''
         G_du = np.zeros((len(self.cnstr_lhs), self.n_dofs))
@@ -426,21 +443,24 @@ class Unfoldability(EqualityConstraint):
     '''For the specified node associations require
     the sum of the angles between adjacent crease lines be 2Pi
     '''
-    N = DelegatesTo('cp')
-    L = DelegatesTo('cp')
+    L = DelegatesTo('reshaping')
 
-    connectivity = DelegatesTo('cp')
+    connectivity = List([])
+    '''Connectivity for unfoldability constraint [n, [n1, n2, ..., ni]]
+       first index of inner node, second array all nodes wich are
+       connected in counter clockwise arrangement.
+    '''
 
-    n_n = DelegatesTo('cp')
-    n_d = DelegatesTo('cp')
-    n_dofs = DelegatesTo('cp')
-    cnstr_lhs = DelegatesTo('cp')
-    cnstr_rhs = DelegatesTo('cp')
+    n_N = DelegatesTo('reshaping')
+    n_D = DelegatesTo('reshaping')
+    n_dofs = DelegatesTo('reshaping')
+    cnstr_lhs = DelegatesTo('reshaping')
+    cnstr_rhs = DelegatesTo('reshaping')
 
     def get_G(self, u_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
-        u = u_vct.reshape(self.n_n, self.n_d)
+        u = u_vct.reshape(self.n_N, self.n_D)
         x = self.N + u
 
         G_lst = []
@@ -462,28 +482,28 @@ class Unfoldability(EqualityConstraint):
                 theta = np.arccos(gamma)
                 theta_lst.append(theta)
 
-            theta_arr = np.array(theta_lst, dtype = 'f')
+            theta_arr = np.array(theta_lst, dtype='f')
             theta = np.sum(theta_arr) - 2 * np.pi
 #            theta = np.sqrt(np.abs(4 * np.pi ** 2 - np.sum(theta_arr) ** 2))
 #            zt_arg = 4 - ((4 * np.pi - theta) ** 2) / np.pi ** 2
 #            zt = np.sign(zt_arg) / 2 * np.sqrt(np.fabs(zt_arg))
 
             G_lst.append(theta)
-            
-        G_arr = np.array(G_lst, dtype = 'f')
-        
+
+        G_arr = np.array(G_lst, dtype='f')
+
         return G_arr
 
-    def get_G_du(self, u_vct, t = 0.0):
+    def get_G_du(self, u_vct, t=0.0):
         ''' Calculate the residuum for given constraint equations
         '''
 
-        u = u_vct.reshape(self.n_n, self.n_d)
+        u = u_vct.reshape(self.n_N, self.n_D)
         x = self.N + u
 
         # number of foldable constraints
         n_fc = len(self.connectivity)
-        G_du = np.zeros((n_fc, self.n_dofs), dtype = 'float_')
+        G_du = np.zeros((n_fc, self.n_dofs), dtype='float_')
 
         for i, (v, n) in enumerate(self.connectivity):
             c = x[n] - x[v]
@@ -492,40 +512,42 @@ class Unfoldability(EqualityConstraint):
             idx_c = np.arange(n_c)
             pairs = np.vstack([idx_c, idx_c + 1]).T
             pairs[-1, -1] = 0
-            
+
             for left, right in pairs:
                 a, b = c[left], c[right]
                 ab = np.dot(a, b)
                 aa = np.linalg.norm(a)
                 bb = np.linalg.norm(b)
                 gamma = ab / (aa * bb)
-                
+
                 # Right version, but more problems: coeff = -1 / np.sqrt(1 - gamma ** 2)
-                
+
                 coeff = -1 / np.sqrt(1 - gamma)
-                
+
                 theta_da = coeff * (b / (aa * bb) - (ab * a) / (aa ** 3 * bb))
                 theta_db = coeff * (a / (aa * bb) - (ab * b) / (aa * bb ** 3))
-                
-                a_idx = n[left] * self.n_d
-                b_idx = n[right] * self.n_d
-                
-                G_du[i, a_idx:a_idx + self.n_d] += theta_da
-                G_du[i, b_idx:b_idx + self.n_d] += theta_db
-                
+
+                a_idx = n[left] * self.n_D
+                b_idx = n[right] * self.n_D
+
+                G_du[i, a_idx:a_idx + self.n_D] += theta_da
+                G_du[i, b_idx:b_idx + self.n_D] += theta_db
+
         return G_du
 
 if __name__ == '__main__':
-    from crease_pattern import CreasePattern
-    cp = CreasePattern(nodes = [[0, 0, 0],
-                                 [1.0, 0.2, 0],
-                                 [0.1, 1, 0],
-                                 [-1, -0.2, 0],
-                                 [0.1, -1, 0]])
+    from reshaping import Reshaping, CreasePattern
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2, 3, 4])])
+    cp = CreasePattern(N=[[0, 0, 0],
+                          [1.0, 0.2, 0],
+                          [0.1, 1, 0],
+                          [-1, -0.2, 0],
+                          [0.1, -1, 0]])
 
-    u = np.zeros_like(cp.nodes).flatten()
+    reshaping = Reshaping(cp=cp)
+
+    uf = Unfoldability(reshaping, connectivity=[(0, [1, 2, 3, 4])])
+
+    u = np.zeros_like(cp.N).flatten()
     print uf.get_G(u, 0)
-
     print uf.get_G_du(u, 0)

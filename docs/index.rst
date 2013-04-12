@@ -4,8 +4,13 @@
    contain the root `toctree` directive.
 
 Welcome to oricrete documentation!
-=================================
+===================================
 
+.. default-domain:: py
+
+.. highlight:: python
+	:linenothreshold: 5
+	
 Contents:
 
 .. toctree::
@@ -13,7 +18,7 @@ Contents:
 
    front
    intro
-   examples_folding2/index
+   examples_folding2/examples
    modules
 
 Indices and tables

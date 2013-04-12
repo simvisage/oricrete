@@ -12,77 +12,51 @@
 #
 # Created on Sep 7, 2011 by: rch, schmerl
 
-from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
-    Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
+from etsproxy.traits.api import HasStrictTraits, Property, cached_property, Event, \
+    Array, Int, Range, Bool, Trait, Constant, \
     List, Dict, Str
 
 import numpy as np
 
-class CreasePattern(HasTraits):
+class CreasePattern(HasStrictTraits):
     '''
     Structure of triangulated Crease-Patterns
     '''
-    
+
     #===============================================================================
     # Input data structure 
     #===============================================================================
 
-    # all nodes in X,Y,Z array    
-    nodes = Array(value = [], dtype = float)
+    N = Array(value=[], dtype=float)
+    '''Array of node coordinates with rows specifying X,Y values.
+    '''
 
-    # all crease lines as index-table [n1, n2]
-    crease_lines = Array
-    def _crease_lines_default(self):
-        return np.zeros((0, 2), dtype = 'int_')
+    L = Array
+    '''Array of crease lines as index-table [n1, n2].
+    '''
+    def _L(self):
+        return np.zeros((0, 2), dtype='int_')
 
-    # all facets as index-table [n1, n2, n3]
-    facets = Array(value = [], dtype = 'int_')
-    
-    # connectivity for unfoldability [n, [n1, n2, ..., ni]]
-    # first index of inner node, second array all nodes wich are 
-    # connected in counter clockwise arangement
-    connectivity = List([])
+    F = Array(value=[], dtype='int_')
+    '''Array of facets as index-table [n1, n2, n3].
+    '''
 
-    # points for facet grabbing [n,f]
-    # first index gives node, second gives the facet 
-    grab_pts = List([])
-
-    # controllface
     cf_lst = List([])
-    # targetface
-    tf_lst = List([])
+    '''List of sticky faces defined as a list of tuples
+    with the first entry defining the face geometry depending
+    on time parameter and second entry specifying the nodes
+    sticking to the surface.
+    '''
 
     ff_lst = Property
+    '''Derived list of sticky faces without the associated nodes.
+    '''
     def _get_ff_lst(self):
         return [ ff for ff, nodes in self.cf_lst ]
 
-    # nodes movable only on a crease line [n,cl]
-    # first index gives the node, second the crease line
-    line_pts = List([])
-
-    #===============================================================================
-    # Enumeration of dofs 
-    #===============================================================================
-
-    all_dofs = Property(Array, depends_on = 'constraints')
-    @cached_property
-    def _get_all_dofs(self):
-        return np.arange(self.n_dofs).reshape(self.n_n, self.n_d)
-
-    #===============================================================================
-    # Convenience properties providing information about the input 
-    #===============================================================================
-    n_n = Property
-    def _get_n_n(self):
-        '''Number of crease nodes'''
-        return self.nodes.shape[0]
-
-    n_c = Property
-    def _get_n_c(self):
-        '''Number of crease lines'''
-        return self.crease_lines.shape[0]
-
     n_c_ff = Property
+    '''Number of sticky faces.
+    '''
     def _get_n_c_ff(self):
         '''Number of constraints'''
         n_c = 0
@@ -91,55 +65,72 @@ class CreasePattern(HasTraits):
             n_c += len(nodes)
         return n_c
 
-    n_g = Property
-    def _get_n_g(self):
-        '''Number of Grabpoints'''
-        return len(self.grab_pts)
+    tf_lst = List([])
+    '''List of target faces defined as a list of tuples
+    with the first entry defining the face geometry depending
+    on time parameter and second entry specifying the nodes
+    attracted by the surface.
+    '''
 
-    n_l = Property
-    def _get_n_l(self):
-        '''Number of line pts'''
-        return len(self.line_pts)
+    #===============================================================================
+    # Enumeration of dofs 
+    #===============================================================================
 
-    n_d = Constant(3)
+    all_dofs = Property(Array, depends_on='constraints')
+    @cached_property
+    def _get_all_dofs(self):
+        return np.arange(self.n_dofs).reshape(self.n_N, self.n_D)
+
+    #===============================================================================
+    # Convenience properties providing information about the input 
+    #===============================================================================
+    n_N = Property
+    '''Number of crease nodes (Property)
+    '''
+    def _get_n_N(self):
+        return self.N.shape[0]
+
+    n_L = Property
+    '''Number of crease lines (Property)
+    '''
+    def _get_n_L(self):
+        return self.L.shape[0]
+
+    n_D = Constant(3)
 
     # total number of dofs
-    n_dofs = Property(depends_on = 'n_d,n_c,n_d')
+    n_dofs = Property(depends_on='N')
     @cached_property
     def _get_n_dofs(self):
-        return self.n_n * self.n_d
+        return self.n_N * self.n_D
 
     #===========================================================================
     # Dependent interim results
     #===========================================================================
-    c_vectors = Property(Array, depends_on = 'nodes, crease_lines')
+    c_vectors = Property(Array, depends_on='N, L')
     @cached_property
     def _get_c_vectors(self):
         '''
             Calculates the c of the crease lines.
         '''
-        n = self.nodes[...]
+        n = self.N[...]
 
-        cl = self.crease_lines
+        cl = self.L
         return n[ cl[:, 1] ] - n[ cl[:, 0] ]
 
-    c_lengths = Property(Array, depends_on = 'nodes, crease_lines')
+    c_lengths = Property(Array, depends_on='N, L')
     @cached_property
     def _get_c_lengths(self):
         '''
             Calculates the lengths of the crease lines.
         '''
         c = self.c_vectors
-        return np.sqrt(np.sum(c ** 2, axis = 1))
-    
-    
-        
-
+        return np.sqrt(np.sum(c ** 2, axis=1))
 
     #===============================================================================
     # methods and Information for Abaqus calculation
     #===============================================================================
-    aligned_facets = Property(depends_on = 'facets')
+    aligned_facets = Property(depends_on='facets')
     @cached_property
     def _get_aligned_facets(self):
         '''
@@ -148,8 +139,8 @@ class CreasePattern(HasTraits):
         '''
         a_f = []
         for i in self.facets:
-            v1 = np.array(self.nodes[i[1]] - self.nodes[i[0]])
-            v2 = np.array(self.nodes[i[2]] - self.nodes[i[1]])
+            v1 = np.array(self.N[i[1]] - self.N[i[0]])
+            v2 = np.array(self.N[i[2]] - self.N[i[1]])
             normal = np.cross(v1, v2)
             if(normal[2] < 0):
                 temp = np.copy(i)
@@ -163,20 +154,19 @@ class CreasePattern(HasTraits):
         print a_f + 1
         return a_f
 
-
     #===============================================================================
     # methods 
     #===============================================================================
 
-
-
     def get_cnstr_pos(self, iteration_step):
         '''
          Get the coordinates of the constraints.
+
+        @todo this should be moved to Reshaping
         '''
         print 'get position'
-        nodes = self.fold_steps[iteration_step]
-        pts_p, faces_p = self.cnstr[0].get_cnstr_view(nodes, 1.0)
+        u_t = self.fold_steps[iteration_step]
+        pts_p, faces_p = self.cnstr[0].get_cnstr_view(u_t, 1.0)
         pts_l = None
         con_l = None
         return (pts_l, con_l, pts_p, faces_p)
@@ -185,7 +175,7 @@ class CreasePattern(HasTraits):
         '''
         This method prints the procentual position of a linepoint element on
         his line over all timesteps.
-        
+
         i [int]: This value represents the index of a linepoint element,
                  which should be reviewed.
         '''
@@ -221,15 +211,15 @@ class CreasePattern(HasTraits):
                 r = rz
             print 'Step ', p, ': r = ', r
 
-    def create_rcp_tex(self, name = 'rcp_output.tex', x = 15., y = 15.):
-        ''' 
+    def create_rcp_tex(self, name='rcp_output.tex', x=15., y=15.):
+        '''
         This methode returns a *.tex file with the top view of the
-        creasepattern and the nodeindex of every node. This file 
-        can be implemented into a latex documentation, using package 
+        creasepattern and the nodeindex of every node. This file
+        can be implemented into a latex documentation, using package
         pst-all.
         '''
-        n = self.nodes
-        c = self.crease_lines
+        n = self.N
+        c = self.L
         x_l = np.max(n[:, 0])
         y_l = np.max(n[:, 1])
         x_size = x / x_l
@@ -250,15 +240,15 @@ class CreasePattern(HasTraits):
         f.write(' \\end{pspicture}' + '\n')
         f.close()
 
-    def create_3D_tex(self, name = 'standart3Doutput.tex', x = 5, y = 5, alpha = 140, beta = 30):
-        ''' 
-        This methode returns a *.tex file with a 3D view of the
-        creasepattern and the nodeindex of every node, as a sketch. This file 
-        can be implemented into a latex documentation, using package 
-        pst-3dplot. 
+    def create_3D_tex(self, name='standart3Doutput.tex', x=5, y=5, alpha=140, beta=30):
         '''
-        n = self.nodes
-        c = self.crease_lines
+        This methode returns a *.tex file with a 3D view of the
+        creasepattern and the nodeindex of every node, as a sketch. This file
+        can be implemented into a latex documentation, using package
+        pst-3dplot.
+        '''
+        n = self.N
+        c = self.L
         f = open(name, 'w')
         #f.write('\\configure[pdfgraphic][width=%.3f,height=%.3f]\n' %(x, y))
         #f.write('\\begin{pdfdisplay}\n')
@@ -287,41 +277,18 @@ if __name__ == '__main__':
 
     # trivial example with a single triangle positioned 
 
-    cp = CreasePattern()
+    cp = CreasePattern(N=[[ 0, 0, 0 ],
+                            [ 1, 0, 0 ],
+                            [ 1, 1, 0],
+                            [0.667, 0.333, 0],
+                            [0.1, 0.05, 0]],
+                       L=[[ 0, 1 ],
+                            [ 1, 2 ],
+                            [ 2, 0 ]],
+                       F=[[0, 1, 2 ]]
+                       )
 
-    cp.nodes = [[ 0, 0, 0 ],
-                [ 1, 0, 0 ],
-                [ 1, 1, 0],
-                [0.667, 0.333, 0],
-                [0.1, 0.05, 0]]
+    print 'vectors\n', cp.c_vectors
 
-    cp.crease_lines = [[ 0, 1 ],
-                       [ 1, 2 ],
-                       [ 2, 0 ]]
+    print 'lengths\n', cp.c_lengths
 
-    cp.facets = [[0, 1, 2 ]]
-
-    cp.grab_pts = [[3, 0],
-                   [4, 0]]
-    
-    from oricrete.folding2.foldingphase import Lifting
-    
-    lift = Lifting(cp = cp, n_steps = 10)
-
-    lift.cnstr_lhs = [[(0, 0, 1.0)],
-                    [(0, 1, 1.0)],
-                    [(0, 2, 1.0)],
-                    [(1, 1, 1.0)],
-                    [(1, 2, 1.0)],
-                    [(3, 2, 1.0)]]
-
-    lift.cnstr_rhs = [0.0, 0.0, 0.0, 0.0, 0.0
-                    , 1.0, 0.0, 0.0]
-
-    lift.u_0[1] = 0.01
-    
-    lift.show()
-
-    
-
-    
