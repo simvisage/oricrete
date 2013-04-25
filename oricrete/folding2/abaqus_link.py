@@ -676,7 +676,7 @@ That's all you need to do.
          
 
 if __name__ == '__main__':
-    from oricrete.folding2.examples.RhombusCreasePattern.ex03_rhombus_ref_surface import create_cp_fc_03
+    from oricrete.folding2.examples.YoshimuraCreasePattern.ex03_rhombus_ref_surface import create_cp_fc_03
     from oricrete.folding2.foldingphase import Lifting
     cp = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 4, n_y = 4)
     al = AbaqusLink(data = cp, n_split = 10)

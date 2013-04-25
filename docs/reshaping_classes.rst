@@ -1,15 +1,11 @@
 
-Modules
-=======
+Classes defining the reshaping process
+=======================================================
 
 .. currentmodule:: oricrete.folding2
 
-.. inheritance-diagram:: CreasePattern
-	:parts: 1
-
-.. autoclass:: CreasePattern
-   :members:
-   :undoc-members:
+Reshaping
+---------
 
 .. inheritance-diagram:: Reshaping
 	:parts: 1
@@ -17,6 +13,9 @@ Modules
 .. autoclass:: Reshaping
    :members:  
    :undoc-members:
+
+Initialization
+--------------
    
 .. inheritance-diagram:: Initialization
 	:parts: 1
@@ -25,6 +24,9 @@ Modules
    :members:  
    :undoc-members:
 
+Folding
+-------
+
 .. inheritance-diagram:: Folding
 	:parts: 1
 
@@ -32,12 +34,18 @@ Modules
    :members:  
    :undoc-members:
 
+Lifting
+-------
+
 .. inheritance-diagram:: Lifting
 	:parts: 1
 
 .. autoclass:: Lifting
    :members:  
    :undoc-members:
+
+FormFinding
+-----------
 
 .. inheritance-diagram:: FormFinding
 	:parts: 1

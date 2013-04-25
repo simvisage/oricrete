@@ -30,7 +30,7 @@ from oricrete.folding.singularity_finder import SingularityFinder
 
 # own Modules
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
+    CreasePattern, YoshimuraCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 
 
@@ -290,7 +290,7 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.5):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 2,
                               n_x = 3,
@@ -477,7 +477,7 @@ def rhombus_3x2_crane_fixed_sticks(n_steps = 10, dx = 0.7):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 2,
                               n_x = 3,
@@ -664,7 +664,7 @@ def rhombus_3x2_crane_y_fixed(n_steps = 10, dx = 0.5):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 2,
                               n_x = 3,
@@ -864,7 +864,7 @@ def rhombus_3x3_crane_fixed_sticks(n_steps = 10, dx = 0.5):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 3,
                               n_x = 3,

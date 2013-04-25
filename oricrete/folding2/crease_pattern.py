@@ -154,6 +154,23 @@ class CreasePattern(HasStrictTraits):
         print a_f + 1
         return a_f
 
+    def mlab_show(self):
+        '''Visualize the crease pattern in a supplied mlab instance.
+        '''
+        from mayavi import mlab
+        mlab.figure(fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
+
+        x, y, z = self.N.T
+        if len(self.F) > 0:
+            cp_pipe = mlab.triangular_mesh(x, y, z, self.F)
+            cp_pipe.mlab_source.dataset.lines = self.L
+            mlab.pipeline.surface(cp_pipe, color=(0.6, 0.6, 0.6))
+        else:
+            cp_pipe = mlab.points3d(x, y, z, scale_factor=0.2)
+            cp_pipe.mlab_source.dataset.lines = self.L
+
+        mlab.show()
+
     #===============================================================================
     # methods 
     #===============================================================================
@@ -278,13 +295,13 @@ if __name__ == '__main__':
     # trivial example with a single triangle positioned 
 
     cp = CreasePattern(N=[[ 0, 0, 0 ],
-                            [ 1, 0, 0 ],
-                            [ 1, 1, 0],
-                            [0.667, 0.333, 0],
-                            [0.1, 0.05, 0]],
+                          [ 1, 0, 0 ],
+                          [ 1, 1, 0],
+                          [0.667, 0.333, 0],
+                          [0.1, 0.05, 0]],
                        L=[[ 0, 1 ],
-                            [ 1, 2 ],
-                            [ 2, 0 ]],
+                          [ 1, 2 ],
+                          [ 2, 0 ]],
                        F=[[0, 1, 2 ]]
                        )
 
@@ -292,3 +309,4 @@ if __name__ == '__main__':
 
     print 'lengths\n', cp.c_lengths
 
+    cp.mlab_show()

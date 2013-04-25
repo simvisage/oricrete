@@ -13,7 +13,8 @@
 # Created on Sep 7, 2011 by: rch
 
 from etsproxy.traits.api import \
-    DelegatesTo, Float, Int, Property, cached_property, Bool, Array, Callable
+    HasStrictTraits, Float, Int, Property, cached_property, Bool, Array, Callable, Any, \
+    WeakRef
 from etsproxy.traits.ui.api import \
     Item, View, HGroup, RangeEditor
 from crease_pattern import CreasePattern
@@ -21,37 +22,36 @@ from crease_pattern import CreasePattern
 import numpy as np
 import sympy as sp
 
-xn_, yn_ = sp.symbols('x, y')
+x_, y_ = sp.symbols('x, y')
 
-class RhombusCreasePattern(CreasePattern):
+class YoshimuraCreasePattern(CreasePattern):
+    '''Structure of triangulated Crease-Patterns
     '''
-        Structure of triangulated Crease-Patterns
-    '''
 
-    L_x = Float(4, geometry = True)
-    L_y = Float(2, geometry = True)
+    L_x = Float(4, geometry=True)
+    L_y = Float(2, geometry=True)
 
-    n_x = Int(2, geometry = True)
-    n_y = Int(2, geometry = True)
+    n_x = Int(2, geometry=True)
+    n_y = Int(2, geometry=True)
 
-    new_nodes = Array(value = [], dtype = float)
-    new_crease_lines = Array(value = [], dtype = int)
+    new_nodes = Array(value=[], dtype=float)
+    new_crease_lines = Array(value=[], dtype=int)
 
-    nodes = Property
-    def _get_nodes(self):
+    N = Property
+    def _get_N(self):
         return self._geometry[0]
-    
-    def _set_nodes(self, values):
+
+    def _set_N(self, values):
         values = values.reshape(-1, 3)
         for i in range(len(values)):
-            self.nodes[i] = values[i]
-        
-    crease_lines = Property
-    def _get_crease_lines(self):
+            self.N[i] = values[i]
+
+    L = Property
+    def _get_L(self):
         return self._geometry[1]
-        
-    facets = Property
-    def _get_facets(self):
+
+    F = Property
+    def _get_F(self):
         return self._geometry[2]
 
     n_h = Property
@@ -85,13 +85,13 @@ class RhombusCreasePattern(CreasePattern):
     cycled_neighbors = Property
     def _get_cycled_neighbors(self):
         return self._geometry[10]
-    
+
     connectivity = Property
     def _get_connectivity(self):
         '''
         The connectivity represents all inner nodes [n] of the creasepattern and
         their connected nodes [cn].
-        
+
         (n,[cn1,cn2,...,cni])
         '''
         con = [(vertex, neighbors) for vertex, neighbors in
@@ -99,37 +99,42 @@ class RhombusCreasePattern(CreasePattern):
         return con
 
     #deformed nodes    
-    xnodes = Property(depends_on = 'fx, nodes')
-    def _get_xnodes(self):
+    XN = Property(depends_on='fx, nodes')
+    def _get_XN(self):
 
-        xnodes = np.zeros(self.nodes.shape)
-        xnodes[:, 0] = self.fx(self.nodes[:, 0], self.nodes[:, 1])
-        xnodes[:, 1] = self.fy(self.nodes[:, 0], self.nodes[:, 1])
-        return xnodes
+        XN = np.zeros(self.N.shape)
+        XN[:, 0] = self.fx(self.N[:, 0], self.N[:, 1])
+        XN[:, 1] = self.fy(self.N[:, 0], self.N[:, 1])
+        return XN
 
     transform = Bool(False)
 
     # geometric deformation
-    _fx_expr = xn_
-    _fy_expr = yn_
+    _fx_expr = Any
+    def __fx_expr_default(self):
+        return x_
+
+    _fy_expr = Any
+    def __fy_expr_default(self):
+        return y_
 
     fy = Property
     def _set_fy(self, ls_expr):
         self._fy_expr = ls_expr
     def _get_fy(self):
-        return sp.lambdify([xn_, yn_], self._fy_expr)
+        return sp.lambdify([x_, y_], self._fy_expr)
     fx = Property
     def _set_fx(self, ls_expr):
         self._fx_expr = ls_expr
 
     def _get_fx(self):
-        return sp.lambdify([xn_, yn_], self._fx_expr)
+        return sp.lambdify([x_, y_], self._fx_expr)
 
     geo_transform = Callable
     def _geo_transform_default(self):
         return lambda X_arr: X_arr
 
-    _geometry = Property(depends_on = '+geometry')
+    _geometry = Property(depends_on='+geometry')
     @cached_property
     def _get__geometry(self):
 
@@ -182,7 +187,7 @@ class RhombusCreasePattern(CreasePattern):
         e_i00 = np.c_[n_i[:-1, :].flatten(), n_i[1:, :].flatten()]
 
         nodes = np.vstack([X_h, X_v, X_i])
-        zero_z = np.zeros((nodes.shape[0], 1), dtype = float)
+        zero_z = np.zeros((nodes.shape[0], 1), dtype=float)
 
         nodes = np.hstack([nodes, zero_z])
         crease_lines = np.vstack([e_h00, e_h90, e_v90, e_h45, e_i45, e_h135, e_i135, e_v00, e_i00])
@@ -218,10 +223,6 @@ class RhombusCreasePattern(CreasePattern):
         #=======================================================================
         # Construct the facet mappings
         #=======================================================================
-        n_h = n_h
-        n_v = n_v
-        n_i = n_i
-
         f_h00 = np.c_[n_h[:-1, :-1].flatten(), n_h[1:, :-1].flatten(), n_i[:, :].flatten()]
         f_hi90 = np.c_[n_h[1:-1, :-1].flatten(), n_i[1:, :].flatten(), n_i[:-1, :].flatten()]
         f_hl90 = np.c_[n_h[0, :-1].flatten(), n_i[0, :].flatten(), n_v[0, :].flatten()]
@@ -250,46 +251,50 @@ class RhombusCreasePattern(CreasePattern):
         def para_fn(X):
             return a * X ** 2 + b * X
 
-        X0 = np.zeros((self.n_n, self.n_d,), dtype = 'float')
+        X0 = np.zeros((self.n_n, self.n_d,), dtype='float')
         X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
         X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
         X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
 
         return X0.flatten()
 
+    def show(self, mlab):
+        '''X.
+        '''
+        x, y, z = self.XN.T
+        if len(self.F) > 0:
+            cp_pipe = mlab.triangular_mesh(x, y, z, self.F)
+            cp_pipe.mlab_source.dataset.lines = self.L
+            mlab.pipeline.surface(cp_pipe)
+        else:
+            cp_pipe = mlab.points3d(x, y, z, scale_factor=0.2)
+            cp_pipe.mlab_source.dataset.lines = self.L
+
 
 
 if __name__ == '__main__':
 
-    cp = RhombusCreasePattern(n_steps = 100,
-                              L_x = 3,
-                              L_y = 1,
-                              n_x = 3,
-                              n_y = 4,
-                              show_iter = False,
-                              MAX_ITER = 500,
-                              fx = (xn_) ** 2,
-                              fy = (yn_) ** xn_)
+    cp = YoshimuraCreasePattern(L_x=3,
+                                L_y=3,
+                                n_x=3,
+                                n_y=4,
+                                fx=(x_) ** 2,
+                                fy=(y_) ** 2)
 
-    print cp.nodes
-    print cp.xnodes
-    
-    cp.nodes = np.array([0, 0, 0])
+    print cp.N
+    print cp.XN
+
+    #cp.nodes = np.array([0, 0, 0])
 
     print 'n_dofs', cp.n_dofs
-    print 'n_crease_lines', cp.n_c
-    print 'required constraints', cp.n_dofs - cp.n_c
-
-    X0 = cp.generate_X0()
-    cp.add_fold_step(X0)
-
-    print 'X0', X0
+    print 'n_crease_lines', cp.n_L
+    print 'required constraints', cp.n_dofs - cp.n_L
 
     print cp.interior_vertices
 
     print cp.cycled_neighbors
 
-#    from crease_pattern_view import CreasePatternView
-#    my_model = CreasePatternView(data = cp, show_cnstr = True)
-#    my_model.configure_traits()
-
+    from mayavi import mlab
+    mlab.figure(fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
+    cp.show(mlab)
+    mlab.show()

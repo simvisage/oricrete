@@ -32,6 +32,9 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
               'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath',
               'sphinx.ext.ifconfig', 'sphinx.ext.viewcode']
 
+[extensions]
+todo_include_todos = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['docs', '_templates']
 
@@ -46,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'oricrete'
-copyright = u'2012, Rostislav Chudoba, Alexander Scholzen'
+copyright = u'2013, Rostislav Chudoba'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

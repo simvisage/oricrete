@@ -15,11 +15,11 @@
 import numpy as np
 
 from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
-    Event, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
+    Event, Property, Constant, DelegatesTo, PrototypedFrom, cached_property, Str, Delegate, \
     Button, Int, Float, Array, Bool, List, Dict
 
 from oricrete.folding2 import \
-    CreasePattern, RhombusCreasePattern, CraneCreasePattern
+    CreasePattern, YoshimuraCreasePattern, CraneCreasePattern
 
 from cnstr_control_face import \
     CF
@@ -55,7 +55,7 @@ class Reshaping(HasStrictTraits):
     # Geometrical Datas
     #===========================================================================
 
-    N = DelegatesTo('cp')
+    N = PrototypedFrom('cp')
     '''Array of nodal coordinates.
     '''
 
@@ -143,6 +143,10 @@ class Reshaping(HasStrictTraits):
     @cached_property
     def _get_cnstr_rhs(self):
         return np.zeros((len(self.cnstr_lhs),), dtype='float_')
+
+    dof_constraints = Array
+    '''List of explicit constraints specified as a linear equation.
+    '''
 
     # list of Constrain-Objects
     cnstr = Array(value=[])
@@ -266,6 +270,8 @@ class Reshaping(HasStrictTraits):
         return np.array(u_t, dtype='f')
 
     use_G_du = True
+
+    t = Float(0.0, auto_set=False, enter_set=True)
 
     def _solve_fmin(self, X0, acc=1e-4):
         '''Solve the problem using the
@@ -431,12 +437,6 @@ class Initialization(Reshaping):
     t_init (float): Timestep wich is used for the final mapping. Default = 0.001
     '''
 
-    eqcons = Dict(Str, IEqualityConstraint)
-    '''Dictionary of equality constraints.
-    '''
-    def _eqcons_default(self):
-        return {}
-
     t_init = Float(0.05)
     '''Time step which is used for the initialization mapping.
     '''
@@ -471,18 +471,12 @@ class FormFinding(Reshaping):
                 }
 
 class Folding(Reshaping):
-    '''Folding folds a creaspattern while using the classic constraints like
+    '''Folding folds a crease pattern while using the classic constraints like
     cosntant length, dof constraints and surface constraints.
 
-    This class is for analyzation of the foldprocess of a creasepattern.
-    All classic constraints can be use. Only special elements, like GP and LP
-    are not included. But controlfacets and targetfacets are supported.
-
-    unfold [Bool]: The unfold trait gives the Folding class the possibility
-                   to reverse the time array. So it's possible to unfold
-                   a structure. If you optimize a pattern with FormFinding
-                   you can unfold it at least with Folding to it's flatten
-                   shape.
+    This class serves for the analysis of the folding process of a crease pattern.
+    All classic constraints can be used. Only special elements, like GP and LP
+    are not included. But sticky faces and target facets are supported.
     '''
 
     eqcons = Dict(Str, IEqualityConstraint)
@@ -494,7 +488,10 @@ class Folding(Reshaping):
                 }
 
     unfold = Bool(False)
-    '''Unfold reverse t_arr, so a optimized pattern can be unfold, back to flat.
+    '''Reverse the time array. So it's possible to unfold
+    a structure. If you optimize a pattern with FormFinding
+    you can unfold it at least with Folding to it's flatten
+    shape.
     '''
 
     @on_trait_change('unfold', 'n_steps')
@@ -539,12 +536,9 @@ class Lifting(Reshaping):
         '''
         u_0_pattern = []
         if(len(self.init_tf_lst) > 0):
-            N = []
-            for i in self.N:
-                if(i[2] == 0): # Find all nodes of the oricrete element laying in z=0
-                    N.append(i)
-            init = Initialization(cp=copy(self.cp), tf_lst=self.init_tf_lst)
-            init.N = N
+            iN = np.where(self.N[:, 2] == 0)
+            init = Initialization(cp=self.cp, tf_lst=self.init_tf_lst)
+            init.N = self.cp.N[iN]
             u_0_pattern = init.u_t[-1]
         return u_0_pattern
 
@@ -552,7 +546,6 @@ class Lifting(Reshaping):
     @cached_property
     def _get_u_0(self):
         _u_0 = super(Lifting, self)._get_u_0()
-        print 'regenerating u_0', _u_0
         # initialize u_0_pattern
         for i in range(len(self._u_0_pattern)):
             _u_0[i] = self._u_0_pattern[i]
@@ -592,19 +585,17 @@ if __name__ == '__main__':
     lift.CS = [[z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]]
     lift.GP = [[4, 0]]
     lift.LP = [[5, 4],
-             [6, 4]]
+               [6, 4]]
     cp.cf_lst = [(CF(Rf=lift.CS[0][0]), [1])]
 
-    lift.cnstr_lhs = [
-                    [(0, 0, 1.0)],
-                    [(0, 1, 1.0)],
-                    [(0, 2, 1.0)],
-                    [(3, 0, 1.0)],
-                    [(3, 2, 1.0)],
-                    [(2, 2, 1.0)],
-                    [(5, 0, 1.0)],
-                    [(6, 0, 1.0)]
-                    ]
+    lift.cnstr_lhs = [[(0, 0, 1.0)],
+                      [(0, 1, 1.0)],
+                      [(0, 2, 1.0)],
+                      [(3, 0, 1.0)],
+                      [(3, 2, 1.0)],
+                      [(2, 2, 1.0)],
+                      [(5, 0, 1.0)],
+                      [(6, 0, 1.0)]]
     lift.cnstr_rhs[0] = 0.9
     lift.u_0[5] = 0.05
 

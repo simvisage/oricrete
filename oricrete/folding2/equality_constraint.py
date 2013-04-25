@@ -408,35 +408,68 @@ class PointsOnSurface(EqualityConstraint):
                 G_du[i, (dof, dof + 1, dof + 2) ] = ff.dRf(x, y, z, t)
                 i += 1
 
-        print 'G_du', G_du
         return G_du
 
 class DofConstraints(EqualityConstraint):
-
+    '''Explicit constraints for selected of freedom.
+    '''
     n_N = DelegatesTo('reshaping')
     n_D = DelegatesTo('reshaping')
     n_dofs = DelegatesTo('reshaping')
     cnstr_lhs = DelegatesTo('reshaping')
     cnstr_rhs = DelegatesTo('reshaping')
 
+    dof_constraints = DelegatesTo('reshaping')
+    '''Specification of explicit constraint for particular degrees of freedom.
+
+    dof constraints are specified as a list of equations with values
+    to be inserted on the left- and the right-hand-side of the equation system.
+    The dof is identified with the number of the node and the direction (0,1,2)
+    for x,y,z values::
+
+        [([(node1, direction1, coefficient1), ... ], value1 ),
+         ([(node2, direction2, coefficient2), ... ], value2 )
+         ... ]
+
+    Convenience constructors for containers of (node, direction pairs)
+    are provided for the most usual cases:
+    :func:`oricrete.fix` and :func:`oricrete.link`.
+    '''
+
     def get_G(self, u_vct, t):
         ''' Calculate the residuum for given constraint equations
         '''
         u = u_vct.reshape(self.n_N, self.n_D)
-        G = np.zeros((len(self.cnstr_lhs),))
+        G = np.zeros((len(self.cnstr_lhs) + len(self.dof_constraints),))
         for i, cnstr in enumerate(self.cnstr_lhs):
             for n, d, c in cnstr:
                 G[i] += c * u[n, d] - (self.cnstr_rhs[i] * t)
+
+        for i, dof_cnstr in enumerate(self.dof_constraints):
+            j = len(self.cnstr_lhs) + i
+            lhs, rhs = dof_cnstr
+            for n, d, c in lhs:
+                G[j] += c * u[n, d]
+            G[j] -= rhs * t
+
         return G
 
     def get_G_du(self, X_vct, t=0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-        G_du = np.zeros((len(self.cnstr_lhs), self.n_dofs))
+        G_du = np.zeros((len(self.cnstr_lhs) + len(self.dof_constraints), self.n_dofs))
         for i, cnstr in enumerate(self.cnstr_lhs):
             for n, d, c in cnstr:
                 dof = 3 * n + d
                 G_du[i, dof] += c
+
+        for i, dof_cnstr in enumerate(self.dof_constraints):
+            j = len(self.cnstr_lhs) + i
+            lhs, rhs = dof_cnstr
+            for n, d, c in lhs:
+                dof = 3 * n + d
+                G_du[j, dof] += c
+
         return G_du
 
 class Unfoldability(EqualityConstraint):

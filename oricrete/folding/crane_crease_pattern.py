@@ -23,11 +23,11 @@ from singularity_finder import SingularityFinder
 
 # own Modules
 from crease_pattern import CreasePattern
-from rhombus_crease_pattern import RhombusCreasePattern
+from rhombus_crease_pattern import YoshimuraCreasePattern
 from crane_model import CraneModel
 from crane_model2 import CraneModel2
     
-class CraneCreasePattern(RhombusCreasePattern):
+class CraneCreasePattern(YoshimuraCreasePattern):
     '''
         This module generates a NxM Rhombus-Creasepattern including Grabpoints 
         with an predefined distance to the middelline of each N_y segment.

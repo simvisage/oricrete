@@ -18,7 +18,7 @@ import numpy as np
 from oricrete.folding2.foldingphase import \
     Lifting
 from oricrete.folding2 import \
-    CreasePattern, RhombusCreasePattern, CF, x_, y_, z_, t_, r_, s_
+    CreasePattern, YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
 
@@ -26,7 +26,7 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
          n_steps = 100):
     '''Create scalable rhombus crease pattern with face constraints
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -104,7 +104,7 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
     '''Create scalable rhombus crease pattern with face constraints
        bad working
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -205,7 +205,7 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     '''Create scalable rhombus crease pattern with face constraints
        One basic element with no general formulation
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -265,7 +265,7 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
        One basic element with general formulation (extension in y-direction variabel)
        (extension in x-direction has to be adepted manually)
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -340,7 +340,7 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     '''Create scalable rhombus crease pattern with face constraints
        other constraints chosen (more in field in z-direction)
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,

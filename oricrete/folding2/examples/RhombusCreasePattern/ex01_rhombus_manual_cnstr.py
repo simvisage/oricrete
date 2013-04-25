@@ -15,80 +15,81 @@
 import numpy as np
 
 # own Modules
-from oricrete.folding2.foldingphase import \
+from oricrete.folding2 import \
     Lifting
 from oricrete.folding2 import \
-    CreasePattern, RhombusCreasePattern, CF, x_, y_, z_, t_, r_, s_
+    YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
-def cp01(L_x = 4, L_y = 2, n_x = 2, n_y = 2, n_steps = 80):
+def cp01(L_x=4, L_y=2, n_x=2, n_y=2, n_steps=80):
 
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              z0_ratio = 0.01,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(
+                              L_x=L_x,
+                              L_y=L_y,
+                              n_x=n_x,
+                              n_y=n_y,
+                              )
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp,
+                 n_steps=n_steps,
+                 show_iter=False,
+                 MAX_ITER=500
+                 )
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([rcp.n_h[:, :].flatten(),
                        #rcp.n_v[:, :].flatten(),
                        rcp.n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
-    
-    cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
-                    [(n_h[0, -1], 2, 1.0)], # 1
-                    [(n_h[-1, 0], 2, 1.0)], # 2
-                    [(n_h[-1, -1], 2, 1.0)], # 3
-                    [(n_h[1, 0], 2, 1.0)], # 4
-                    [(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1.0)], # 5
-                    [(n_h[0, 0], 1, 1.0), (n_h[-1, 0], 1, -1.0)], # 6
-                    [(n_h[0, -1], 1, 1.0), (n_h[1, -1], 1, -1.0)], # 7
-                    [(n_h[0, -1], 1, 1.0), (n_h[-1, -1], 1, -1.0)], # 8
-                    [(n_h[1, 0], 0, 1.0)], # 9
-                    [(n_h[0, -1], 1, 1.0)], # 10
-                    ]
+    lift.init_tf_lst = [(caf, n_arr)]
+
+    lift.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
+                      [(n_h[0, -1], 2, 1.0)], # 1
+                      [(n_h[-1, 0], 2, 1.0)], # 2
+                      [(n_h[-1, -1], 2, 1.0)], # 3
+                      [(n_h[1, 0], 2, 1.0)], # 4
+                      [(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1.0)], # 5
+                      [(n_h[0, 0], 1, 1.0), (n_h[-1, 0], 1, -1.0)], # 6
+                      [(n_h[0, -1], 1, 1.0), (n_h[1, -1], 1, -1.0)], # 7
+                      [(n_h[0, -1], 1, 1.0), (n_h[-1, -1], 1, -1.0)], # 8
+                      [(n_h[1, 0], 0, 1.0)], # 9
+                      [(n_h[0, -1], 1, 1.0)], # 10
+                      ]
 
     # lift node 0 in z-axes
-    cp.cnstr_rhs[4] = 1.999999999
+    lift.cnstr_rhs[4] = 1.999999999
 
-    return cp
+    return lift
 
-def cp02(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
+def cp02(L_x=4, L_y=4, n_x=2, n_y=4, n_steps=80):
 
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(L_x=L_x,
+                              L_y=L_y,
+                              n_x=n_x,
+                              n_y=n_y,
+                              )
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp,
+                 n_steps=n_steps,
+                 show_iter=False,
+                 MAX_ITER=500)
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
+    lift.init_tf_lst = [(caf, n_arr)]
 
-    cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
+    lift.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
                     [(n_h[0, -1], 2, 1.0)], # 1
                     [(n_h[-1, 0], 2, 1.0)], # 2
                     [(n_h[-1, -1], 2, 1.0)], # 3
@@ -108,35 +109,36 @@ def cp02(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
                     ]
 
     # lift node 0 in z-axes
-    cp.cnstr_rhs[6] = 1.999999999
+    lift.cnstr_rhs[6] = 1.999999999
 
-    return cp
+    return lift
 
-def cp03(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
+def cp03(L_x=4, L_y=4, n_x=2, n_y=4, n_steps=80):
 
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(
+                              L_x=L_x,
+                              L_y=L_y,
+                              n_x=n_x,
+                              n_y=n_y,
+                              )
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp,
+                 show_iter=False,
+                 MAX_ITER=500,
+                 n_steps=n_steps)
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
+    lift.init_tf_lst = [(caf, n_arr)]
 
-    cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
+    lift.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
                     [(n_h[0, -1], 2, 1.0)], # 1
                     [(n_h[-1, 0], 2, 1.0)], # 2
                     [(n_h[-1, -1], 2, 1.0)], # 3
@@ -156,33 +158,32 @@ def cp03(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
                     ]
 
     # lift node 0 in z-axes
-    cp.cnstr_rhs[6] = 3.95
+    lift.cnstr_rhs[6] = 3.95
 
-    return cp
+    return lift
 
-def cp04(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 100):
+def cp04(L_x=4, L_y=4, n_x=2, n_y=4, n_steps=100):
 
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(L_x=L_x,
+                                L_y=L_y,
+                                n_x=n_x,
+                                n_y=n_y,
+                                )
+    lift = Lifting(cp=rcp,
+                   n_steps=n_steps,
+                  show_iter=False,
+                  MAX_ITER=500)
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
+    lift.init_tf_lst = [(caf, n_arr)]
 
     z_nodes = n_h[(0, -1), :].flatten()
     z_cnstr = [[(n, 2, 1.0)] for n in z_nodes]
@@ -197,38 +198,39 @@ def cp04(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 100):
     y_cnstr = [[(n_h[0, -1], 1, 1.0)],
                [(n_h[0, 0], 1, 1.0)]]
 
-    cp.cnstr_lhs = z_cnstr + y_links + x_cnstr + y_cnstr
+    lift.cnstr_lhs = z_cnstr + y_links + x_cnstr + y_cnstr
 
     # lift node 0 in z-axes
-    cp.cnstr_rhs[-1] = 3.9
+    lift.cnstr_rhs[-1] = 3.9
 
-    return cp
+    return lift
 
-def cp05(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
-         n_steps = 100, skew_coeff = 0.0):
+def cp05(L_x=4, L_y=4, n_x=2, n_y=4,
+         n_steps=100, skew_coeff=0.0):
     '''Exploit symmetric constraints
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(
+                              L_x=L_x,
+                              L_y=L_y,
+                              n_x=n_x,
+                              n_y=n_y,
+                              )
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp,
+                   n_steps=n_steps,
+                   show_iter=False,
+                   MAX_ITER=500)
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
+    lift.init_tf_lst = [(caf, n_arr)]
 
     z_nodes = n_h[(0, -1), :].flatten()
     z_cnstr = [[(n, 2, 1.0)] for n in z_nodes]
@@ -259,12 +261,12 @@ def cp05(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
     cntrl = [[(n_h[-1, n_h_idx], 0, 1.0)]]
     #cntrl = [[(n_h[-1, 0], 1, 1.0)]]
 
-    cp.cnstr_lhs = z_cnstr + x_links + y_links + z_links + x_cnstr + y_cnstr + cntrl
+    lift.cnstr_lhs = z_cnstr + x_links + y_links + z_links + x_cnstr + y_cnstr + cntrl
 
     # lift node 0 in z-axes
-    cp.cnstr_rhs[-1] = -L_x * 0.1
+    lift.cnstr_rhs[-1] = -L_x * 0.1
 
-    return cp
+    return lift
 
 if __name__ == '__main__':
 
@@ -272,13 +274,8 @@ if __name__ == '__main__':
 #    cp = cp02(n_steps = 40)
 #    cp = cp03(n_steps = 40)
 #    cp = cp04(n_steps = 40)
-    cp = cp05(n_steps = 40)
-    
-    print 'n_dofs', cp.n_dofs
-    print 'n_c', cp.n_c
-    print 'necessary constraints', cp.n_dofs - cp.n_c
-    print 'cnstr', len(cp.cnstr_lhs)
-    
+    cp = cp01(n_steps=40)
+
+    print cp.u_0
+
     cp.show()
-
-

@@ -27,11 +27,11 @@ import numpy as np
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
+    YoshimuraCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def cp01(L_x = 4, L_y = 2, n_x = 2, n_y = 2, n_steps = 80):
 
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -65,7 +65,7 @@ def cp01(L_x = 4, L_y = 2, n_x = 2, n_y = 2, n_steps = 80):
 
 def cp02(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
 
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -104,7 +104,7 @@ def cp02(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
 
 def cp03(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
 
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -143,7 +143,7 @@ def cp03(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
 
 def cp04(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 100):
 
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -180,7 +180,7 @@ def cp05(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
          n_steps = 100, skew_coeff = 0.0):
     '''Exploit symmetric constraints
     '''
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,

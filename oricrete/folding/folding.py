@@ -19,7 +19,7 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Button, Int, Float
 
 from oricrete.folding import \
-    CreasePattern, RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
+    CreasePattern, YoshimuraCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 class Folding(HasTraits):
     '''

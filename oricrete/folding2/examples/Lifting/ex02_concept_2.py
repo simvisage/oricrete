@@ -16,7 +16,7 @@ import numpy as np
 
 # own Modules
 from oricrete.folding2 import \
-    CreasePattern, RhombusCreasePattern, CF, x_, y_, z_, t_, r_, s_
+    CreasePattern, YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
 from oricrete.folding2.foldingphase import Lifting, Initialization
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
@@ -257,7 +257,7 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.5):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 2,
                               n_x = 3,
@@ -422,7 +422,7 @@ def rhombus_3x2_crane_fixed_sticks(n_steps = 10, dx = 0.7):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 2,
                               n_x = 3,
@@ -592,7 +592,7 @@ def rhombus_3x2_crane_y_fixed(n_steps = 10, dx = 0.5):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 2,
                               n_x = 3,
@@ -776,7 +776,7 @@ def rhombus_3x3_crane_fixed_sticks(n_steps = 10, dx = 0.5):
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = RhombusCreasePattern(n_steps = n_steps,
+    cpr = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = 3,
                               L_y = 3,
                               n_x = 3,

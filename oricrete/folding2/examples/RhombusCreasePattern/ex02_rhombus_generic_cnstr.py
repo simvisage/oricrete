@@ -15,39 +15,35 @@
 import numpy as np
 
 # own Modules
-from oricrete.folding2.foldingphase import \
+from oricrete.folding2 import \
     Lifting
 from oricrete.folding2 import \
-    CreasePattern, RhombusCreasePattern, CF, x_, y_, z_, t_, r_, s_
+    YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
-def create_cp_dc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
-         n_steps = 100):
+def create_cp_dc(L_x=4, L_y=4, n_x=1, n_y=2,
+         n_steps=100):
     '''Create scalable rhombus crease pattern with dof_constraints
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=n_x, n_y=n_y)
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
     n_h_idx = n_y / 4
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp,
+                   n_steps=n_steps,
+                   show_iter=False,
+                   MAX_ITER=500)
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([rcp.n_h[:, :].flatten(),
                        #rcp.n_v[:, :].flatten(),
                        rcp.n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
-    
+    lift.init_tf_lst = [(caf, n_arr)]
+
     x_links = []
     y_links = []
     z_links = []
@@ -86,42 +82,40 @@ def create_cp_dc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
     print 'y_links', len(y_links)
     print 'z_links', len(z_links)
 
-    cp.cnstr_lhs = z_cnstr + x_links + y_links + z_links + x_cnstr + y_cnstr + cntrl
+    lift.cnstr_lhs = z_cnstr + x_links + y_links + z_links + x_cnstr + y_cnstr + cntrl
     #cp.cnstr_lhs = z_cnstr
 
     # lift node 0 in z-axes
-    cp.cnstr_rhs[-1] = -L_x * 0.34
+    lift.cnstr_rhs[-1] = -L_x * 0.34
 
 #    cp.cnstr_rhs[-1] = -L_y * 0.9999
 
-    return cp
+    return lift
 
-def create_cp_fc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
-         n_steps = 100):
+def create_cp_fc(L_x=4, L_y=4, n_x=1, n_y=2,
+         n_steps=100):
     '''Create scalable rhombus crease pattern with face constraints
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 500)
+    rcp = YoshimuraCreasePattern(L_x=L_x,
+                                 L_y=L_y,
+                                 n_x=n_x,
+                                 n_y=n_y)
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
     n_h_idx = n_y / 4
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp, n_steps=n_steps,
+                 show_iter=False,
+                 MAX_ITER=500)
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([rcp.n_h[:, :].flatten(),
                        #rcp.n_v[:, :].flatten(),
                        rcp.n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
+    lift.init_tf_lst = [(caf, n_arr)]
 
     x_links = []
     y_links = []
@@ -140,53 +134,49 @@ def create_cp_fc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
     #cntrl = [[(n_h[-1, -1], 1, 1.0)]]
     #cntrl = [[(n_h[-1, 1], 0, 1.0)]]
 
-    cp.cnstr_lhs = x_links + y_links + z_links # + cntrl
+    lift.cnstr_lhs = x_links + y_links + z_links # + cntrl
     #cp.cnstr_lhs = z_cnstr
 
     # lift node 0 in z-axes
     #cp.cnstr_rhs[-1] = -L_x * 0.34
 
-    face_z_0 = CF(Rf = z_ - 0)
-    face_x_0 = CF(Rf = x_ - 0)
-    face_x_L = CF(Rf = x_ - L_x * (1 - 0.2 * t_))
-    face_y_0 = CF(Rf = y_ - 0)
-    face_y_L = CF(Rf = y_ - L_y * (1 - 0.1 * t_))#* x_ / L_x))
+    face_z_0 = CF(Rf=z_ - 0)
+    face_x_0 = CF(Rf=x_ - 0)
+    face_x_L = CF(Rf=x_ - L_x * (1 - 0.2 * t_))
+    face_y_0 = CF(Rf=y_ - 0)
+    face_y_L = CF(Rf=y_ - L_y * (1 - 0.1 * t_))#* x_ / L_x))
 
-    cp.cf_lst = [(face_x_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
+    lift.cf_lst = [(face_x_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
                     (face_z_0, n_h[0, :]), # [n_h[0, 0], n_h[0, -1]]),
                     (face_y_0, n_h[:, 0]),
 #                    (face_x_L, []),
                     (face_y_L, n_h[:, -1])]
 #    cp.cnstr_rhs[-1] = -L_y * 0.9999
 
-    return cp
+    return lift
 
-def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
-         n_steps = 100):
+def create_cp_fc_inclined(L_x=4, L_y=4, n_x=1, n_y=2,
+         n_steps=100):
     '''Create scalable rhombus crease pattern with face constraints
     '''
-    rcp = RhombusCreasePattern(n_steps = n_steps,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              MAX_ITER = 2000)
+    rcp = YoshimuraCreasePattern(L_x=L_x,
+                                 L_y=L_y,
+                                 n_x=n_x,
+                                 n_y=n_y)
 
     n_h = rcp.n_h
     n_i = rcp.n_i
     n_v = rcp.n_v
     n_h_idx = n_y / 4
-    
-    cp = Lifting(n_steps = n_steps)
-    cp.cp_geo(rcp)
-    
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+
+    lift = Lifting(cp=rcp, n_steps=n_steps, show_iter=False, MAX_ITER=2000)
+
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([rcp.n_h[:, :].flatten(),
                        #rcp.n_v[:, :].flatten(),
                        rcp.n_i[:, :].flatten()
                        ])
-    cp.init_tf_lst = [(caf, n_arr)]
+    lift.init_tf_lst = [(caf, n_arr)]
 
     x_links = []
     y_links = []
@@ -206,21 +196,21 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
     #cntrl = [[(n_h[-1, -1], 1, 1.0)]]
     #cntrl = [[(n_h[-1, 1], 0, 1.0)]]
 
-    cp.cnstr_lhs = x_links + y_links + z_links # + cntrl
+    lift.cnstr_lhs = x_links + y_links + z_links # + cntrl
     #cp.cnstr_lhs = z_cnstr
 
     # lift node 0 in z-axes
     #cp.cnstr_rhs[-1] = -L_x * 0.34
 
 #    face_z_0 = CF(Rf = z_ - (1 - x_ / L_x) * 0.2 * t_)
-    face_z_0 = CF(Rf = z_ - 0)
-    face_x_0 = CF(Rf = x_ - 0)
+    face_z_0 = CF(Rf=z_ - 0)
+    face_x_0 = CF(Rf=x_ - 0)
 #    face_x_L = CF(Rf = x_ - L_x * (1 - 0.2 * t_))
 #    face_y_0 = CF(Rf = y_ - 0)
 #    face_y_L = CF(Rf = y_ - L_y * (1 - 0.1 * t_))
 #parallel movement bothsided
-    face_y_0 = CF(Rf = y_ - L_y * (0.05 * t_))# * x_ / L_x)
-    face_y_L = CF(Rf = y_ - L_y * (1 - 0.05 * t_))# * x_ / L_x)
+    face_y_0 = CF(Rf=y_ - L_y * (0.05 * t_))# * x_ / L_x)
+    face_y_L = CF(Rf=y_ - L_y * (1 - 0.05 * t_))# * x_ / L_x)
 
 #parallel movement: one side inclined
 #    face_y_0 = CF(Rf = y_ - L_y / 2.0 * (0.1 * t_) * x_ / L_x)
@@ -245,22 +235,22 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
 
     z_nodes = n_h[:, :].flatten()
     print z_nodes
-    cp.cf_lst = [(face_x_0, [n_h[0, 0]]),
+    lift.cf_lst = [(face_x_0, [n_h[0, 0]]),
                     (face_z_0, z_nodes),
                     (face_y_0, n_h[:, 0]),
                     (face_y_L, n_h[:, -1])]
 
-    return cp
+    return lift
 
 if __name__ == '__main__':
 
-    cp_dc = create_cp_dc(L_x = 14, L_y = 8, n_x = 2, n_y = 4,
-                         n_steps = 40)
-    cp_fc = create_cp_fc(L_x = 80, L_y = 8, n_x = 10, n_y = 16,
-                                  n_steps = 10)
-    cp_fc_i = create_cp_fc_inclined(L_x = 80, L_y = 8, n_x = 10, n_y = 16,
-                                  n_steps = 10)
+#    cp_dc = create_cp_dc(L_x=14, L_y=8, n_x=2, n_y=4,
+#                         n_steps=40)
+#    cp_dc.show()
+#    cp_fc = create_cp_fc(L_x=80, L_y=8, n_x=10, n_y=16,
+#                                  n_steps=10)
+#    cp_fc.show()
+    cp_fc_i = create_cp_fc_inclined(L_x=80, L_y=8, n_x=10, n_y=16,
+                                  n_steps=10)
 
-    cp_dc.show()
-    cp_fc.show()
     cp_fc_i.show()

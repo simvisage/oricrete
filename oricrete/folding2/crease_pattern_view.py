@@ -34,8 +34,9 @@ import tempfile
 
 class CreasePatternView(HasTraits):
 
-    # data source
     data = WeakRef
+    '''Data source
+    '''
 
     x_t = DelegatesTo('data') #node position in every timestep
 
@@ -276,7 +277,6 @@ class CreasePatternView(HasTraits):
         if len(self.data.F) > 0:
             cp_pipe = self.scene.mlab.triangular_mesh(x, y, z, self.data.F)
             cp_pipe.mlab_source.dataset.lines = self.data.L
-
             self.scene.mlab.pipeline.surface(cp_pipe, color=(0.6, 0.6, 0.6))
         else:
             cp_pipe = self.scene.mlab.points3d(x, y, z, scale_factor=0.2)

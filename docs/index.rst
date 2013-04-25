@@ -11,20 +11,38 @@ Welcome to oricrete documentation!
 .. highlight:: python
 	:linenothreshold: 5
 	
-Contents:
-
+Tutorial
+--------
+	
 .. toctree::
    :maxdepth: 2
 
    front
    intro
-   examples_folding2/examples
-   modules
+   first_steps/first_steps
+   yoshimura/yoshimura
+   use_cases/use_cases
+
+Description of classes
+----------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   crease_pattern_classes
+   eqcons_classes
+   reshaping_classes
+   utilities
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Todo list
+---------
+
+.. todolist::
 

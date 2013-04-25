@@ -21,11 +21,11 @@ import copy
 
 # own Modules
 from crease_pattern import CreasePattern
-from oricrete.folding2 import RhombusCreasePattern
+from oricrete.folding2 import YoshimuraCreasePattern
 from oricrete.folding2.crane_model import CraneModel
 
     
-class CraneCreasePattern(RhombusCreasePattern):
+class CraneCreasePattern(YoshimuraCreasePattern):
     '''
         This module generates a NxM Rhombus-Creasepattern including Grabpoints 
         with an predefined distance to the middelline of each N_y segment.

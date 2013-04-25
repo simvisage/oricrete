@@ -27,13 +27,13 @@ import numpy as np
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
+    YoshimuraCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
 
 def create_cp_dc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
          n_steps = 100):
     '''Create scalable rhombus crease pattern with dof_constraints
     '''
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -99,7 +99,7 @@ def create_cp_fc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
          n_steps = 100):
     '''Create scalable rhombus crease pattern with face constraints
     '''
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -155,7 +155,7 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
          n_steps = 100):
     '''Create scalable rhombus crease pattern with face constraints
     '''
-    cp = RhombusCreasePattern(n_steps = n_steps,
+    cp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,

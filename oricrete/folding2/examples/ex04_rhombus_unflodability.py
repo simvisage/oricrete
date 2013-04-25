@@ -12,7 +12,7 @@
 #
 # Created on Mar 5, 2013 by: matthias
 
-from oricrete.folding2 import RhombusCreasePattern
+from oricrete.folding2 import YoshimuraCreasePattern
 from oricrete.folding2.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_
 from oricrete.folding2 import Folding, FormFinding, Initialization
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     n_y = 8
     L_x = 4.97
     L_y = 3.10
-    cp = RhombusCreasePattern(L_x = L_x,
+    cp = YoshimuraCreasePattern(L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
                               n_y = n_y,
