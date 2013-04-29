@@ -23,7 +23,7 @@ a_, b_, c_, d_ = sm.symbols('a,b,c,d')
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePattern, CreasePatternView, x_, y_
+    YoshimuraCreasePattern, CreasePattern, CreasePatternView, x_, y_
 
 from oricrete.folding.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_

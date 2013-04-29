@@ -27,7 +27,13 @@ sys.path.insert(0, root_path_simvisage)
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
+              'sphinx.ext.inheritance_diagram', 'sphinx.ext.graphviz',
+              'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath',
+              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode']
+
+[extensions]
+todo_include_todos = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['docs', '_templates']
@@ -36,14 +42,14 @@ templates_path = ['docs', '_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+#source_encoding = 'utf - 8 - sig'
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = u'oricrete'
-copyright = u'2012, Rostislav Chudoba, Alexander Scholzen'
+copyright = u'2013, Rostislav Chudoba'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -23,7 +23,7 @@ import sympy as sp
 
 xn_, yn_ = sp.symbols('x, y')
 
-class RhombusCreasePattern(CreasePattern):
+class YoshimuraCreasePattern(CreasePattern):
     '''
         Structure of triangulated Crease-Patterns
     '''
@@ -244,7 +244,7 @@ class RhombusCreasePattern(CreasePattern):
 
 if __name__ == '__main__':
 
-    cp = RhombusCreasePattern(n_steps = 100,
+    cp = YoshimuraCreasePattern(n_steps = 100,
                               L_x = 3,
                               L_y = 1,
                               n_x = 3,

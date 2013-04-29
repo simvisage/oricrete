@@ -10,6 +10,4 @@ provides the possibility to fix the structure
 at its final stage and simulate the load bearing behavior 
 of the structure.
 
-Illustrative example
---------------------
 

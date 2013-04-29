@@ -12,22 +12,21 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
-    Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
-from etsproxy.mayavi import mlab
 import numpy as np
 
 # own Modules
-from oricrete.folding import \
-    YoshimuraCreasePattern, CreasePatternView, CF, x_, y_, z_, t_
+from oricrete.folding2.foldingphase import \
+    Lifting
+from oricrete.folding2 import \
+    CreasePattern, YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
+from oricrete.folding2.cnstr_target_face import CnstrTargetFace
+
 
 def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
          n_steps = 100):
     '''Create scalable rhombus crease pattern with face constraints
     '''
-    cp = YoshimuraCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -35,9 +34,19 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
                               show_iter = False,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = rcp.n_h
+    n_i = rcp.n_i
+    n_v = rcp.n_v
+    
+    cp = Lifting(n_steps = n_steps)
+    cp.cp_geo(rcp)
+    
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+    n_arr = np.hstack([n_h[:, :].flatten(),
+                       #n_v[:, :].flatten(),
+                       n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
     y_links = []
 
@@ -61,8 +70,7 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
 
 
     cp.cnstr_lhs = y_links
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
-
+    
     print "cnstr_lhs", cp.cnstr_lhs
     print "cnstr_rhs", cp.cnstr_rhs
 
@@ -89,9 +97,6 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
 #                    (face_x_L2, n_h[n_h_idx, (0, -1)].flatten()),
                     (face_x_L2, n_h[n_h_idx, :].flatten()),
                     ]
-
-
-
     return cp
 
 def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
@@ -99,7 +104,7 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
     '''Create scalable rhombus crease pattern with face constraints
        bad working
     '''
-    cp = YoshimuraCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -108,9 +113,19 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = rcp.n_h
+    n_i = rcp.n_i
+    n_v = rcp.n_v
+    
+    cp = Lifting(n_steps = n_steps)
+    cp.cp_geo(rcp)
+    
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+    n_arr = np.hstack([n_h[:, :].flatten(),
+                       #n_v[:, :].flatten(),
+                       n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
 #    y_links = []
 
@@ -190,7 +205,7 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     '''Create scalable rhombus crease pattern with face constraints
        One basic element with no general formulation
     '''
-    cp = YoshimuraCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -199,9 +214,19 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = rcp.n_h
+    n_i = rcp.n_i
+    n_v = rcp.n_v
+    
+    cp = Lifting(n_steps = n_steps)
+    cp.cp_geo(rcp)
+    
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+    n_arr = np.hstack([n_h[:, :].flatten(),
+                       #n_v[:, :].flatten(),
+                       n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
 
     cp.cnstr_lhs = [[(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1.0)], # 1
@@ -217,9 +242,6 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     print "n_h[1, -1]", n_h[1, -1]
     print "n_h[-1,-1]", n_h[-1, -1]
 
-
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
-
     print "cnstr_lhs", cp.cnstr_lhs
     print "cnstr_rhs", cp.cnstr_rhs
 
@@ -233,7 +255,6 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                     (face_z_t, [n_h[1, 0]]),
                     ]
 
-
     print "edge1", n_h[0, :]
     print "edge2", n_h[-1, :]
     return cp
@@ -244,7 +265,7 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
        One basic element with general formulation (extension in y-direction variabel)
        (extension in x-direction has to be adepted manually)
     '''
-    cp = YoshimuraCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -253,9 +274,19 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = rcp.n_h
+    n_i = rcp.n_i
+    n_v = rcp.n_v
+    
+    cp = Lifting(n_steps = n_steps)
+    cp.cp_geo(rcp)
+    
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+    n_arr = np.hstack([n_h[:, :].flatten(),
+                       #n_v[:, :].flatten(),
+                       n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
 
     n_h_idx = n_x / 2
@@ -284,9 +315,6 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     print "n_h[-1,-1]", n_h[-1, 0]
     print "n_h[1, -1]", n_h[1, -1]
     print "n_h[-1,-1]", n_h[-1, -1]
-
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
-
     print "cnstr_lhs", cp.cnstr_lhs
     print "cnstr_rhs", cp.cnstr_rhs
 
@@ -312,7 +340,7 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     '''Create scalable rhombus crease pattern with face constraints
        other constraints chosen (more in field in z-direction)
     '''
-    cp = YoshimuraCreasePattern(n_steps = n_steps,
+    rcp = YoshimuraCreasePattern(n_steps = n_steps,
                               L_x = L_x,
                               L_y = L_y,
                               n_x = n_x,
@@ -321,9 +349,19 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = rcp.n_h
+    n_i = rcp.n_i
+    n_v = rcp.n_v
+    
+    cp = Lifting(n_steps = n_steps)
+    cp.cp_geo(rcp)
+    
+    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
+    n_arr = np.hstack([n_h[:, :].flatten(),
+                       #n_v[:, :].flatten(),
+                       n_i[:, :].flatten()
+                       ])
+    cp.init_tf_lst = [(caf, n_arr)]
 
     y_links = []
 
@@ -348,18 +386,17 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
     print "n_h[-1,-1]", n_h[-1, 0]
     print "n_h[1, -1]", n_h[1, -1]
     print "n_h[-1,-1]", n_h[-1, -1]
-
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
-
     print "cnstr_lhs", cp.cnstr_lhs
     print "cnstr_rhs", cp.cnstr_rhs
 
-    A = 0.2
+    A = 0.784
+    
     face_z_t = CF(Rf = z_ - 4 * A * t_ * x_ * (1 - x_ / L_x))
 #    face_x_L2 = CF(Rf = x_ - L_x / 2)
     n_arr = np.hstack([n_h[n_h_idx, :].flatten(),
                     n_h[0, :].flatten(),
                     n_h[-1, :].flatten()])
+    
     cp.cf_lst = [(face_z_t, n_arr)]
 
     print "edge1", n_h[0, :]
@@ -369,14 +406,18 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
 
 if __name__ == '__main__':
 
-    cp_fc = create_cp_fc_03(L_x = 4, L_y = 2, n_x = 4, n_y = 4,
+#    cp_fc = create_cp_fc_inclined(L_x = 6, L_y = 5, n_x = 6, n_y = 10,
+#                         n_steps = 20)
+#    cp_fc = create_cp_fc_bow(L_x = 6, L_y = 5, n_x = 6, n_y = 10,
+#                         n_steps = 20)
+#    cp_fc = create_cp_fc_01(L_x = 6, L_y = 5, n_x = 6, n_y = 10,
+#                         n_steps = 20)
+#    cp_fc = create_cp_fc_02(L_x = 6, L_y = 5, n_x = 6, n_y = 10,
+#                         n_steps = 20)
+    cp_fc = create_cp_fc_03(L_x = 6, L_y = 5, n_x = 6, n_y = 10,
                          n_steps = 20)
-
-    X0 = cp_fc.generate_X0()
-
-    X_fc = cp_fc.solve(X0)
-
-    my_model = CreasePatternView(data = cp_fc,
-                                 ff_resolution = 30, show_cnstr = True)
-    my_model.configure_traits()
+    print 'Nodes: ', cp_fc.n_n
+    print 'CL: ', cp_fc.n_c
+    
+    cp_fc.show()
 

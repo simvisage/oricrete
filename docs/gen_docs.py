@@ -12,12 +12,9 @@
 #
 # Created on Dec 21, 2011 by: rch
 
-
 from etsproxy.traits.api import \
-    HasTraits, Instance, Str, Property, cached_property, \
+    HasTraits, Str, Property, cached_property, \
     Enum
-from etsproxy.traits.ui.api import \
-    View, Item
 
 import os.path
 
@@ -44,22 +41,22 @@ class GenExampleDoc(HasTraits):
     #===========================================================================
     # Derived traits
     #===========================================================================
-    component_obj = Property(depends_on = 'component_module')
+    component_obj = Property(depends_on='component_module')
     @cached_property
     def _get_component_obj(self):
         return self.component_module.create_doc_object()
 
-    name = Property(depends_on = 'component_module')
+    name = Property(depends_on='component_module')
     @cached_property
     def _get_name(self):
         return self.component_obj.__class__
 
-    output_dir = Property(depends_on = 'component_module')
+    output_dir = Property(depends_on='component_module')
     @cached_property
     def _get_output_dir(self):
         return os.path.join(EX_OUTPUT_DIR, self.name)
 
-    rst_file_name = Property(depends_on = 'component_module')
+    rst_file_name = Property(depends_on='component_module')
     @cached_property
     def _get_rst_file_name(self):
         return os.path.join(self.output_dir, 'index.rst')
@@ -83,7 +80,7 @@ Parametric study for %s
 
         for st in dobj.sampling_types:
             rst_text += '''
-            
+
 .. image:: %s_%s.png
     :width: 24%%
 
@@ -91,13 +88,13 @@ Parametric study for %s
 
         for st in dobj.sampling_types:
             rst_text += '''
-                
+
 .. image:: %s_sampling_%s.png
     :width: 24%%
-    
+
             ''' % (self.name, st)
 
-        rst_text += '\nFollowing ibvpy configuration has been used to produce the sampling figures:\n\n'
+        rst_text += '\nFollowing oricrete configuration has been used to produce the sampling figures:\n\n'
         rst_text += '\n>>> print component_obj\n' + str(dobj.s) + '\n'
 
         rst_text += '''
@@ -107,7 +104,7 @@ Execution time evaluated for an increasing number of sampling points n_sim:
 '''
         for basename in dobj.fnames_sampling_efficiency:
             rst_text += '''
-        
+
 .. image:: %s
     :width: 100%%
 
@@ -123,7 +120,7 @@ Execution time evaluated for an numpy, weave and cython code:
 '''
         for basename in dobj.fnames_language_efficiency:
             rst_text += '''
-            
+
 .. image:: %s
     :width: 100%%
 
@@ -146,20 +143,19 @@ class GenDoc(HasTraits):
 
     build_mode = Enum('local', 'global')
 
-    build_dir = Property(depends_on = 'build_mode')
+    build_dir = Property(depends_on='build_mode')
     def _get_build_dir(self):
         build_dir = {'local' : '.',
                      'global' : BUILD_DIR }
         return build_dir[self.build_mode]
 
-    html_server = 'root@mordred.imb.rwth-aachen.de:/var/www/docs/ibvpy'
+    html_server = 'root@mordred.imb.rwth-aachen.de:/var/www/docs/oricrete'
 
-    method_dispatcher = {'all' : 'generate_examples'
-                         }
+    method_dispatcher = {'all' : 'generate_examples' }
 
     def generate_html(self):
         for demo in self.component_modules:
-            ged = GenExampleDoc(component_module = demo)
+            ged = GenExampleDoc(component_module=demo)
             ged.generate_html()
 
         os.chdir(DOCS_DIR)
@@ -175,7 +171,7 @@ class GenDoc(HasTraits):
 
 if __name__ == '__main__':
 
-    gd = GenDoc(build_mode = 'global')
+    gd = GenDoc(build_mode='global')
     #gd.generate_examples() # kind = 'sampling_efficiency')
     gd.generate_html()
     #gd.push_html()

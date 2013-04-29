@@ -4,22 +4,45 @@
    contain the root `toctree` directive.
 
 Welcome to oricrete documentation!
-=================================
+===================================
 
-Contents:
+.. default-domain:: py
 
+.. highlight:: python
+	:linenothreshold: 5
+	
+Tutorial
+--------
+	
 .. toctree::
    :maxdepth: 2
 
    front
    intro
-   examples/index
-   modules
+   first_steps/first_steps
+   yoshimura/yoshimura
+   use_cases/use_cases
+
+Description of classes
+----------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   crease_pattern_classes
+   eqcons_classes
+   reshaping_classes
+   utilities
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Todo list
+---------
+
+.. todolist::
 

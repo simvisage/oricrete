@@ -12,8 +12,8 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
-    Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
+from etsproxy.traits.api import \
+    Property, Str, Delegate, \
     Button, Int, Float
 from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
 from etsproxy.mayavi import mlab
@@ -23,7 +23,7 @@ a_, b_, c_, d_ = sm.symbols('a,b,c,d')
 
 # own Modules
 from oricrete.folding import \
-    RhombusCreasePattern, CreasePattern, CreasePatternView, x_, y_
+    YoshimuraCreasePattern, CreasePattern, CreasePatternView, x_, y_
 
 from oricrete.folding.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_
@@ -37,14 +37,14 @@ if __name__ == '__main__':
     n_y = 8
     L_x = 49.7
     L_y = 31.0
-    cp = RhombusCreasePattern(n_steps = 1,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              show_iter = False,
-                              z0_ratio = 0.1,
-                              MAX_ITER = 100)
+    cp = YoshimuraCreasePattern(n_steps=1,
+                              L_x=L_x,
+                              L_y=L_y,
+                              n_x=n_x,
+                              n_y=n_y,
+                              show_iter=False,
+                              z0_ratio=0.1,
+                              MAX_ITER=100)
     n_h = cp.n_h
     n_v = cp.n_v
     n_i = cp.n_i
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     s_term = A * t_ * s_ * (1 - s_ / L_y) #* r_ / L_x
 
-    face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
+    face_z_t = CnstrTargetFace(F=[r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
@@ -99,7 +99,7 @@ if __name__ == '__main__':
                     #+ sym_cnstr_iy + sym_cnstr_ix + sym_cnstr_iy2 
                     #+ sym_cnstr_ix2
 
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
+    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype=float)
 
     # @todo - renaming of methods
     # @todo - projection on the caf - to get the initial vector
@@ -126,26 +126,26 @@ if __name__ == '__main__':
                     zip(cp.interior_vertices, cp.cycled_neighbors.T)]
     print 'connectivity', connectivity
 
-    uf = Unfoldability(cp, connectivity = connectivity)
+    uf = Unfoldability(cp, connectivity=connectivity)
     cp.eqcons['uf'] = uf
 
     # the derivatives are not correct 
     cp.use_G_du = False
-    u_unfoldable = cp.solve(u0 + 1e-6, acc = 1e-4)
+    u_unfoldable = cp.solve(u0 + 1e-6, acc=1e-4)
 
     #===========================================================================
     # Unfolding
     #===========================================================================
     #
     new_nodes = cp.get_new_nodes(u_unfoldable)
-    cp2 = CreasePattern(nodes = new_nodes,
-                        crease_lines = cp.crease_lines,
-                        facets = cp.facets,
-                        n_steps = 1,
-                        show_iter = True,
-                        z0_ratio = 0.1,
-                        time_arr = np.linspace(1, 0, 10),
-                        MAX_ITER = 200)
+    cp2 = CreasePattern(nodes=new_nodes,
+                        crease_lines=cp.crease_lines,
+                        facets=cp.facets,
+                        n_steps=1,
+                        show_iter=True,
+                        z0_ratio=0.1,
+                        time_arr=np.linspace(1, 0, 10),
+                        MAX_ITER=200)
 
     cp2.tf_lst = [(face_z_t, n_arr)]
 
@@ -153,11 +153,11 @@ if __name__ == '__main__':
 #                       [(n_h[1, -1], 0, 1.0)], # 1
 #                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
-    cp2.cnstr_rhs = np.zeros((len(cp2.cnstr_lhs),), dtype = float)
+    cp2.cnstr_rhs = np.zeros((len(cp2.cnstr_lhs),), dtype=float)
 
     X0 = -1e-3 * np.linalg.norm(u_unfoldable) * u_unfoldable
 
-    u_unfolded = cp2.solve(X0, acc = 1e-5)
+    u_unfolded = cp2.solve(X0, acc=1e-5)
 
     #===========================================================================
     # Print results
@@ -169,14 +169,14 @@ if __name__ == '__main__':
     print 'G_cl(uf_unfoldable)', uf.get_G(u_unfoldable, 0)
     print 'u_flattened(z)', (u_unfoldable + u_unfolded).reshape(cp2.n_n, cp2.n_d)[:, 2]
 
-    my_model = CreasePatternView(data = cp,
-                                 ff_resolution = 30,
-                                 show_cnstr = True)
+    my_model = CreasePatternView(data=cp,
+                                 ff_resolution=30,
+                                 show_cnstr=True)
     my_model.configure_traits()
 
-    my_model = CreasePatternView(data = cp2,
-                                 ff_resolution = 30,
-                                 show_cnstr = True)
+    my_model = CreasePatternView(data=cp2,
+                                 ff_resolution=30,
+                                 show_cnstr=True)
     my_model.configure_traits()
 
 
