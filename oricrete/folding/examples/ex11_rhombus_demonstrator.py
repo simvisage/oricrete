@@ -36,9 +36,9 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
                               show_iter = False,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
 
     y_links = []
 
@@ -109,9 +109,9 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
 
 #    y_links = []
 
@@ -200,9 +200,9 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
 
 
     cp.cnstr_lhs = [[(n_h[0, 0], 1, 1.0), (n_h[1, 0], 1, -1.0)], # 1
@@ -254,9 +254,9 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
 
 
     n_h_idx = n_x / 2
@@ -322,9 +322,9 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
 
     y_links = []
 

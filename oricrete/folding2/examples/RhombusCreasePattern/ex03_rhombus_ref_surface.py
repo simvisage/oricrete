@@ -34,9 +34,9 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
                               show_iter = False,
                               MAX_ITER = 50)
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
     
     cp = Lifting(n_steps = n_steps)
     cp.cp_geo(rcp)
@@ -113,9 +113,9 @@ def create_cp_fc_bow(L_x = 4, L_y = 4, n_x = 4, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
     
     cp = Lifting(n_steps = n_steps)
     cp.cp_geo(rcp)
@@ -214,9 +214,9 @@ def create_cp_fc_01(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
     
     cp = Lifting(n_steps = n_steps)
     cp.cp_geo(rcp)
@@ -274,9 +274,9 @@ def create_cp_fc_02(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
     
     cp = Lifting(n_steps = n_steps)
     cp.cp_geo(rcp)
@@ -349,9 +349,9 @@ def create_cp_fc_03(L_x = 4, L_y = 4, n_x = 2, n_y = 2, z0_ratio = 0.1,
                               z0_ratio = z0_ratio,
                               MAX_ITER = 50)
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
     
     cp = Lifting(n_steps = n_steps)
     cp.cp_geo(rcp)

@@ -37,14 +37,13 @@ class YoshimuraCreasePattern(CreasePattern):
     new_nodes = Array(value=[], dtype=float)
     new_crease_lines = Array(value=[], dtype=int)
 
-    N = Property
-    def _get_N(self):
+    X = Property
+    def _get_X(self):
         return self._geometry[0]
 
-    def _set_N(self, values):
+    def _set_X(self, values):
         values = values.reshape(-1, 3)
-        for i in range(len(values)):
-            self.N[i] = values[i]
+        self.X[:, :] = values[:, :]
 
     L = Property
     def _get_L(self):
@@ -54,16 +53,16 @@ class YoshimuraCreasePattern(CreasePattern):
     def _get_F(self):
         return self._geometry[2]
 
-    n_h = Property
-    def _get_n_h(self):
+    N_h = Property
+    def _get_N_h(self):
         return self._geometry[3]
 
-    n_v = Property
-    def _get_n_v(self):
+    N_v = Property
+    def _get_N_v(self):
         return self._geometry[4]
 
-    n_i = Property
-    def _get_n_i(self):
+    N_i = Property
+    def _get_N_i(self):
         return self._geometry[5]
 
     X_h = Property
@@ -99,13 +98,13 @@ class YoshimuraCreasePattern(CreasePattern):
         return con
 
     #deformed nodes    
-    XN = Property(depends_on='fx, nodes')
-    def _get_XN(self):
+    XX = Property(depends_on='fx, nodes')
+    def _get_XX(self):
 
-        XN = np.zeros(self.N.shape)
-        XN[:, 0] = self.fx(self.N[:, 0], self.N[:, 1])
-        XN[:, 1] = self.fy(self.N[:, 0], self.N[:, 1])
-        return XN
+        XX = np.zeros(self.X.shape)
+        XX[:, 0] = self.fx(self.X[:, 0], self.X[:, 1])
+        XX[:, 1] = self.fy(self.X[:, 0], self.X[:, 1])
+        return XX
 
     transform = Bool(False)
 
@@ -252,16 +251,16 @@ class YoshimuraCreasePattern(CreasePattern):
             return a * X ** 2 + b * X
 
         X0 = np.zeros((self.n_n, self.n_d,), dtype='float')
-        X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
-        X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
+        X0[ self.N_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
+        X0[ self.N_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
+        X0[ self.N_v[:, :].flatten(), 2] = -z0 / 2.0
 
         return X0.flatten()
 
     def show(self, mlab):
         '''X.
         '''
-        x, y, z = self.XN.T
+        x, y, z = self.XX.T
         if len(self.F) > 0:
             cp_pipe = mlab.triangular_mesh(x, y, z, self.F)
             cp_pipe.mlab_source.dataset.lines = self.L
@@ -281,8 +280,8 @@ if __name__ == '__main__':
                                 fx=(x_) ** 2,
                                 fy=(y_) ** 2)
 
-    print cp.N
-    print cp.XN
+    print cp.X
+    print cp.XX
 
     #cp.nodes = np.array([0, 0, 0])
 

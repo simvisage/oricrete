@@ -245,9 +245,9 @@ class CraneCreasePattern(YoshimuraCreasePattern):
             return a * X ** 2 + b * X
 
         X0 = np.zeros((len(self._geometry[0]), self.n_d,), dtype = 'float')
-        X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
-        X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 5.0
+        X0[ self.N_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
+        X0[ self.N_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
+        X0[ self.N_v[:, :].flatten(), 2] = -z0 / 5.0
         return X0.flatten()
     
 

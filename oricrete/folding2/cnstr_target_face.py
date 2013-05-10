@@ -14,7 +14,7 @@
 
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Bool, File, Array, Float, Callable, Any, List
+    Button, Int, Bool, File, Array, Float, Any, List
 
 import numpy as np
 import sympy as sm
@@ -39,16 +39,16 @@ class ParamFaceOperator(HasTraits):
     #===========================================================================
     # Parametric surface F(r,s) 
     #===========================================================================
-    F = List(input = True)
+    F = List(input=True)
     def _F_default(self):
         return [r_, s_, -r_ ** 2 - s_ ** 2 * t_]
 
-    F_mtx = Property(depends_on = 'F')
+    F_mtx = Property(depends_on='F')
     @cached_property
     def _get_F_mtx(self):
         return sm.Matrix(self.F)
 
-    F_fn = Property(depends_on = 'F')
+    F_fn = Property(depends_on='F')
     @cached_property
     def _get_F_fn(self):
         return sm.lambdify([r_, s_, t_], list(self.F_mtx))
@@ -60,12 +60,12 @@ class ParamFaceOperator(HasTraits):
     #===========================================================================
     # Surface derivatives [dF(r,s)/dr, dF(r,s)/ds]
     #===========================================================================
-    dF_rs = Property(depends_on = 'F')
+    dF_rs = Property(depends_on='F')
     @cached_property
     def _get_dF_rs(self):
         return np.vstack([ map(lambda x: sm.diff(x, var_), self.F) for var_ in [r_, s_]])
 
-    dF_rs_fn = Property(depends_on = 'F')
+    dF_rs_fn = Property(depends_on='F')
     @cached_property
     def _get_dF_rs_fn(self):
         dF_rs = [ map(lambda x: sm.diff(x, var_), self.F) for var_ in [r_, s_]]
@@ -78,7 +78,7 @@ class ParamFaceOperator(HasTraits):
     #===========================================================================
     # normal vector
     #===========================================================================
-    ls = Property(depends_on = '+input')
+    ls = Property(depends_on='+input')
     @cached_property
     def _get_ls(self):
         '''Calculate the projections of the vector X -> F onto
@@ -92,7 +92,7 @@ class ParamFaceOperator(HasTraits):
         XF_vct = np.array(XF_vct)[:, 0]
         return np.dot(n_vct, XF_vct)
 
-    ls_fn = Property(depends_on = '+input')
+    ls_fn = Property(depends_on='+input')
     @cached_property
     def _get_ls_fn(self):
         return sm.lambdify([r_, s_, x_, y_, z_, t_], self.ls)
@@ -104,7 +104,7 @@ class ParamFaceOperator(HasTraits):
     #===========================================================================
     # normality condition
     #===========================================================================
-    norm_cond = Property(depends_on = '+input')
+    norm_cond = Property(depends_on='+input')
     @cached_property
     def _get_norm_cond(self):
         '''Calculate the projections of the vector X -> F onto
@@ -120,7 +120,7 @@ class ParamFaceOperator(HasTraits):
         ps = np.inner(XF_vct, dF_s)
         return [pr, ps]
 
-    norm_cond_fn = Property(depends_on = '+input')
+    norm_cond_fn = Property(depends_on='+input')
     @cached_property
     def _get_norm_cond_fn(self):
         return sm.lambdify([r_, s_, x_, y_, z_, t_], self.norm_cond)
@@ -132,12 +132,12 @@ class ParamFaceOperator(HasTraits):
     #===========================================================================
     # Derivative of the norm_condity condition
     #===========================================================================
-    d_norm_cond = Property(depends_on = '+input')
+    d_norm_cond = Property(depends_on='+input')
     @cached_property
     def _get_d_norm_cond(self):
         return [ map(lambda x: sm.diff(x, var_), self.norm_cond) for var_ in [r_, s_]]
 
-    d_norm_cond_fn = Property(depends_on = '+input')
+    d_norm_cond_fn = Property(depends_on='+input')
     @cached_property
     def _get_d_norm_cond_fn(self):
         return sm.lambdify([r_, s_, x_, y_, z_, t_], self.d_norm_cond)
@@ -153,8 +153,8 @@ class ParamFaceOperator(HasTraits):
 
         r_pnt, infodict, ier, m = fsolve(get_norm_cond,
                                          r0_pnt,
-                                         fprime = get_d_norm_cond,
-                                         full_output = True)
+                                         fprime=get_d_norm_cond,
+                                         full_output=True)
         return r_pnt
 
     #===========================================================================
@@ -168,7 +168,7 @@ class ParamFaceOperator(HasTraits):
     # Get Derivative of Distance of X to F with respect to X 
     #===========================================================================
 
-    d_dist_xyz = Property(depends_on = '+input')
+    d_dist_xyz = Property(depends_on='+input')
     @cached_property
     def _get_d_dist_xyz(self):
         '''Calculate the derivatives of the distance
@@ -180,7 +180,7 @@ class ParamFaceOperator(HasTraits):
         dXF_vct = [ sm.diff(XF2_vct, var_) for var_ in [x_, y_, z_]]
         return dXF_vct
 
-    d_dist_xyz_fn = Property(depends_on = '+input')
+    d_dist_xyz_fn = Property(depends_on='+input')
     @cached_property
     def _get_d_dist_xyz_fn(self):
         return sm.lambdify([r_, s_, x_, y_, z_, t_], self.d_dist_xyz)
@@ -200,45 +200,45 @@ class CnstrTargetFace(HasTraits):
 
     F = DelegatesTo('pf_operator')
 
-    t = Float(0.0, input = True)
+    t = Float(0.0, input=True)
 
-    X_arr = Array(float, input = True)
+    X_arr = Array(float, input=True)
     def _X_arr_default(self):
-        return np.array([[0, 0, 1]], dtype = 'f')
+        return np.array([[0, 0, 1]], dtype='f')
 
     #===========================================================================
     # Closest point projection of X points to the target surface
     #===========================================================================
-    r_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
+    r_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
     @cached_property
     def _get_r_arr(self):
-        r0_pnt = np.array([0, 0], dtype = 'f')
+        r0_pnt = np.array([0, 0], dtype='f')
         return np.array([self.pf_operator.get_r_pnt(r0_pnt, x_pnt, self.t)
-                         for x_pnt in self.X_arr], dtype = 'f')
+                         for x_pnt in self.X_arr], dtype='f')
 
     #===========================================================================
     # Distance from the target surface
     #===========================================================================
-    d_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
+    d_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
     @cached_property
     def _get_d_arr(self):
         return np.array([self.pf_operator.get_dist(r_pnt, x_pnt, self.t)
-                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
+                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype='f')
 
-    d_xyz_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
+    d_xyz_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
     @cached_property
     def _get_d_xyz_arr(self):
         return np.array([self.pf_operator.get_d_dist_xyz(r_pnt, x_pnt, self.t)
-                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
+                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype='f')
 
     #===========================================================================
     # Level set representation of the surface - used for visualization
     #===========================================================================
-    ls_arr = Property(Array(float), depends_on = '+input, F, t, X_arr[]')
+    ls_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
     @cached_property
     def _get_ls_arr(self):
         return np.array([self.pf_operator.get_ls(r_pnt, x_pnt, self.t)
-                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype = 'f')
+                         for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype='f')
 
     def Rf(self, x, y, z, t):
         self.X_arr = np.c_[x.flatten(), y.flatten(), z.flatten()]
@@ -249,10 +249,10 @@ class CnstrTargetFace(HasTraits):
 TF = CnstrTargetFace
 
 if __name__ == '__main__':
-    cp = ParamFaceOperator(F = [r_, s_, t_])
+    cp = ParamFaceOperator(F=[r_, s_, t_])
 
-    x_pnt = np.array([0, 0.2, 1], dtype = 'f')
-    r0_pnt = np.array([0, 0], dtype = 'f')
+    x_pnt = np.array([0, 0.2, 1], dtype='f')
+    r0_pnt = np.array([0, 0], dtype='f')
 
     print 'r0_pnt:\t\t\t\t', r0_pnt
     print 'value of F at r0_pnt:\t\t', cp.get_F(r0_pnt, 0)
@@ -264,8 +264,8 @@ if __name__ == '__main__':
     print 'r_pnt:\t\t\t\t', r_pnt
     print 'distance x_pnt - r_pnt:\t\t', cp.get_dist(r_pnt, x_pnt, 0)
 
-    target_face = TF(F = [r_ , s_ , -r_ ** 2 - s_ ** 2],
-             X_arr = [[0, 0.2, 1],
+    target_face = TF(F=[r_ , s_ , -r_ ** 2 - s_ ** 2],
+             X_arr=[[0, 0.2, 1],
                       [1, 4, -2],
                       [7, 8, 9]])
     print 'x_arr:\n', target_face.X_arr

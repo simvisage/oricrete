@@ -45,9 +45,9 @@ if __name__ == '__main__':
                               show_iter=False,
                               z0_ratio=0.1,
                               MAX_ITER=100)
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
 
     A = 0.4
 

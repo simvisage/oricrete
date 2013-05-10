@@ -30,9 +30,9 @@ def cp01(L_x=4, L_y=2, n_x=2, n_y=2, n_steps=80):
                               n_y=n_y,
                               )
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
 
     lift = Lifting(cp=rcp,
                  n_steps=n_steps,
@@ -41,9 +41,9 @@ def cp01(L_x=4, L_y=2, n_x=2, n_y=2, n_steps=80):
                  )
 
     caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
-    n_arr = np.hstack([rcp.n_h[:, :].flatten(),
-                       #rcp.n_v[:, :].flatten(),
-                       rcp.n_i[:, :].flatten()
+    n_arr = np.hstack([rcp.N_h[:, :].flatten(),
+                       #rcp.N_v[:, :].flatten(),
+                       rcp.N_i[:, :].flatten()
                        ])
     lift.init_tf_lst = [(caf, n_arr)]
 
@@ -73,9 +73,9 @@ def cp02(L_x=4, L_y=4, n_x=2, n_y=4, n_steps=80):
                               n_y=n_y,
                               )
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
 
     lift = Lifting(cp=rcp,
                  n_steps=n_steps,
@@ -122,9 +122,9 @@ def cp03(L_x=4, L_y=4, n_x=2, n_y=4, n_steps=80):
                               n_y=n_y,
                               )
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
 
     lift = Lifting(cp=rcp,
                  show_iter=False,
@@ -174,9 +174,9 @@ def cp04(L_x=4, L_y=4, n_x=2, n_y=4, n_steps=100):
                   show_iter=False,
                   MAX_ITER=500)
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
 
     caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([n_h[:, :].flatten(),
@@ -216,9 +216,9 @@ def cp05(L_x=4, L_y=4, n_x=2, n_y=4,
                               n_y=n_y,
                               )
 
-    n_h = rcp.n_h
-    n_i = rcp.n_i
-    n_v = rcp.n_v
+    n_h = rcp.N_h
+    n_i = rcp.N_i
+    n_v = rcp.N_v
 
     lift = Lifting(cp=rcp,
                    n_steps=n_steps,

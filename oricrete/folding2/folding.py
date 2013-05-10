@@ -52,13 +52,13 @@ class Folding(HasTraits):
     #===========================================================================
 
     # Nodes
-    N = DelegatesTo('cp', 'nodes')
+    X = DelegatesTo('cp')
 
     # Crease_lines
-    L = DelegatesTo('cp', 'crease_lines')
+    L = DelegatesTo('cp')
 
     # Facets
-    F = DelegatesTo('cp', 'facets')
+    F = DelegatesTo('cp')
 
     # Grab Points
     GP = DelegatesTo('cp', 'grab_pts')
@@ -117,13 +117,13 @@ class Folding(HasTraits):
     # left-hand side coefficients of the constraint equations 
     cnstr_lhs = List()
     # right-hand side values of the constraint equations
-    cnstr_rhs = Property(depends_on = 'cnstr_lhs')
+    cnstr_rhs = Property(depends_on='cnstr_lhs')
     @cached_property
     def _get_cnstr_rhs(self):
-        return np.zeros((len(self.cnstr_lhs),), dtype = 'float_')
+        return np.zeros((len(self.cnstr_lhs),), dtype='float_')
 
     # list of Constrain-Objects
-    cnstr = Array(value = [])
+    cnstr = Array(value=[])
 
     cf_lst = List([])
     tf_lst = List([])
@@ -142,26 +142,26 @@ class Folding(HasTraits):
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(cp = self),
-                'gp' : GrabPoints(cp = self),
-                'pl' : PointsOnLine(cp = self),
-                'ps' : PointsOnSurface(cp = self),
-                'dc' : DofConstraints(cp = self)
+                'cl' : ConstantLength(cp=self),
+                'gp' : GrabPoints(cp=self),
+                'pl' : PointsOnLine(cp=self),
+                'ps' : PointsOnSurface(cp=self),
+                'dc' : DofConstraints(cp=self)
                 }
 
-    eqcons_lst = Property(depends_on = 'eqcons')
+    eqcons_lst = Property(depends_on='eqcons')
     @cached_property
     def _get_eqcons_lst(self):
         return self.eqcons.values()
 
-    def get_G(self, u_vct, t = 0):
+    def get_G(self, u_vct, t=0):
         G_lst = [ eqcons.get_G(u_vct, t) for eqcons in self.eqcons_lst ]
         return np.hstack(G_lst)
 
     def get_G_t(self, u_vct):
         return self.get_G(u_vct, self.t)
 
-    def get_G_du(self, u_vct, t = 0):
+    def get_G_du(self, u_vct, t=0):
         G_dx_lst = [ eqcons.get_G_du(u_vct, t) for eqcons in self.eqcons_lst ]
         return np.vstack(G_dx_lst)
 
@@ -171,11 +171,11 @@ class Folding(HasTraits):
     #===========================================================================
     # Solver parameters
     #===========================================================================
-    n_steps = Int(1, auto_set = False, enter_set = True)
+    n_steps = Int(1, auto_set=False, enter_set=True)
     def _n_steps_changed(self):
         self.t_arr = np.linspace(1. / self.n_steps, 1., self.n_steps)
 
-    time_arr = Array(float, auto_set = False, enter_set = True)
+    time_arr = Array(float, auto_set=False, enter_set=True)
     def _time_arr_changed(self, t_arr):
         self.t_arr = t_arr
 
@@ -183,14 +183,14 @@ class Folding(HasTraits):
     def _t_arr_default(self):
         return np.linspace(1. / self.n_steps, 1., self.n_steps)
 
-    show_iter = Bool(False, auto_set = False, enter_set = True)
+    show_iter = Bool(False, auto_set=False, enter_set=True)
 
-    MAX_ITER = Int(100, auto_set = False, enter_set = True)
+    MAX_ITER = Int(100, auto_set=False, enter_set=True)
 
-    acc = Float(1e-4, auto_set = False, enter_set = True)
+    acc = Float(1e-4, auto_set=False, enter_set=True)
 
     # Displacement history for the current folding process
-    u_t = Property(depends_on = 'cp_changed')
+    u_t = Property(depends_on='cp_changed')
     @cached_property
     def _get_u_t(self):
         '''Solve the problem with the appropriate solver
@@ -201,7 +201,7 @@ class Folding(HasTraits):
         else:
             return self._solve_nr(self.u_0, self.acc)
 
-    def _solve_nr(self, X0, acc = 1e-4):
+    def _solve_nr(self, X0, acc=1e-4):
         '''Find the solution using the Newton-Raphson procedure.
         '''
         # make a copy of the start vector
@@ -240,11 +240,11 @@ class Folding(HasTraits):
             else:
                 print '==== did not converge in %d interations ====' % i
                 return u_t
-        return np.array(u_t, dtype = 'f')
+        return np.array(u_t, dtype='f')
 
     use_G_du = True
 
-    def _solve_fmin(self, X0, acc = 1e-4):
+    def _solve_fmin(self, X0, acc=1e-4):
         '''Solve the problem using the
         Sequential Least Square Quadratic Programming method.
         '''
@@ -262,13 +262,13 @@ class Folding(HasTraits):
                 get_G_du_t = self.get_G_du_t
 
             info = fmin_slsqp(self.get_f_t, X,
-                           fprime = self.get_f_du_t,
-                           f_eqcons = self.get_G_t,
-                           fprime_eqcons = get_G_du_t,
-                           acc = acc, iter = self.MAX_ITER,
-                           iprint = 0,
-                           full_output = True,
-                           epsilon = eps)
+                           fprime=self.get_f_du_t,
+                           f_eqcons=self.get_G_t,
+                           fprime_eqcons=get_G_du_t,
+                           acc=acc, iter=self.MAX_ITER,
+                           iprint=0,
+                           full_output=True,
+                           epsilon=eps)
             X, f, n_iter, imode, smode = info
             X = np.array(X)
             u_t.append(np.copy(X))
@@ -277,12 +277,12 @@ class Folding(HasTraits):
             else:
                 print '(time: %g, iter: %d, f: %g, %s)' % (time, n_iter, f, smode)
                 break
-        return np.array(u_t, dtype = 'f')
+        return np.array(u_t, dtype='f')
 
     #===========================================================================
     # Goal function
     #===========================================================================
-    def get_f(self, x, t = 0):
+    def get_f(self, x, t=0):
         # build dist-vektor for all caf
         x = x.reshape(self.n_n, self.n_d)
         X = self.get_new_nodes(x)
@@ -300,7 +300,7 @@ class Folding(HasTraits):
     #===========================================================================
     # Distance derivative with respect to change in nodal coords.
     #===========================================================================
-    def get_f_du(self, x, t = 0):
+    def get_f_du(self, x, t=0):
         # build dist-vektor for all caf
         x = x.reshape(self.n_n, self.n_d)
         d_xyz = np.zeros_like(x)
@@ -343,7 +343,7 @@ class Folding(HasTraits):
             Calculates the lengths of the crease lines.
         '''
         cV = self.get_new_vectors(X_vct)
-        return np.sqrt(np.sum(cV ** 2, axis = 1))
+        return np.sqrt(np.sum(cV ** 2, axis=1))
 
     #===========================================================================
     # Output datas
@@ -374,7 +374,7 @@ class Folding(HasTraits):
         for u in self.u_t:
             temp = self.N + u.reshape(-1, 3)
             x.append(temp)
-        return np.array(x, dtype = 'f')
+        return np.array(x, dtype='f')
 
     v_t = Property()
     def _get_v_t(self):
@@ -393,7 +393,7 @@ class Folding(HasTraits):
         l = sqrt(sum(v^2))
         '''
         v = self.v_t ** 2
-        return np.sqrt(np.sum(v, axis = 2))
+        return np.sqrt(np.sum(v, axis=2))
 
     def show(self):
         from crease_pattern_view import \
@@ -409,7 +409,7 @@ if __name__ == '__main__':
     cp.n_steps = 10
     cp.TS = [[r_ , s_, 0.01 + t_ * (0.5)]]
     cp.CS = [[z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]]
-    cp.N = [[0, 0, 0],
+    cp.X = [[0, 0, 0],
             [1, 0, 0],
             [1, 1, 0],
             [0, 1, 0],
@@ -425,7 +425,7 @@ if __name__ == '__main__':
     cp.GP = [[4, 0]]
     cp.LP = [[5, 4]]
 
-    cp.cf_lst = [(CF(Rf = cp.CS[0][0]), [1])]
+    cp.cf_lst = [(CF(Rf=cp.CS[0][0]), [1])]
 #    cp.tf_lst = [(CnstrTargetFace(F = cp.TS[0].tolist()), [1])]
 
     cp.cnstr_lhs = [#[(1, 2, 1.0)],

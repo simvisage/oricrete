@@ -38,7 +38,7 @@ class EqualityConstraint(HasStrictTraits):
     '''Link to the reshaping tool.
     '''
 
-    N = DelegatesTo('reshaping')
+    X = DelegatesTo('reshaping')
     '''Nodal coordinates
     '''
 
@@ -85,7 +85,7 @@ class ConstantLength(EqualityConstraint):
     '''
     @cached_property
     def _get_crease_line_vectors(self):
-        n = self.N[...]
+        n = self.X[...]
         cl = self.L
         return n[ cl[:, 1] ] - n[ cl[:, 0] ]
 
@@ -166,7 +166,7 @@ class GrabPoints(EqualityConstraint):
     #===========================================================================
     # Grab point specification
     #===========================================================================
-    grab_pts_L = Property(Array, depends_on='N, F, GP')
+    grab_pts_L = Property(Array, depends_on='X, F, GP')
     @cached_property
     def _get_grab_pts_L(self):
         '''Calculates the L vector for the Barycentric coordinates
@@ -174,7 +174,7 @@ class GrabPoints(EqualityConstraint):
            if the grabpoint is choosen correctly (laying in the plane of the facet)
            L4 will be 0
         '''
-        n = self.N
+        n = self.X
         f = self.F
 
         x4 = np.array([0, 0, -1])
@@ -240,9 +240,9 @@ class PointsOnLine(EqualityConstraint):
             return []
         cl = self.L[line[:, 1]]
         X = u_vct.reshape(self.n_N, self.n_D)
-        p0 = self.N[line[:, 0]]
-        p1 = self.N[cl[:, 0]]
-        p2 = self.N[cl[:, 1]]
+        p0 = self.X[line[:, 0]]
+        p1 = self.X[cl[:, 0]]
+        p2 = self.X[cl[:, 1]]
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
@@ -289,9 +289,9 @@ class PointsOnLine(EqualityConstraint):
             return np.zeros((self.n_LP * 2, self.n_dofs))
         cl = self.L[line[:, 1]]
         X = u_vct.reshape(self.n_N, self.n_D)
-        p0 = self.N[line[:, 0]]
-        p1 = self.N[cl[:, 0]]
-        p2 = self.N[cl[:, 1]]
+        p0 = self.X[line[:, 0]]
+        p1 = self.X[cl[:, 0]]
+        p2 = self.X[cl[:, 1]]
         dp0 = X[line[:, 0]]
         dp1 = X[cl[:, 0]]
         dp2 = X[cl[:, 1]]
@@ -382,7 +382,7 @@ class PointsOnSurface(EqualityConstraint):
     def get_G(self, dX_vct, t=0.0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.N + dX_vct.reshape(self.n_N, self.n_D)
+        X = self.X + dX_vct.reshape(self.n_N, self.n_D)
         Rf = np.zeros((self.n_c_ff,), dtype='float_')
 
         i = 0
@@ -397,7 +397,7 @@ class PointsOnSurface(EqualityConstraint):
     def get_G_du(self, u_vct, t=0):
         ''' Calculate the residuum for given constraint equations
         '''
-        X = self.N + u_vct.reshape(self.n_N, self.n_D)
+        X = self.X + u_vct.reshape(self.n_N, self.n_D)
         G_du = np.zeros((self.n_c_ff, self.n_dofs), dtype='float_')
 
         i = 0
@@ -494,7 +494,7 @@ class Unfoldability(EqualityConstraint):
         ''' Calculate the residuum for given constraint equations
         '''
         u = u_vct.reshape(self.n_N, self.n_D)
-        x = self.N + u
+        x = self.X + u
 
         G_lst = []
         for v, n in self.connectivity:
@@ -532,7 +532,7 @@ class Unfoldability(EqualityConstraint):
         '''
 
         u = u_vct.reshape(self.n_N, self.n_D)
-        x = self.N + u
+        x = self.X + u
 
         # number of foldable constraints
         n_fc = len(self.connectivity)
@@ -571,7 +571,7 @@ class Unfoldability(EqualityConstraint):
 if __name__ == '__main__':
     from reshaping import Reshaping, CreasePattern
 
-    cp = CreasePattern(N=[[0, 0, 0],
+    cp = CreasePattern(X=[[0, 0, 0],
                           [1.0, 0.2, 0],
                           [0.1, 1, 0],
                           [-1, -0.2, 0],
@@ -581,6 +581,6 @@ if __name__ == '__main__':
 
     uf = Unfoldability(reshaping, connectivity=[(0, [1, 2, 3, 4])])
 
-    u = np.zeros_like(cp.N).flatten()
+    u = np.zeros_like(cp.X).flatten()
     print uf.get_G(u, 0)
     print uf.get_G_du(u, 0)

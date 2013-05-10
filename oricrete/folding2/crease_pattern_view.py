@@ -113,36 +113,47 @@ class CreasePatternView(HasTraits):
     @cached_property
     def _get_cnstr(self):
         '''
-        This Method get the constrain - information from the actual crease - pattern
+        This property prepares the constraints for the visualization
+
+        It extracts the information from the current  crease - pattern
         and divides it for easier calculation of the symbol - positions
 
-        The constrains are devided in three constrain - types:
+        The constrains are divided in three constrain - types:
         - fixed constrains (constrain is full fixed in his direction)
-        - connected constrains (constrains are in an mathmatical abhaengigkeit
-                           , e.g. constant or linear movementbehavior)
+        - connected constrains (constrains are in depending on each other
+                           , e.g. constant or linear movement behavior)
         - load constrains (constrains, which activates the numerical calculation)
 
-        Different list for visualation:
+        Different list for visualization:
         fixed constrains:
-        - cn_f : indexarray of nodes of fixed constrains
+        - cn_f : index array of nodes of fixed constrains
         - cd_f : direction (axes) of the fixed constrain [x, y, z]
 
         connected constrains:
-        - cn_c: indexarray of nodes of fixed constrains
-        - cc_c: connection of nodes as indexarrays, e.g. [[0, 1],
+        - cn_c: index array of nodes of fixed constrains
+        - cc_c: connection of nodes as index arrays, e.g. [[0, 1],
                                                       [2, 4]]
             each index represents a node
         - cd_c: direction (axes) of the connected constrains [x, y, z]
 
         load constrains:
-        - cn_l : indexarray of nodes of load constrains
+        - cn_l : index array of nodes of load constrains
         - cd_l : direction (axes) of the load constrain [x, y, z]
         '''
-        # get constrain information of the creasepattern
-
+        # get constrain information of the crease pattern
 
         lhs = copy.deepcopy(self.data.cnstr_lhs)
         rhs = copy.deepcopy(self.data.cnstr_rhs)
+
+        lhs_list = []
+        rhs_list = []
+        for dof_constraint in self.data.dof_constraints:
+            lhs_entry, rhs_entry = dof_constraint
+            lhs_list.append(lhs_entry)
+            rhs_list.append(rhs_entry)
+
+        lhs += lhs_list
+        rhs = np.hstack([rhs, np.array(rhs_list, dtype='f')])
 
         # get load constrains
 
@@ -229,7 +240,7 @@ class CreasePatternView(HasTraits):
 
     def set_focal_point(self):
         # setup an functional camera position
-        nodes = self.data.N
+        nodes = self.data.X
 
         fx, fy = np.average(nodes[:, (0, 1)], axis=0)
         fz_arr = self.x_t[:, :, 2]
@@ -265,7 +276,7 @@ class CreasePatternView(HasTraits):
 
         # get the current constrain information
 
-        nodes = self.data.N
+        nodes = self.data.X
 
         # Arrays of Point Data in axis
         x, y, z = nodes.T
@@ -330,7 +341,7 @@ class CreasePatternView(HasTraits):
         This pipeline comprised the labels for all node Indexes
         '''
         text = np.array([])
-        pts = self.data.N
+        pts = self.data.X
         x, y, z = pts.T
         for i in range(len(pts)):
             temp_text = self.scene.mlab.text3d(x[i], y[i], z[i] + 0.2 * self.scalefactor, str(i), scale=0.05)
@@ -359,7 +370,7 @@ class CreasePatternView(HasTraits):
         '''
         pts = np.array(self.data.GP)
         n = pts[:, 0]
-        pts = self.data.N[n]
+        pts = self.data.X[n]
 
         x, y, z = pts.T
         grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scalefactor * 0.25, color=(0.0, 1.0, 1.0))
@@ -373,7 +384,7 @@ class CreasePatternView(HasTraits):
         '''
         pts = np.array(self.data.LP)
         n = pts[:, 0]
-        pts = self.data.N[n]
+        pts = self.data.X[n]
 
         x, y, z = pts.T
         line_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scalefactor * 0.25, color=(1.0, 0.0, 0.0))
@@ -489,7 +500,7 @@ class CreasePatternView(HasTraits):
         connected dof's (green arrwos with connection),
         pushed dof's (red big arrow)
         '''
-        nodes = self.data.N
+        nodes = self.data.X
         if self.show_manual_cnstr:
             # get constrains
             cn_f, cd_f, cn_c, cc_c, cd_c, cn_l, cd_l = self.cnstr
@@ -797,36 +808,37 @@ class CreasePatternView(HasTraits):
 
 if __name__ == '__main__':
     # little example with all visual elements
-    # ToDo: suface missing
-    from oricrete.folding2.foldingphase import Lifting
-    cp = Lifting(n_steps=10)
+    # ToDo: surface missing
+    from oricrete.folding2 import CreasePattern, Lifting
+    cp = CreasePattern(X=[[0, 0, 0],
+                          [1, 0, 0],
+                          [1, 1, 0],
+                          [0, 1, 0],
+                          [0.2, 0.2, 0],
+                          [0.5, 0.5, 0.0]],
+                       L=[[0, 1],
+                          [1, 2],
+                          [2, 3],
+                          [3, 0],
+                          [1, 3]],
+                       F=[[0, 1, 3],
+                          [1, 2, 3]])
 
-    cp.N = [[0, 0, 0],
-            [1, 0, 0],
-            [1, 1, 0],
-            [0, 1, 0],
-            [0.2, 0.2, 0],
-            [0.5, 0.5, 0.0]]
-    cp.L = [[0, 1],
-            [1, 2],
-            [2, 3],
-            [3, 0],
-            [1, 3]]
-    cp.F = [[0, 1, 3],
-            [1, 2, 3]]
-    cp.GP = [[4, 0]]
-    cp.LP = [[5, 4]]
-    cp.cnstr_lhs = [[(1, 2, 1.0)],
-                    [(0, 0, 1.0)],
-                    [(0, 1, 1.0)],
-                    [(0, 2, 1.0)],
-                    [(3, 0, 1.0)],
-                    [(3, 2, 1.0)],
-                    [(2, 2, 1.0)],
-                    [(5, 0, 1.0)]]
-    cp.cnstr_rhs[0] = 0.5
-    cp.n_steps = 10
-    cp.u_0[5] = 0.05
-    cp.u_0[17] = 0.025
-    cp.show()
+    lift = Lifting(cp=cp, n_steps=10,
+                   cnstr_lhs=[[(1, 2, 1.0)],
+                              [(0, 0, 1.0)],
+                              [(0, 1, 1.0)],
+                              [(0, 2, 1.0)],
+                              [(3, 0, 1.0)],
+                              [(3, 2, 1.0)],
+                              [(2, 2, 1.0)],
+                              [(5, 0, 1.0)]],
+                   GP=[[4, 0]],
+                   LP=[[5, 4]])
+
+    lift.cnstr_rhs[0] = 0.5
+    lift.u_0[5] = 0.05
+    lift.u_0[17] = 0.025
+
+    lift.show()
 

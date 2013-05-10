@@ -19,11 +19,11 @@ from oricrete.folding2.cnstr_target_face import CnstrTargetFace, r_, s_, t_
 
 if __name__ == '__main__':
 
-    cp = CreasePattern(N=[[0, 0, 0],
-                            [1, 0, 0],
-                            [1, 1, 0],
-                            [0, 1, 0],
-                            ],
+    cp = CreasePattern(X=[[0, 0, 0],
+                          [1, 0, 0],
+                          [1, 1, 0],
+                          [0, 1, 0],
+                          ],
                        L=[[0, 1],
                             [1, 2],
                             [2, 3],

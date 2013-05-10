@@ -39,9 +39,9 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
     cp.cp_geo(ccp)
     
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.30])
-    n_arr = np.hstack([ccp.n_h[:, :].flatten(),
-                       #ccp.n_v[:, :].flatten(),
-                       ccp.n_i[:, :].flatten()
+    n_arr = np.hstack([ccp.N_h[:, :].flatten(),
+                       #ccp.N_v[:, :].flatten(),
+                       ccp.N_i[:, :].flatten()
                        ])
     cp.init_tf_lst = [(caf, n_arr)]
 

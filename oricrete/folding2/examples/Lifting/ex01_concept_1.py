@@ -21,12 +21,12 @@ from oricrete.folding2.foldingphase import Lifting, Initialization
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace
 
 
-def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
+def rhombus_3x1_crane(n_steps=10, dx=1.0):
 
-    cp = Lifting(n_steps = n_steps,
-                 MAX_ITER = 500,
+    cp = Lifting(n_steps=n_steps,
+                 MAX_ITER=500,
                  # crease nodes
-                 N = [[0, 0, 0], #0
+                 N=[[0, 0, 0], #0
                       [0, 1, 0],
                       [1, 0, 0],
                       [1, 1, 0],
@@ -58,7 +58,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                     [1.5, 0.667, 1.0]
                     ],
                     # crease lines
-                L = [[0, 2], #0
+                L=[[0, 2], #0
                        [0, 8],
                        [0, 10],
                        [1, 3],
@@ -100,7 +100,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                        [18, 27]
                        ],
                      # facets
-                     F = [[0, 2, 10],
+                     F=[[0, 2, 10],
                      [2, 4, 11],
                      [4, 6, 12],
                      [2, 11, 10],
@@ -116,10 +116,10 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                      [7, 9, 12]
                      ],
                  # line points
-                 LP = [[22, 26],
+                 LP=[[22, 26],
                        [23, 27]],
                  # grab pointss
-                 GP = [[13, 0],
+                 GP=[[13, 0],
                        [14, 7],
                        [15, 1],
                        [16, 8],
@@ -127,7 +127,7 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
                        [18, 9]
                    ],
                  # direct constraints
-                 cnstr_lhs = [[(19, 2, 1.0)],
+                 cnstr_lhs=[[(19, 2, 1.0)],
                         [(19, 1, 1.0)],
                         [(19, 0, 1.0)],
                         [(20, 1, 1.0)],
@@ -206,9 +206,9 @@ def rhombus_3x1_crane(n_steps = 10, dx = 1.0):
 
     return cp
 
-def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
+def rhombus_3x1_crane_sticks(n_steps=10, dx=1.0):
 
-    cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
+    cp = Lifting(n_steps=n_steps, MAX_ITER=500)
 
     cp.N = [[0, 0, 0], #0
                 [0, 1, 0],
@@ -391,23 +391,23 @@ def rhombus_3x1_crane_sticks(n_steps = 10, dx = 1.0):
 
     return cp
 
-def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
+def rhombus_3x2_crane(n_steps=10, dx=1.5):
     """
         This example shows a 3x2 rhombus creasepattern.
 
     """
-    cpr = YoshimuraCreasePattern(n_steps = n_steps,
-                              L_x = 3,
-                              L_y = 2,
-                              n_x = 3,
-                              n_y = 4,
-                              MAX_ITER = 5000)
+    cpr = YoshimuraCreasePattern(n_steps=n_steps,
+                              L_x=3,
+                              L_y=2,
+                              n_x=3,
+                              n_y=4,
+                              MAX_ITER=5000)
 
-    cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
-    caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
-    n_arr = np.hstack([cpr.n_h[:, :].flatten(),
-                       #cpr.n_v[:, :].flatten(),
-                       cpr.n_i[:, :].flatten()
+    cp = Lifting(cp=cpr, n_steps=n_steps, MAX_ITER=500)
+    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
+    n_arr = np.hstack([cpr.N_h[:, :].flatten(),
+                       #cpr.N_v[:, :].flatten(),
+                       cpr.N_i[:, :].flatten()
                        ])
     cp.init_tf_lst = [(caf, n_arr)]
 
@@ -451,8 +451,8 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
                    [1.5, 1.667, 1.0], #55
                    ]
 
-    cp.N = np.vstack([cp.N, grab_nodes])
-    cp.N = np.vstack([cp.N, crane_nodes])
+    cp.X = np.vstack([cp.X, grab_nodes])
+    cp.X = np.vstack([cp.X, crane_nodes])
 
     crane_cl = [#crane 1
                 [34, 35], #49
@@ -594,7 +594,7 @@ def rhombus_3x2_crane(n_steps = 10, dx = 1.5):
 if __name__ == '__main__':
 
 #    cp = rhombus_3x1_crane(n_steps = 80)
-    cp = rhombus_3x1_crane_sticks(n_steps = 80)
+    cp = rhombus_3x1_crane_sticks(n_steps=80)
 
     # not working
 #    cp = rhombus_3x2_crane(n_steps = 80)

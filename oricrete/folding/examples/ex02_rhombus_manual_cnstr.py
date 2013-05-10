@@ -40,9 +40,9 @@ def cp01(L_x = 4, L_y = 2, n_x = 2, n_y = 2, n_steps = 80):
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
 
     cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
                     [(n_h[0, -1], 2, 1.0)], # 1
@@ -73,9 +73,9 @@ def cp02(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
 
     cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
                     [(n_h[0, -1], 2, 1.0)], # 1
@@ -112,9 +112,9 @@ def cp03(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 80):
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
 
     cp.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
                     [(n_h[0, -1], 2, 1.0)], # 1
@@ -151,9 +151,9 @@ def cp04(L_x = 4, L_y = 4, n_x = 2, n_y = 4, n_steps = 100):
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
 
     z_nodes = n_h[(0, -1), :].flatten()
     z_cnstr = [[(n, 2, 1.0)] for n in z_nodes]
@@ -188,9 +188,9 @@ def cp05(L_x = 4, L_y = 4, n_x = 2, n_y = 4,
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
 
     z_nodes = n_h[(0, -1), :].flatten()
     z_cnstr = [[(n, 2, 1.0)] for n in z_nodes]

@@ -1,6 +1,6 @@
 from oricrete.folding2 import CreasePattern, Lifting
 
-cp = CreasePattern(N=[[0, 0, 0],
+cp = CreasePattern(X=[[0, 0, 0],
                       [1, 0, 0],
                       [1, 1, 0],
                       [0.5, 0.3, 0]], # node for the grab point
@@ -22,4 +22,3 @@ lift.cnstr_rhs[5] = 0.3
 lift.u_0[8] = 0.1
 
 lift.show()
-

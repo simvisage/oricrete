@@ -41,9 +41,9 @@ def create_cp_dc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
     n_h_idx = n_y / 4
 
     x_links = []
@@ -107,9 +107,9 @@ def create_cp_fc(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
                               show_iter = False,
                               MAX_ITER = 500)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
     n_h_idx = n_y / 4
 
     x_links = []
@@ -163,9 +163,9 @@ def create_cp_fc_inclined(L_x = 4, L_y = 4, n_x = 1, n_y = 2,
                               show_iter = False,
                               MAX_ITER = 2000)
 
-    n_h = cp.n_h
-    n_i = cp.n_i
-    n_v = cp.n_v
+    n_h = cp.N_h
+    n_i = cp.N_i
+    n_v = cp.N_v
     n_h_idx = n_y / 4
 
     x_links = []

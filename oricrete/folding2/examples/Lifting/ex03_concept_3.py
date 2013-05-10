@@ -221,9 +221,9 @@ def rhombus_3x2_crane(n_steps = 10, dx = 0.7):
 
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
-    n_arr = np.hstack([cpr.n_h[:, :].flatten(),
-                       #cpr.n_v[:, :].flatten(),
-                       cpr.n_i[:, :].flatten()
+    n_arr = np.hstack([cpr.N_h[:, :].flatten(),
+                       #cpr.N_v[:, :].flatten(),
+                       cpr.N_i[:, :].flatten()
                        ])
     cp.init_tf_lst = [(caf, n_arr)]
 
@@ -547,9 +547,9 @@ def rhombus_3x3_crane(n_steps = 10, dx = 0.7):
     
     cp = Lifting(n_steps = n_steps, MAX_ITER = 500)
     caf = CnstrTargetFace(F = [r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3) + 0.15])
-    n_arr = np.hstack([cpr.n_h[:, :].flatten(),
-                       #cpr.n_v[:, :].flatten(),
-                       cpr.n_i[:, :].flatten()
+    n_arr = np.hstack([cpr.N_h[:, :].flatten(),
+                       #cpr.N_v[:, :].flatten(),
+                       cpr.N_i[:, :].flatten()
                        ])
     cp.init_tf_lst = [(caf, n_arr)]
     

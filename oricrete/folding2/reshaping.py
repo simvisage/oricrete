@@ -55,7 +55,7 @@ class Reshaping(HasStrictTraits):
     # Geometrical Datas
     #===========================================================================
 
-    N = PrototypedFrom('cp')
+    X = PrototypedFrom('cp')
     '''Array of nodal coordinates.
     '''
 
@@ -357,7 +357,7 @@ class Reshaping(HasStrictTraits):
             Calculates the lengths of the crease lines.
         '''
         X = X_vct.reshape(self.n_N, self.n_D)
-        return self.N + X
+        return self.X + X
 
     def get_new_vectors(self, X_vct):
         '''
@@ -382,7 +382,7 @@ class Reshaping(HasStrictTraits):
     '''Initial position of all nodes.
     '''
     def _get_x_0(self):
-        return self.N
+        return self.X
 
     v_0 = Property
     ''''initial crease line vectors.
@@ -399,7 +399,7 @@ class Reshaping(HasStrictTraits):
     def _get_x_t(self):
         x = []
         for u in self.u_t:
-            temp = self.N + u.reshape(-1, 3)
+            temp = self.X + u.reshape(-1, 3)
             x.append(temp)
         return np.array(x, dtype='f')
 
@@ -464,19 +464,20 @@ class FormFinding(Reshaping):
 
     For this condition the connectivity of all inner nodes must be putted in the object.
     '''
+
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
-                'uf' : Unfoldability(cp=self)
+                'uf' : Unfoldability(reshaping=self)
                 }
 
 class Folding(Reshaping):
     '''Folding folds a crease pattern while using the classic constraints like
-    cosntant length, dof constraints and surface constraints.
+    constant length, dof constraints and surface constraints.
 
     This class serves for the analysis of the folding process of a crease pattern.
     All classic constraints can be used. Only special elements, like GP and LP
-    are not included. But sticky faces and target facets are supported.
+    are not included. But sliding faces and target faces are supported.
     '''
 
     eqcons = Dict(Str, IEqualityConstraint)
@@ -536,13 +537,15 @@ class Lifting(Reshaping):
         '''
         u_0_pattern = []
         if(len(self.init_tf_lst) > 0):
-            iN = np.where(self.N[:, 2] == 0)
+            iX = np.where(self.X[:, 2] == 0)
             init = Initialization(cp=self.cp, tf_lst=self.init_tf_lst)
-            init.N = self.cp.N[iN]
+            init.X = self.cp.X[iX]
             u_0_pattern = init.u_t[-1]
         return u_0_pattern
 
     u_0 = Property(depends_on='cp, cp.N, cp.L')
+    '''Initial vector.
+    '''
     @cached_property
     def _get_u_0(self):
         _u_0 = super(Lifting, self)._get_u_0()
@@ -555,6 +558,8 @@ class Lifting(Reshaping):
         for i in range(len(GP_L)):
             n = self.GP[i][0]
             f = self.F[self.GP[i][1]]
+            print 'f', f
+            print 'u', u_0
             nodes = u_0[f]
             gp = nodes[0] * GP_L[i][0] + nodes[1] * GP_L[i][1] + nodes[2] * GP_L[i][2]
             u_0[n] = gp
@@ -564,7 +569,7 @@ if __name__ == '__main__':
 
     from cnstr_target_face import r_, s_, t_, x_, y_, z_
 
-    cp = CreasePattern(N=[[0, 0, 0],
+    cp = CreasePattern(X=[[0, 0, 0],
                           [1, 0, 0],
                           [1, 1, 0],
                           [0, 1, 0],

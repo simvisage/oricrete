@@ -1,6 +1,6 @@
 from oricrete.folding2 import CreasePattern, Lifting
 
-cp = CreasePattern(N=[[ 0, 0, 0 ],
+cp = CreasePattern(X=[[ 0, 0, 0 ],
                       [ 1, 0, 0 ]],
                    L=[[ 0, 1 ]])
 

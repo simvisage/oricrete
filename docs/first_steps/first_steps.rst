@@ -9,6 +9,12 @@
 First steps with ``oricrete``
 =============================
 
+In order to get things moving quickly let us start with a few examples
+showing the rigid body motion of trusses and triangles. The purpose of this
+introduction is to describe representation of a crease pattern using 
+the class :class:`CreasePattern` base class and the specification of 
+the motion using one of the :class:`Reshaping` subclasses.  
+
 Defining geometry
 -----------------
 
@@ -28,12 +34,14 @@ the reshaping classes that introduce the mapping constraints.
 For simple kinematic constraints we can use the :class:`Lifting` class
 and introduce kinematic conditions as explicitly defined equations.  
 
+.. _constraints:
+
 Introducing supports and nodal constraints
 ------------------------------------------
 
 The individual degrees of freedom can be controlled by adding equality constraints to 
-the current system of equations. In particular, ''eqcons_lhs'' and ''eqcons_rhs''
-attributes of the :class:``Reshaping`` class can be used to add coefficients into the 
+the current system of equations. In particular, ''dof_constraints''
+attribute of the :class:``Reshaping`` class can be used to add coefficients into the 
 system matrix and global system vector.  
 
 +-----------------------------------------+-----------------------------+
@@ -42,22 +50,24 @@ system matrix and global system vector.
 |                                         |     :height: 300px          |
 +-----------------------------------------+-----------------------------+
 
-.. todo::
-	The kinematic constraints can be added using the following format::
+The format of a kinematic constraints is given as follows::
 	
-		eqcons = [([(n1, d1, c1), (n2, d2, c2)], u),
-		          ...
-		          ]
+    dof_constraints = [([(n1, d1, c1), (n2, d2, c2)], u),
+		               ...
+		               ]
 		
-	where ``n1, n2`` are the node numbers, ``d1,d2`` are the spatial directions 
-	x,y,z denoted by the indices ``0,1,2``. The values ``c1,c2`` are the coefficients 
-	to be inserted into the system matrix at the position of degree of freedom 
-	identified by the pairs	``n1, d1``, ``n2, d2``, respectively. 
-	The value at the right-hand side of	the constraint equation is specified 
-	by the ``u`` symbol.
+where ``n1, n2`` are the node numbers, ``d1,d2`` are the spatial directions 
+x,y,z denoted by the indices ``0,1,2``. The values ``c1,c2`` are the coefficients 
+to be inserted into the system matrix at the position of degree of freedom 
+identified by the pairs	``n1, d1``, ``n2, d2``, respectively. 
+The value at the right-hand side of	the constraint equation is specified 
+by the ``u`` symbol.
 
 Defining dependency between DOFs
 --------------------------------
+
+.. todo::
+	update the ``dof_constraints``
 
 +-----------------------------------------+-----------------------------+
 | .. literalinclude:: example05.py        |  .. image:: ex05_anim.gif   | 
@@ -74,8 +84,8 @@ Inserting grab points on the facets
 |                                         |     :height: 300px          |
 +-----------------------------------------+-----------------------------+
 
-Defining sticky lines
----------------------
+Defining sliding lines
+----------------------
 
 +-----------------------------------------+-----------------------------+
 | .. literalinclude:: example04.py        |  .. image:: ex04_anim.gif   | 
@@ -83,8 +93,8 @@ Defining sticky lines
 |                                         |     :height: 300px          |
 +-----------------------------------------+-----------------------------+
 
-Defining moving sticky faces
-----------------------------
+Defining sliding faces
+----------------------
 
 +-----------------------------------------+-----------------------------+
 | .. literalinclude:: example06.py        |  .. image:: ex06_anim.gif   | 
@@ -92,7 +102,7 @@ Defining moving sticky faces
 |                                         |     :height: 300px          |
 +-----------------------------------------+-----------------------------+
 
-The following example shows the same functionality with a curved sticky face.
+The following example shows the same functionality with a curved sliding face.
 
 +-----------------------------------------+-----------------------------+
 | .. literalinclude:: example07.py        |  .. image:: ex07_anim.gif   | 

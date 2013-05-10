@@ -11,6 +11,11 @@ from crane_crease_pattern import \
 from crease_pattern_view import \
     CreasePatternView
 
+from equality_constraint import \
+    EqualityConstraint, \
+    DofConstraints, GrabPoints, PointsOnLine, \
+    PointsOnSurface, ConstantLength, Unfoldability
+
 from cnstr_control_face import \
     CnstrControlFace, CnstrControlFace as CF, x_, y_, z_, r_, s_, t_
 
@@ -19,3 +24,6 @@ from reshaping import \
 
 from dof_constraints import \
     fix, link
+
+from cnstr_target_face import \
+    CnstrTargetFace

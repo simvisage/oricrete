@@ -28,37 +28,37 @@ class YoshimuraCreasePattern(CreasePattern):
         Structure of triangulated Crease-Patterns
     '''
 
-    L_x = Float(4, geometry = True)
-    L_y = Float(2, geometry = True)
+    L_x = Float(4, geometry=True)
+    L_y = Float(2, geometry=True)
 
-    n_x = Int(2, geometry = True)
-    n_y = Int(2, geometry = True)
+    n_x = Int(2, geometry=True)
+    n_y = Int(2, geometry=True)
 
-    new_nodes = Array(value = [], dtype = float)
-    new_crease_lines = Array(value = [], dtype = int)
+    new_nodes = Array(value=[], dtype=float)
+    new_crease_lines = Array(value=[], dtype=int)
 
     nodes = Property
     def _get_nodes(self):
         return self._geometry[0]
-        
+
     crease_lines = Property
     def _get_crease_lines(self):
         return self._geometry[1]
-        
+
     facets = Property
     def _get_facets(self):
         return self._geometry[2]
 
-    n_h = Property
-    def _get_n_h(self):
+    N_h = Property
+    def _get_N_h(self):
         return self._geometry[3]
 
-    n_v = Property
-    def _get_n_v(self):
+    N_v = Property
+    def _get_N_v(self):
         return self._geometry[4]
 
-    n_i = Property
-    def _get_n_i(self):
+    N_i = Property
+    def _get_N_i(self):
         return self._geometry[5]
 
     X_h = Property
@@ -82,7 +82,7 @@ class YoshimuraCreasePattern(CreasePattern):
         return self._geometry[10]
 
     #deformed nodes    
-    xnodes = Property(depends_on = 'fx, nodes')
+    xnodes = Property(depends_on='fx, nodes')
     def _get_xnodes(self):
 
         xnodes = np.zeros(self.nodes.shape)
@@ -112,7 +112,7 @@ class YoshimuraCreasePattern(CreasePattern):
     def _geo_transform_default(self):
         return lambda X_arr: X_arr
 
-    _geometry = Property(depends_on = '+geometry')
+    _geometry = Property(depends_on='+geometry')
     @cached_property
     def _get__geometry(self):
 
@@ -165,7 +165,7 @@ class YoshimuraCreasePattern(CreasePattern):
         e_i00 = np.c_[n_i[:-1, :].flatten(), n_i[1:, :].flatten()]
 
         nodes = np.vstack([X_h, X_v, X_i])
-        zero_z = np.zeros((nodes.shape[0], 1), dtype = float)
+        zero_z = np.zeros((nodes.shape[0], 1), dtype=float)
 
         nodes = np.hstack([nodes, zero_z])
         crease_lines = np.vstack([e_h00, e_h90, e_v90, e_h45, e_i45, e_h135, e_i135, e_v00, e_i00])
@@ -233,10 +233,10 @@ class YoshimuraCreasePattern(CreasePattern):
         def para_fn(X):
             return a * X ** 2 + b * X
 
-        X0 = np.zeros((self.n_n, self.n_d,), dtype = 'float')
-        X0[ self.n_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
-        X0[ self.n_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.n_v[:, :].flatten(), 2] = -z0 / 2.0
+        X0 = np.zeros((self.n_n, self.n_d,), dtype='float')
+        X0[ self.N_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
+        X0[ self.N_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
+        X0[ self.N_v[:, :].flatten(), 2] = -z0 / 2.0
 
         return X0.flatten()
 
@@ -244,15 +244,15 @@ class YoshimuraCreasePattern(CreasePattern):
 
 if __name__ == '__main__':
 
-    cp = YoshimuraCreasePattern(n_steps = 100,
-                              L_x = 3,
-                              L_y = 1,
-                              n_x = 3,
-                              n_y = 4,
-                              show_iter = False,
-                              MAX_ITER = 500,
-                              fx = (xn_) ** 2,
-                              fy = (yn_) ** xn_)
+    cp = YoshimuraCreasePattern(n_steps=100,
+                              L_x=3,
+                              L_y=1,
+                              n_x=3,
+                              n_y=4,
+                              show_iter=False,
+                              MAX_ITER=500,
+                              fx=(xn_) ** 2,
+                              fy=(yn_) ** xn_)
 
     print cp.nodes
     print cp.xnodes

@@ -23,15 +23,15 @@ if __name__ == '__main__':
     n_y = 8
     L_x = 4.97
     L_y = 3.10
-    cp = YoshimuraCreasePattern(L_x = L_x,
-                              L_y = L_y,
-                              n_x = n_x,
-                              n_y = n_y,
-                              z0_ratio = 0.1,
+    cp = YoshimuraCreasePattern(L_x=L_x,
+                              L_y=L_y,
+                              n_x=n_x,
+                              n_y=n_y,
+                              z0_ratio=0.1,
                               )
-    n_h = cp.n_h
-    n_v = cp.n_v
-    n_i = cp.n_i
+    n_h = cp.N_h
+    n_v = cp.N_v
+    n_i = cp.N_i
     print cp.connectivity
     A = 0.4
 
@@ -39,22 +39,22 @@ if __name__ == '__main__':
 
     s_term = A * t_ * s_ * (1 - s_ / L_y) #* r_ / L_x
 
-    face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
+    face_z_t = CnstrTargetFace(F=[r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
-    
+
     from copy import copy
-    init = Initialization(cp = cp, tf_lst = [(face_z_t, n_arr)], t_init = 1.0)
+    init = Initialization(cp=cp, tf_lst=[(face_z_t, n_arr)], t_init=1.0)
     init.show()
-    
-    ff = FormFinding(cp = copy(cp), tf_lst = [(face_z_t, n_arr)], MAX_ITER = 50)
-    ff.N = init.x_t[-1]
+
+    ff = FormFinding(cp=copy(cp), tf_lst=[(face_z_t, n_arr)], MAX_ITER=50)
+    ff.X = init.x_t[-1]
     ff.show()
-    
-    uf = Folding(cp = copy(cp), tf_lst = [(face_z_t, n_arr)], n_steps = 50, MAX_ITER = 500)
-    uf.N = ff.x_t[-1]
+
+    uf = Folding(cp=copy(cp), tf_lst=[(face_z_t, n_arr)], n_steps=50, MAX_ITER=500)
+    uf.X = ff.x_t[-1]
     uf.unfold = True
-    
+
     uf.show()

@@ -27,7 +27,7 @@ class CreasePattern(HasStrictTraits):
     # Input data structure 
     #===============================================================================
 
-    N = Array(value=[], dtype=float)
+    X = Array
     '''Array of node coordinates with rows specifying X,Y values.
     '''
 
@@ -88,7 +88,7 @@ class CreasePattern(HasStrictTraits):
     '''Number of crease nodes (Property)
     '''
     def _get_n_N(self):
-        return self.N.shape[0]
+        return self.X.shape[0]
 
     n_L = Property
     '''Number of crease lines (Property)
@@ -113,12 +113,12 @@ class CreasePattern(HasStrictTraits):
         '''
             Calculates the c of the crease lines.
         '''
-        n = self.N[...]
+        X = self.X[...]
 
         cl = self.L
-        return n[ cl[:, 1] ] - n[ cl[:, 0] ]
+        return X[ cl[:, 1] ] - X[ cl[:, 0] ]
 
-    c_lengths = Property(Array, depends_on='N, L')
+    c_lengths = Property(Array, depends_on='X, L')
     @cached_property
     def _get_c_lengths(self):
         '''
@@ -139,8 +139,8 @@ class CreasePattern(HasStrictTraits):
         '''
         a_f = []
         for i in self.facets:
-            v1 = np.array(self.N[i[1]] - self.N[i[0]])
-            v2 = np.array(self.N[i[2]] - self.N[i[1]])
+            v1 = np.array(self.X[i[1]] - self.X[i[0]])
+            v2 = np.array(self.X[i[2]] - self.X[i[1]])
             normal = np.cross(v1, v2)
             if(normal[2] < 0):
                 temp = np.copy(i)
@@ -160,7 +160,7 @@ class CreasePattern(HasStrictTraits):
         from mayavi import mlab
         mlab.figure(fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
 
-        x, y, z = self.N.T
+        x, y, z = self.X.T
         if len(self.F) > 0:
             cp_pipe = mlab.triangular_mesh(x, y, z, self.F)
             cp_pipe.mlab_source.dataset.lines = self.L
@@ -235,7 +235,7 @@ class CreasePattern(HasStrictTraits):
         can be implemented into a latex documentation, using package
         pst-all.
         '''
-        n = self.N
+        n = self.X
         c = self.L
         x_l = np.max(n[:, 0])
         y_l = np.max(n[:, 1])
@@ -264,7 +264,7 @@ class CreasePattern(HasStrictTraits):
         can be implemented into a latex documentation, using package
         pst-3dplot.
         '''
-        n = self.N
+        n = self.X
         c = self.L
         f = open(name, 'w')
         #f.write('\\configure[pdfgraphic][width=%.3f,height=%.3f]\n' %(x, y))
@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
     # trivial example with a single triangle positioned 
 
-    cp = CreasePattern(N=[[ 0, 0, 0 ],
+    cp = CreasePattern(X=[[ 0, 0, 0 ],
                           [ 1, 0, 0 ],
                           [ 1, 1, 0],
                           [0.667, 0.333, 0],
