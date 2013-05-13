@@ -13,4 +13,5 @@ lift = Lifting(cp=cp,
                cnstr_lhs=[[(1, 1, 1.0)]])
 
 lift.u_0[4] = 0.01
+print lift.x_t[-1]
 lift.show()
