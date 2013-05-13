@@ -57,7 +57,7 @@ def rhombus_nxm_crane(n_steps = 10, dx = 0.7, L_x = 3, L_y = 3, n_x = 3, n_y = 6
 
 if __name__ == '__main__':
 
-    cp = rhombus_nxm_crane(n_steps = 80, L_x = 4, L_y = 3, n_x = 8, n_y = 12)
+    cp = rhombus_nxm_crane(n_steps = 80, L_x = 6, L_y = 4, n_x = 3, n_y = 4)
 
     # initialise View
 
