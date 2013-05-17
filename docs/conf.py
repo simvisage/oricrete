@@ -187,7 +187,7 @@ latex_paper_size = 'a4'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'oricrete.tex', u'oricrete Documentation',
-   u'Rostislav Chudoba, Alexander Scholzen', 'manual'),
+   u'Rostislav Chudoba', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -232,7 +232,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'oricrete', u'oricrete Documentation',
-     [u'Rostislav Chudoba, Alexander Scholzen'], 1)
+     [u'Rostislav Chudoba'], 1)
 ]
 
 

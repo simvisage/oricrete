@@ -48,6 +48,13 @@ class CreasePattern(HasStrictTraits):
     sticking to the surface.
     '''
 
+    N = Property
+    '''Array of all node numbers
+    '''
+    @cached_property
+    def _get_N(self):
+        return np.arange(self.n_N)
+
     ff_lst = Property
     '''Derived list of sticky faces without the associated nodes.
     '''
@@ -108,22 +115,19 @@ class CreasePattern(HasStrictTraits):
     # Dependent interim results
     #===========================================================================
     c_vectors = Property(Array, depends_on='N, L')
+    '''Vectors of the crease lines.
+    '''
     @cached_property
     def _get_c_vectors(self):
-        '''
-            Calculates the c of the crease lines.
-        '''
-        X = self.X[...]
-
-        cl = self.L
-        return X[ cl[:, 1] ] - X[ cl[:, 0] ]
+        X = self.X
+        L = self.L
+        return X[ L[:, 1] ] - X[ L[:, 0] ]
 
     c_lengths = Property(Array, depends_on='X, L')
+    '''Lengths of the crease lines.
+    '''
     @cached_property
     def _get_c_lengths(self):
-        '''
-            Calculates the lengths of the crease lines.
-        '''
         c = self.c_vectors
         return np.sqrt(np.sum(c ** 2, axis=1))
 

@@ -2,7 +2,7 @@
 oricrete User Manual
 ====================
 
-Authors: 	Rostislav Chudoba, Jan van der Woerd, Matthias Schmerl
+Author: 	Rostislav Chudoba
             
 Version: 	Document Version 1
 

@@ -5,3 +5,4 @@ from crease_pattern_view import CreasePatternView
 from cnstr_control_face import CnstrControlFace, CnstrControlFace as CF, x_, y_, z_, r_, s_, t_
 from rhombus_crease_pattern import YoshimuraCreasePattern
 from abaqus_link import AbaqusLink
+from cnstr_target_face import CnstrTargetFace
