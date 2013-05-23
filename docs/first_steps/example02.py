@@ -20,6 +20,6 @@ lift = Lifting(cp=triangle,
                                 ]
                )
 
-lift.u_0[8] = 0.1
+lift.U_0[8] = 0.1
 
 lift.show()

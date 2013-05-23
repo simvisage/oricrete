@@ -160,6 +160,8 @@ class CreasePatternView(HasTraits):
         load_nodes = np.array([] , dtype=int)
         load_dir = np.array([])
         count = 0
+
+        lhs_copy = copy.deepcopy(lhs)
         while(count < len(rhs)):
             # all cell's in rhs which are different 0 represents a load and 
             # gives the direction 
@@ -174,10 +176,11 @@ class CreasePatternView(HasTraits):
 
                 load_nodes = np.append(load_nodes, node)
                 load_dir = np.append(load_dir, [dir_vec])
-                lhs.remove(lhs[count]) # remove the constrain from lhs-list
+                lhs_copy.remove(lhs[count]) # remove the constrain from lhs-list
 
             count += 1
 
+        lhs = copy.deepcopy(lhs_copy)
         load_nodes = load_nodes.reshape(len(load_nodes), 1)
         load_dir = load_dir.reshape(len(load_nodes), 3)
 
@@ -203,7 +206,6 @@ class CreasePatternView(HasTraits):
 
         # build cn_f and cd_fopacity_min = Int(0)
 
-
         for i in cnstr_fixed:
             fixed_nodes = np.append([fixed_nodes], [i[0][0]])
             dir_vec = np.array([0, 0, 0])
@@ -213,7 +215,7 @@ class CreasePatternView(HasTraits):
         fixed_nodes = fixed_nodes.reshape(len(cnstr_fixed), 1)
         fixed_dir = fixed_dir.reshape(len(cnstr_fixed), 3)
 
-        # get connections on reale node indexes 
+        # get connections on real node indexes 
 
         c_nodes = np.array([], dtype=int)
         c_dir = np.array([])

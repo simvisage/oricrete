@@ -156,33 +156,48 @@ class Reshaping(HasStrictTraits):
     moving the nodes in the direction of the face.
     '''
 
-    init_tf_lst = Property(List([]))
+    init_tf_lst = List([])
     '''Target faces used for initialization
     '''
-    def _get_init_tf_lst(self):
-        return self.tf_lst
 
-    U_0 = Property(depends_on='cp, cp.N, cp.L')
-    '''Initial vector.
+    U_0 = Array(float)
+    '''Hidden attribute storing the user-supplied initial array.
+    When it overrides the automatically generated initialization.
     '''
-    @cached_property
-    def _get_U_0(self):
-        u_0 = np.zeros((self.n_N, self.n_D,), dtype='float_')
-        if(len(self.init_tf_lst) == 0):
-            return u_0
-        init = Initialization(cp=self.cp, tf_lst=self.init_tf_lst)
-        ix_init = np.where(self.X[:, 2] == 0)
-        u_0t = init.u_t[-1].reshape(self.n_N, self.n_D)
-        u_0_max = np.max(np.fabs(u_0t))
-        u_0[ix_init, 2] = u_0t[ix_init, 2] # + 1e-8 * u_0_max
-        return u_0.flatten()
+    def _U_0_default(self):
+        return np.zeros((self.n_N * self.n_D,), dtype='float_')
+    @on_trait_change('cp.N')
+    def _U_0_reset(self):
+        self.U_0 = self._U_0_default()
 
-    u_0 = Property(depends_on='cp, cp.N, cp.L')
+    u_0 = Property(depends_on='cp, cp.N')
     '''Initial vector as a two-dimensional array [node, dir]
     '''
     @cached_property
     def _get_u_0(self):
         return self.U_0.reshape(self.n_N, self.n_D)
+
+    U_trial = Property(depends_on='cp, cp.N, cp.L, U_0')
+    '''Initial vector.
+    '''
+    @cached_property
+    def _get_U_trial(self):
+        u_trial = self.u_0
+        if(len(self.init_tf_lst) == 0):
+            return u_trial.flatten()
+        init = Initialization(cp=self.cp, U_0=self.U_0,
+                              tf_lst=self.init_tf_lst)
+        ix_init = np.where(self.X[:, 2] == 0)
+        u_0t = init.u_t[-1].reshape(self.n_N, self.n_D)
+        u_trial[ix_init, 2] = u_0t[ix_init, 2] # + 1e-8 * u_0_max
+        return u_trial.flatten()
+
+    u_trial = Property(depends_on='cp, cp.N, cp.L')
+    '''Initial vector as a two-dimensional array [node, dir]
+    '''
+    @cached_property
+    def _get_u_trial(self):
+        return self.U_trial.reshape(self.n_N, self.n_D)
 
     cp_changed = Bool(False)
 
@@ -256,9 +271,9 @@ class Reshaping(HasStrictTraits):
         '''Solve the problem with the appropriate solver
         '''
         if(len(self.tf_lst) > 0):
-            return self._solve_fmin(self.U_0, self.acc)
+            return self._solve_fmin(self.U_trial, self.acc)
         else:
-            return self._solve_nr(self.U_0, self.acc)
+            return self._solve_nr(self.U_trial, self.acc)
 
     def _solve_nr(self, X0, acc=1e-4):
         '''Find the solution using the Newton - Raphson procedure.
@@ -269,7 +284,7 @@ class Reshaping(HasStrictTraits):
         X = np.copy(X0)
         # Newton-Raphson iteration
         MAX_ITER = self.MAX_ITER
-        u_t0 = np.zeros((self.n_N * self.n_D,))
+        u_t0 = self.U_0
         u_t = [u_t0]
 
         for t in self.t_arr:
@@ -314,7 +329,7 @@ class Reshaping(HasStrictTraits):
         d0 = self.get_f(X0)
         eps = d0 * 1e-4
         X = X0
-        u_t0 = np.zeros((self.cp.n_N * self.cp.n_D,))
+        u_t0 = self.U_0
         u_t = [u_t0]
         get_G_du_t = None
         for step, time in enumerate(self.t_arr):
@@ -469,13 +484,6 @@ class Initialization(Reshaping):
 
     t_init (float): Timestep wich is used for the final mapping. Default = 0.001
     '''
-
-    U_0 = Property(depends_on='cp, cp.N, cp.L')
-    '''Initial vector.
-    '''
-    @cached_property
-    def _get_U_0(self):
-        return np.zeros((self.n_N, self.n_D,), dtype='float_')
 
     t_init = Float(0.05)
     '''Time step which is used for the initialization mapping.

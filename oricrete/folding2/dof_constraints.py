@@ -50,7 +50,7 @@ def fix(nodes, dirs):
     '''
     return [([(n, d, 1.0)], 0.0) for n, d in _broadcast_nd(nodes, dirs)]
 
-def link(nodes1, dirs1, c1, nodes2, dirs2, c2):
+def link(nodes1, dirs1, c1, nodes2, dirs2, c2, value=0.0):
     '''Return constraints corresponding to the specified arrys of nodes and dirs.
 
     For example, given the call::
@@ -68,6 +68,6 @@ def link(nodes1, dirs1, c1, nodes2, dirs2, c2):
     bc_dofs2 = np.array([[n, d] for n, d in _broadcast_nd(nodes2, dirs2)])
     bc_linked_dofs = np.broadcast_arrays(bc_dofs1,
                                          bc_dofs2)
-    return [([(n1, d1, c1), (n2, d2, c2)], 0)
+    return [([(n1, d1, c1), (n2, d2, c2)], value)
             for (n1, d1), (n2, d2) in zip(*bc_linked_dofs)]
 

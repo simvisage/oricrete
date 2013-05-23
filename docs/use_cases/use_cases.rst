@@ -59,9 +59,9 @@ class with a symbolic specification of the surface in 3D:
 	F := [x(r,s,t), y(r,s,t), z(r,s,t)]
 
 The code defining the pattern and performing the simulation 
-looks as follows:
+looks as follows (file ``example03_YCP_3x4_tf.py``):
 
-.. literalinclude:: example_folding_YCP_3x4.py
+.. literalinclude:: example03_YCP_3x4_tf.py
     :encoding: latin-1 
 
 The target face ``face_z_t`` is included in the ``tf_lst`` together with the
@@ -72,7 +72,7 @@ of the calculated time steps shows the obtained results:
 
 +-----------------------------------------+--------------------------------------------+
 |                                         |                                            |
-| .. image:: example_folding_YCP_3x4.gif  |  .. image:: example_folding_YCP2_3x4.gif   |
+| .. image:: example04_YCP_3x4_tf_01.gif  |  .. image:: example03_YCP_3x4_tf_02.gif    |
 |    :width: 400px                        |     :width: 400px                          |
 |    :height: 300px                       |     :height: 300px                         |
 |                                         |                                            |
@@ -93,8 +93,10 @@ anything about the mountain valley distribution and no foldability criteria are 
 
 The particular folding mode gets triggered  
 by providing the folding trend in terms of an appropriate initial displacement vector. 
+In the present example, the ``init_tf_lst`` attribute has been used to 
+tell the :class:`Folding` class how to generate the initial trial displacement vector.  
 A general approach to initialization 
-generally applicable to different types of crease patterns is described 
+applicable to different types of crease patterns is described 
 later in Sec. :ref:`Intialization<initialization>`.
 
 .. _scaled_yoshimura_3x4:
@@ -108,7 +110,7 @@ for a sheet with dimensions :math:`1.2 \times 0.8` m and :math:`3 \times 4` elem
 
 +-----------------------------------------+---------------------------------------------------------+
 |                                         |                                                         |
-| .. image:: yoshimura_geo_trans_3x4.jpg  | .. math::                                               |
+| .. image:: example04_YCP_3x4_tf.jpg     | .. math::                                               |
 |   :width: 400px                         |    \bar{x} = x                                          |
 |   :height: 300px                        |                                                         |
 |                                         | .. math::                                               |
@@ -119,11 +121,12 @@ for a sheet with dimensions :math:`1.2 \times 0.8` m and :math:`3 \times 4` elem
 |                                         |                                                         |
 +-----------------------------------------+---------------------------------------------------------+
 
-The geometrical transformation has been introduced using the `geo_transform` 
+The geometrical transformation has been introduced using the ``geo_transform`` 
 callable attribute of the :class:`CreasePattern` class as explained
-:ref:`here<_geo_trans>`:
+:ref:`here<_geo_trans>`. The code producing the example is 
+given in ``example04_YCP_3x4_tf.py``:
 
-.. literalinclude:: example_scaled_shape_ycp_3x4.py
+.. literalinclude:: example04_YCP_3x4_tf.py
     :encoding: latin-1 
 
 The parabolic target face from the previous example has been reused 
@@ -131,26 +134,92 @@ to control the folding process simulated for eight time steps:
 
 +-----------------------------------------+--------------------------------------------+
 |                                         |                                            |
-| .. image:: yoshimura_geo_trans_3x4.gif  |  .. image:: yoshimura_geo_trans2_3x4.gif   |
+| .. image:: example04_YCP_3x4_tf_01.gif  |  .. image:: example04_YCP_3x4_tf_02.gif    |
 |    :width: 400px                        |     :width: 400px                          |
 |    :height: 300px                       |     :height: 300px                         |
 |                                         |                                            |
 +-----------------------------------------+--------------------------------------------+
 
+In the shown example, all crease nodes have been included in the closest-point criteria
+as indicated by the red marks. As a result, the optimization solver tried to position 
+all of them as near to the target face as possible. In the present case, the solution
+has been found quickly in a few second with eight time steps.
 
-Kinematic folding
------------------
+Let us note, however, that this example has been constructed using some background knowledge 
+of the Yoshimura crease pattern. In particular, we have chosen the target face 
+with regard to the fact that the pattern folds to 
+a simply curved shape. For a regular crease pattern the envelope curvature is constant.  
+However, for the scaled pattern used in the example 
+the curvature of the envelope
+surface is not constant so that it cannot not perfectly fit with a simply curved circular 
+or parabolic target face. In spite of the slight misfit 
+between the curvature of the target surface and the curvature inherent to the crease
+pattern the algorithm has quickly converged to the desired solution.
 
-In the simplest case, if the crease pattern is fixed 
-it can be just kinematically folded by prescribing the conditions for individual 
-degrees of freedom. This task has motivated the development of the ``oricrete`` package. 
+However, in a general case the misfit between the target face and the kinematics of the
+crease pattern can be too restrictive to find a solution. 
+Therefore, refined control measures can be
+appropriate to steer the folding to the desired shape. The first option is to 
+require the fit of the surface only on a subset of crease nodes. The example
+``ex05_ycp_tf_boundary_nodes.py`` shows the result of a simulation with boundary
+included included in the closest-point optimality criteria. The target face is the same 
+as in the previous example. 
+
+.. literalinclude:: example05_YCP_4x8_tf_bndr.py
+    :encoding: latin-1 
+
+In comparison with the previous case, the folding angles in the middle part 
+of the pattern are not distributed regularly:  
+
++---------------------------------------------+-----------------------------------------------+
+|                                             |                                               |
+| .. image:: example05_YCP_4x8_tf_bndr01.gif  |  .. image:: example05_YCP_4x8_tf_bndr02.gif   |
+|    :width: 400px                            |     :width: 400px                             |
+|    :height: 300px                           |     :height: 300px                            |
+|                                             |                                               |
++---------------------------------------------+-----------------------------------------------+
+
+
+
+Combination of target face with kinematic constraints
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: example_scaled_shape_ycp_3x4.py
+    :encoding: latin-1 
+
+
++------------------------------------------------------+--------------------------------------------------------+
+|                                                      |                                                        |
+| .. image:: example_folding_YCP_3x4_tf_dof_cntrl.gif  |  .. image:: example_folding_YCP_3x4_tf_dof_cntrl2.gif  |
+|    :width: 460px                                     |     :width: 460px                                      |
+|    :height: 330px                                    |     :height: 330px                                     |
+|                                                      |                                                        |
++------------------------------------------------------+--------------------------------------------------------+
+
+
+
+Purely kinematic folding
+------------------------
+
+With an equal number of system equations and degrees of freedom no target surface
+is required. In fact, this kind of simulation reflects the manufacturing 
+of a folded element using an appropriately designed folding device.
+In the production, there is no such tool like a target surface. The form must 
+be achieved by applying physical force. This task has actually originally 
+motivated the development of the ``oricrete`` package. 
+
 However, it is not a trivial task to identify admissible kinematic constraints 
-leading to a folding the Yoshimura pattern to the desired vault shape. Even for a 
-regular Yoshimura crease pattern,
-the identification of the constraint pattern valid for an arbitrarily sized grid of Yoshimura 
-elements had to be done using the trial-and-error method. 
+leading to a folding of complex crease patterns. Even the design of the
+lifting device for the Yoshimura pattern activating the desired vault shape is
+non-intutitive and tedious. For specific cases, an identification of the constraint pattern
+valid for an arbitrarily sized grid of Yoshimura 
+elements is possible, however, there seem not to be a 
+a simple and general approach to devising an lifting gadget 
+for a given crease pattern.
 
-The resulting generic constraint pattern rendering a single DOF folding problem
+For the discussed Yoshimura vault a generic kinematic constraint pattern has been identified  
+iteratively using the trial-and-error method. 
+The resulting generic constraint pattern renders  a single DOF folding problem
 for an ``m`` x ``n`` Yoshimura crease pattern can be defined using the following function:
 
 +-----------------------------------------+----------------------------------+

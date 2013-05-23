@@ -10,7 +10,7 @@ cp = CreasePattern(X=[[ 0, 0, 0 ],
 
 lift = Lifting(cp=cp,
                n_steps=10,
-               cnstr_lhs=[[(1, 1, 1.0)]])
+               dof_constraints=[([(1, 1, 1.0)], 0.0)])
 
-lift.u_0[4] = 0.01
+lift.U_0[4] = 0.01
 lift.show()
