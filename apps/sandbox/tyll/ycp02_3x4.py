@@ -56,11 +56,14 @@ cntrl_displ = [([(cp.N_h[1,-1], 1, 1.0)], -0.01)]
                                 ]"""
 
 t_x= link(cp.N_h[:,0],0,-1.0 , cp.N_h[:,1],0,1.0)
-t_y= link(cp.N_h[:,0],0,1.0 , cp.N_h[:,1],0,1.0)
-t_z= link(cp.N_h[:,0],0,-1.0 , cp.N_h[:,1],0,1.0)
-t_fix=fix(cp.N_v[0,0],[0])
+t_y= link(cp.N_h[:,0],1,1.0 , cp.N_h[:,1],1,1.0)
+#t_z= link(cp.N_h[0,0],2,-1.0 , cp.N_h[0,1],2,1.0)
+t_fix=fix(cp.N_v[0,0],[0,1,2])
+t_fix2=fix(cp.N_v[-1,0],[1])
 cntrl_displ = [([(cp.N_v[-1,0], 0, 1.0)], -0.01)]
-cs= t_x+t_y+t_z+t_fix+cntrl_displ
+cs= t_x+t_y+t_fix+t_fix2+cntrl_displ
+
+print "cs",cs
 
 
 face_z_t = CnstrTargetFace(F=[r_, s_, 0.8 * t_ * r_ * (1 - r_ / L_x)])
