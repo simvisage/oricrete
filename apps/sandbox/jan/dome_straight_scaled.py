@@ -16,9 +16,10 @@ def geo_trans(X):
     #y_ = (y - L_y / 2) * (1 - (0.8)/ L_x * x)
     #n = L_y / 2
 #    y[2], y[3], y[4], y[5] = -0.0256, 0.0256, -0.011, 0.011
-    y[2], y[3], y[4], y[5] = -1.333, 1.333, -1, 1
+#    y[2], y[3], y[4], y[5] = -1.333, 1.333, -1, 1
 #    x[2], x[3], x[8] , x[9] = 0.1477 , 0.1477, 0.0818, 0.2136
-    x[2], x[3], x[8] , x[9] = 4, 4, 2, 5
+#    x[2], x[3], x[8] , x[9] = 4, 4, 2, 5
+    x[2], x[3], x[8] , x[9] = 3.43, 3.43, 1.93, 4.93
     return np.c_[x, y, z]
 
 
@@ -41,7 +42,7 @@ linked_left_and_right_z = link(cp.N_v[0, :], 2, 1.0,
                                cp.N_v[1, :], 2, -1.0)
 #    linked_right_boundary_x = link(ycp.N_v[-1, 0], 0, 1.0,
 #                                   ycp.N_v[-1, 1:], 0, -1.0)
-cntrl_displ = [([(cp.N_i[0, 0], 0, 1.0)], -1)]
+cntrl_displ = [([(cp.N_v[1, 0], 0, 1.0)], -1)]
 cs=fixed_node+planar_front_boundary+planar_back_boundary+linked_left_boundary_x+linked_left_boundary_z+linked_left_and_right_z+cntrl_displ
 
 caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
