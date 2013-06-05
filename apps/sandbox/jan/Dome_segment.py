@@ -28,8 +28,8 @@ cp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=2, n_y=2,
 
 
 fixed_node = fix(cp.N_h[0, 0], (0, 1, 2))
-planar_front_boundary = link(cp.N_h[0, 0], 1, 1.0,
-                             cp.N_h[1:, 0], 1, -1.0)
+planar_front_boundary = link(cp.N_h[0, 0], 1, 1,
+                             cp.N_h[1:, 0], 1, -1)
 planar_back_boundary = link(cp.N_h[0, -1], 1, 1.0,
                             cp.N_h[1:, -1], 1, -1.0)
 linked_left_boundary_x = link(cp.N_h[0, 0], 0, 1.0,
@@ -40,7 +40,7 @@ linked_left_and_right_z = link(cp.N_v[0, :], 2, 1.0,
                                cp.N_v[1, :], 2, -1.0)
 #    linked_right_boundary_x = link(ycp.N_v[-1, 0], 0, 1.0,
 #                                   ycp.N_v[-1, 1:], 0, -1.0)
-cntrl_displ = [([(cp.N_v[1, 0], 0, 1.0)], -1)]
+cntrl_displ = [([(cp.N_v[1, 0], 0, 1.0)], -0.5)]
 cs=fixed_node+planar_front_boundary+planar_back_boundary+linked_left_boundary_x+linked_left_boundary_z+linked_left_and_right_z+cntrl_displ
 
 caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
@@ -50,4 +50,5 @@ n_arr = np.hstack([cp.N_h[:, :].flatten(),
 
 fold = Folding(cp=cp, n_steps=10, dof_constraints= cs,
                init_tf_lst=[(caf, n_arr)] )
+print fold.x_t[9]
 fold.show()
