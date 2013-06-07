@@ -42,7 +42,7 @@ cntrl_displ = [([(cp.N_h[1,-1], 1, 1.0)], -0.01)]
                                                     mid_boundery_y+
                                                     cntrl_displ"""
 
-"""cs= [                        ([(0, 1, 1.0)], 0.005),
+cs= [                        ([(0, 1, 1.0)], 0.005),
                                 ([(1, 1, 1.0)], -0.005),
                                 ([(2, 1, 1.0)], 0.005),
                                 ([(3, 1, 1.0)], -0.005),
@@ -53,7 +53,7 @@ cntrl_displ = [([(cp.N_h[1,-1], 1, 1.0)], -0.01)]
                                 ([(6, 2, 1.0)], 0.0),
                                 ([(7, 1, 1.0)], 0.0),
                                 ([(8, 1, 1.0)], 0.0),
-                                ]"""
+                                ]
 
 t_x= link(cp.N_h[:,0],0,-1.0 , cp.N_h[:,1],0,1.0)
 t_y= link(cp.N_h[:,0],1,1.0 , cp.N_h[:,1],1,1.0)
@@ -61,7 +61,7 @@ t_y= link(cp.N_h[:,0],1,1.0 , cp.N_h[:,1],1,1.0)
 t_fix=fix(cp.N_v[0,0],[0,1,2])
 t_fix2=fix(cp.N_v[-1,0],[1])
 cntrl_displ = [([(cp.N_v[-1,0], 0, 1.0)], -0.01)]
-cs= t_x+t_y+t_fix+t_fix2+cntrl_displ
+#cs= t_x+t_y+t_fix+t_fix2+cntrl_displ
 
 print "cs",cs
 
@@ -70,5 +70,5 @@ face_z_t = CnstrTargetFace(F=[r_, s_, 0.8 * t_ * r_ * (1 - r_ / L_x)])
 fold = Folding(cp=cp, n_steps=8, dof_constraints= cs,
                init_tf_lst=[(face_z_t, cp.N)] )
 fold.show()
-print fold.X
+print fold.x_t[-1]
 
