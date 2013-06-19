@@ -27,18 +27,18 @@ class FaceView(HasTraits):
      This class manages the visualization of CnstrControlFace constrains
     '''
     data = WeakRef
-    
+
     xyz_grid = DelegatesTo('data')
     x_t = DelegatesTo('data')
     scene = DelegatesTo('data')
-    scalefactor = DelegatesTo('data')
-    
+    scale_factor = DelegatesTo('data')
+
     show_ff_pipe = Bool(True)
     show_ff_nodes = Bool(False)
     fold_step = Int(0)
     time_step = Float(0.0)
     name = Str('Nr 1')
-    
+
     # constrain opacity
     opacity_min = Int(0)
     opacity_max = Int(100)
@@ -60,7 +60,7 @@ class FaceView(HasTraits):
     def _get_ff_pipe(self):
         x, y, z = self.xyz_grid
         ff_pipe = self.scene.mlab.contour3d(x, y, z, lambda x, y, z: self.ff.Rf(x, y, z, 0.0),
-                                                  contours = [0.0])
+                                                  contours=[0.0])
         ff_pipe.visible = self.show_ff_pipe
         ff_pipe.module_manager.scalar_lut_manager.lut.table = self.lut
 
@@ -70,17 +70,17 @@ class FaceView(HasTraits):
     @cached_property
     def _get_ff_nodes(self):
         x, y, z = self.x_t[0][self.nodes_id].T
-        ff_nodes = self.scene.mlab.points3d(x, y, z, scale_factor = self.scalefactor * 0.5, color = (0.5, 0., 0.))
+        ff_nodes = self.scene.mlab.points3d(x, y, z, scale_factor=self.scale_factor * 0.5, color=(0.5, 0., 0.))
         ff_nodes.visible = self.show_ff_nodes
         return ff_nodes
 
     # constrain colormap
-    lut = Property(depends_on = 'opacity')
+    lut = Property(depends_on='opacity')
     @cached_property
     def _get_lut(self):
-        lut = np.zeros((256, 4), dtype = Int)
+        lut = np.zeros((256, 4), dtype=Int)
         alpha = 255 * self.opacity / 100
-        lut[:] = np.array([0, 0, 255, int(round(alpha))], dtype = Int)
+        lut[:] = np.array([0, 0, 255, int(round(alpha))], dtype=Int)
         return lut
 
     @on_trait_change('show_ff_pipe, lut')
@@ -100,19 +100,19 @@ class FaceView(HasTraits):
             t = self.time_step
             Rf = self.ff.Rf(x, y, z, t)
 
-            self.ff_pipe.mlab_source.set(scalars = Rf)
+            self.ff_pipe.mlab_source.set(scalars=Rf)
 
         if self.show_ff_nodes:
             x, y, z = self.x_t[self.fold_step][self.nodes_id].T
-            self.ff_nodes.mlab_source.reset(x = x, y = y, z = z)
+            self.ff_nodes.mlab_source.reset(x=x, y=y, z=z)
 
     view = View(Item('show_ff_pipe'),
                 Item('show_ff_nodes'),
-                Item('opacity', editor = RangeEditor(low_name = 'opacity_min',
-                                                        high_name = 'opacity_max',
-                                                        format = '(%s)',
-                                                        auto_set = False,
-                                                        enter_set = False,
+                Item('opacity', editor=RangeEditor(low_name='opacity_min',
+                                                        high_name='opacity_max',
+                                                        format='(%s)',
+                                                        auto_set=False,
+                                                        enter_set=False,
                                                         )),
 
-                   dock = 'vertical')
+                   dock='vertical')

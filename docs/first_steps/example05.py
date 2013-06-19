@@ -1,4 +1,4 @@
-from oricrete.folding2 import CreasePattern, Lifting
+from oricrete.folding2 import CreasePattern, Lifting, CreasePatternView
 
 cp = CreasePattern(X=[[ 0, 0, 0 ],
                       [ 1, 0, 0 ]],
@@ -13,5 +13,7 @@ lift = Lifting(cp=cp,
                                 ([(0, 1, 0.5), (1, 1, -1.0)], 0.0)]
                )
 
-lift.u_0[4] = 0.1
-lift.show()
+lift.U_0[4] = 0.1
+
+v = CreasePatternView(root=lift.root)
+v.configure_traits()

@@ -37,41 +37,66 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
                                    linked_right_boundary_x +
                                    cntrl_displ,
                    init_tf_lst=[(caf, n_arr)])
-
     return lift
 
-def get_Spante( L_y , c1 , c2):
+def get_level():
+    c_i=[0,2]
+    c_i[0]= (lifting.x_t[-1][16][0]-lifting.x_t[-1][12][0])*2/3+lifting.x_t[-1][12][0]
+    c_i[1]= (lifting.x_t[-1][18][0]-lifting.x_t[-1][4][0])*2/3+lifting.x_t[-1][4][0]
+    c_i = np.around(c_i,1)
+    return c_i
+
+def get_Spante(c1 , c2, d1, d2):
     
     Lage1 = Ebene()
     Lage1.p_E= np.array([c1,0,0])
     Lage2 = Ebene()
     Lage2.p_E= np.array([c2,0,0])
-    
+    Sp1=[]
+    Sp2=[]
     '''Spante1'''
-    SP1=[[]]
-    SP1[0]= Schnittpunkt(lifting.x_t[-1][0], lifting.x_t[-1][3], Lage1)
-    SP1.append(Schnittpunkt(lifting.x_t[-1][0], lifting.x_t[-1][16], Lage1))
-    SP1.append(Schnittpunkt(lifting.x_t[-1][12], lifting.x_t[-1][16], Lage1))
-    SP1.append(Schnittpunkt(lifting.x_t[-1][1], lifting.x_t[-1][16], Lage1))
-    SP1.append(Schnittpunkt(lifting.x_t[-1][1], lifting.x_t[-1][4], Lage1))
-    for i in range(0,len(SP1)-1):
-        SP1.append([SP1[3-i][0],(L_y-SP1[3-i][1]),SP1[3-i][2]])
-        
+    for i in range(0,2):
+        if i == 0:
+            Lage1_1=Lage1
+            Lage1_1.p_E[0]= c1-d1
+        else:
+            Lage1_1=Lage1
+            Lage1_1.p_E[0]= c1+d1
+        SP1=[[]]
+        SP1[0]= Schnittpunkt(lifting.x_t[-1][0], lifting.x_t[-1][3], Lage1_1)
+        SP1.append(Schnittpunkt(lifting.x_t[-1][0], lifting.x_t[-1][16], Lage1_1))
+        SP1.append(Schnittpunkt(lifting.x_t[-1][12], lifting.x_t[-1][16], Lage1_1))
+        SP1.append(Schnittpunkt(lifting.x_t[-1][1], lifting.x_t[-1][16], Lage1_1))
+        SP1.append(Schnittpunkt(lifting.x_t[-1][1], lifting.x_t[-1][4], Lage1_1))
+        for i in range(0,len(SP1)-1):
+            SP1.append([SP1[3-i][0],(SP1[4][1]*2-SP1[3-i][1]),SP1[3-i][2]])
+        Sp1.append(SP1)  
     '''Spante2'''
-    SP2=[[]]
-    SP2[0]= Schnittpunkt(lifting.x_t[-1][3], lifting.x_t[-1][6], Lage2)
-    SP2.append(Schnittpunkt(lifting.x_t[-1][3], lifting.x_t[-1][18], Lage2))
-    SP2.append(Schnittpunkt(lifting.x_t[-1][16], lifting.x_t[-1][18], Lage2))
-    SP2.append(Schnittpunkt(lifting.x_t[-1][4], lifting.x_t[-1][18], Lage2))
-    SP2.append(Schnittpunkt(lifting.x_t[-1][4], lifting.x_t[-1][7], Lage2))
-    for i in range(0,len(SP2)-1):
-        SP2.append([SP2[3-i][0],(L_y-SP2[3-i][1]),SP2[3-i][2]])
+    for i in range(0,2):
+        Lage2_2=Lage2
+        if i == 0:            
+            Lage2_2.p_E[0]= c2-d2
+        else:            
+            Lage2_2.p_E[0]= c2+d2    
+        
+        SP2=[[]]
+        SP2[0]= Schnittpunkt(lifting.x_t[-1][3], lifting.x_t[-1][6], Lage2_2)
+        SP2.append(Schnittpunkt(lifting.x_t[-1][3], lifting.x_t[-1][18], Lage2_2))
+        SP2.append(Schnittpunkt(lifting.x_t[-1][16], lifting.x_t[-1][18], Lage2_2))
+        SP2.append(Schnittpunkt(lifting.x_t[-1][4], lifting.x_t[-1][18], Lage2_2))
+        SP2.append(Schnittpunkt(lifting.x_t[-1][4], lifting.x_t[-1][7], Lage2_2))
+        for i in range(0,len(SP2)-1):
+            SP2.append([SP2[3-i][0],(SP2[4][1]*2-SP2[3-i][1]),SP2[3-i][2]])
+        Sp2.append(SP2)
     
-    Ausgabe(SP1)
-    Ausgabe(SP2)
+    Ausgabe(Sp1[0], c1,d1*2, max(lifting.x_t[-1][:][2]),max(lifting.x_t[-1][:,0])-min(lifting.x_t[-1][:,0]))
+    Ausgabe(Sp1[1], c1,d1*2, max(lifting.x_t[-1][:][2]),max(lifting.x_t[-1][:,0])-min(lifting.x_t[-1][:,0]))
+    Ausgabe(Sp2[0], c2,d2*2, max(lifting.x_t[-1][:][2]),max(lifting.x_t[-1][:,0])-min(lifting.x_t[-1][:,0]))
+    Ausgabe(Sp2[1], c2,d2*2, max(lifting.x_t[-1][:][2]),max(lifting.x_t[-1][:,0])-min(lifting.x_t[-1][:,0]))
 
 '''configure parameters:'''
 
-lifting = get_constrained_YCP(L_x=6.3, L_y=4.2, n_x=3, n_y=4, d=-1)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
-lifting.show()
-get_Spante(L_y=4.2, c1=0.3, c2=2.6) #L_y length, c1 and c2 position of the joists
+lifting = get_constrained_YCP(L_x=63, L_y=42, n_x=3, n_y=4, d=-12.5)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+#lifting.show()
+
+get_Spante(c1 = get_level()[0] , c2 = get_level()[1],d1=0.2,d2=0.2) #c1 and c2 position of the joist

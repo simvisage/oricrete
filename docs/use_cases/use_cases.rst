@@ -121,9 +121,15 @@ for a sheet with dimensions :math:`1.2 \times 0.8` m and :math:`3 \times 4` elem
 |                                         |                                                         |
 +-----------------------------------------+---------------------------------------------------------+
 
+Let us remark that in contrast to the regular Yoshimura crease pattern 
+this crease pattern is not flat foldable. Indeed, the sum of alternating 
+angles around the interior nodes is not zero as required for the flat foldability.
+Still, the crease pattern provides enough flexibility to achieve the shape
+prescribed by the target face. 
+
 The geometrical transformation has been introduced using the ``geo_transform`` 
 callable attribute of the :class:`CreasePattern` class as explained
-:ref:`here<_geo_trans>`. The code producing the example is 
+:ref:`here<geo_trans>`. The code producing the example is 
 given in ``example04_YCP_3x4_tf.py``:
 
 .. literalinclude:: example04_YCP_3x4_tf.py
@@ -148,7 +154,8 @@ has been found quickly in a few second with eight time steps.
 Let us note, however, that this example has been constructed using some background knowledge 
 of the Yoshimura crease pattern. In particular, we have chosen the target face 
 with regard to the fact that the pattern folds to 
-a simply curved shape. For a regular crease pattern the envelope curvature is constant.  
+a simply curved shape. As apparent from the :ref:`previously shown example<regular_yoshimura_3x4>`
+of a  regular Yoshimura crease pattern the envelope curvature is constant.  
 However, for the scaled pattern used in the example 
 the curvature of the envelope
 surface is not constant so that it cannot not perfectly fit with a simply curved circular 
@@ -156,20 +163,19 @@ or parabolic target face. In spite of the slight misfit
 between the curvature of the target surface and the curvature inherent to the crease
 pattern the algorithm has quickly converged to the desired solution.
 
-However, in a general case the misfit between the target face and the kinematics of the
-crease pattern can be too restrictive to find a solution. 
+In a general case the misfit between the target face and the kinematics of the
+crease pattern can be too large to find a solution. 
 Therefore, refined control measures can be
 appropriate to steer the folding to the desired shape. The first option is to 
 require the fit of the surface only on a subset of crease nodes. The example
-``ex05_ycp_tf_boundary_nodes.py`` shows the result of a simulation with boundary
+``example05_YCP_4x8_tf_bndr.py`` shows the result of a simulation with boundary
 included included in the closest-point optimality criteria. The target face is the same 
 as in the previous example. 
 
 .. literalinclude:: example05_YCP_4x8_tf_bndr.py
     :encoding: latin-1 
 
-In comparison with the previous case, the folding angles in the middle part 
-of the pattern are not distributed regularly:  
+The simulated folding process renders shapes that are similar to the previous example
 
 +---------------------------------------------+-----------------------------------------------+
 |                                             |                                               |
@@ -179,12 +185,18 @@ of the pattern are not distributed regularly:
 |                                             |                                               |
 +---------------------------------------------+-----------------------------------------------+
 
+However, the distribution of fold angles in the interior region of the pattern 
+is not regular any more:  
+
+.. image:: example05_YCP_4x8_tf_bndr.jpg
+   :width: 400px                          
+   :height: 300px
 
 
 Combination of target face with kinematic constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: example_scaled_shape_ycp_3x4.py
+.. literalinclude:: example_folding_YCP_3x4_tf_dof_cntrl.py
     :encoding: latin-1 
 
 
@@ -195,8 +207,6 @@ Combination of target face with kinematic constraints
 |    :height: 330px                                    |     :height: 330px                                     |
 |                                                      |                                                        |
 +------------------------------------------------------+--------------------------------------------------------+
-
-
 
 Purely kinematic folding
 ------------------------

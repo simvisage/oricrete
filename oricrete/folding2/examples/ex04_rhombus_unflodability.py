@@ -12,49 +12,42 @@
 #
 # Created on Mar 5, 2013 by: matthias
 
-from oricrete.folding2 import YoshimuraCreasePattern
-from oricrete.folding2.cnstr_target_face import \
-    CnstrTargetFace, r_, s_, t_
-from oricrete.folding2 import Folding, FormFinding, Initialization
+from oricrete.folding2 import Folding, FormFinding, Initialization, \
+    CnstrTargetFace, r_, s_, t_, \
+    YoshimuraCreasePattern, CreasePatternView, link
 import numpy as np
 
 if __name__ == '__main__':
+    # workds for 4 x 22
     n_x = 3
-    n_y = 8
+    n_y = 14
     L_x = 4.97
     L_y = 3.10
-    cp = YoshimuraCreasePattern(L_x=L_x,
-                              L_y=L_y,
-                              n_x=n_x,
-                              n_y=n_y,
-                              z0_ratio=0.1,
-                              )
-    n_h = cp.N_h
-    n_v = cp.N_v
-    n_i = cp.N_i
-    print cp.connectivity
-    A = 0.4
+    cp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=n_x, n_y=n_y)
 
+    A = 0.4
     B = 1.0
 
     s_term = A * t_ * s_ * (1 - s_ / L_y) #* r_ / L_x
-
     face_z_t = CnstrTargetFace(F=[r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
-    n_arr = np.hstack([n_h[:, :].flatten(),
-                       n_v[:, :].flatten(),
-                       n_i[:, :].flatten()
-                       ])
+    n_arr = np.hstack([cp.N_h[1:-1, :].flatten(), cp.N_i[:, :].flatten()])
+    n_arr_0 = np.hstack([cp.N_h[(0, -1), :].flatten(), cp.N_v[:, :].flatten()])
 
-    from copy import copy
-    init = Initialization(cp=cp, tf_lst=[(face_z_t, n_arr)], t_init=1.0)
-    init.show()
+    face_z_0 = CnstrTargetFace(F=[r_, s_, 0])
 
-    ff = FormFinding(cp=copy(cp), tf_lst=[(face_z_t, n_arr)], MAX_ITER=50)
-    ff.X = init.x_t[-1]
-    ff.show()
+    init = Initialization(cp=cp, tf_lst=[(face_z_t, n_arr)], t_init=0.1)
+    form = FormFinding(source=init, tf_lst=[(face_z_t, n_arr),
+                                          (face_z_0, n_arr_0)], n_steps=2, MAX_ITER=500,
+                     dof_constraints=link(cp.N_v[0, :], 0, 1., cp.N_v[-1, :], 0, 1.)
+                     )
+    form.U_1
+    uf = Folding(source=form, unfold=True, tf_lst=[(face_z_t, cp.N)],
+                 n_steps=10, MAX_ITER=500)
+    face_y1_t = CnstrTargetFace(F=[r_, t_ * L_y / 2., s_])
+    face_y2_t = CnstrTargetFace(F=[r_, L_y - t_ * L_y / 2., s_])
 
-    uf = Folding(cp=copy(cp), tf_lst=[(face_z_t, n_arr)], n_steps=50, MAX_ITER=500)
-    uf.X = ff.x_t[-1]
-    uf.unfold = True
+    ff = Folding(source=form, tf_lst=[(face_y1_t, cp.N_h[:, 0]), (face_y2_t, cp.N_h[:, -1])],
+                 n_steps=10, MAX_ITER=500)
 
-    uf.show()
+    v = CreasePatternView(root=init)
+    v.configure_traits()

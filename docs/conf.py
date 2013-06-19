@@ -181,7 +181,7 @@ htmlhelp_basename = 'oricretedoc'
 latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
-#latex_font_size = '10pt'
+latex_font_size = '12pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
@@ -205,12 +205,12 @@ latex_documents = [
 #latex_show_urls = False
 
 # Additional stuff for the LaTeX preamble.
-#latex_preamble = '''
-#\newcommand{\inl}[2]{\mbox{$\displaystyle\int_{#1}^{#2}$}}
-#\newcommand{\sul}[2]{\mbox{$\displaystyle\sum_{#1}^{#2}\,$}}
-#\newcommand{\mbf}[1]{\mbox{\boldmath$#1$}}
-#\newcommand{\del}[2]{\mbox{$\displaystyle\frac{#1}{#2}$}}
-#'''
+latex_preamble = '''
+\newcommand{\inl}[2]{\mbox{$\displaystyle\int_{#1}^{#2}$}}
+\newcommand{\sul}[2]{\mbox{$\displaystyle\sum_{#1}^{#2}\,$}}
+\newcommand{\bm}[1]{\mbox{\boldmath$#1$}}
+\newcommand{\del}[2]{\mbox{$\displaystyle\frac{#1}{#2}$}}
+'''
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []

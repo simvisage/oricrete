@@ -14,7 +14,7 @@ from crease_pattern_view import \
 from equality_constraint import \
     EqualityConstraint, \
     DofConstraints, GrabPoints, PointsOnLine, \
-    PointsOnSurface, ConstantLength, Unfoldability
+    PointsOnSurface, ConstantLength, Developability
 
 from cnstr_control_face import \
     CnstrControlFace, CnstrControlFace as CF, x_, y_, z_, r_, s_, t_

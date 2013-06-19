@@ -29,7 +29,7 @@ from oricrete.folding.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_
 
 from oricrete.folding.equality_constraint import \
-    Unfoldability
+    Developability
 
 if __name__ == '__main__':
     
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                                  [0, 1, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                                  [-1.0, 0, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
                                  [0, -1.0, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -85,7 +85,7 @@ if __name__ == '__main__':
                                  [1.0, 0, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
                                  [0, 0, 1.0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                                  [0, -1, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -131,7 +131,7 @@ if __name__ == '__main__':
                                  [0, 0, -1]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                                  [0, 1, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -161,7 +161,7 @@ if __name__ == '__main__':
                                  [0, 0, 1.0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     
@@ -176,7 +176,7 @@ if __name__ == '__main__':
                                  [-1, 0, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -190,7 +190,7 @@ if __name__ == '__main__':
                                  [0, 0, -1]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -204,7 +204,7 @@ if __name__ == '__main__':
                                  [1, 0, 0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
@@ -221,7 +221,7 @@ if __name__ == '__main__':
                                  [0, 0, 1.0]]
                                  )
 
-    uf = Unfoldability(cp, connectivity = [(0, [1, 2])])
+    uf = Developability(cp, connectivity = [(0, [1, 2])])
 
     u = np.zeros_like(cp.nodes).flatten()
     

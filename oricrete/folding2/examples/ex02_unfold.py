@@ -12,10 +12,8 @@
 #
 # Created on Mar 5, 2013 by: matthias
 
-from oricrete.folding2 import Folding, Initialization
-from oricrete.folding2.crease_pattern import CreasePattern
-from oricrete.folding2.cnstr_target_face import CnstrTargetFace, r_, s_, t_
-
+from oricrete.folding2 import Folding, Initialization, \
+    CreasePattern, CnstrTargetFace, r_, s_, t_, CreasePatternView
 
 if __name__ == '__main__':
     cp = CreasePattern(X=[[0, 0, 0],
@@ -33,19 +31,21 @@ if __name__ == '__main__':
 
     caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
 
-    fold = Folding(cp=cp, n_steps=10,
+    init = Initialization(cp=cp, tf_lst=[(caf, [1, 2, 3])])
+
+    fold = Folding(source=init, n_steps=10,
                    cnstr_lhs=[[(0, 0, 1.0)],
+                              [(0, 1, 1.0)],
+                              [(0, 2, 1.0)],
+                              [(3, 0, 1.0)]],
+                   tf_lst=[(caf, [1, 2, 3])])
+
+    unfold = Folding(source=fold, n_steps=10, unfold=True,
+                     cnstr_lhs=[[(0, 0, 1.0)],
                                 [(0, 1, 1.0)],
                                 [(0, 2, 1.0)],
                                 [(3, 0, 1.0)]],
-                   tf_lst=[(caf, [1, 2, 3])])
+                     tf_lst=[(caf, [1, 2, 3])])
 
-    fold.show()
-    end = cp.u_t[-1]
-    cp.X = end
-
-    cp.unfold = True
-    print cp.t_arr
-    print cp.l
-    print cp.x_t
-    cp.show()
+    v = CreasePatternView(root=init)
+    v.configure_traits()

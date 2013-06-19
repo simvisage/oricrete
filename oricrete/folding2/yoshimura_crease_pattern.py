@@ -238,25 +238,6 @@ class YoshimuraCreasePattern(CreasePattern):
                 n_h, n_v, n_i, X_h, X_v, X_i,
                 interior_vertices, cycled_neighbors)
 
-    z0_ratio = Float(0.1)
-
-    def generate_X0(self):
-        L_x = self.L_x
-        z0 = L_x * self.z0_ratio
-        para_lhs = np.array([[ L_x ** 2.0, L_x ],
-                             [ (L_x / 2.0) ** 2, L_x / 2.0 ]])
-        para_rhs = np.array([0, z0])
-        a, b = np.linalg.solve(para_lhs, para_rhs)
-        def para_fn(X):
-            return a * X ** 2 + b * X
-
-        X0 = np.zeros((self.n_n, self.n_d,), dtype='float')
-        X0[ self.N_h[:, :].flatten(), 2] = para_fn(self.X_h[:, 0])
-        X0[ self.N_i[:, :].flatten(), 2] = para_fn(self.X_i[:, 0])
-        X0[ self.N_v[:, :].flatten(), 2] = -z0 / 2.0
-
-        return X0.flatten()
-
     def show(self, mlab):
         '''X.
         '''

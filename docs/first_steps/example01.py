@@ -1,5 +1,4 @@
 from oricrete.folding2 import CreasePattern
-import numpy as np
 
 cp = CreasePattern(X=[[0, 0, 0],
                       [1, 0, 0],
@@ -9,3 +8,4 @@ cp = CreasePattern(X=[[0, 0, 0],
                       [2, 0]],
                    F=[[0, 1, 2]]
                    )
+

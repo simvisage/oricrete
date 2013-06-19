@@ -17,12 +17,16 @@ from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine, PipelineBase
 from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 from etsproxy.mayavi.modules.api import Axes
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, Button, \
     Int, Bool, File, Array, List, Float, WeakRef, Tuple
 from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor, RangeEditor, \
     VGroup, HGroup, HSplit, Tabbed, ViewSubElement, VGrid, Include, TreeEditor, \
     TreeNode, Handler, ListEditor
+
+from ori_node import IOriNode
+from crease_pattern import CreasePattern
+from reshaping import IReshaping, Initialization, Reshaping, FormFinding, Folding, Lifting
 from face_view import FaceView
 import copy
 import numpy as np
@@ -30,15 +34,59 @@ import os
 import string
 import tempfile
 
-# own Modules
+reshaping_tree_editor = TreeEditor(
+    nodes=[
+        TreeNode(node_for=[ CreasePattern ],
+                  auto_open=True,
+                  label='=cp',
+                  children='followups',
+                  ),
+        TreeNode(node_for=[ FormFinding ],
+                  auto_open=True,
+                  label='=form finding',
+                  children='followups',
+                  ),
+        TreeNode(node_for=[ Lifting ],
+                  auto_open=True,
+                  label='=lifting',
+                  children='followups',
+                  ),
+        TreeNode(node_for=[ Initialization ],
+                  auto_open=True,
+                  label='=init',
+                  children='followups',
+                  ),
+        TreeNode(node_for=[ Folding ],
+                  auto_open=True,
+                  label='=folding',
+                  children='followups',
+                  ),
+           ],
+        hide_root=False,
+        selected='data',
+        editable=False,
+    )
 
-class CreasePatternView(HasTraits):
-
-    data = WeakRef
-    '''Data source
+class CreasePatternView(HasStrictTraits):
+    '''Crease pattern view.
     '''
 
-    x_t = DelegatesTo('data') #node position in every timestep
+    data = Instance(IReshaping)
+    '''Currently displayed data reshaping step
+    '''
+    def _data_changed(self):
+        self.fold_step = 0
+        fig = self.scene.mlab.clf()
+        fig = self.scene.mlab.gcf()
+        self.scene.mlab.figure(fig, fgcolor=(0, 0, 0),
+                               bgcolor=(1, 1, 1))
+        self.fold_step = 0
+
+    root = Instance(IOriNode)
+    '''All reshaping steps.
+    '''
+
+    x_t = DelegatesTo('data') #node position in every time_step
 
     # plotting stuff
     show_node_index = Bool(False)
@@ -77,24 +125,25 @@ class CreasePatternView(HasTraits):
                                bgcolor=(1, 1, 1))
         return fig
 
-    scalefactor_init = Property(Float, depends_on='data')
-    def _get_scalefactor_init(self):
+    scale_factor_init = Property(Float, depends_on='data')
+    def _get_scale_factor_init(self):
         '''
-        Initialization of the scalefactor for the right size of tubes
+        Initialization of the scale_factor for the right size of tubes
         and points.
 
-        The scalefactor will be calculated over the minimum length of all
+        The scale_factor will be calculated over the minimum length of all
         Line elements.
         '''
         min_length = np.min(self.data.l_t)
         faktor = min_length * 0.25
         return faktor
 
-    scalefactor = Range(0.0, 1.0, 0.0)  #scalefactor Trait for rescaling
+    scale_factor = Range(0.0, 1.0, 0.0)  #scale_factor Trait for rescaling
 
     # range of fold steps
     fold_step_min = Int(0)
-    fold_step_max = Property
+    fold_step_max = Property(depends_on='data')
+    @cached_property
     def _get_fold_step_max(self):
         return self.x_t.shape[0] - 1
 
@@ -104,12 +153,7 @@ class CreasePatternView(HasTraits):
     # constrain datas
     show_manual_cnstr = Bool(False)
 
-    # Raising of foldstep 1 for a better view of the predeformation
-    # ToDo: better extra predeformation view
-    z_raising = Bool(False)
-    raising_factor = Float(10.0)
-
-    cnstr = Property
+    cnstr = Property(depends_on='data')
     @cached_property
     def _get_cnstr(self):
         '''
@@ -242,7 +286,7 @@ class CreasePatternView(HasTraits):
 
     def set_focal_point(self):
         # setup an functional camera position
-        nodes = self.data.X
+        nodes = self.data.x_0
 
         fx, fy = np.average(nodes[:, (0, 1)], axis=0)
         fz_arr = self.x_t[:, :, 2]
@@ -256,7 +300,7 @@ class CreasePatternView(HasTraits):
         '''
         Initialize all necessary pipelines
         '''
-        self.scalefactor = self.scalefactor_init
+        self.scale_factor = self.scale_factor_init
         # old constrain visualization
         self.update_cnstr_pipeline()
         # new constrain visualization
@@ -267,7 +311,7 @@ class CreasePatternView(HasTraits):
         self.update_grab_pts_pipeline()
         self.update_line_pts_pipeline()
 
-    cp_pipeline = Property(Instance(PipelineBase))
+    cp_pipeline = Property(Instance(PipelineBase), depends_on='data')
     @cached_property
     def _get_cp_pipeline(self):
         '''
@@ -278,14 +322,12 @@ class CreasePatternView(HasTraits):
 
         # get the current constrain information
 
-        nodes = self.data.X
+        nodes = self.data.x_0
 
         # Arrays of Point Data in axis
         x, y, z = nodes.T
 
         # Visualize the data 
-
-        fig = self.fig
 
         if len(self.data.F) > 0:
             cp_pipe = self.scene.mlab.triangular_mesh(x, y, z, self.data.F)
@@ -297,17 +339,16 @@ class CreasePatternView(HasTraits):
 
         return cp_pipe
 
-    tube_pipeline = Property(Instance(PipelineBase))
+    tube_pipeline = Property(Instance(PipelineBase), depends_on='data')
     @cached_property
     def _get_tube_pipeline(self):
         '''
         This pipeline creates all Tubes in dependens on the given connections of
         the cp_pipeline
         '''
-        tube = self.scene.mlab.pipeline.tube(self.cp_pipeline, tube_radius=0.1 * self.scalefactor)
+        tube = self.scene.mlab.pipeline.tube(self.cp_pipeline, tube_radius=0.1 * self.scale_factor)
         self.scene.mlab.pipeline.surface(tube, color=(1.0, 1.0, 0.9))
         return tube
-
 
     # @todo: make dependent on iteration nodes.
     def _get_extent(self):
@@ -336,17 +377,17 @@ class CreasePatternView(HasTraits):
                            x0[2]:x1[2]:ff_r]
         return x, y, z * 2.0
 
-    node_index_pipeline = Property(Array(Instance(PipelineBase)))
+    node_index_pipeline = Property(Array(Instance(PipelineBase)), depends_on='data')
     @cached_property
     def _get_node_index_pipeline(self):
         '''
         This pipeline comprised the labels for all node Indexes
         '''
         text = np.array([])
-        pts = self.data.X
+        pts = self.data.x_0
         x, y, z = pts.T
         for i in range(len(pts)):
-            temp_text = self.scene.mlab.text3d(x[i], y[i], z[i] + 0.2 * self.scalefactor, str(i), scale=0.05)
+            temp_text = self.scene.mlab.text3d(x[i], y[i], z[i] + 0.2 * self.scale_factor, str(i), scale=0.05)
             temp_text.actor.actor.visibility = int(self.show_node_index)
             text = np.hstack([text, temp_text])
         return text
@@ -361,7 +402,7 @@ class CreasePatternView(HasTraits):
         self.scene.disable_render = True
         for i in range(len(self.node_index_pipeline)):
             self.node_index_pipeline[i].actor.actor.visibility = int(self.show_node_index)
-            self.node_index_pipeline[i].actor.actor.position = np.array([x[i], y[i], z[i] + 0.2 * self.scalefactor])
+            self.node_index_pipeline[i].actor.actor.position = np.array([x[i], y[i], z[i] + 0.2 * self.scale_factor])
         self.scene.disable_render = False
 
     grab_pts_pipeline = Property(Instance(PipelineBase), depends_on='data')
@@ -372,10 +413,10 @@ class CreasePatternView(HasTraits):
         '''
         pts = np.array(self.data.GP)
         n = pts[:, 0]
-        pts = self.data.X[n]
+        pts = self.data.x_0[n]
 
         x, y, z = pts.T
-        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scalefactor * 0.25, color=(0.0, 1.0, 1.0))
+        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scale_factor * 0.25, color=(0.0, 1.0, 1.0))
         return grab_pts_pipeline
 
     line_pts_pipeline = Property(Instance(PipelineBase), depends_on='data')
@@ -386,10 +427,10 @@ class CreasePatternView(HasTraits):
         '''
         pts = np.array(self.data.LP)
         n = pts[:, 0]
-        pts = self.data.X[n]
+        pts = self.data.x_0[n]
 
         x, y, z = pts.T
-        line_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scalefactor * 0.25, color=(1.0, 0.0, 0.0))
+        line_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scale_factor * 0.25, color=(1.0, 0.0, 0.0))
         return line_pts_pipeline
 
     # Pipeline visualizing fold faces
@@ -409,42 +450,32 @@ class CreasePatternView(HasTraits):
     @on_trait_change('fold_step, ff_pipe_view')
     def update_face_view(self):
         '''
-            Foldstep 0 = original pattern
-            Foldstep 1 = first predefined form to get Iteration startet
-            Foldstep 2-n = Iterationsteps
         '''
-        if self.fold_step == 0:
-            timestep = 0.0
-        else:
-            timestep = self.data.get_t_for_fold_step(self.fold_step - 1)
+        time_step = self.data.t_arr[self.fold_step]
         self.scene.disable_render = True
         for ffview in self.ff_pipe_view:
-            ffview.update(self.fold_step, timestep)
+            ffview.update(self.fold_step, time_step)
         self.scene.disable_render = False
 
-    @on_trait_change('scalefactor')
-    def update_scalefactor(self):
+    @on_trait_change('scale_factor, data')
+    def update_scale_factor(self):
         '''
-        Update all pipelines, which are dependend on the scalefactor trait
+        Update all pipelines, which are dependend on the scale_factor trait
         '''
-        self.tube_pipeline.filter.radius = 0.1 * self.scalefactor
+        self.tube_pipeline.filter.radius = 0.1 * self.scale_factor
         if(len(self.data.GP) > 0):
-            self.grab_pts_pipeline.glyph.glyph.scale_factor = self.scalefactor * 0.25
+            self.grab_pts_pipeline.glyph.glyph.scale_factor = self.scale_factor * 0.25
         if(len(self.data.LP) > 0):
-            self.line_pts_pipeline.glyph.glyph.scale_factor = self.scalefactor * 0.25
+            self.line_pts_pipeline.glyph.glyph.scale_factor = self.scale_factor * 0.25
 
-    @on_trait_change('fold_step, z_raising, raising_factor')
+    @on_trait_change('fold_step, data')
     def update_cp_pipeline(self):
         '''
-        Update cp_pipeline for every new timestep
+        Update cp_pipeline for every new time_step
         '''
         # Array of current foldstep
         nodes = self.x_t[self.fold_step]
         x, y, z = copy.copy(nodes.T)
-
-        # Raising factor for Foldstep 1
-        if(self.z_raising and (self.fold_step == 1)):
-            z *= self.raising_factor
 
         # set new position of 3D Points
         self.scene.disable_render = True
@@ -452,7 +483,7 @@ class CreasePatternView(HasTraits):
         self.scene.disable_render = False
 
 
-    @on_trait_change('fold_step, z_raising, raising_factor')
+    @on_trait_change('fold_step, data')
     def update_grab_pts_pipeline(self):
         '''
         Update position of all grabpoints.
@@ -465,13 +496,11 @@ class CreasePatternView(HasTraits):
         nodes = self.x_t[self.fold_step]
         gp_nodes = nodes[n]
         x, y, z = copy.copy(gp_nodes.T)
-        if(self.z_raising and (self.fold_step == 1)):
-            z *= self.raising_factor
         self.scene.disable_render = True
         self.grab_pts_pipeline.mlab_source.reset(x=x, y=y, z=z)
         self.scene.disable_render = False
 
-    @on_trait_change('fold_step, z_raising, raising_factor')
+    @on_trait_change('fold_step, data')
     def update_line_pts_pipeline(self):
         '''
         Update position of all linepoints.
@@ -484,8 +513,6 @@ class CreasePatternView(HasTraits):
         nodes = self.x_t[self.fold_step]
         lp_nodes = nodes[n]
         x, y, z = copy.copy(lp_nodes.T)
-        if(self.z_raising and (self.fold_step == 1)):
-            z *= self.raising_factor
         self.scene.disable_render = True
         self.line_pts_pipeline.mlab_source.reset(x=x, y=y, z=z)
         self.scene.disable_render = False
@@ -493,7 +520,7 @@ class CreasePatternView(HasTraits):
     #===============================================================================
     # Pipelines for OLD constrain visualization
     #===============================================================================
-    cnstr_pipeline = Property(Instance(PipelineBase))
+    cnstr_pipeline = Property(Instance(PipelineBase), depends_on='show_manual_cnstr, data')
     @cached_property
     def _get_cnstr_pipeline(self):
         '''
@@ -502,14 +529,14 @@ class CreasePatternView(HasTraits):
         connected dof's (green arrwos with connection),
         pushed dof's (red big arrow)
         '''
-        nodes = self.data.X
+        nodes = self.data.x_0
         if self.show_manual_cnstr:
             # get constrains
             cn_f, cd_f, cn_c, cc_c, cd_c, cn_l, cd_l = self.cnstr
 
             # spacefactor is giving space between constrains an real node position
-            spacefactor = 0.2 * self.scalefactor
-            scale = self.scalefactor * 2
+            spacefactor = 0.2 * self.scale_factor
+            scale = self.scale_factor * 2
             # fixed cnstr
             cp_f = np.array([])
             cp_f = nodes[cn_f]
@@ -582,10 +609,10 @@ class CreasePatternView(HasTraits):
             return cf_arrow
 
         else:
-            return []
+            return None
 
     # when parameters are changed, plot is updated
-    @on_trait_change('fold_step, show_manual_cnstr, z_raising, raising_factor')
+    @on_trait_change('fold_step, show_manual_cnst, datar')
     def update_cnstr_pipeline(self):
         '''
         Update the position of all arrwos, to their new location.
@@ -597,8 +624,8 @@ class CreasePatternView(HasTraits):
 
             cn_f, cd_f, cn_c, cc_c, cd_c, cn_l, cd_l = self.cnstr
 
-            spacefactor = 0.2 * self.scalefactor
-            scale = self.scalefactor * 2
+            spacefactor = 0.2 * self.scale_factor
+            scale = self.scale_factor * 2
 
             # fixed cnstr
             cp_f = np.array([])
@@ -607,9 +634,6 @@ class CreasePatternView(HasTraits):
             x, y, z = x[0], y[0], z[0]
             U, V, W = cd_f.T * scale
             sU, sV, sW = cd_f.T * spacefactor
-
-            if(self.z_raising and (self.fold_step == 1)):
-                z *= self.raising_factor
 
             x = x - U - sU
             y = y - V - sV
@@ -626,9 +650,6 @@ class CreasePatternView(HasTraits):
             U, V, W = cd_l.T * scale
             sU, sV, sW = cd_l.T * spacefactor
 
-            if(self.z_raising and (self.fold_step == 1)):
-                z *= self.raising_factor
-
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
@@ -643,9 +664,6 @@ class CreasePatternView(HasTraits):
             U, V, W = cd_c.T * scale
             sU, sV, sW = cd_c.T * spacefactor
 
-            if(self.z_raising and (self.fold_step == 1)):
-                z *= self.raising_factor
-
             x = x - U - sU
             y = y - V - sV
             z = z - W - sW
@@ -654,19 +672,20 @@ class CreasePatternView(HasTraits):
             self.cc_arrow.mlab_source.dataset.lines = cc_c
             self.scene.disable_render = False
 
-    @on_trait_change('show_manual_cnstr')
+    @on_trait_change('show_manual_cnstr, data')
     def update_visible_cnstr_pipeline(self):
         '''
         Switch visibility of old constrains on or of.
         '''
         self.scene.disable_render = True
-        self.cnstr_pipeline.visible = self.show_manual_cnstr
-        self.cf_cross.visible = self.show_manual_cnstr
-        self.cl_arrow.visible = self.show_manual_cnstr
-        self.cc_arrow.visible = self.show_manual_cnstr
+        if self.cnstr_pipeline:
+            self.cnstr_pipeline.visible = self.show_manual_cnstr
+            self.cf_cross.visible = self.show_manual_cnstr
+            self.cl_arrow.visible = self.show_manual_cnstr
+            self.cc_arrow.visible = self.show_manual_cnstr
 
-        if not self.show_manual_cnstr:
-            self.cc_arrow.mlab_source.dataset.lines = []
+            if not self.show_manual_cnstr:
+                self.cc_arrow.mlab_source.dataset.lines = []
         self.scene.disable_render = False
 
     #===========================================================================
@@ -709,7 +728,7 @@ class CreasePatternView(HasTraits):
             frame = self.single_frame
         multiframe = True
         tdir = tempfile.mkdtemp()
-        n_steps = len(self.data.fold_steps)
+        n_steps = len(self.data.X_t)
         steps = np.array([0])
         if(frame > -1 and frame < n_steps):
             steps[0] = frame
@@ -758,11 +777,15 @@ class CreasePatternView(HasTraits):
     # The main view
     view1 = View(
            HSplit(Group(
+                 Group(Item('root',
+#                           id='folding root',
+                           editor=reshaping_tree_editor,
+                           resizable=True,
+                           show_label=False),
+                           ),
                  Group(Item('show_manual_cnstr'),
                        Item('show_node_index'),
-                       Item('z_raising', label='Z-Raising for Foldstep 1'),
-                       Item('raising_factor'),
-                       Item('scalefactor'),
+                       Item('scale_factor'),
                        Item('get_view'),
                        Item('set_view'),
                        Item('azimuth'),
@@ -839,8 +862,8 @@ if __name__ == '__main__':
                    LP=[[5, 4]])
 
     lift.cnstr_rhs[0] = 0.5
-    lift.u_0[5] = 0.05
-    lift.u_0[17] = 0.025
+    lift.U_0[5] = 0.05
+    lift.U_0[17] = 0.025
 
-    lift.show()
+    #lift.show()
 

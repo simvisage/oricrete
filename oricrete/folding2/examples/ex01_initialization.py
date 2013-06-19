@@ -13,7 +13,7 @@
 # Created on Mar 5, 2013 by: matthias
 
 from oricrete.folding2 import Folding, Initialization
-from oricrete.folding2 import CreasePattern
+from oricrete.folding2 import CreasePattern, CreasePatternView
 from oricrete.folding2.cnstr_target_face import CnstrTargetFace, r_, s_, t_
 
 
@@ -41,4 +41,5 @@ if __name__ == '__main__':
     print ini.t_arr
     print ini.u_t[-1]
 
-    #ini.show()
+    v = CreasePatternView(data=ini)
+    v.configure_traits()
