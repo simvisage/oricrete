@@ -21,9 +21,8 @@ import copy
 
 # own Modules
 from crease_pattern import CreasePattern
-from oricrete.folding2 import YoshimuraCreasePattern
-from oricrete.folding2.crane_model import CraneModel
-
+from yoshimura_crease_pattern import YoshimuraCreasePattern
+from crane_model import CraneModel
 
 class CraneCreasePattern(YoshimuraCreasePattern):
     '''This module generates a NxM Yoshimura-crease pattern including grab points

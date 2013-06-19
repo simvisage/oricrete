@@ -17,8 +17,9 @@ from etsproxy.traits.api import HasStrictTraits, Property, cached_property, Even
     List, Dict, Str
 
 import numpy as np
+from ori_node import OriNode
 
-class CreasePattern(HasStrictTraits):
+class CreasePattern(OriNode):
     '''
     Structure of triangulated Crease-Patterns
     '''
@@ -28,17 +29,17 @@ class CreasePattern(HasStrictTraits):
     #===============================================================================
 
     X = Array
-    '''Array of node coordinates with rows specifying X,Y values.
+    '''Array of node coordinates with rows specifying ``X,Y`` values.
     '''
 
     L = Array
-    '''Array of crease lines as index-table [n1, n2].
+    '''Array of crease lines as index-table ``[n1, n2]``.
     '''
     def _L(self):
         return np.zeros((0, 2), dtype='int_')
 
     F = Array(value=[], dtype='int_')
-    '''Array of facets as index-table [n1, n2, n3].
+    '''Array of facets as index-table ``[n1, n2, n3]``.
     '''
 
     cf_lst = List([])
@@ -114,22 +115,125 @@ class CreasePattern(HasStrictTraits):
     #===========================================================================
     # Dependent interim results
     #===========================================================================
-    c_vectors = Property(Array, depends_on='N, L')
+    L_vectors = Property(Array, depends_on='N, L')
     '''Vectors of the crease lines.
     '''
     @cached_property
-    def _get_c_vectors(self):
+    def _get_L_vectors(self):
         X = self.X
         L = self.L
         return X[ L[:, 1] ] - X[ L[:, 0] ]
 
-    c_lengths = Property(Array, depends_on='X, L')
+    L_lengths = Property(Array, depends_on='X, L')
     '''Lengths of the crease lines.
     '''
     @cached_property
-    def _get_c_lengths(self):
-        c = self.c_vectors
-        return np.sqrt(np.sum(c ** 2, axis=1))
+    def _get_L_lengths(self):
+        v = self.L_vectors
+        return np.sqrt(np.sum(v ** 2, axis=1))
+
+    #===========================================================================
+    # Connectivity analysis
+    #===========================================================================
+
+    NN = Property
+    '''Matrix with ``n_N x n_N`` entries containing line numbers
+    for the connected nodes. For unconnected notes it contains the value ``-1``
+    '''
+    @cached_property
+    def _get_NN(self):
+        NN = np.zeros((self.n_N, self.n_N), dtype='int') - 1
+        NN[ self.L[:, 0], self.L[:, 1]] = np.arange(self.n_L)
+        NN[ self.L[:, 1], self.L[:, 0]] = np.arange(self.n_L)
+        return NN
+
+    neighbors_lst = Property
+    '''List of neighbors for each node.
+    '''
+    @cached_property
+    def _get_neighbors_lst(self):
+
+        rl = [np.where(self.L == n) for n in self.N]
+        switch_idx = np.array([1, 0], dtype='int')
+        return [self.L[row, switch_idx[col]] for row, col in rl]
+
+    def get_cycle(self, neighbors):
+
+        n_neighbors = len(neighbors)
+        neighbor_mtx = self.NN[ np.ix_(neighbors, neighbors) ]
+
+        neighbor_map = np.where(neighbor_mtx > -1)[1]
+
+        if n_neighbors == 0 or len(neighbor_map) != 2 * n_neighbors:
+            return np.array([], dtype='i')
+
+        cycle_map = neighbor_map.reshape(n_neighbors, 2)
+
+        prev_idx = 0
+        next_idx1, next_idx = cycle_map[prev_idx]
+
+        cycle = [0]
+        for neigh in range(n_neighbors):
+            next_row = cycle_map[next_idx]
+            cycle.append(next_idx)
+            prev_2idx = next_idx
+            next_idx = next_row[ np.where(next_row != prev_idx)[0][0] ]
+            prev_idx = prev_2idx
+
+        return neighbors[ np.array(cycle) ]
+
+    neighbor_node_lst = Property
+    '''List of nodes having cycle of neighbors the format of the list is
+    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
+    '''
+    @cached_property
+    def _get_neighbor_node_lst(self):
+        connectivity = []
+        for i, neighbors in enumerate(self.neighbors_lst):
+            cycle = self.get_cycle(neighbors)
+            if len(cycle):
+                connectivity.append((i, np.array(cycle)))
+        return connectivity
+
+    neighbor_onode_lst = Property
+    '''List of nodes having cycle of neighbors the format of the list is
+    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
+    '''
+    def _get_neighbor_onode_lst(self):
+        oc = []
+        for n, neighbors in self.neighbor_node_lst:
+            n1, n2 = neighbors[0], neighbors[1]
+            v1 = self.X[n1] - self.X[n]
+            v2 = self.X[n2] - self.X[n]
+            vcross = np.cross(v1, v2)
+            if vcross[2] < 0:
+                neighbors = neighbors[::-1]
+            oc.append((n, neighbors))
+        return oc
+
+    neighbor_otheta_lst = Property
+    '''List of crease angles around interior nodes in the format
+    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
+
+    The expression has the form:
+
+    .. math::
+        \\theta = \\arccos\left(\\frac{a \cdot b}{ \left| a \\right| \left| b \\right| }\\right)
+    '''
+    def _get_neighbor_otheta_lst(self):
+        oa = []
+        for n, neighbors in self.neighbor_onode_lst:
+            v = self.X[neighbors] - self.X[n]
+            a = v[:-1]
+            b = v[1:]
+            ab = np.sum(a * b, axis=1)
+            aa = np.sqrt(np.sum(a * a, axis=1))
+            bb = np.sqrt(np.sum(b * b, axis=1))
+            gamma = ab / (aa * bb)
+            theta = np.arccos(gamma)
+            oa.append((n, theta))
+
+        return oa
 
     #===============================================================================
     # methods and Information for Abaqus calculation
@@ -309,8 +413,8 @@ if __name__ == '__main__':
                        F=[[0, 1, 2 ]]
                        )
 
-    print 'vectors\n', cp.c_vectors
+    print 'vectors\n', cp.L_vectors
 
-    print 'lengths\n', cp.c_lengths
+    print 'lengths\n', cp.L_lengths
 
     cp.mlab_show()
