@@ -621,81 +621,12 @@ class Developability(AngleEqualityConstraint):
     def get_G(self, U, t):
         return self._get_G(U, t) - 2 * np.pi
 
-    def xget_G(self, U, t):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        u = U.reshape(self.n_N, self.n_D)
-        x = self.x_0 + u
-        G_arr = np.zeros((len(self.cp.neighbor_node_lst),), dtype='f')
-        for idx, (i, neighbors) in enumerate(self.cp.neighbor_onode_lst):
-            v = x[neighbors] - x[i]
-            a = v[:-1]
-            b = v[1:]
-            ab = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            gamma = ab / (aa * bb)
-            theta_arr = np.arccos(gamma)
-            G_arr[idx] = np.sum(theta_arr) - 2 * np.pi
-        return G_arr
-
     def get_G_du(self, U, t):
         return self._get_G_du(U, t)
 
-    def xget_G_du(self, U, t=0.0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        u = U.reshape(self.n_N, self.n_D)
-        x = self.x_0 + u
-
-        # number of foldable constraints
-        n_fc = len(self.cp.neighbor_onode_lst)
-        G_du = np.zeros((n_fc, self.n_dofs), dtype='float_')
-
-        ones_arr = np.ones((3,), dtype='f')
-        I_mtx = np.diag(ones_arr)
-        partial_a = np.vstack([-1.0 * I_mtx, 1. * I_mtx, 0. * I_mtx])
-        partial_b = np.vstack([-1.0 * I_mtx, 0. * I_mtx, 1 * I_mtx])
-
-        for idx, (i, neighbors) in enumerate(self.cp.neighbor_onode_lst):
-            nvects = x[neighbors] - x[i]
-            a = nvects[:-1]
-            b = nvects[1:]
-            atb = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            aa_bb = (aa * bb)
-
-            gamma = atb / aa_bb
-
-            if np.any(gamma == 1):
-                ix = np.where(gamma == 1)[0]
-                raise ValueError, 'Penetration occurred along the lines (%d, %d) and (%d, %d)' % \
-                    (i, neighbors[ix], i, neighbors[ix + 1])
-
-            d_atb = np.dot(partial_a, b.T) + np.dot(partial_b, a.T)
-            d_aa_bb = bb / aa * np.dot(partial_a, a.T) + aa / bb * np.dot(partial_b, b.T)
-
-            gamma_du = 1. / aa_bb * (d_atb - gamma * d_aa_bb)
-
-            sqarg = 1 - gamma ** 2
-
-            theta_du = -1. / np.sqrt(sqarg) * gamma_du
-
-            i_idx = i * self.n_D
-            for j, theta_du_j in enumerate(theta_du.T):
-                G_du[idx, i_idx:i_idx + self.n_D] += theta_du_j[ :self.n_D]
-                j_a, j_b = neighbors[j], neighbors[j + 1]
-                a_idx = j_a * self.n_D
-                b_idx = j_b * self.n_D
-                G_du[idx, a_idx:a_idx + self.n_D] += theta_du_j[self.n_D:2 * self.n_D]
-                G_du[idx, b_idx:b_idx + self.n_D] += theta_du_j[2 * self.n_D:]
-
-        return G_du
-
 class FlatFoldability(AngleEqualityConstraint):
     '''For the specified node associations require
-    the sum of the angles between adjacent crease lines be 2Pi
+    the sum of alternating crease angles be zero.
     '''
 
     signs = Property
@@ -706,85 +637,19 @@ class FlatFoldability(AngleEqualityConstraint):
         return signs
 
     def get_G(self, U, t=0.0):
-        return self._get_G(U, t)
-
-    def xget_G(self, U, t):
         ''' Calculate the residuum for given constraint equations
         '''
-        u = U.reshape(self.n_N, self.n_D)
-        x = self.x_0 + u
-        G_arr = np.zeros((len(self.cp.neighbor_node_lst),), dtype='f')
-        for idx, (i, neighbors) in enumerate(self.cp.neighbor_onode_lst):
-            nvects = x[neighbors] - x[i]
-            a = nvects[:-1]
-            b = nvects[1:]
-            ab = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            gamma = ab / (aa * bb)
-            theta_arr = np.arccos(gamma)
-            sign_altern = np.ones_like(theta_arr, dtype='f')
-            sign_altern[::2] = -1
-            G_arr[idx] = np.dot(theta_arr, sign_altern)
-        return G_arr
+        return self._get_G(U, t)
 
     def get_G_du(self, U, t=0.0):
         return self._get_G_du(U, t)
 
 
-    def xget_G_du(self, U, t=0.0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-
-        u = U.reshape(self.n_N, self.n_D)
-        x = self.x_0 + u
-
-        # number of foldable constraints
-        n_fc = len(self.cp.neighbor_onode_lst)
-        G_du = np.zeros((n_fc, self.n_dofs), dtype='float_')
-
-        ones_arr = np.ones((3,), dtype='f')
-        I_mtx = np.diag(ones_arr)
-        partial_a = np.vstack([-1.0 * I_mtx, 1. * I_mtx, 0. * I_mtx])
-        partial_b = np.vstack([-1.0 * I_mtx, 0. * I_mtx, 1 * I_mtx])
-
-        for idx, (i, neighbors) in enumerate(self.cp.neighbor_onode_lst):
-            nvects = x[neighbors] - x[i]
-            a = nvects[:-1]
-            b = nvects[1:]
-            atb = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            aa_bb = (aa * bb)
-
-            gamma = atb / aa_bb
-            d_atb = np.dot(partial_a, b.T) + np.dot(partial_b, a.T)
-            d_aa_bb = bb / aa * np.dot(partial_a, a.T) + aa / bb * np.dot(partial_b, b.T)
-
-            gamma_du = 1. / aa_bb * (d_atb - gamma * d_aa_bb)
-
-            theta_du = -1. / np.sqrt(1 - gamma ** 2) * gamma_du
-
-            sign_altern = np.ones_like(theta_du[0], dtype='f')
-            sign_altern[::2] = -1
-            theta_du *= sign_altern[np.newaxis, :]
-
-            i_idx = i * self.n_D
-            for j, theta_du_j in enumerate(theta_du.T):
-                G_du[idx, i_idx:i_idx + self.n_D] += theta_du_j[ :self.n_D]
-                j_a, j_b = neighbors[j], neighbors[j + 1]
-                a_idx = j_a * self.n_D
-                b_idx = j_b * self.n_D
-                G_du[idx, a_idx:a_idx + self.n_D] += theta_du_j[self.n_D:2 * self.n_D]
-                G_du[idx, b_idx:b_idx + self.n_D] += theta_du_j[2 * self.n_D:]
-
-        return G_du
-
 if __name__ == '__main__':
     from oricrete.folding2 import Reshaping, CreasePattern
 
     cp = CreasePattern(X=[[-4, -5, -3],
-                          [0, 0.0, 0.000],
+                          [0, 0.0, 0],
                           [1.0, 0.1, 0],
                           [0.0, 1.0, 0],
                           [-1.0, 0.0, 0],
@@ -797,11 +662,11 @@ if __name__ == '__main__':
 
     print 'theta_lst', cp.neighbor_otheta_lst
 
-    uf = FlatFoldability(reshaping, connectivity=[(0, [1, 2, 3, 4])])
+    uf = Developability(reshaping)
 
     U = np.zeros_like(cp.X)
     U[3] = 0.1
     print 'theta_arr', uf.get_theta_arr(U, 0)
 
-    print 'diff G\n', uf.get_G(U, 0) - uf.xget_G(U, 0)
-    print 'diff G_du\n', uf.get_G_du(U, 0) - uf.xget_G_du(U, 0)
+    print 'G\n', uf.get_G(U, 0)
+    print 'G_du\n', uf.get_G_du(U, 0)
