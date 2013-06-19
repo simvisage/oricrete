@@ -1,6 +1,6 @@
 
 from oricrete.folding2 import \
-    YoshimuraCreasePattern, fix, link, Lifting, CnstrTargetFace, r_, s_, t_
+    YoshimuraCreasePattern, fix, link, Lifting, CnstrTargetFace, r_, s_, t_, Folding
 import numpy as np
 from Spante import Ausgabe, Schnittpunkt, Ebene
 
@@ -27,7 +27,7 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
                        ycp.N_i[:, :].flatten()
                        ])
 
-    lift = Lifting(cp=ycp, n_steps=10,
+    lift = Folding(cp=ycp, n_steps=10,
                    dof_constraints=fixed_node +
                                    planar_front_boundary +
                                    planar_back_boundary +
