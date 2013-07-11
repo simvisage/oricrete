@@ -72,6 +72,22 @@ class Reshaping(OriNode, FoldingSimulator):
     def _get_X_0(self):
         return self.source.X_1
 
+    #===========================================================================
+    # Geometric data
+    #===========================================================================
+
+    L = Property()
+    '''Array of crease_lines defined by pairs of node numbers.
+    '''
+    def _get_L(self):
+        return self.source.L
+
+    F = Property()
+    '''Array of crease facets defined by list of node numbers.
+    '''
+    def _get_F(self):
+        return self.source.F
+
     U_0 = Property(Array(float))
     '''Attribute storing the optional user-supplied initial array.
     It is used as the trial vector of unknown displacements
@@ -104,6 +120,8 @@ class Initialization(OriNode, FoldingSimulator):
     t_init (float): Timestep wich is used for the final mapping. Default = 0.001
     '''
 
+    name = Str('init')
+
     cp = Instance(CreasePattern)
     '''Instance of a crease pattern.
     '''
@@ -115,6 +133,19 @@ class Initialization(OriNode, FoldingSimulator):
     '''
     def _get_X_0(self):
         return self.cp.X.flatten()
+
+    L = Property()
+    '''Array of crease_lines defined by pairs of node numbers.
+    '''
+    def _get_L(self):
+        return self.cp.L
+
+    F = Property()
+    '''Array of crease facets defined by list of node numbers.
+    '''
+    def _get_F(self):
+        return self.cp.F
+
 
     t_init = Float(0.05)
     '''Time step which is used for the initialization mapping.
@@ -186,12 +217,24 @@ class FormFinding(Reshaping):
     For this condition the connectivity of all inner nodes must be putted in the object.
     '''
 
+    name = Str('form finding')
+
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
                 'ff' : FlatFoldability(reshaping=self),
-                'uf' : Developability(reshaping=self)
+                'uf' : Developability(reshaping=self),
+                'ps' : PointsOnSurface(reshaping=self),
+                'dc' : DofConstraints(reshaping=self)
                 }
+
+    U_1 = Property(depends_on='source_config_changed, _U_0')
+    '''Initial displacement for the next step after form finding.
+    The target configuration has no perturbation at the end.
+    '''
+    @cached_property
+    def _get_U_1(self):
+        return np.zeros_like(self.U_t[-1])
 
 class Folding(Reshaping):
     '''Folding folds a crease pattern while using the classic constraints like
@@ -201,6 +244,8 @@ class Folding(Reshaping):
     All classic constraints can be used. Only special elements, like GP and LP
     are not included. But sliding faces and target faces are supported.
     '''
+
+    name = Str('folding')
 
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
@@ -220,6 +265,8 @@ class Lifting(Reshaping):
     targetface, Lifting will initialize a predeformation fully automatically.
     Instead of this you can although put in your own predeformation.
     '''
+
+    name = Str('lifting')
 
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):

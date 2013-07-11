@@ -582,8 +582,10 @@ class AngleEqualityConstraint(EqualityConstraint):
 
             if np.any(gamma == 1):
                 ix = np.where(gamma == 1)[0]
-                raise ValueError, 'Penetration occurred along the lines (%d, %d) and (%d, %d)' % \
+                print 'Warning', 'Penetration occurred along the lines (%d, %d) and (%d, %d)' % \
                     (i, neighbors[ix], i, neighbors[ix + 1])
+                #raise ValueError, 'Penetration occurred along the lines (%d, %d) and (%d, %d)' % \
+                #    (i, neighbors[ix], i, neighbors[ix + 1])
 
             d_atb = np.dot(self.partial_a, b.T) + np.dot(self.partial_b, a.T)
             d_aa_bb = (bb / aa * np.dot(self.partial_a, a.T) +

@@ -55,29 +55,17 @@ class FoldingSimulator(HasStrictTraits):
     # Geometric data
     #===========================================================================
 
-    L = Property()
-    '''Array of crease_lines defined by pairs of node numbers.
-    '''
-    def _get_L(self):
-        return self.cp.L
-
-    F = Property()
-    '''Array of crease facets defined by list of node numbers.
-    '''
-    def _get_F(self):
-        return self.cp.F
-
     n_L = Property()
     '''Number of crease lines.
     '''
     def _get_n_L(self):
-        return self.cp.n_L
+        return len(self.L)
 
     n_N = Property()
     '''Number of crease nodes.
     '''
     def _get_n_N(self):
-        return self.cp.n_N
+        return len(self.x_0)
 
     n_D = Constant(3)
     '''Number of spatial dimensions.
@@ -87,7 +75,7 @@ class FoldingSimulator(HasStrictTraits):
     '''Number of degrees of freedom.
     '''
     def _get_n_dofs(self):
-        return self.cp.n_dofs
+        return self.n_N * self.n_D
 
     cf_lst = Property()
     '''Number of control faces.
@@ -347,7 +335,7 @@ class FoldingSimulator(HasStrictTraits):
             caf.t = t
             d_arr = caf.d_arr
             dist_arr = np.append(dist_arr, d_arr)
-            d_xyz[nodes] = caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
+            d_xyz[nodes] += caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
 
         dist_norm = np.linalg.norm(dist_arr)
         d_xyz[ np.isnan(d_xyz)] = 0.0

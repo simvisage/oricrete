@@ -17,16 +17,17 @@ from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine, PipelineBase
 from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 from etsproxy.mayavi.modules.api import Axes
-from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
+from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, Button, \
     Int, Bool, File, Array, List, Float, WeakRef, Tuple
 from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor, RangeEditor, \
     VGroup, HGroup, HSplit, Tabbed, ViewSubElement, VGrid, Include, TreeEditor, \
-    TreeNode, Handler, ListEditor
+    TreeNode, Handler, ListEditor, VSplit
 
-from ori_node import IOriNode
+from ori_node import IOriNode, OriNode
 from crease_pattern import CreasePattern
 from reshaping import IReshaping, Initialization, Reshaping, FormFinding, Folding, Lifting
+from assembly import RotSymAssembly, MonoShapeAssembly
 from face_view import FaceView
 import copy
 import numpy as np
@@ -41,24 +42,9 @@ reshaping_tree_editor = TreeEditor(
                   label='=cp',
                   children='followups',
                   ),
-        TreeNode(node_for=[ FormFinding ],
+        TreeNode(node_for=[ OriNode ],
                   auto_open=True,
-                  label='=form finding',
-                  children='followups',
-                  ),
-        TreeNode(node_for=[ Lifting ],
-                  auto_open=True,
-                  label='=lifting',
-                  children='followups',
-                  ),
-        TreeNode(node_for=[ Initialization ],
-                  auto_open=True,
-                  label='=init',
-                  children='followups',
-                  ),
-        TreeNode(node_for=[ Folding ],
-                  auto_open=True,
-                  label='=folding',
+                  label='name',
                   children='followups',
                   ),
            ],
@@ -67,7 +53,7 @@ reshaping_tree_editor = TreeEditor(
         editable=False,
     )
 
-class CreasePatternView(HasStrictTraits):
+class CreasePatternView(HasTraits):
     '''Crease pattern view.
     '''
 
@@ -771,18 +757,18 @@ class CreasePatternView(HasStrictTraits):
             raise NotImplementedError, 'film production available only on linux'
         print 'animation saved in', destination
 
-
-
     # The layout of the dialog created
     # The main view
     view1 = View(
-           HSplit(Group(
+           HSplit(VSplit(
                  Group(Item('root',
 #                           id='folding root',
                            editor=reshaping_tree_editor,
                            resizable=True,
                            show_label=False),
-                           ),
+                       label='Design tree',
+                       scrollable=True,
+                       ),
                  Group(Item('show_manual_cnstr'),
                        Item('show_node_index'),
                        Item('scale_factor'),
@@ -791,7 +777,10 @@ class CreasePatternView(HasStrictTraits):
                        Item('azimuth'),
                        Item('elevation'),
                        Item('distance'),
-                       Item('f_point'), label='focal point'),
+                       Item('f_point'),
+                       label='Focal point',
+                       scrollable=True,
+                       ),
                  Group(Item('save_animation', show_label=False),
                        Item('animation_steps', tooltip=
                             'gives the distance of fold steps between the frames (1 = every fold step; 2 = every second foldstep; ...'),
@@ -799,10 +788,15 @@ class CreasePatternView(HasStrictTraits):
                         Item('frame_width', tooltip='width of the rendered video in pixels'),
                         Item('frame_height', tooltip='height of the rendered video in pixels'),
                         Item('animation_file', show_label=False),
+                        label='Animation',
+                        scrollable=True,
                         ),
                  Group(Item(name='ff_pipe_view',
                             editor=ListEditor(style='custom',
-                                                 rows=5))),
+                                                 rows=5)),
+                       label='Target faces',
+                       scrollable=True,
+                       ),
                  dock='tab'
                  ),
                   VGroup(

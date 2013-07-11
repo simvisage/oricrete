@@ -36,6 +36,8 @@ class OriNode(HasStrictTraits):
 
     implements(IOriNode)
 
+    node = Str('<unnamed>')
+
     source = Instance(IOriNode)
     '''Previous reshaping simulation providing the source for the current one.
     '''

@@ -27,3 +27,6 @@ from dof_constraints import \
 
 from cnstr_target_face import \
     CnstrTargetFace
+
+from assembly import \
+    RotSymAssembly, MonoShapeAssembly
