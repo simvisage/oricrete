@@ -19,7 +19,7 @@ class RotSymAssembly(Reshaping):
     generate ``n_segments`` to construct a rotationally
     symmetric structure.
     '''
-    name = 'rot-sym'
+    name = Str('rot-sym')
 
     n_segments = Int(10, auto_set=False, enter_set=True)
     n_visible = Int(3, auto_set=False, enter_set=True)
