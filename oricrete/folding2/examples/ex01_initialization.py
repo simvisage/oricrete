@@ -41,5 +41,5 @@ if __name__ == '__main__':
     print ini.t_arr
     print ini.u_t[-1]
 
-    v = CreasePatternView(data=ini)
+    v = CreasePatternView(root=ini)
     v.configure_traits()

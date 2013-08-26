@@ -5,6 +5,9 @@ from crease_pattern import \
 from yoshimura_crease_pattern import \
     YoshimuraCreasePattern
 
+from waterbomb_crease_pattern import \
+    WaterBombCreasePattern
+
 from crane_crease_pattern import \
     CraneCreasePattern
 
@@ -26,7 +29,7 @@ from dof_constraints import \
     fix, link
 
 from cnstr_target_face import \
-    CnstrTargetFace
+    CnstrTargetFace, TF
 
 from assembly import \
     RotSymAssembly, MonoShapeAssembly

@@ -21,6 +21,7 @@ Tutorial
    intro
    first_steps/first_steps
    yoshimura/yoshimura
+   waterbomb/waterbomb
    use_cases/use_cases
    segmentation/segmentation
 
@@ -31,6 +32,7 @@ Description of classes
    :maxdepth: 2
 
    crease_pattern_classes
+   optimality_criteria/optimality_criteria
    eqcons_classes
    reshaping_classes
    utilities
