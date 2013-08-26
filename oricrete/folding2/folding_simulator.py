@@ -17,9 +17,14 @@ import numpy as np
 from etsproxy.traits.api import HasStrictTraits, \
     Event, Property, cached_property, Str, \
     Int, Float, Array, Bool, Dict, List, \
-    Constant
+    Constant, Instance, DelegatesTo, Trait
+
+from oricrete.util.traits.either_type import \
+    EitherType
 
 from etsproxy.traits.ui.api import View
+
+from cnstr_target_face import TargetFaces
 
 from equality_constraint import \
     IEqualityConstraint
@@ -44,7 +49,19 @@ class FoldingSimulator(HasStrictTraits):
 
     traits_view = View()
 
-    tf_lst = List([])
+    #===========================================================================
+    # type of the sampling of the random domain
+    #===========================================================================
+    goal_function_type = Trait('target_faces', {'target_faces' : TargetFaces,
+                                         },
+                               input_change=True)
+
+    goal_function = Property(depends_on='input_change')
+    @cached_property
+    def _get_goal_function(self):
+        return self.goal_function_type_(reshaping=self)
+
+    tf_lst = DelegatesTo('goal_function')
     '''List of target faces.
 
     If target face is available, than use it for initialization.
@@ -271,7 +288,7 @@ class FoldingSimulator(HasStrictTraits):
         Sequential Least Square Quadratic Programming method.
         '''
         print '==== solving with SLSQP optimization ===='
-        d0 = self.get_f(U_0)
+        d0 = self.get_f_t(U_0)
         eps = d0 * 1e-4
         U = np.copy(U_0)
         U_t0 = self.U_0
@@ -305,44 +322,19 @@ class FoldingSimulator(HasStrictTraits):
     #===========================================================================
     # Goal function
     #===========================================================================
-    def get_f(self, U, t=0):
-        # build dist-vektor for all caf
-        u = U.reshape(self.n_N, self.n_D)
-        x = self.get_new_nodes(u)
-        d_arr = np.array([])
-        for caf, nodes in self.tf_lst:
-            caf.X_arr = x[nodes]
-            caf.t = t
-            d_arr = np.append(d_arr, caf.d_arr)
-
-        return np.linalg.norm(d_arr)
-
     def get_f_t(self, U):
-        return self.get_f(U, self.t)
-
-    #===========================================================================
-    # Distance derivative with respect to change in nodal coords.
-    #===========================================================================
-    def get_f_du(self, U, t=0):
-        '''build dist - vektor for all caf
+        '''Get the goal function value.
         '''
         u = U.reshape(self.n_N, self.n_D)
-        d_xyz = np.zeros_like(u)
         x = self.get_new_nodes(u)
-        dist_arr = np.array([])
-        for caf, nodes in self.tf_lst:
-            caf.X_arr = x[nodes]
-            caf.t = t
-            d_arr = caf.d_arr
-            dist_arr = np.append(dist_arr, d_arr)
-            d_xyz[nodes] += caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
-
-        dist_norm = np.linalg.norm(dist_arr)
-        d_xyz[ np.isnan(d_xyz)] = 0.0
-        return d_xyz.flatten() / dist_norm
+        return self.goal_function.get_f(x, self.t)
 
     def get_f_du_t(self, U):
-        return self.get_f_du(U, self.t)
+        '''Get the goal function derivatives.
+        '''
+        u = U.reshape(self.n_N, self.n_D)
+        x = self.get_new_nodes(u)
+        return self.goal_function.get_f_du(x, self.t)
 
     #===========================================================================
     # Equality constraints
@@ -441,3 +433,6 @@ class FoldingSimulator(HasStrictTraits):
         v = self.v_t ** 2
         return np.sqrt(np.sum(v, axis=2))
 
+if __name__ == '__main__':
+    fs = FoldingSimulator(None)
+    print fs.goal_function

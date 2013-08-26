@@ -1,4 +1,4 @@
-.. IBVPy documentation master file, created by
+.. oricirete documentation master file, created by
    sphinx-quickstart on Mon Feb 27 11:03:20 2012.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -32,7 +32,7 @@ Description of classes
    :maxdepth: 2
 
    crease_pattern_classes
-   optimality_criteria/optimality_criteria
+   optimality_criteria/opt_crit
    eqcons_classes
    reshaping_classes
    utilities

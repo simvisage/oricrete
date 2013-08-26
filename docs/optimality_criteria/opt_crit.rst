@@ -7,30 +7,10 @@ Classes defining the equality constraints
 TargetFace
 ----------
 
-.. inheritance-diagram:: TargetFace
+.. inheritance-diagram:: CnstrTargetFace
 	:parts: 1
 
-.. autoclass:: TargetFace
-   :members:
-   :undoc-members:
-
-NodeAttractor
--------------
-
-.. inheritance-diagram:: NodeAttractor
-	:parts: 1
-
-.. autoclass:: NodeAttractor
-   :members:
-   :undoc-members:
-
-NodeDistractor
---------------
-
-.. inheritance-diagram:: NodeDistractor
-	:parts: 1
-
-.. autoclass:: NodeDistractor
+.. autoclass:: CnstrTargetFace
    :members:
    :undoc-members:
 

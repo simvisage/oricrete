@@ -8,7 +8,6 @@ import numpy as np
 L_x = 1
 L_y = 5
 
-
 cp = WaterBombCreasePattern(L_x=L_x, L_y=L_y,
                             n_x=1, n_y=5)
 
