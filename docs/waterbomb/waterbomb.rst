@@ -19,3 +19,10 @@ mountain crease as depicted in the Figure
    :width: 400px
    :height: 200px
    
+Front view of the folding process 
+
+.. image:: WasserbombenGruss.gif
+   :width: 400px
+   :height: 200px
+   
+   

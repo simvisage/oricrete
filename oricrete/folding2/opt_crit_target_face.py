@@ -16,7 +16,7 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Bool, File, Array, Float, Any, List
 
-from optimality_criterion import OptimalityCriterion
+from opt_crit import OptCrit
 
 import numpy as np
 import sympy as sm
@@ -250,13 +250,14 @@ class CnstrTargetFace(HasTraits):
 
 TF = CnstrTargetFace
 
-class TargetFaces(OptimalityCriterion):
+class TargetFaces(OptCrit):
 
     tf_lst = List([])
 
-    def get_f(self, x, t=0):
+    def get_f(self, u, t=0):
         '''Get the the norm of distances between the individual target faces and nodes.
         '''
+        x = self.reshaping.x_0 + u
         d_arr = np.array([])
         for caf, nodes in self.tf_lst:
             caf.X_arr = x[nodes]
@@ -265,9 +266,10 @@ class TargetFaces(OptimalityCriterion):
 
         return np.linalg.norm(d_arr)
 
-    def get_f_du(self, x, t=0):
+    def get_f_du(self, u, t=0):
         '''Get the derivatives with respect to individual displacements.
         '''
+        x = self.reshaping.x_0 + u
         d_xyz = np.zeros_like(x)
         dist_arr = np.array([])
         for caf, nodes in self.tf_lst:

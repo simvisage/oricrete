@@ -34,7 +34,7 @@ def _broadcast_nd(n, d):
 
     return np.broadcast(nodes[None, :], dirs[:, None])
 
-def fix(nodes, dirs):
+def fix(nodes, dirs, val=0):
     '''Return constraints corresponding to the specified arrys of nodes and dirs.
 
     For example, given the call::
@@ -48,7 +48,7 @@ def fix(nodes, dirs):
 
     The structure of the dof_constraints list is explained here :class:`DofConstraints`
     '''
-    return [([(n, d, 1.0)], 0.0) for n, d in _broadcast_nd(nodes, dirs)]
+    return [([(n, d, 1.0)], val) for n, d in _broadcast_nd(nodes, dirs)]
 
 def link(nodes1, dirs1, c1, nodes2, dirs2, c2, value=0.0):
     '''Return constraints corresponding to the specified arrys of nodes and dirs.

@@ -21,7 +21,7 @@ import numpy as np
 
 import math
 
-class IEqualityConstraint(Interface):
+class IEqCons(Interface):
     '''Interface of an equality constraint.
     '''
     def get_G(self, U, t):
@@ -32,9 +32,9 @@ class IEqualityConstraint(Interface):
         '''Return the jacobian of equality constraint values.
         '''
 
-class EqualityConstraint(HasStrictTraits):
+class EqCons(HasStrictTraits):
 
-    implements(IEqualityConstraint)
+    implements(IEqCons)
 
     reshaping = WeakRef
     '''Link to the reshaping tool.
@@ -55,7 +55,7 @@ class EqualityConstraint(HasStrictTraits):
         self.reshaping = reshaping
         super(HasStrictTraits, self).__init__(*args, **kw)
 
-class ConstantLength(EqualityConstraint):
+class ConstantLength(EqCons):
     '''Constant length constraint.
     '''
 
@@ -154,7 +154,7 @@ class ConstantLength(EqualityConstraint):
         G_du = G_du.reshape(self.n_L, self.n_N * self.n_D)
         return G_du
 
-class GrabPoints(EqualityConstraint):
+class GrabPoints(EqCons):
     '''Grab points are included in the nodes attribute of the crease pattern.
     Their position is constrained within a facet using triangle coordinates.
     '''
@@ -222,7 +222,7 @@ class GrabPoints(EqualityConstraint):
 
         return grab_lines
 
-class PointsOnLine(EqualityConstraint):
+class PointsOnLine(EqCons):
     '''PointsOnLine are included in the nodes attribute of the crease pattern.
     Their position is constrained within a creaseline-element and at least one other
     constraining Element.
@@ -372,7 +372,7 @@ class PointsOnLine(EqualityConstraint):
 
         return dR
 
-class PointsOnSurface(EqualityConstraint):
+class PointsOnSurface(EqCons):
 
     N = DelegatesTo('reshaping')
     n_N = DelegatesTo('reshaping')
@@ -412,7 +412,7 @@ class PointsOnSurface(EqualityConstraint):
 
         return G_du
 
-class DofConstraints(EqualityConstraint):
+class DofConstraints(EqCons):
     '''Explicit constraints for selected of freedom.
     '''
     n_N = DelegatesTo('reshaping')
@@ -474,7 +474,7 @@ class DofConstraints(EqualityConstraint):
 
         return G_du
 
-class AngleEqualityConstraint(EqualityConstraint):
+class AngleEqCons(EqCons):
     '''Base class for angle equality constraints.
     '''
     L = DelegatesTo('reshaping')
@@ -609,7 +609,7 @@ class AngleEqualityConstraint(EqualityConstraint):
 
         return G_du
 
-class Developability(AngleEqualityConstraint):
+class Developability(AngleEqCons):
     '''For the specified node associations require
     the sum of the angles between adjacent crease lines be 2Pi
     '''
@@ -626,7 +626,7 @@ class Developability(AngleEqualityConstraint):
     def get_G_du(self, U, t):
         return self._get_G_du(U, t)
 
-class FlatFoldability(AngleEqualityConstraint):
+class FlatFoldability(AngleEqCons):
     '''For the specified node associations require
     the sum of alternating crease angles be zero.
     '''

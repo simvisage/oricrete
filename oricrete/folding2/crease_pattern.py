@@ -73,13 +73,6 @@ class CreasePattern(OriNode):
             n_c += len(nodes)
         return n_c
 
-    tf_lst = List([])
-    '''List of target faces defined as a list of tuples
-    with the first entry defining the face geometry depending
-    on time parameter and second entry specifying the nodes
-    attracted by the surface.
-    '''
-
     #===============================================================================
     # Enumeration of dofs 
     #===============================================================================

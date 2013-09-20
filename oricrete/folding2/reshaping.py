@@ -21,8 +21,8 @@ from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_chang
 from crease_pattern import \
     CreasePattern
 
-from equality_constraint import \
-    IEqualityConstraint, ConstantLength, GrabPoints, \
+from eq_cons import \
+    IEqCons, ConstantLength, GrabPoints, \
     PointsOnLine, PointsOnSurface, DofConstraints, Developability, \
     FlatFoldability
 
@@ -219,7 +219,7 @@ class FormFinding(Reshaping):
 
     name = Str('form finding')
 
-    eqcons = Dict(Str, IEqualityConstraint)
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
                 'ff' : FlatFoldability(reshaping=self),
@@ -247,7 +247,7 @@ class Folding(Reshaping):
 
     name = Str('folding')
 
-    eqcons = Dict(Str, IEqualityConstraint)
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
                 'cl' : ConstantLength(reshaping=self),
@@ -268,7 +268,7 @@ class Lifting(Reshaping):
 
     name = Str('lifting')
 
-    eqcons = Dict(Str, IEqualityConstraint)
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
                 'cl' : ConstantLength(reshaping=self),
@@ -281,8 +281,8 @@ class Lifting(Reshaping):
 if __name__ == '__main__':
 
     from crease_pattern_view import CreasePatternView
-    from cnstr_target_face import r_, s_, t_, x_, y_, z_
-    from cnstr_control_face import CF
+    from opt_crit_target_face import r_, s_, t_, x_, y_, z_
+    from eq_cons_control_face import CF
 
     cp = CreasePattern(X=[[0, 0, 0],
                           [1, 0, 0],

@@ -16,7 +16,7 @@ from etsproxy.traits.api import \
     HasStrictTraits, Interface, implements, WeakRef, \
     DelegatesTo, Bool
 
-class IOptimalityCriterion(Interface):
+class IOptCrit(Interface):
     '''Interface of an equality constraint.
     '''
     def get_f(self, u, t):
@@ -27,9 +27,9 @@ class IOptimalityCriterion(Interface):
         '''Return the jacobian of equality constraint values.
         '''
 
-class OptimalityCriterion(HasStrictTraits):
+class OptCrit(HasStrictTraits):
 
-    implements(IOptimalityCriterion)
+    implements(IOptCrit)
 
     reshaping = WeakRef
     '''Link to the reshaping tool.

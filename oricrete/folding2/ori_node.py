@@ -21,11 +21,6 @@ from etsproxy.traits.api import HasStrictTraits, \
 
 from etsproxy.traits.ui.api import View
 
-from equality_constraint import \
-    IEqualityConstraint
-
-from scipy.optimize import fmin_slsqp
-
 class IOriNode(Interface):
     pass
 

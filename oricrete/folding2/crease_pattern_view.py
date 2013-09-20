@@ -27,7 +27,7 @@ from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor, RangeEditor,
 from ori_node import IOriNode, OriNode
 from crease_pattern import CreasePattern
 from reshaping import IReshaping, Initialization, Reshaping, FormFinding, Folding, Lifting
-from assembly import RotSymAssembly, MonoShapeAssembly
+from reshaping_assembly import RotSymAssembly, MonoShapeAssembly
 from face_view import FaceView
 import copy
 import numpy as np

@@ -19,15 +19,14 @@ from etsproxy.traits.api import HasStrictTraits, \
     Int, Float, Array, Bool, Dict, List, \
     Constant, Instance, DelegatesTo, Trait
 
-from oricrete.util.traits.either_type import \
-    EitherType
-
 from etsproxy.traits.ui.api import View
 
-from cnstr_target_face import TargetFaces
+from opt_crit_target_face import TargetFaces
 
-from equality_constraint import \
-    IEqualityConstraint
+from opt_crit_potential_energy import OptCritPotentialEnergy
+
+from eq_cons import \
+    IEqCons
 
 from scipy.optimize import fmin_slsqp
 
@@ -52,14 +51,19 @@ class FoldingSimulator(HasStrictTraits):
     #===========================================================================
     # type of the sampling of the random domain
     #===========================================================================
-    goal_function_type = Trait('target_faces', {'target_faces' : TargetFaces,
+    goal_function_type = Trait('target_faces', {'none' : None,
+                                                'target_faces' : TargetFaces,
+                                                'potential_energy' : OptCritPotentialEnergy
                                          },
                                input_change=True)
 
-    goal_function = Property(depends_on='input_change')
+    goal_function = Property(depends_on='+input_change')
     @cached_property
     def _get_goal_function(self):
-        return self.goal_function_type_(reshaping=self)
+        if self.goal_function_type:
+            return self.goal_function_type_(reshaping=self)
+        else:
+            return None
 
     tf_lst = DelegatesTo('goal_function')
     '''List of target faces.
@@ -168,7 +172,7 @@ class FoldingSimulator(HasStrictTraits):
     #===========================================================================
     # Equality constraints
     #===========================================================================
-    eqcons = Dict(Str, IEqualityConstraint)
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {}
 
@@ -209,10 +213,9 @@ class FoldingSimulator(HasStrictTraits):
             t_arr = t_arr[::-1]
         return t_arr
 
-
-    # show_iter saves the first 10 iterationsteps, so they'll can be
-    # analized
     show_iter = Bool(False, auto_set=False, enter_set=True)
+    '''Saves the first 10 iteration steps, so they can be analyzed
+    '''
 
     MAX_ITER = Int(100, auto_set=False, enter_set=True)
 
@@ -227,7 +230,7 @@ class FoldingSimulator(HasStrictTraits):
         '''
         time_start = sysclock()
 
-        if(len(self.tf_lst) > 0):
+        if self.goal_function_type != None:
             U_t = self._solve_fmin(self.U_0, self.acc)
         else:
             U_t = self._solve_nr(self.U_0, self.acc)
@@ -326,15 +329,13 @@ class FoldingSimulator(HasStrictTraits):
         '''Get the goal function value.
         '''
         u = U.reshape(self.n_N, self.n_D)
-        x = self.get_new_nodes(u)
-        return self.goal_function.get_f(x, self.t)
+        return self.goal_function.get_f(u, self.t)
 
     def get_f_du_t(self, U):
         '''Get the goal function derivatives.
         '''
         u = U.reshape(self.n_N, self.n_D)
-        x = self.get_new_nodes(u)
-        return self.goal_function.get_f_du(x, self.t)
+        return self.goal_function.get_f_du(u, self.t)
 
     #===========================================================================
     # Equality constraints
@@ -434,5 +435,5 @@ class FoldingSimulator(HasStrictTraits):
         return np.sqrt(np.sum(v, axis=2))
 
 if __name__ == '__main__':
-    fs = FoldingSimulator(None)
+    fs = FoldingSimulator()
     print fs.goal_function
