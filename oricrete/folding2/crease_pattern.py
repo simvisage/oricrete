@@ -27,7 +27,7 @@ class CreasePattern(OriNode,
                     CreaseFacetOperators,
                     CummulativeOperators):
     '''
-    Structure of triangulated Crease-Patterns
+    Structure of triangulated crease pattern
     '''
 
     #===============================================================================
@@ -47,12 +47,14 @@ class CreasePattern(OriNode,
     L = Array
     '''Array of crease lines as index-table ``[n1, n2]``.
     '''
-    def _L(self):
+    def _L_default(self):
         return np.zeros((0, 2), dtype='int_')
 
     F = Array(value=[], dtype='int_')
     '''Array of facets as index-table ``[n1, n2, n3]``.
     '''
+    def _F_default(self):
+        return np.zeros((0, 3), dtype='int_')
 
     #===============================================================================
     # Enumeration of dofs 
@@ -97,12 +99,12 @@ class CreasePattern(OriNode,
     def _get_N(self):
         return np.arange(self.n_N)
 
-    _NxN = Property
+    NxN_L = Property
     '''Matrix with ``n_N x n_N`` entries containing line numbers
     for the connected nodes. For unconnected notes it contains the value ``-1``
     '''
     @cached_property
-    def _get__NxN(self):
+    def _get_NxN_L(self):
         NxN = np.zeros((self.n_N, self.n_N), dtype='int') - 1
         NxN[ self.L[:, 0], self.L[:, 1]] = np.arange(self.n_L)
         NxN[ self.L[:, 1], self.L[:, 0]] = np.arange(self.n_L)
@@ -120,57 +122,6 @@ class CreasePattern(OriNode,
         # outgoing node 
         switch_idx = np.array([1, 0], dtype='int')
         return [self.L[row, switch_idx[col]] for row, col in rl]
-
-    def _get_neighbor_cycle(self, neighbors):
-        # for a provided a set of nodes establish a loop
-        n_neighbors = len(neighbors)
-        neighbor_mtx = self._NxN[ np.ix_(neighbors, neighbors) ]
-
-        neighbor_map = np.where(neighbor_mtx > -1)[1]
-
-        if n_neighbors == 0 or len(neighbor_map) != 2 * n_neighbors:
-            return np.array([], dtype='i')
-
-        cycle_map = neighbor_map.reshape(n_neighbors, 2)
-
-        prev_idx = 0
-        next_idx1, next_idx = cycle_map[prev_idx]
-
-        cycle = [0]
-        for neigh in range(n_neighbors):
-            next_row = cycle_map[next_idx]
-            cycle.append(next_idx)
-            prev_2idx = next_idx
-            next_idx = next_row[ np.where(next_row != prev_idx)[0][0] ]
-            prev_idx = prev_2idx
-
-        return neighbors[ np.array(cycle) ]
-
-    def _get_neighbor_cycles(self):
-        connectivity = []
-        iN_lst = []
-        for i, neighbors in enumerate(self.N_neighbors):
-            cycle = self._get_neighbor_cycle(neighbors)
-            if len(cycle):
-                connectivity.append((np.array(cycle)))
-                iN_lst.append(i)
-        return np.array(iN_lst), connectivity
-
-    def _get_ordered_neighbor_cycles(self):
-        '''List of nodes having cycle of neighbors the format of the list is
-        ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
-        '''
-        oc = []
-        iN, iN_neighbors = self._get_neighbor_cycles()
-        for n, neighbors in zip(iN, iN_neighbors):
-            n1, n2 = neighbors[0], neighbors[1]
-            v1 = self.X[n1] - self.X[n]
-            v2 = self.X[n2] - self.X[n]
-            vcross = np.cross(v1, v2)
-            if vcross[2] < 0:
-                neighbors = neighbors[::-1]
-            oc.append(neighbors)
-        return oc
 
     iN = Property
     '''Interior nodes.
@@ -193,8 +144,17 @@ class CreasePattern(OriNode,
     def _get_iN_L(self):
         iN_L_lst = []
         for i, neighbors in zip(self.iN, self.iN_neighbors):
-            iN_L_lst.append(self._NxN[i, neighbors[:-1]])
+            iN_L_lst.append(self.NxN_L[i, neighbors[:-1]])
         return iN_L_lst
+
+    eN = Property()
+    '''Edge nodes are
+    obtained as a complement of interior nodes.
+    '''
+    def _get_eN(self):
+        eN_bool = np.ones_like(self.N, dtype='bool')
+        eN_bool[self.iN] = False
+        return np.where(eN_bool)[0]
 
     #===========================================================================
     # Line mappings
@@ -264,85 +224,66 @@ class CreasePattern(OriNode,
     Provides an array (n_F, 3) with three lines for each face.
     '''
     def _get_F_L(self):
-
+        # cycle indexes around the nodes of a facet
         ix_arr = np.array([[0, 1], [1, 2], [2, 0]])
+        # get cycled  node numbers around a facet 
         F_N = self.F[:, ix_arr]
-        return self._NxN[F_N[..., 0], F_N[..., 1]]
+        # use the NxN_L map to get line numbers
+        return self.NxN_L[F_N[..., 0], F_N[..., 1]]
 
-        # represent the line nodes as tuples to allow for searching an immutable object
-        # the node numbers define the line's identity. therefore a dtype with 
-        # two integers must be prepared first  
-        dtype = [('left', self.L.dtype), ('right', self.L.dtype)]
+    #===========================================================================
+    # Auxiliary private methods identifying cycles around a node.
+    #===========================================================================
+    def _get_neighbor_cycle(self, neighbors):
+        # for a provided a set of nodes establish a loop
+        n_neighbors = len(neighbors)
+        neighbor_mtx = self.NxN_L[ np.ix_(neighbors, neighbors) ]
 
-        # define the index map collecting the nodes along a facet in both
-        # clockwise and counterclockwise order.
-        ix_arr = np.array([[[0, 1], [1, 2], [2, 0]],
-                           [[1, 0], [2, 1], [0, 2]]])
+        neighbor_map = np.where(neighbor_mtx > -1)[1]
 
-        # get the view representing nodal pairs as tuples
-        F_N = np.ascontiguousarray(self.F[:, ix_arr]).view(dtype)
-        F_N = F_N.reshape(-1, 2, 3)
+        if n_neighbors == 0 or len(neighbor_map) != 2 * n_neighbors:
+            return np.array([], dtype='i')
 
-        # tuple representation also for the lines with node pairs
-        L = self.L.view(dtype).flatten()
+        cycle_map = neighbor_map.reshape(n_neighbors, 2)
 
-        myin1d = lambda Lx: np.array([ l in Lx for l in L ])
+        prev_idx = 0
+        next_idx1, next_idx = cycle_map[prev_idx]
 
-        # get array with True values at the matching line positions
-        F_L_bool = np.array([[myin1d(f_n) for f_n in f_dir
-                              ] for f_dir in F_N
-                             ])
-        # merge the value for clockwise and counterclockwise specifications
-        F_L_bool = np.any(F_L_bool, axis=1)
+        cycle = [0]
+        for neigh in range(n_neighbors):
+            next_row = cycle_map[next_idx]
+            cycle.append(next_idx)
+            prev_2idx = next_idx
+            next_idx = next_row[ np.where(next_row != prev_idx)[0][0] ]
+            prev_idx = prev_2idx
 
-        # the column indexes identify the lines attached to the facet  
-        F_L = np.where(F_L_bool)[1].reshape(3, -1)
-        return F_L
+        return neighbors[ np.array(cycle) ]
 
-    #===============================================================================
-    # Numerical characteristics of a crease pattern 
-    #===============================================================================
+    def _get_neighbor_cycles(self):
+        connectivity = []
+        iN_lst = []
+        for i, neighbors in enumerate(self.N_neighbors):
+            cycle = self._get_neighbor_cycle(neighbors)
+            if len(cycle):
+                connectivity.append((np.array(cycle)))
+                iN_lst.append(i)
+        return np.array(iN_lst), connectivity
 
-    L_vectors = Property(Array, depends_on='N, L')
-    '''Vectors of the crease lines.
-    '''
-    @cached_property
-    def _get_L_vectors(self):
-        X = self.X
-        L = self.L
-        return X[ L[:, 1] ] - X[ L[:, 0] ]
-
-    L_lengths = Property(Array, depends_on='X, L')
-    '''Lengths of the crease lines.
-    '''
-    @cached_property
-    def _get_L_lengths(self):
-        v = self.L_vectors
-        return np.sqrt(np.sum(v ** 2, axis=1))
-
-    neighbor_otheta_lst = Property
-    '''List of crease angles around interior nodes in the format
-    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
-
-    The expression has the form:
-
-    .. math::
-        \\theta = \\arccos\left(\\frac{a \cdot b}{ \left| a \\right| \left| b \\right| }\\right)
-    '''
-    def _get_neighbor_otheta_lst(self):
-        oa = []
-        for n, neighbors in zip(self.iN, self.iN_neighbors):
-            v = self.X[neighbors] - self.X[n]
-            a = v[:-1]
-            b = v[1:]
-            ab = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            gamma = ab / (aa * bb)
-            theta = np.arccos(gamma)
-            oa.append((n, theta))
-
-        return oa
+    def _get_ordered_neighbor_cycles(self):
+        '''List of nodes having cycle of neighbors the format of the list is
+        ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
+        '''
+        oc = []
+        iN, iN_neighbors = self._get_neighbor_cycles()
+        for n, neighbors in zip(iN, iN_neighbors):
+            n1, n2 = neighbors[0], neighbors[1]
+            v1 = self.X[n1] - self.X[n]
+            v2 = self.X[n2] - self.X[n]
+            vcross = np.cross(v1, v2)
+            if vcross[2] < 0:
+                neighbors = neighbors[::-1]
+            oc.append(neighbors)
+        return oc
 
     #===========================================================================
     # Control face ... belongs into constraints

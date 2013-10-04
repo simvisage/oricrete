@@ -23,10 +23,66 @@ from einsum_utils import DELTA, EPS
 class CreaseNodeOperators(HasStrictTraits):
     '''Operators delivering the instantaneous states related to nodes.
     '''
+    iN_F_theta = Property
+    '''List of crease angles around interior nodes in the format
+    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
+
+    The expression has the form:
+
+    .. math::
+        \\theta = \\arccos\left(\\frac{a \cdot b}{ \left| a \\right| \left| b \\right| }\\right)
+    '''
+    def _get_iN_F_theta(self):
+        return self.get_iN_F_theta(np.zeros_like(self.x_0))
+
+    def get_iN_F_theta(self, u):
+        x = self.x_0 + u
+        oa = []
+        for n, neighbors in zip(self.iN, self.iN_neighbors):
+            v = x[neighbors] - x[n]
+            a = v[:-1]
+            b = v[1:]
+            ab = np.sum(a * b, axis=1)
+            aa = np.sqrt(np.sum(a * a, axis=1))
+            bb = np.sqrt(np.sum(b * b, axis=1))
+            gamma = ab / (aa * bb)
+            theta = np.arccos(gamma)
+            oa.append(theta)
+        return oa
 
 class CreaseLineOperators(HasStrictTraits):
     '''Operators delivering the instantaneous states of crease lines.
     '''
+
+    #===========================================================================
+    # Property operators for initial configuration
+    #===========================================================================
+    L_vectors = Property(Array, depends_on='N, L')
+    '''Vectors of the crease lines.
+    '''
+    @cached_property
+    def _get_L_vectors(self):
+        return self.get_L_vectors(np.zeros_like(self.x_0))
+
+    L_lengths = Property(Array, depends_on='X, L')
+    '''Lengths of the crease lines.
+    '''
+    @cached_property
+    def _get_L_lengths(self):
+        return self.get_L_lengths(np.zeros_like(self.x_0))
+
+    #===========================================================================
+    # Public operators for interim configurations
+    #===========================================================================
+    def get_L_lengths(self, u):
+        v = self.get_L_vectors(u)
+        return np.sqrt(np.sum(v ** 2, axis=1))
+
+    def get_L_vectors(self, u):
+        X = self.x_0 + u
+        L = self.L
+        return X[ L[:, 1] ] - X[ L[:, 0] ]
+
     def get_L_rho(self, u):
         '''Get instantaneous angle between two facets.
         '''
@@ -40,6 +96,22 @@ class CreaseFacetOperators(HasStrictTraits):
     '''Operators evaluating the instantaneous states of the facets.
     '''
 
+    #===========================================================================
+    # Property operators for initial configuration
+    #===========================================================================
+    F_normals = Property(Array, depends_on='X, L, F')
+    '''normal vectors.
+    '''
+    @cached_property
+    def _get_F_normals(self):
+        return self.get_F_normals(np.zeros_like(self.x_0))
+
+    F_area = Property(Array, depends_on='X, L, F')
+    '''normal vectors.
+    '''
+    @cached_property
+    def _get_F_area(self):
+        return self.get_F_area(np.zeros_like(self.x_0))
     #===============================================================================
     # Integration scheme
     #===============================================================================
@@ -91,8 +163,9 @@ if __name__ == '__main__':
     cp = CreasePattern(X=[[0, 0, 0],
                           [1, 0, 0],
                           [1, 1, 0],
-                          [0, 1, 0]],
-                       L=[[0, 1], [1, 2], [3, 2], [0, 3], [0, 2], [1, 3]],
+                          [0, 1, 0],
+                          [2, 2, 0]],
+                       L=[[0, 1], [1, 2], [3, 2], [0, 3], [0, 2], [1, 3], [2, 4]],
                        F=[[0, 1, 2], [2, 0, 3], [1, 2, 3]])
 
     # structural mappings
@@ -107,6 +180,8 @@ if __name__ == '__main__':
     print cp.N_neighbors
     print 'interior nodes'
     print cp.iN
+    print 'edge nodes'
+    print cp.eN
     print 'interior node neighbor (cycles ordered)'
     print cp.iN_neighbors
     print 'lines associated with the interior nodes'
@@ -120,10 +195,16 @@ if __name__ == '__main__':
     print 'lines of faces'
     print cp.F_L
 
-    u = np.zeros_like(cp.X)
+    # operators
 
-    # Line based operators
-
-
-    #print cp.get_F_normals(u)
-    #print cp.get_F_area(u)
+    print 'L_lengths: line lengths'
+    print cp.L_lengths
+    print
+    print 'F_normals: facet normals'
+    print cp.F_normals
+    print
+    print 'F_area: facet area'
+    print cp.F_area
+    print 'iN_F_theta: angles around the interior nodes'
+    print cp.iN_F_theta
+    print

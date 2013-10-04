@@ -1,0 +1,64 @@
+X: nodal coordinates
+[[ 0.   0.   0. ]
+ [ 1.   0.   0. ]
+ [ 1.   1.   0. ]
+ [ 0.   1.   0. ]
+ [ 0.5  0.5  0. ]
+ [ 1.5  0.5  0. ]]
+
+N: node numbers
+[0 1 2 3 4 5]
+
+L: line -> node
+[[0 1]
+ [1 2]
+ [3 2]
+ [0 3]
+ [0 4]
+ [1 4]
+ [2 4]
+ [3 4]
+ [1 5]
+ [2 5]]
+
+F: face -> node
+[[0 1 4]
+ [1 2 4]
+ [2 3 4]
+ [3 0 4]
+ [1 5 2]]
+
+N_neighbors: node -> neighbors
+[array([1, 3, 4]), array([0, 2, 4, 5]), array([1, 3, 4, 5]), array([2, 0, 4]), array([0, 1, 2, 3]), array([1, 2])]
+
+iN: interior node numbers
+[4]
+
+eN: edge node numbers
+[0 1 2 3 5]
+
+iN_neighbors: interior node -> neighbors (cycled, ordered)
+[array([0, 1, 2, 3, 0])]
+
+iN_L: interior nodes -> lines
+[array([4, 5, 6, 7])]
+
+iL: interior lines
+[1 4 5 6 7]
+
+eL: edge lines
+[0 2 3 8 9]
+
+iL_F: interior lines -> faces
+[[1 4]
+ [0 3]
+ [0 1]
+ [1 2]
+ [2 3]]
+
+F_L: faces -> lines
+[[0 5 4]
+ [1 6 5]
+ [2 7 6]
+ [3 4 7]
+ [8 9 1]]
