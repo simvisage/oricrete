@@ -7,10 +7,10 @@ Classes defining the equality constraints
 EqualityConstraint
 ------------------
 
-.. inheritance-diagram:: EqualityConstraint
+.. inheritance-diagram:: EqCons
 	:parts: 1
 
-.. autoclass:: EqualityConstraint
+.. autoclass:: EqCons
    :members:
    :undoc-members:
 

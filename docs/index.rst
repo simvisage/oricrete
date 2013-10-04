@@ -22,6 +22,7 @@ Tutorial
    first_steps/first_steps
    yoshimura/yoshimura
    waterbomb/waterbomb
+   topology/topology
    use_cases/use_cases
    segmentation/segmentation
 

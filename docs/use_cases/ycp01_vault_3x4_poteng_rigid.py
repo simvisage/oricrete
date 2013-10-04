@@ -3,15 +3,15 @@ from oricrete.folding2 import \
     link, fix, r_, s_, t_
 import numpy as np
 
-L_x = 3.0
-L_y = 2.0
-v = 0.3
+L_x = 8.0
+L_y = 6.0
+v = 1.0
 
-cp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=3, n_y=4)
+cp = YoshimuraCreasePattern(L_x=L_x, L_y=6, n_x=5, n_y=8)
 
-n_l_h = cp.N_h[0, :].flatten()
-n_r_h = cp.N_h[-1, :].flatten()
-n_lr_h = cp.N_h[(0, -1), :].flatten()
+n_l_h = cp.N_h[0, (0, -1)].flatten()
+n_r_h = cp.N_h[-1, (0, -1)].flatten()
+n_lr_h = cp.N_h[(0, 0, -1, -1), (0, -1, 0, -1)].flatten()
 n_fixed_y = cp.N_h[(0, -1), 2].flatten()
 
 corner_slides = [([(cp.N_h[0, 0], 0, L_x), (cp.N_h[0, 0], 1, -L_y)], 0),
@@ -32,9 +32,8 @@ fold = Folding(source=init,
                MAX_ITER=1000,
                #tf_lst=[(face_z_t, cp.N)],
                dof_constraints=fix(n_l_h, [0], v) + fix(n_lr_h, [2]) + \
-                               fix(n_fixed_y, [1]) + fix(n_r_h, [0], -v)
-                               #corner_slides
-                               )
+                               fix(n_fixed_y, [1]) + fix(n_r_h, [0], -v) + \
+                               corner_slides)
 #               dof_constraints=fix([0, 1], [0], v) + fix([0, 1, 6, 7], [2]) + \
 #                               fix([0], [1]) + fix([6, 7], [0], -v))
 fold.u_t[-1]

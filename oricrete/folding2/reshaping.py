@@ -16,7 +16,7 @@ import numpy as np
 
 from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
     Event, Property, Constant, DelegatesTo, PrototypedFrom, cached_property, Str, Delegate, \
-    Button, Int, Float, Array, Bool, List, Dict, Interface, implements, WeakRef
+    Int, Float, Array, Bool, List, Dict, Interface, implements, WeakRef
 
 from crease_pattern import \
     CreasePattern
@@ -30,7 +30,7 @@ from folding_simulator import FoldingSimulator
 
 from ori_node import IOriNode, OriNode
 
-from scipy.optimize import fmin_slsqp
+from einsum_utils import DELTA, EPS
 
 class IReshaping(IOriNode):
     '''Interface for reshaping process

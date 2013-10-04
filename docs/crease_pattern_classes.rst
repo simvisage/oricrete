@@ -14,6 +14,10 @@ CreasePattern
    :members:
    :undoc-members:
 
+
+Crease pattern factories
+========================
+
 YoshimuraCreasePattern
 ----------------------
 
@@ -21,6 +25,16 @@ YoshimuraCreasePattern
 	:parts: 1
 
 .. autoclass:: YoshimuraCreasePattern
+   :members:
+   :undoc-members:
+
+WaterBombCreasePattern
+----------------------
+
+.. inheritance-diagram:: WaterBombCreasePattern
+	:parts: 1
+
+.. autoclass:: WaterBombCreasePattern
    :members:
    :undoc-members:
 

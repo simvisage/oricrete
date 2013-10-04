@@ -532,7 +532,7 @@ class AngleEqCons(EqCons):
         u = U.reshape(self.n_N, self.n_D)
         x = self.x_0 + u
         gamma_lst = []
-        for idx, (i, neighbors) in enumerate(self.cp.neighbor_onode_lst):
+        for i, neighbors in zip(self.cp.iN, self.cp.iN_neighbors):
             v = x[neighbors] - x[i]
             a = v[:-1]
             b = v[1:]
@@ -563,11 +563,11 @@ class AngleEqCons(EqCons):
         u = U.reshape(self.n_N, self.n_D)
         x = self.x_0 + u
 
-        # number of foldable constraints
-        n_fc = len(self.cp.neighbor_onode_lst)
+        # number of flat foldability constraints
+        n_fc = len(self.cp.iN)
         G_du = np.zeros((n_fc, self.n_dofs), dtype='float_')
 
-        for idx, (i, neighbors) in enumerate(self.cp.neighbor_onode_lst):
+        for idx, (i, neighbors) in enumerate(zip(self.cp.iN, self.cp.iN_neighbors)):
 
             n_nbr = len(neighbors) - 1
             nvects = x[neighbors] - x[i]

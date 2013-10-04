@@ -210,8 +210,6 @@ class WaterBombCreasePattern(CreasePattern):
         return (self.geo_transform(X), L, F, N_h, N_k, N_i, N_j, X_h, X_k, X_i, X_j)
 
     def show(self, mlab):
-        '''X.
-        '''
         x, y, z = self.XX.T
         if len(self.F) > 0:
             cp_pipe = mlab.triangular_mesh(x, y, z, self.F)

@@ -19,6 +19,7 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
 from opt_crit import OptCrit
 
 import numpy as np
+from einsum_utils import DELTA, EPS
 
 class OptCritPotentialEnergy(OptCrit):
     '''Optimization criteria based on the distance between specified nodes.
@@ -38,12 +39,11 @@ class OptCritPotentialEnergy(OptCrit):
         N_eta_ip = self.get_N(self.eta_ip)
         N_deta_ip = self.get_N_deta(self.eta_ip)
 
-        eps = self.eps
         eta_w = self.eta_w
 
         r = np.einsum('aK,IKi->Iai', N_eta_ip, x_F)
         r_deta = np.einsum('ajK,IKi->Iaij', N_deta_ip, x_F)
-        n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], eps)
+        n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
         a = np.sqrt(np.einsum('Iai,Iai->Ia', n, n))
         E_I = np.einsum('a,Ia,Ia->I', eta_w, r[..., 2], a)
         E = np.sum(E_I)
@@ -63,20 +63,18 @@ class OptCritPotentialEnergy(OptCrit):
         r = np.einsum('aK,IKi->Iai', N_eta_ip, x_F)
         r_deta = np.einsum('ajK,IKi->Iaij', N_deta_ip, x_F)
 
-        delta = self.delta
-        eps = self.eps
-        n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], eps)
+        n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
         a = np.sqrt(np.einsum('Iai,Iai->Ia', n, n))
 
 
         NN_delta_eps_x1 = np.einsum('aK,aL,KJ,jli,ILl->IaJji',
-                                    N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], delta, eps, x_F)
+                                    N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], DELTA, EPS, x_F)
         NN_delta_eps_x2 = np.einsum('aK,aL,LJ,kji,IKk->IaJji',
-                                    N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], delta, eps, x_F)
+                                    N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], DELTA, EPS, x_F)
         n_dx = NN_delta_eps_x1 + NN_delta_eps_x2
         a_dx = np.einsum('Ia,Iak,IaJjk->IaJj', 1 / a, n, n_dx)
         r3_a_dx = np.einsum('Ia,IaJj->IaJj', r[..., 2], a_dx)
-        r3_dx = np.einsum('aK,KJ,j->aJj', N_eta_ip, delta, delta[2, :])
+        r3_dx = np.einsum('aK,KJ,j->aJj', N_eta_ip, DELTA, DELTA[2, :])
         a_r3_dx = np.einsum('Ia,aJj->IaJj', a, r3_dx)
         E_dx = np.einsum('a,IaJj->IJj', self.eta_w, (a_r3_dx + r3_a_dx))
 
@@ -85,17 +83,6 @@ class OptCritPotentialEnergy(OptCrit):
         E_dX = np.bincount(dof_map.flatten(), weights=E_dx.flatten())
         return E_dX
 
-
-    #===============================================================================
-    # Index operator ... tensor calculus 
-    #===============================================================================
-
-    delta = np.zeros((3, 3,), dtype='f')
-    delta[(0, 1, 2), (0, 1, 2)] = 1
-
-    eps = np.zeros((3, 3, 3), dtype='f')
-    eps[(0, 1, 2), (1, 2, 0), (2, 0, 1)] = 1
-    eps[(2, 1, 0), (1, 0, 2), (0, 2, 1)] = -1
 
     #===============================================================================
     # Integration scheme

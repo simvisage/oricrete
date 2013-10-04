@@ -12,10 +12,8 @@
 #
 # Created on Mar 5, 2013 by: matthias
 
-from oricrete.folding2 import Folding, Initialization, FormFinding
-from oricrete.folding2.crease_pattern import CreasePattern
-from oricrete.folding2.cnstr_target_face import CnstrTargetFace, r_, s_, t_
-
+from oricrete.folding2 import Folding, Initialization, FormFinding, \
+    CreasePattern, CreasePatternView, CnstrTargetFace, r_, s_, t_
 
 if __name__ == '__main__':
     cp = CreasePattern(X=[[0, 0, 0],
