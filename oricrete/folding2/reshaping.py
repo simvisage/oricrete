@@ -16,13 +16,13 @@ import numpy as np
 
 from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
     Event, Property, Constant, DelegatesTo, PrototypedFrom, cached_property, Str, Delegate, \
-    Button, Int, Float, Array, Bool, List, Dict, Interface, implements, WeakRef
+    Int, Float, Array, Bool, List, Dict, Interface, implements, WeakRef
 
 from crease_pattern import \
     CreasePattern
 
-from equality_constraint import \
-    IEqualityConstraint, ConstantLength, GrabPoints, \
+from eq_cons import \
+    IEqCons, ConstantLength, GrabPoints, \
     PointsOnLine, PointsOnSurface, DofConstraints, Developability, \
     FlatFoldability
 
@@ -30,7 +30,7 @@ from folding_simulator import FoldingSimulator
 
 from ori_node import IOriNode, OriNode
 
-from scipy.optimize import fmin_slsqp
+from einsum_utils import DELTA, EPS
 
 class IReshaping(IOriNode):
     '''Interface for reshaping process
@@ -72,6 +72,22 @@ class Reshaping(OriNode, FoldingSimulator):
     def _get_X_0(self):
         return self.source.X_1
 
+    #===========================================================================
+    # Geometric data
+    #===========================================================================
+
+    L = Property()
+    '''Array of crease_lines defined by pairs of node numbers.
+    '''
+    def _get_L(self):
+        return self.source.L
+
+    F = Property()
+    '''Array of crease facets defined by list of node numbers.
+    '''
+    def _get_F(self):
+        return self.source.F
+
     U_0 = Property(Array(float))
     '''Attribute storing the optional user-supplied initial array.
     It is used as the trial vector of unknown displacements
@@ -104,6 +120,8 @@ class Initialization(OriNode, FoldingSimulator):
     t_init (float): Timestep wich is used for the final mapping. Default = 0.001
     '''
 
+    name = Str('init')
+
     cp = Instance(CreasePattern)
     '''Instance of a crease pattern.
     '''
@@ -115,6 +133,19 @@ class Initialization(OriNode, FoldingSimulator):
     '''
     def _get_X_0(self):
         return self.cp.X.flatten()
+
+    L = Property()
+    '''Array of crease_lines defined by pairs of node numbers.
+    '''
+    def _get_L(self):
+        return self.cp.L
+
+    F = Property()
+    '''Array of crease facets defined by list of node numbers.
+    '''
+    def _get_F(self):
+        return self.cp.F
+
 
     t_init = Float(0.05)
     '''Time step which is used for the initialization mapping.
@@ -186,12 +217,24 @@ class FormFinding(Reshaping):
     For this condition the connectivity of all inner nodes must be putted in the object.
     '''
 
-    eqcons = Dict(Str, IEqualityConstraint)
+    name = Str('form finding')
+
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
                 'ff' : FlatFoldability(reshaping=self),
-                'uf' : Developability(reshaping=self)
+                'uf' : Developability(reshaping=self),
+                'ps' : PointsOnSurface(reshaping=self),
+                'dc' : DofConstraints(reshaping=self)
                 }
+
+    U_1 = Property(depends_on='source_config_changed, _U_0')
+    '''Initial displacement for the next step after form finding.
+    The target configuration has no perturbation at the end.
+    '''
+    @cached_property
+    def _get_U_1(self):
+        return np.zeros_like(self.U_t[-1])
 
 class Folding(Reshaping):
     '''Folding folds a crease pattern while using the classic constraints like
@@ -202,7 +245,9 @@ class Folding(Reshaping):
     are not included. But sliding faces and target faces are supported.
     '''
 
-    eqcons = Dict(Str, IEqualityConstraint)
+    name = Str('folding')
+
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
                 'cl' : ConstantLength(reshaping=self),
@@ -221,7 +266,9 @@ class Lifting(Reshaping):
     Instead of this you can although put in your own predeformation.
     '''
 
-    eqcons = Dict(Str, IEqualityConstraint)
+    name = Str('lifting')
+
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
                 'cl' : ConstantLength(reshaping=self),
@@ -234,8 +281,8 @@ class Lifting(Reshaping):
 if __name__ == '__main__':
 
     from crease_pattern_view import CreasePatternView
-    from cnstr_target_face import r_, s_, t_, x_, y_, z_
-    from cnstr_control_face import CF
+    from opt_crit_target_face import r_, s_, t_, x_, y_, z_
+    from eq_cons_control_face import CF
 
     cp = CreasePattern(X=[[0, 0, 0],
                           [1, 0, 0],

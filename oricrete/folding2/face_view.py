@@ -33,7 +33,7 @@ class FaceView(HasTraits):
     scene = DelegatesTo('data')
     scale_factor = DelegatesTo('data')
 
-    show_ff_pipe = Bool(True)
+    show_ff_pipe = Bool(False)
     show_ff_nodes = Bool(False)
     fold_step = Int(0)
     time_step = Float(0.0)

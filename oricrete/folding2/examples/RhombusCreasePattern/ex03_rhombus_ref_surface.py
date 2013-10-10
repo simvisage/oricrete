@@ -19,7 +19,7 @@ from oricrete.folding2 import \
     Lifting
 from oricrete.folding2 import \
     YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
-from oricrete.folding2.cnstr_target_face import CnstrTargetFace
+from oricrete.folding2 import CnstrTargetFace
 
 
 def create_cp_fc_inclined(L_x=4, L_y=4, n_x=2, n_y=4,

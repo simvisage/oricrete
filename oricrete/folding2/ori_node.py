@@ -21,11 +21,6 @@ from etsproxy.traits.api import HasStrictTraits, \
 
 from etsproxy.traits.ui.api import View
 
-from equality_constraint import \
-    IEqualityConstraint
-
-from scipy.optimize import fmin_slsqp
-
 class IOriNode(Interface):
     pass
 
@@ -35,6 +30,8 @@ class OriNode(HasStrictTraits):
     source_config_changed = Event
 
     implements(IOriNode)
+
+    node = Str('<unnamed>')
 
     source = Instance(IOriNode)
     '''Previous reshaping simulation providing the source for the current one.

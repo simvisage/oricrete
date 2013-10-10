@@ -17,11 +17,15 @@ import numpy as np
 from etsproxy.traits.api import HasStrictTraits, \
     Event, Property, cached_property, Str, \
     Int, Float, Array, Bool, Dict, List, \
-    Constant
+    Constant, Instance, DelegatesTo, Trait
 
 from etsproxy.traits.ui.api import View
-from equality_constraint import \
-    IEqualityConstraint
+from opt_crit_target_face import TargetFaces
+
+from opt_crit_potential_energy import OptCritPotentialEnergy
+
+from eq_cons import \
+    IEqCons
 
 from scipy.optimize import fmin_slsqp
 
@@ -43,7 +47,24 @@ class FoldingSimulator(HasStrictTraits):
 
     traits_view = View()
 
-    tf_lst = List([])
+    #===========================================================================
+    # type of the sampling of the random domain
+    #===========================================================================
+    goal_function_type = Trait('target_faces', {'none' : None,
+                                                'target_faces' : TargetFaces,
+                                                'potential_energy' : OptCritPotentialEnergy
+                                         },
+                               input_change=True)
+
+    goal_function = Property(depends_on='+input_change')
+    @cached_property
+    def _get_goal_function(self):
+        if self.goal_function_type:
+            return self.goal_function_type_(reshaping=self)
+        else:
+            return None
+
+    tf_lst = DelegatesTo('goal_function')
     '''List of target faces.
 
     If target face is available, than use it for initialization.
@@ -54,29 +75,17 @@ class FoldingSimulator(HasStrictTraits):
     # Geometric data
     #===========================================================================
 
-    L = Property()
-    '''Array of crease_lines defined by pairs of node numbers.
-    '''
-    def _get_L(self):
-        return self.cp.L
-
-    F = Property()
-    '''Array of crease facets defined by list of node numbers.
-    '''
-    def _get_F(self):
-        return self.cp.F
-
     n_L = Property()
     '''Number of crease lines.
     '''
     def _get_n_L(self):
-        return self.cp.n_L
+        return len(self.L)
 
     n_N = Property()
     '''Number of crease nodes.
     '''
     def _get_n_N(self):
-        return self.cp.n_N
+        return len(self.x_0)
 
     n_D = Constant(3)
     '''Number of spatial dimensions.
@@ -86,7 +95,7 @@ class FoldingSimulator(HasStrictTraits):
     '''Number of degrees of freedom.
     '''
     def _get_n_dofs(self):
-        return self.cp.n_dofs
+        return self.n_N * self.n_D
 
     cf_lst = Property()
     '''Number of control faces.
@@ -162,7 +171,7 @@ class FoldingSimulator(HasStrictTraits):
     #===========================================================================
     # Equality constraints
     #===========================================================================
-    eqcons = Dict(Str, IEqualityConstraint)
+    eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {}
 
@@ -203,10 +212,9 @@ class FoldingSimulator(HasStrictTraits):
             t_arr = t_arr[::-1]
         return t_arr
 
-
-    # show_iter saves the first 10 iterationsteps, so they'll can be
-    # analized
     show_iter = Bool(False, auto_set=False, enter_set=True)
+    '''Saves the first 10 iteration steps, so they can be analyzed
+    '''
 
     MAX_ITER = Int(100, auto_set=False, enter_set=True)
 
@@ -221,7 +229,7 @@ class FoldingSimulator(HasStrictTraits):
         '''
         time_start = sysclock()
 
-        if(len(self.tf_lst) > 0):
+        if self.goal_function_type != None:
             U_t = self._solve_fmin(self.U_0, self.acc)
         else:
             U_t = self._solve_nr(self.U_0, self.acc)
@@ -282,7 +290,7 @@ class FoldingSimulator(HasStrictTraits):
         Sequential Least Square Quadratic Programming method.
         '''
         print '==== solving with SLSQP optimization ===='
-        d0 = self.get_f(U_0)
+        d0 = self.get_f_t(U_0)
         eps = d0 * 1e-4
         U = np.copy(U_0)
         U_t0 = self.U_0
@@ -316,44 +324,17 @@ class FoldingSimulator(HasStrictTraits):
     #===========================================================================
     # Goal function
     #===========================================================================
-    def get_f(self, U, t=0):
-        # build dist-vektor for all caf
-        u = U.reshape(self.n_N, self.n_D)
-        x = self.get_new_nodes(u)
-        d_arr = np.array([])
-        for caf, nodes in self.tf_lst:
-            caf.X_arr = x[nodes]
-            caf.t = t
-            d_arr = np.append(d_arr, caf.d_arr)
-
-        return np.linalg.norm(d_arr)
-
     def get_f_t(self, U):
-        return self.get_f(U, self.t)
-
-    #===========================================================================
-    # Distance derivative with respect to change in nodal coords.
-    #===========================================================================
-    def get_f_du(self, U, t=0):
-        '''build dist - vektor for all caf
+        '''Get the goal function value.
         '''
         u = U.reshape(self.n_N, self.n_D)
-        d_xyz = np.zeros_like(u)
-        x = self.get_new_nodes(u)
-        dist_arr = np.array([])
-        for caf, nodes in self.tf_lst:
-            caf.X_arr = x[nodes]
-            caf.t = t
-            d_arr = caf.d_arr
-            dist_arr = np.append(dist_arr, d_arr)
-            d_xyz[nodes] = caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
-
-        dist_norm = np.linalg.norm(dist_arr)
-        d_xyz[ np.isnan(d_xyz)] = 0.0
-        return d_xyz.flatten() / dist_norm
+        return self.goal_function.get_f(u, self.t)
 
     def get_f_du_t(self, U):
-        return self.get_f_du(U, self.t)
+        '''Get the goal function derivatives.
+        '''
+        u = U.reshape(self.n_N, self.n_D)
+        return self.goal_function.get_f_du(u, self.t)
 
     #===========================================================================
     # Equality constraints
@@ -452,3 +433,6 @@ class FoldingSimulator(HasStrictTraits):
         v = self.v_t ** 2
         return np.sqrt(np.sum(v, axis=2))
 
+if __name__ == '__main__':
+    fs = FoldingSimulator()
+    print fs.goal_function

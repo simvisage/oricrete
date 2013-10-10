@@ -19,7 +19,7 @@ import sympy as sp
 
 x_, y_, z_, r_, s_, t_ = sp.symbols('x,y,z,r,s,t')
 
-class CnstrControlFace(HasTraits):
+class EqConsControlFace(HasTraits):
     '''
      Folding level set function
     '''
@@ -38,10 +38,10 @@ class CnstrControlFace(HasTraits):
         dRf = [sp.diff(R, x_), sp.diff(R, y_), sp.diff(R, z_)]
         return sp.lambdify([x_, y_, z_, t_], dRf)
 
-CF = CnstrControlFace
+CF = EqConsControlFace
 
 if __name__ == '__main__':
-    control_face = CnstrControlFace(Rf = (x_ - t_) ** 2 - y_ ** 2 - 0)
+    control_face = CF(Rf=(x_ - t_) ** 2 - y_ ** 2 - 0)
 
     print control_face.Rf(1, 2, 3, 0)
     print control_face.Rf(1, 2, 3, 1)

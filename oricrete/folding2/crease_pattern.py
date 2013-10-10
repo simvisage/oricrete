@@ -18,10 +18,16 @@ from etsproxy.traits.api import HasStrictTraits, Property, cached_property, Even
 
 import numpy as np
 from ori_node import OriNode
+from crease_pattern_operators import \
+    CreaseNodeOperators, CreaseLineOperators, CreaseFacetOperators, CummulativeOperators
 
-class CreasePattern(OriNode):
+class CreasePattern(OriNode,
+                    CreaseNodeOperators,
+                    CreaseLineOperators,
+                    CreaseFacetOperators,
+                    CummulativeOperators):
     '''
-    Structure of triangulated Crease-Patterns
+    Structure of triangulated crease pattern
     '''
 
     #===============================================================================
@@ -32,53 +38,23 @@ class CreasePattern(OriNode):
     '''Array of node coordinates with rows specifying ``X,Y`` values.
     '''
 
+    x_0 = Property
+    '''Reshaping interface supplying the initial coordinates as [n,dim] array.
+    '''
+    def _get_x_0(self):
+        return self.X
+
     L = Array
     '''Array of crease lines as index-table ``[n1, n2]``.
     '''
-    def _L(self):
+    def _L_default(self):
         return np.zeros((0, 2), dtype='int_')
 
     F = Array(value=[], dtype='int_')
     '''Array of facets as index-table ``[n1, n2, n3]``.
     '''
-
-    cf_lst = List([])
-    '''List of sticky faces defined as a list of tuples
-    with the first entry defining the face geometry depending
-    on time parameter and second entry specifying the nodes
-    sticking to the surface.
-    '''
-
-    N = Property
-    '''Array of all node numbers
-    '''
-    @cached_property
-    def _get_N(self):
-        return np.arange(self.n_N)
-
-    ff_lst = Property
-    '''Derived list of sticky faces without the associated nodes.
-    '''
-    def _get_ff_lst(self):
-        return [ ff for ff, nodes in self.cf_lst ]
-
-    n_c_ff = Property
-    '''Number of sticky faces.
-    '''
-    def _get_n_c_ff(self):
-        '''Number of constraints'''
-        n_c = 0
-        # count the nodes in each entry in the cf_lst
-        for ff, nodes in self.cf_lst:
-            n_c += len(nodes)
-        return n_c
-
-    tf_lst = List([])
-    '''List of target faces defined as a list of tuples
-    with the first entry defining the face geometry depending
-    on time parameter and second entry specifying the nodes
-    attracted by the surface.
-    '''
+    def _F_default(self):
+        return np.zeros((0, 3), dtype='int_')
 
     #===============================================================================
     # Enumeration of dofs 
@@ -113,54 +89,155 @@ class CreasePattern(OriNode):
         return self.n_N * self.n_D
 
     #===========================================================================
-    # Dependent interim results
+    # Node mappings
     #===========================================================================
-    L_vectors = Property(Array, depends_on='N, L')
-    '''Vectors of the crease lines.
+
+    N = Property
+    '''Array of all node numbers
     '''
     @cached_property
-    def _get_L_vectors(self):
-        X = self.X
-        L = self.L
-        return X[ L[:, 1] ] - X[ L[:, 0] ]
+    def _get_N(self):
+        return np.arange(self.n_N)
 
-    L_lengths = Property(Array, depends_on='X, L')
-    '''Lengths of the crease lines.
-    '''
-    @cached_property
-    def _get_L_lengths(self):
-        v = self.L_vectors
-        return np.sqrt(np.sum(v ** 2, axis=1))
-
-    #===========================================================================
-    # Connectivity analysis
-    #===========================================================================
-
-    NN = Property
+    NxN_L = Property
     '''Matrix with ``n_N x n_N`` entries containing line numbers
     for the connected nodes. For unconnected notes it contains the value ``-1``
     '''
     @cached_property
-    def _get_NN(self):
-        NN = np.zeros((self.n_N, self.n_N), dtype='int') - 1
-        NN[ self.L[:, 0], self.L[:, 1]] = np.arange(self.n_L)
-        NN[ self.L[:, 1], self.L[:, 0]] = np.arange(self.n_L)
-        return NN
+    def _get_NxN_L(self):
+        NxN = np.zeros((self.n_N, self.n_N), dtype='int') - 1
+        NxN[ self.L[:, 0], self.L[:, 1]] = np.arange(self.n_L)
+        NxN[ self.L[:, 1], self.L[:, 0]] = np.arange(self.n_L)
+        return NxN
 
-    neighbors_lst = Property
-    '''List of neighbors for each node.
+    N_neighbors = Property
+    '''Neighbors attached to each node
     '''
     @cached_property
-    def _get_neighbors_lst(self):
-
+    def _get_N_neighbors(self):
+        # identify the neighbors by searching for all lines
+        # which mention a node n
         rl = [np.where(self.L == n) for n in self.N]
+        # from the identified pair get the node other than the 
+        # outgoing node 
         switch_idx = np.array([1, 0], dtype='int')
         return [self.L[row, switch_idx[col]] for row, col in rl]
 
-    def get_cycle(self, neighbors):
+    iN = Property
+    '''Interior nodes.
+    '''
+    def _get_iN(self):
+        return self._get_neighbor_cycles()[0]
 
+    iN_neighbors = Property
+    '''Neighbors attached to each interior node
+    (in a counter-clockwise order)
+    '''
+    @cached_property
+    def _get_iN_neighbors(self):
+        return self._get_ordered_neighbor_cycles()
+
+    iN_L = Property
+    '''Lines around an interior node / cycled
+    '''
+    @cached_property
+    def _get_iN_L(self):
+        iN_L_lst = []
+        for i, neighbors in zip(self.iN, self.iN_neighbors):
+            iN_L_lst.append(self.NxN_L[i, neighbors[:-1]])
+        return iN_L_lst
+
+    eN = Property()
+    '''Edge nodes are
+    obtained as a complement of interior nodes.
+    '''
+    def _get_eN(self):
+        eN_bool = np.ones_like(self.N, dtype='bool')
+        eN_bool[self.iN] = False
+        return np.where(eN_bool)[0]
+
+    #===========================================================================
+    # Line mappings
+    #===========================================================================
+
+    L_F_map = Property
+    '''Array associating lines with the adjacent faces.
+    Returns two arrays, the first one contains line indices, the
+    second one the second one the face indices. Note that
+    the mapping is provided for all lines including both interior
+    and and edge lines.
+    '''
+    def _get_L_F_map(self):
+
+        # search for facets containing the line numbers
+        L = np.arange(self.n_L)
+
+        # use broadcasting to identify the matching indexes in both arrays
+        L_F_bool = L[np.newaxis, np.newaxis, :] == self.F_L[:, :, np.newaxis]
+
+        # within the facet any of the line numbers can match, merge the axis 1
+        L_F_bool = np.any(L_F_bool, axis=1)
+        l, f = np.where(L_F_bool.T)
+
+        return l, f
+
+    iL = Property
+    '''Interior lines.
+    '''
+    @cached_property
+    def _get_iL(self):
+        return np.where(np.bincount(self.L_F_map[0]) == 2)[0]
+
+    eL = Property
+    '''Edge lines.
+    '''
+    @cached_property
+    def _get_eL(self):
+        return np.where(np.bincount(self.L_F_map[0]) != 2)[0]
+
+    iL_F = Property
+    @cached_property
+    def _get_iL_F(self):
+        # get the line - to -facet mapping
+        l, f = self.L_F_map
+        # get the lines that have less than two attached facets
+        # i.e. they are edge lines or lose bars
+        eL = np.bincount(l) != 2
+        # get the indexes within the bincount
+        eL_vals = np.where(eL)[0]
+        # get the indices of edge lines within the original line array 
+        el_ix = np.digitize(eL_vals, l) - 1
+        # construct the mask hiding the edge lines in the original array
+        l_map = np.zeros_like(l, dtype=bool)
+        l_map[ el_ix ] = True
+        # 
+        fm = np.ma.masked_array(f, mask=l_map)
+        fm_compressed = np.ma.compressed(fm)
+        return fm_compressed.reshape(-1, 2)
+
+    #===========================================================================
+    # Facet mappings
+    #===========================================================================
+
+    F_L = Property
+    '''Lines associated with facets.
+    Provides an array (n_F, 3) with three lines for each face.
+    '''
+    def _get_F_L(self):
+        # cycle indexes around the nodes of a facet
+        ix_arr = np.array([[0, 1], [1, 2], [2, 0]])
+        # get cycled  node numbers around a facet 
+        F_N = self.F[:, ix_arr]
+        # use the NxN_L map to get line numbers
+        return self.NxN_L[F_N[..., 0], F_N[..., 1]]
+
+    #===========================================================================
+    # Auxiliary private methods identifying cycles around a node.
+    #===========================================================================
+    def _get_neighbor_cycle(self, neighbors):
+        # for a provided a set of nodes establish a loop
         n_neighbors = len(neighbors)
-        neighbor_mtx = self.NN[ np.ix_(neighbors, neighbors) ]
+        neighbor_mtx = self.NxN_L[ np.ix_(neighbors, neighbors) ]
 
         neighbor_map = np.where(neighbor_mtx > -1)[1]
 
@@ -182,58 +259,58 @@ class CreasePattern(OriNode):
 
         return neighbors[ np.array(cycle) ]
 
-    neighbor_node_lst = Property
-    '''List of nodes having cycle of neighbors the format of the list is
-    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
-    '''
-    @cached_property
-    def _get_neighbor_node_lst(self):
+    def _get_neighbor_cycles(self):
         connectivity = []
-        for i, neighbors in enumerate(self.neighbors_lst):
-            cycle = self.get_cycle(neighbors)
+        iN_lst = []
+        for i, neighbors in enumerate(self.N_neighbors):
+            cycle = self._get_neighbor_cycle(neighbors)
             if len(cycle):
-                connectivity.append((i, np.array(cycle)))
-        return connectivity
+                connectivity.append((np.array(cycle)))
+                iN_lst.append(i)
+        return np.array(iN_lst), connectivity
 
-    neighbor_onode_lst = Property
-    '''List of nodes having cycle of neighbors the format of the list is
-    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
-    '''
-    def _get_neighbor_onode_lst(self):
+    def _get_ordered_neighbor_cycles(self):
+        '''List of nodes having cycle of neighbors the format of the list is
+        ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
+        '''
         oc = []
-        for n, neighbors in self.neighbor_node_lst:
+        iN, iN_neighbors = self._get_neighbor_cycles()
+        for n, neighbors in zip(iN, iN_neighbors):
             n1, n2 = neighbors[0], neighbors[1]
             v1 = self.X[n1] - self.X[n]
             v2 = self.X[n2] - self.X[n]
             vcross = np.cross(v1, v2)
             if vcross[2] < 0:
                 neighbors = neighbors[::-1]
-            oc.append((n, neighbors))
+            oc.append(neighbors)
         return oc
 
-    neighbor_otheta_lst = Property
-    '''List of crease angles around interior nodes in the format
-    ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
-
-    The expression has the form:
-
-    .. math::
-        \\theta = \\arccos\left(\\frac{a \cdot b}{ \left| a \\right| \left| b \\right| }\\right)
+    #===========================================================================
+    # Control face ... belongs into constraints
+    #===========================================================================
+    cf_lst = List([])
+    '''List of sticky faces defined as a list of tuples
+    with the first entry defining the face geometry depending
+    on time parameter and second entry specifying the nodes
+    sticking to the surface.
     '''
-    def _get_neighbor_otheta_lst(self):
-        oa = []
-        for n, neighbors in self.neighbor_onode_lst:
-            v = self.X[neighbors] - self.X[n]
-            a = v[:-1]
-            b = v[1:]
-            ab = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            gamma = ab / (aa * bb)
-            theta = np.arccos(gamma)
-            oa.append((n, theta))
 
-        return oa
+    ff_lst = Property
+    '''Derived list of sticky faces without the associated nodes.
+    '''
+    def _get_ff_lst(self):
+        return [ ff for ff, nodes in self.cf_lst ]
+
+    n_c_ff = Property
+    '''Number of sticky faces.
+    '''
+    def _get_n_c_ff(self):
+        '''Number of constraints'''
+        n_c = 0
+        # count the nodes in each entry in the cf_lst
+        for ff, nodes in self.cf_lst:
+            n_c += len(nodes)
+        return n_c
 
     #===============================================================================
     # methods and Information for Abaqus calculation

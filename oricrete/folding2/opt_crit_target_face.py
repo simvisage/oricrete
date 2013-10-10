@@ -16,6 +16,8 @@ from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Bool, File, Array, Float, Any, List
 
+from opt_crit import OptCrit
+
 import numpy as np
 import sympy as sm
 from scipy.optimize import fsolve
@@ -247,6 +249,39 @@ class CnstrTargetFace(HasTraits):
         return ls_arr.reshape(x.shape)
 
 TF = CnstrTargetFace
+
+class TargetFaces(OptCrit):
+
+    tf_lst = List([])
+
+    def get_f(self, u, t=0):
+        '''Get the the norm of distances between the individual target faces and nodes.
+        '''
+        x = self.reshaping.x_0 + u
+        d_arr = np.array([])
+        for caf, nodes in self.tf_lst:
+            caf.X_arr = x[nodes]
+            caf.t = t
+            d_arr = np.append(d_arr, caf.d_arr)
+
+        return np.linalg.norm(d_arr)
+
+    def get_f_du(self, u, t=0):
+        '''Get the derivatives with respect to individual displacements.
+        '''
+        x = self.reshaping.x_0 + u
+        d_xyz = np.zeros_like(x)
+        dist_arr = np.array([])
+        for caf, nodes in self.tf_lst:
+            caf.X_arr = x[nodes]
+            caf.t = t
+            d_arr = caf.d_arr
+            dist_arr = np.append(dist_arr, d_arr)
+            d_xyz[nodes] += caf.d_arr[:, np.newaxis] * caf.d_xyz_arr
+
+        dist_norm = np.linalg.norm(dist_arr)
+        d_xyz[ np.isnan(d_xyz)] = 0.0
+        return d_xyz.flatten() / dist_norm
 
 if __name__ == '__main__':
     cp = ParamFaceOperator(F=[r_, s_, t_])

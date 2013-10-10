@@ -61,20 +61,20 @@ if __name__ == '__main__':
 
     L_x = 1.4
     L_y = 0.8
-    cp = YoshimuraCreasePattern(n_steps = 5,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = 4,
-                              n_y = 4,
+    cp = YoshimuraCreasePattern(n_steps=5,
+                              L_x=L_x,
+                              L_y=L_y,
+                              n_x=4,
+                              n_y=4,
                               #geo_transform = GT(L_x = L_x, L_y = L_y),
-                              show_iter = False,
-                              z0_ratio = 0.1,
-                              MAX_ITER = 100)
+                              show_iter=False,
+                              z0_ratio=0.1,
+                              MAX_ITER=100)
     n_h = cp.N_h
     n_v = cp.N_v
     n_i = cp.N_i
 
-    face_z_t = CnstrTargetFace(F = [r_, s_, t_ * (r_ * (1 - r_ / L_x))]) #- s_ / 8 * (1 - s_ / L_y))])
+    face_z_t = CnstrTargetFace(F=[r_, s_, 1.7 * t_ * (r_ * (1 - r_ / L_x))]) #- s_ / 8 * (1 - s_ / L_y))])
     n_arr = np.hstack([n_h[::, (0, 2)].flatten(),
                        n_h[(0, 1, 3, 4), 1].flatten(),
      #                  n_v[:, :].flatten(),
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 #                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
 
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
+    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype=float)
 
     #del cp.eqcons['cl']
 
@@ -108,9 +108,9 @@ if __name__ == '__main__':
 
     X_fc = cp.solve(X0 - 1e-8)
 
-    my_model = CreasePatternView(data = cp,
-                                 ff_resolution = 100,
-                                 show_cnstr = True)
+    my_model = CreasePatternView(data=cp,
+                                 ff_resolution=100,
+                                 show_cnstr=True)
     my_model.configure_traits()
 
 

@@ -16,10 +16,10 @@ import numpy as np
 
 # own Modules
 from oricrete.folding2 import \
-    Lifting
+    Lifting, Initialization
 from oricrete.folding2 import \
     YoshimuraCreasePattern, CF, x_, y_, z_, t_, r_, s_
-from oricrete.folding2.cnstr_target_face import CnstrTargetFace
+from oricrete.folding2.opt_crit_target_face import CnstrTargetFace
 
 def cp01(L_x=4, L_y=2, n_x=2, n_y=2, n_steps=80):
 
@@ -34,18 +34,19 @@ def cp01(L_x=4, L_y=2, n_x=2, n_y=2, n_steps=80):
     n_i = rcp.N_i
     n_v = rcp.N_v
 
-    lift = Lifting(cp=rcp,
-                 n_steps=n_steps,
-                 show_iter=False,
-                 MAX_ITER=500
-                 )
-
     caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.15])
     n_arr = np.hstack([rcp.N_h[:, :].flatten(),
                        #rcp.N_v[:, :].flatten(),
                        rcp.N_i[:, :].flatten()
                        ])
-    lift.init_tf_lst = [(caf, n_arr)]
+
+    init = Initialization(cp=rcp, tf_lst=[(caf, n_arr)], t_init=0.1)
+
+    lift = Lifting(source=init,
+                 n_steps=n_steps,
+                 show_iter=False,
+                 MAX_ITER=500
+                 )
 
     lift.cnstr_lhs = [[(n_h[0, 0], 2, 1.0)], # 0
                       [(n_h[0, -1], 2, 1.0)], # 1
@@ -276,6 +277,6 @@ if __name__ == '__main__':
 #    cp = cp04(n_steps = 40)
     cp = cp01(n_steps=40)
 
-    print cp.u_0
+    print cp.U_0
 
     cp.show()

@@ -60,27 +60,27 @@ class GT(HasTraits):
 if __name__ == '__main__':
 
     L_x = 8
-    L_y = 4
-    cp = YoshimuraCreasePattern(n_steps = 4,
-                              L_x = L_x,
-                              L_y = L_y,
-                              n_x = 4,
-                              n_y = 12,
+    L_y = 8
+    cp = YoshimuraCreasePattern(n_steps=8,
+                              L_x=L_x,
+                              L_y=L_y,
+                              n_x=2,
+                              n_y=24,
                               #geo_transform = GT(L_x = L_x, L_y = L_y),
-                              show_iter = False,
-                              z0_ratio = 0.1,
-                              MAX_ITER = 100)
+                              show_iter=False,
+                              z0_ratio=0.1,
+                              MAX_ITER=100)
     n_h = cp.N_h
     n_v = cp.N_v
     n_i = cp.N_i
 
-    A = 0.5
+    A = 0.2
 
-    B = 0.1
+    B = 0.5
 
     s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
 
-    face_z_t = CnstrTargetFace(F = [r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) - s_term])
+    face_z_t = CnstrTargetFace(F=[r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) - s_term])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        n_v[:, :].flatten(),
                        n_i[:, :].flatten()
@@ -92,7 +92,7 @@ if __name__ == '__main__':
                     [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
 
-    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype = float)
+    cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype=float)
 
     # @todo - renaming of methods
     # @todo - projection on the caf - to get the initial vector
@@ -130,8 +130,8 @@ if __name__ == '__main__':
 #
 #    X_fc = cp2.solve(X0, constant_length = True)
 #
-    my_model = CreasePatternView(data = cp,
-                                 ff_resolution = 30,
-                                 show_cnstr = True)
+    my_model = CreasePatternView(data=cp,
+                                 ff_resolution=30,
+                                 show_cnstr=True)
     my_model.configure_traits()
 
