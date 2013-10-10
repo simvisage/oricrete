@@ -20,7 +20,6 @@ from etsproxy.traits.api import HasStrictTraits, \
     Constant
 
 from etsproxy.traits.ui.api import View
-
 from equality_constraint import \
     IEqualityConstraint
 

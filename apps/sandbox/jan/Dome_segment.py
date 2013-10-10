@@ -7,6 +7,13 @@ from oricrete.folding2 import \
     YoshimuraCreasePattern, CnstrTargetFace, Folding, link, r_, s_, t_, fix
 import numpy as np
 
+#from oricrete.folding import \
+#    YoshimuraCreasePattern, CreasePattern, CreasePatternView, x_, y_
+
+#from oricrete.folding.cnstr_target_face import \
+#    CnstrTargetFace, r_, s_, t_
+
+
 L_x = 6.43
 L_y = 2.2
 
@@ -48,7 +55,7 @@ n_arr = np.hstack([cp.N_h[:, :].flatten(),
                    cp.N_i[:, :].flatten()
                   ])
 
+
 fold = Folding(cp=cp, n_steps=10, dof_constraints= cs,
                init_tf_lst=[(caf, n_arr)] )
-print fold.x_t[9]
 fold.show()

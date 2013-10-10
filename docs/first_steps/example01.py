@@ -9,3 +9,4 @@ cp = CreasePattern(X=[[0, 0, 0],
                    F=[[0, 1, 2]]
                    )
 
+cp.mlab_show()

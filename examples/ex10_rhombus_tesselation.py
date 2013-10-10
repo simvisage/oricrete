@@ -64,7 +64,7 @@ if __name__ == '__main__':
     cp = YoshimuraCreasePattern(n_steps = 4,
                               L_x = L_x,
                               L_y = L_y,
-                              n_x = 3,
+                              n_x = 4,
                               n_y = 12,
                               #geo_transform = GT(L_x = L_x, L_y = L_y),
                               show_iter = False,
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     n_v = cp.N_v
     n_i = cp.N_i
 
-    A = 0.1
+    A = 0.5
 
     B = 0.1
 

@@ -611,21 +611,7 @@ That's all you need to do.
          
 
 if __name__ == '__main__':
-    from oricrete.folding.examples.ex04_rhombus_ref_surface import create_cp_fc_03
-    points = np.array([[0, 0, 0],
-                       [1, 0, 0],
-                       [0, 1, 0],
-                       [1, 1, 0]])
-    
-    cl = [[0, 1],
-          [1, 2],
-          [2, 0],
-          [1, 3],
-          [3, 2]
-          ]
-    
-    facet = [[0, 1, 2],
-             [1, 3, 2]]
+    from oricrete.folding.examples.ex04_rhombus_ref_surface import create_cp_fc_03   
     cp = create_cp_fc_03(n_steps = 80, L_x = 4, L_y = 2, n_x = 4, n_y = 4)
     X0 = cp.generate_X0()
     X_fc = cp.solve(X0)
@@ -634,7 +620,7 @@ if __name__ == '__main__':
     al = AbaqusLink(data = cp, n_split = 10)
     al.model_name = 'test_name'
     al.build_inp()
-    al.abaqus_solve()
-    al.abaqus_cae()
+#    al.abaqus_solve()
+#    al.abaqus_cae()
     
   
