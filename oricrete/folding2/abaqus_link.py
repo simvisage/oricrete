@@ -44,7 +44,7 @@ class AbaqusLink(HasTraits):
         Identify all indexes of the crease pattern nodes laying in
         z = 0 plane (in t = 0) and aren't grab points or line points.
         '''
-        n = self.data.N
+        n = self.data.cp.N
         index = np.ma.array(range(0, len(n)))
 
         gp = np.array(self.data.GP)

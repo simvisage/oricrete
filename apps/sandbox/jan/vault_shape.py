@@ -9,7 +9,7 @@ from oricrete.folding2 import \
     CreasePatternView
 import numpy as np
 
-#from oricrete.folding import abaqus_link
+from oricrete.folding2.abaqus_link import AbaqusLink
 
 
 def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
@@ -50,18 +50,18 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
 #                    tf_lst=[(caf, n_arr)]
                    )
     print 'u', lift.u_t[-1]
-    return init
+    return init,lift
 
 '''configure parameters:'''
 
-init = get_constrained_YCP(L_x=6.3, L_y=4.2,
+init,fold = get_constrained_YCP(L_x=6.3, L_y=4.2,
                            n_x=3, n_y=4, d= -1.25)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
 
 
-v = CreasePatternView(root=init)
-v.configure_traits()
-#al = AbaqusLink(data = cp, n_split = 10)
-#al.model_name = 'test_name'
-#al.build_inp()
+#v = CreasePatternView(root=init)
+#v.configure_traits()
+al = AbaqusLink(data = fold, n_split = 10)
+al.model_name = 'test_name'
+al.build_inp()
 
 
