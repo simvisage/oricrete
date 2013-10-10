@@ -323,7 +323,7 @@ class CreasePattern(OriNode,
         is necessary for the export to Abaqus.
         '''
         a_f = []
-        for i in self.facets:
+        for i in self.F:
             v1 = np.array(self.X[i[1]] - self.X[i[0]])
             v2 = np.array(self.X[i[2]] - self.X[i[1]])
             normal = np.cross(v1, v2)

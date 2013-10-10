@@ -44,24 +44,26 @@ class AbaqusLink(HasTraits):
         Identify all indexes of the crease pattern nodes laying in
         z = 0 plane (in t = 0) and aren't grab points or line points.
         '''
-        n = self.data.cp.N
-        index = np.ma.array(range(0, len(n)))
+        # @todo: modify this, the proper criterion is to test if a node is attached to a facet
+        #
+        return self.data.cp.N
+#        index = np.ma.array(range(0, len(n)))
+#
+#        gp = np.array(self.data.GP)
+#        if(len(gp > 0)):
+#            index[gp[:, 0]] = np.ma.masked
+#        lp = np.array(self.data.LP)
+#        if(len(lp > 0)):
+#            index[lp[:, 0]] = np.ma.masked
+#        index = index.compressed()
+#        final_index = []
+#        for i in index:
+#            if(n[i, 2] == 0):
+#                final_index.append(i)
+#        return final_index
 
-        gp = np.array(self.data.GP)
-        if(len(gp > 0)):
-            index[gp[:, 0]] = np.ma.masked
-        lp = np.array(self.data.LP)
-        if(len(lp > 0)):
-            index[lp[:, 0]] = np.ma.masked
-        index = index.compressed()
-        final_index = []
-        for i in index:
-            if(n[i][2] == 0):
-                final_index.append(i)
-        return final_index
-
-
-    _origin_nodes = Property(Array(value=[], dtype=float, geometry=True), depends_on='data.N, data, iterationstep')
+    _origin_nodes = Property(Array(value=[], dtype=float, geometry=True),
+                             depends_on='data.N, data, iterationstep')
     @cached_property
     def _get__origin_nodes(self):
         '''
@@ -71,7 +73,8 @@ class AbaqusLink(HasTraits):
 
 
 
-    _origin_facets = Property(Array(value=[], dtype='int_', geometry=True), depends_on='data.F, data')
+    _origin_facets = Property(Array(value=[], dtype='int_', geometry=True),
+                              depends_on='data.F, data')
     @cached_property
     def _get__origin_facets(self):
         '''
@@ -549,7 +552,8 @@ S,\n\
         loadcases = self._inp_loadcases
         output = self._inp_output
 
-        inp_file = open(self.model_name + '.inp', 'w')
+        fname = self.model_name + '.inp'
+        inp_file = open(fname, 'w')
         inp_file.write(head)
         inp_file.write(part)
         inp_file.write(assembly)
@@ -558,7 +562,7 @@ S,\n\
         inp_file.write(output)
 
         inp_file.close()
-        print'inp file written'
+        print'inp file %s written' % fname
 
 #=======================================================================
 # Connection to server and solving of the problem
