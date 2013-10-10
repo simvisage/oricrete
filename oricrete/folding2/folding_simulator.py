@@ -59,7 +59,7 @@ class FoldingSimulator(HasStrictTraits):
     goal_function = Property(depends_on='+input_change')
     @cached_property
     def _get_goal_function(self):
-        if self.goal_function_type:
+        if self.goal_function_type_:
             return self.goal_function_type_(reshaping=self)
         else:
             return None
@@ -229,7 +229,7 @@ class FoldingSimulator(HasStrictTraits):
         '''
         time_start = sysclock()
 
-        if self.goal_function_type != None:
+        if self.goal_function_type_ != None:
             U_t = self._solve_fmin(self.U_0, self.acc)
         else:
             U_t = self._solve_nr(self.U_0, self.acc)

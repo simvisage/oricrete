@@ -38,6 +38,7 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
     init = Initialization(cp=ycp, tf_lst=[(caf, n_arr)])
 
     lift = Folding(source=init, n_steps=10, MAX_ITER=500,
+                   goal_function_type='none',
                    dof_constraints=fixed_node +
                                    planar_front_boundary +
                                    planar_back_boundary +
@@ -53,8 +54,8 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
 
 '''configure parameters:'''
 
-init = get_constrained_YCP(L_x=6.3, L_y=4.2,  
-                           n_x=3, n_y=4, d=-1.25)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+init = get_constrained_YCP(L_x=6.3, L_y=4.2,
+                           n_x=3, n_y=4, d= -1.25)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
 
 
 v = CreasePatternView(root=init)
