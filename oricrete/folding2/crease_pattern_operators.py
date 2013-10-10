@@ -23,7 +23,7 @@ from einsum_utils import DELTA, EPS
 class CreaseNodeOperators(HasStrictTraits):
     '''Operators delivering the instantaneous states related to nodes.
     '''
-    iN_F_theta = Property
+    iN_theta = Property
     '''List of crease angles around interior nodes in the format
     ``[ (node, np.array([neighbor_node1, neighbor_node2, ... neighbor_node1)), ... ]``
 
@@ -32,12 +32,12 @@ class CreaseNodeOperators(HasStrictTraits):
     .. math::
         \\theta = \\arccos\left(\\frac{a \cdot b}{ \left| a \\right| \left| b \\right| }\\right)
     '''
-    def _get_iN_F_theta(self):
-        return self.get_iN_F_theta(np.zeros_like(self.x_0))
+    def _get_iN_theta(self):
+        return self.get_iN_theta(np.zeros_like(self.x_0))
 
-    def get_iN_F_theta(self, u):
+    def get_iN_theta(self, u):
         x = self.x_0 + u
-        oa = []
+        theta_arr = []
         for n, neighbors in zip(self.iN, self.iN_neighbors):
             v = x[neighbors] - x[n]
             a = v[:-1]
@@ -47,8 +47,8 @@ class CreaseNodeOperators(HasStrictTraits):
             bb = np.sqrt(np.sum(b * b, axis=1))
             gamma = ab / (aa * bb)
             theta = np.arccos(gamma)
-            oa.append(theta)
-        return oa
+            theta_arr.append(theta)
+        return theta_arr
 
 class CreaseLineOperators(HasStrictTraits):
     '''Operators delivering the instantaneous states of crease lines.
@@ -83,14 +83,23 @@ class CreaseLineOperators(HasStrictTraits):
         L = self.L
         return X[ L[:, 1] ] - X[ L[:, 0] ]
 
-    def get_L_rho(self, u):
-        '''Get instantaneous angle between two facets.
-        '''
-        F_normals = self.get_F_normals(u)
+    iL_phi = Property
+    '''dihedral angles around the interior nodes.
+    '''
+    def _get_iL_phi(self):
+        return self.get_iL_phi(np.zeros_like(self.x_0))
 
-    def get_L_rho_du(self, u):
-        '''Get instantaneous angle between the facets along each line
-        '''
+    def get_iL_phi(self, u):
+        iL_F = self.iL_F
+        F_normals = self.get_F_normals(u)
+        iL_F_normals = F_normals[iL_F]
+        a = iL_F_normals[:, 0, :]
+        b = iL_F_normals[:, 1, :]
+        ab = np.sum(a * b, axis=1)
+        aa = np.sqrt(np.sum(a * a, axis=1))
+        bb = np.sqrt(np.sum(b * b, axis=1))
+        gamma = ab / (aa * bb)
+        return np.arccos(gamma)
 
 class CreaseFacetOperators(HasStrictTraits):
     '''Operators evaluating the instantaneous states of the facets.
@@ -131,6 +140,10 @@ class CreaseFacetOperators(HasStrictTraits):
                          ], dtype='f')
 
     def get_F_normals(self, u):
+        n = self.get_Fa_normals(u)
+        return np.sum(n, axis=1)
+
+    def get_Fa_normals(self, u):
         '''Get normals of the facets.
         '''
         x = self.x_0 + u
@@ -142,7 +155,7 @@ class CreaseFacetOperators(HasStrictTraits):
     def get_F_area(self, u):
         '''Get the surface area of the facets.
         '''
-        n = self.get_F_normals(u)
+        n = self.get_Fa_normals(u)
         a = np.sqrt(np.einsum('Iai,Iai->Ia', n, n))
         A = np.einsum('a,Ia->I', self.eta_w, a)
         return A
@@ -205,6 +218,10 @@ if __name__ == '__main__':
     print
     print 'F_area: facet area'
     print cp.F_area
-    print 'iN_F_theta: angles around the interior nodes'
-    print cp.iN_F_theta
+    print
+    print 'iN_theta: angles around the interior nodes'
+    print cp.iN_theta
+    print
+    print 'iL_phi: dihedral angles around interior lines'
+    print cp.iL_phi
     print

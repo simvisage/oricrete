@@ -68,5 +68,8 @@ print 'F_area: facet area'
 print cp.F_area
 print
 print 'iN_F_theta: angles around the interior nodes'
-print cp.iN_F_theta
+print cp.iN_theta
+print
+print 'iL_phi: dihedral angles around interior lines'
+print cp.iL_phi
 print

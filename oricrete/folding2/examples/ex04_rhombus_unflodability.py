@@ -41,13 +41,15 @@ if __name__ == '__main__':
                      dof_constraints=link(cp.N_v[0, :], 0, 1., cp.N_v[-1, :], 0, 1.)
                      )
     form.U_1
-    uf = Folding(source=form, unfold=True, tf_lst=[(face_z_t, cp.N)],
+    uf = Folding(name='develop', source=form, unfold=True, tf_lst=[(face_z_t, cp.N)],
                  n_steps=10, MAX_ITER=500)
-    face_y1_t = CnstrTargetFace(F=[r_, t_ * L_y / 2., s_])
-    face_y2_t = CnstrTargetFace(F=[r_, L_y - t_ * L_y / 2., s_])
+    #face_y1_t = CnstrTargetFace(F=[r_, t_ * L_y / 2., s_])
+    #face_y2_t = CnstrTargetFace(F=[r_, L_y - t_ * L_y / 2., s_])
+    face_y1_t = CnstrTargetFace(F=[r_, L_y / 2., s_])
 
-    ff = Folding(source=form, tf_lst=[(face_y1_t, cp.N_h[:, 0]), (face_y2_t, cp.N_h[:, -1])],
-                 n_steps=10, MAX_ITER=500)
+
+    ff = Folding(name='fold flat', source=form, tf_lst=[(face_y1_t, cp.N)],
+                 n_steps=1, MAX_ITER=500)
 
     v = CreasePatternView(root=init)
     v.configure_traits()

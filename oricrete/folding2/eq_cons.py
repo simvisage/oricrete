@@ -528,30 +528,16 @@ class AngleEqCons(EqCons):
                                                          dtype='i')[None, :])
         return i_dof_ix.flatten(), j_dof_ix.flatten()
 
-    def get_gamma_arr(self, U, t):
+    def get_iN_theta(self, U, t):
         u = U.reshape(self.n_N, self.n_D)
-        x = self.x_0 + u
-        gamma_lst = []
-        for i, neighbors in zip(self.cp.iN, self.cp.iN_neighbors):
-            v = x[neighbors] - x[i]
-            a = v[:-1]
-            b = v[1:]
-            ab = np.sum(a * b, axis=1)
-            aa = np.sqrt(np.sum(a * a, axis=1))
-            bb = np.sqrt(np.sum(b * b, axis=1))
-            gamma_lst.append(ab / (aa * bb))
-        return np.array(gamma_lst)
-
-    def get_theta_arr(self, U, t):
-        gamma_arr = self.get_gamma_arr(U, t)
-        return np.array([np.arccos(gamma) for gamma in gamma_arr])
+        return self.cp.get_iN_theta(u)
 
     #===========================================================================
     # Constraint methods
     #===========================================================================
 
     def _get_G(self, U, t):
-        theta_arr = self.get_theta_arr(U, t)
+        theta_arr = self.get_iN_theta(U, t)
         signs = self.signs
         return np.array([np.sum(signs[:theta.shape[0]] * theta)
                          for theta in theta_arr])
@@ -662,13 +648,13 @@ if __name__ == '__main__':
 
     reshaping = Reshaping(cp=cp)
 
-    print 'theta_lst', cp.neighbor_otheta_lst
+    print 'theta_lst', cp.iN_neighbors
 
     uf = Developability(reshaping)
 
     U = np.zeros_like(cp.X)
     U[3] = 0.1
-    print 'theta_arr', uf.get_theta_arr(U, 0)
+    print 'theta_arr', uf.get_iN_theta(U, 0)
 
     print 'G\n', uf.get_G(U, 0)
     print 'G_du\n', uf.get_G_du(U, 0)
