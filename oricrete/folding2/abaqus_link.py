@@ -522,11 +522,11 @@ Struc, GRAV, 9.81, 0.0, 0.0, -1.0\n'
 ** FIELD OUTPUT: F-Output-1\n\
 ** \n\
 *Output, field\n\
-*Node Output\n\
-CF, RF, U\n\
-*Element Output\n\
-ALPHA, ALPHAN, CS11, CTSHR, MISES, MISESMAX, MISESONLY, PRESSONLY, PS, S, SF, SM, SSAVG, TRIAX, TSHR, VS\n\
-*Output, history, frequency=0\n\
+#*Node Output\n\
+#CF, RF, U\n\
+#*Element Output\n\
+#ALPHA, ALPHAN, CS11, CTSHR, MISES, MISESMAX, MISESONLY, PRESSONLY, PS, S, SF, SM, SSAVG, TRIAX, TSHR, VS\n\
+*Output, field, frequency=0\n\
 **\n\
 ** HISTORY OUTPUT: H-Output-1\n\
 ** \n\
