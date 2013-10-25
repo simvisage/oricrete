@@ -5,7 +5,7 @@ import numpy as np
 
 L_x = 3.0
 L_y = 2.0
-v = 0.3
+v = 0.5
 
 cp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=3, n_y=4)
 

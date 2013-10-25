@@ -426,11 +426,14 @@ class CreasePatternView(HasTraits):
         '''
         Pipeline for all constraintfaces of the source Object.
         '''
-        ff_pipe_view = [FaceView(cnstr, data=self)
-                            for cnstr in self.data.cf_lst] + \
-                       [FaceView(cnstr, data=self)
-                            for cnstr in self.data.tf_lst]
-        return ff_pipe_view
+        if hasattr(self.data, 'tf_lst'):
+            ff_pipe_view = [FaceView(cnstr, data=self)
+                                for cnstr in self.data.cf_lst] + \
+                           [FaceView(cnstr, data=self)
+                                for cnstr in self.data.tf_lst]
+            return ff_pipe_view
+        else:
+            return []
 
     # when parameters are changed, plot is updated
     @on_trait_change('fold_step, ff_pipe_view')
