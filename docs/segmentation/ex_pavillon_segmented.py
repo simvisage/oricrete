@@ -120,8 +120,10 @@ form.X_1
 #===============================================================================
 # Unfolding the segment
 #===============================================================================
-uf = Folding(source=form, name='unfolding', unfold=True, tf_lst=[(tf_upper_z_t, cp.N)],
-             n_steps=3, MAX_ITER=500)
+uf = Folding(source=form, name='unfolding', unfold=True, tf_lst=[(tf_upper_z_t, cp.N),
+                                                                 ],
+             dof_constraints=fix(cp.N_h[:, 1].flatten(), [1]),
+             n_steps=10, MAX_ITER=500)
 #uf.X_1
 
 #===============================================================================
