@@ -11,6 +11,9 @@ from waterbomb_crease_pattern import \
 from crane_crease_pattern import \
     CraneCreasePattern
 
+from crease_pattern_operators import \
+    CreaseNodeOperators, CreaseLineOperators, CreaseFacetOperators, CummulativeOperators
+
 from crease_pattern_view import \
     CreasePatternView
 

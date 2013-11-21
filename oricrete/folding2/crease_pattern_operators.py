@@ -14,9 +14,9 @@
 
 import numpy as np
 
-from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
-    Event, Property, Constant, DelegatesTo, PrototypedFrom, cached_property, Str, Delegate, \
-    Button, Int, Float, Array, Bool, List, Dict, Interface, implements, WeakRef
+from etsproxy.traits.api import HasStrictTraits, \
+    Property, cached_property, \
+    Array
 
 from einsum_utils import DELTA, EPS
 
@@ -108,19 +108,43 @@ class CreaseFacetOperators(HasStrictTraits):
     #===========================================================================
     # Property operators for initial configuration
     #===========================================================================
-    F_normals = Property(Array, depends_on='X, L, F')
-    '''normal vectors.
+    F0_normals = Property(Array, depends_on='X, L, F')
+    '''Normal facet vectors.
     '''
     @cached_property
-    def _get_F_normals(self):
-        return self.get_F_normals(np.zeros_like(self.x_0))
+    def _get_F0_normals(self):
+        x_F = self.x_0[self.F]
+        N_deta_ip = self.get_N_deta(self.eta_ip)
+        r_deta = np.einsum('ajK,IKi->Iaij', N_deta_ip, x_F)
+        Fa_normals = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
+        return np.sum(Fa_normals, axis=1)
+
+    sign_normals = Property(Array, depends_on='X,L,F')
+    '''Orientation of the normal in the initial state.
+    This array is used to switch the normal vectors of the faces
+    to be oriented in the positive sense of the z-axis.
+    '''
+    @cached_property
+    def _get_sign_normals(self):
+        return np.sign(self.F0_normals[:, 2])
+
+    F_N = Property(Array, depends_on='X,L,F')
+    '''Counter-clockwise enumeration.
+    '''
+    @cached_property
+    def _get_F_N(self):
+        turn_facets = np.where(self.sign_normals < 0)
+        F_N = np.copy(self.F)
+        F_N[turn_facets, :] = self.F[turn_facets, ::-1]
+        return F_N
 
     F_area = Property(Array, depends_on='X, L, F')
-    '''normal vectors.
+    '''Facet areas.
     '''
     @cached_property
     def _get_F_area(self):
         return self.get_F_area(np.zeros_like(self.x_0))
+
     #===============================================================================
     # Integration scheme
     #===============================================================================
@@ -140,6 +164,8 @@ class CreaseFacetOperators(HasStrictTraits):
                          ], dtype='f')
 
     def get_F_normals(self, u):
+        '''Get the normals of the facets.
+        '''
         n = self.get_Fa_normals(u)
         return np.sum(n, axis=1)
 
@@ -147,7 +173,7 @@ class CreaseFacetOperators(HasStrictTraits):
         '''Get normals of the facets.
         '''
         x = self.x_0 + u
-        x_F = x[self.F]
+        x_F = x[self.F_N]
         N_deta_ip = self.get_N_deta(self.eta_ip)
         r_deta = np.einsum('ajK,IKi->Iaij', N_deta_ip, x_F)
         return np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
@@ -168,7 +194,7 @@ class CummulativeOperators(HasStrictTraits):
         '''
 
     def get_E_dx(self, u):
-        '''Get the gradient of potential enerrgy with respect to the current nodal position.
+        '''Get the gradient of potential energy with respect to the current nodal position.
         '''
 
 if __name__ == '__main__':
@@ -189,6 +215,8 @@ if __name__ == '__main__':
     print cp.L
     print 'faces'
     print cp.F
+    print 'faces counter-clockwise'
+    print cp.F_N
     print 'node neighbors'
     print cp.N_neighbors
     print 'interior nodes'
@@ -208,13 +236,13 @@ if __name__ == '__main__':
     print 'lines of faces'
     print cp.F_L
 
-    # operators
+    # dependent attributes in initial state
 
     print 'L_lengths: line lengths'
     print cp.L_lengths
     print
     print 'F_normals: facet normals'
-    print cp.F_normals
+    print cp.F0_normals
     print
     print 'F_area: facet area'
     print cp.F_area
@@ -225,3 +253,23 @@ if __name__ == '__main__':
     print 'iL_phi: dihedral angles around interior lines'
     print cp.iL_phi
     print
+
+    u = np.zeros_like(cp.x_0)
+    # dependent attributes in initial state
+
+    print 'L_lengths: line lengths'
+    print cp.get_L_lengths(u)
+    print
+    print 'F_normals: facet normals'
+    print cp.get_F_normals(u)
+    print
+    print 'F_area: facet area'
+    print cp.get_F_area(u)
+    print
+    print 'iN_theta: angles around the interior nodes'
+    print cp.get_iN_theta(u)
+    print
+    print 'iL_phi: dihedral angles around interior lines'
+    print cp.get_iL_phi(u)
+    print
+

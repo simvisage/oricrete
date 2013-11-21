@@ -57,16 +57,7 @@ class CreasePattern(OriNode,
         return np.zeros((0, 3), dtype='int_')
 
     #===============================================================================
-    # Enumeration of dofs 
-    #===============================================================================
-
-    all_dofs = Property(Array, depends_on='constraints')
-    @cached_property
-    def _get_all_dofs(self):
-        return np.arange(self.n_dofs).reshape(self.n_N, self.n_D)
-
-    #===============================================================================
-    # Convenience properties providing information about the input 
+    # Derived attributes describing the sizes of arrays 
     #===============================================================================
     n_N = Property
     '''Number of crease nodes (Property)
@@ -81,9 +72,12 @@ class CreasePattern(OriNode,
         return self.L.shape[0]
 
     n_D = Constant(3)
+    '''Dinensionality of the Euklidian space.
+    '''
 
-    # total number of dofs
     n_dofs = Property(depends_on='N')
+    '''Total number of dofs (Property)
+    '''
     @cached_property
     def _get_n_dofs(self):
         return self.n_N * self.n_D
@@ -92,16 +86,16 @@ class CreasePattern(OriNode,
     # Node mappings
     #===========================================================================
 
-    N = Property
+    N = Property(depends_on='X')
     '''Array of all node numbers
     '''
     @cached_property
     def _get_N(self):
         return np.arange(self.n_N)
 
-    NxN_L = Property
+    NxN_L = Property(depends_on='X,L')
     '''Matrix with ``n_N x n_N`` entries containing line numbers
-    for the connected nodes. For unconnected notes it contains the value ``-1``
+    for the connected nodes. For unconnected nodes it contains the value ``-1``
     '''
     @cached_property
     def _get_NxN_L(self):
@@ -110,7 +104,7 @@ class CreasePattern(OriNode,
         NxN[ self.L[:, 1], self.L[:, 0]] = np.arange(self.n_L)
         return NxN
 
-    N_neighbors = Property
+    N_neighbors = Property(depends_on='X,L')
     '''Neighbors attached to each node
     '''
     @cached_property
@@ -196,6 +190,8 @@ class CreasePattern(OriNode,
         return np.where(np.bincount(self.L_F_map[0]) != 2)[0]
 
     iL_F = Property
+    '''Faces associated with interior lines (n_L,2)
+    '''
     @cached_property
     def _get_iL_F(self):
         # get the line - to -facet mapping

@@ -173,4 +173,4 @@ if __name__ == '__main__':
 
     gd = GenDoc(build_mode='global')
     gd.generate_html()
-    gd.push_html()
+    #gd.push_html()

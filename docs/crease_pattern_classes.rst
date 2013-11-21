@@ -11,10 +11,36 @@ CreasePattern
 	:parts: 1
 
 .. autoclass:: CreasePattern
-   :members:
-   :undoc-members:
+	:members:
 
+CreaseNodeOperators
+-------------------
 
+.. inheritance-diagram:: CreaseNodeOperators
+	:parts: 1
+
+.. autoclass:: CreaseNodeOperators
+	:members:
+
+CreaseLineOperators
+-------------------
+
+.. inheritance-diagram:: CreaseLineOperators
+	:parts: 1
+
+.. autoclass:: CreaseLineOperators
+	:members:
+
+CreaseFacetOperators
+--------------------
+
+.. inheritance-diagram:: CreaseFacetOperators
+	:parts: 1
+
+.. autoclass:: CreaseFacetOperators
+	:members:
+
+	
 Crease pattern factories
 ========================
 

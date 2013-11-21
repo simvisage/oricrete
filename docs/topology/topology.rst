@@ -4,12 +4,12 @@
 
 .. currentmodule:: oricrete.folding2
 
-=======================
-Crease pattern topology
-=======================
+*****************************
+Crease pattern representation
+*****************************
 
-Input mappings
---------------
+Input attributes
+================
 
 Depending on the criteria or constraint to be implemented 
 the mappings between nodes, lines and facets are required.
@@ -18,17 +18,17 @@ The input mappings of a crease pattern include
 Their identification is done by index within the respective array.
 A particular crease pattern is defined by specifying 
 
- * the array of nodal coordinates ``X`` 
+ * ``X``  array of nodal coordinates
    of the shape ``(n_N,3)``,
  
- * the associations between lines and nodes in the ``L`` array 
+ * ``L``: array specifying the associations between lines and nodes  
    of the shape ``(n_L,2)``, and  
 
- * the associations between the faces and nodes in the ``F`` array 
+ * ``F`` array specifying the associations between the faces and nodes  
    of the shape ``(n_F,3)``.  
 
 Derived mappings
-----------------
+================
 
 Based on the input mappings defined in the ``X, L, F`` arrays, derived 
 mappings can be obtained from the crease pattern class. 
@@ -36,7 +36,7 @@ The following tables summarize the possible, on-demand constructed
 mappings represented as cached properties of the crease pattern object ``cp``:
 
 Node mappings 
-^^^^^^^^^^^^^
+-------------
 
 +---------------------+-------------------+------------------------------------------------+
 |  ``cp.N``           | (n_N)             | all nodes                                      |
@@ -58,7 +58,7 @@ Node mappings
 +---------------------+-------------------+------------------------------------------------+
 
 Line mappings
-^^^^^^^^^^^^^
+-------------
 
 +-------------+-------------------+------------------------------------------------+
 |  ``cp.iL``  | (n_iL)            | interior lines                                 |
@@ -70,13 +70,34 @@ Line mappings
 +-------------+-------------------+------------------------------------------------+
 
 Face mappings
-^^^^^^^^^^^^^
+-------------
+
++-------------+-------------------+------------------------------------------------+
+|  ``cp.F_N`` | (n_F, 3)          | nodes attached to a face - counter-clockwise   |
 +-------------+-------------------+------------------------------------------------+
 |  ``cp.F_L`` | (n_F, 3)          | lines attached to a face (unordered)           |
 +-------------+-------------------+------------------------------------------------+
 
+Derived attributes
+==================
+
+The geometric parameters of the crease pattern in the planar state can be obtained
+directly using the following attributes  
+
++------------------+-------------------+-------------------------------------------------------------+
+| ``cp.L_length``  | (n_L)             | lengths of crease lines                                     |
++------------------+-------------------+-------------------------------------------------------------+
+| ``cp.F_normals`` | (n_F,3)           | normal vectors of the faces                                 |
++------------------+-------------------+-------------------------------------------------------------+
+| ``cp.F_area``    | (n_F,1)           | areas of faces                                              |
++------------------+-------------------+-------------------------------------------------------------+
+| ``cp.iN_theta``  | (n_iN,n_nbr)      | angles between lines circumventing interior nodes           |
++------------------+-------------------+-------------------------------------------------------------+
+| ``cp.iL_phi``    | (n_iL)            | dihedral angle between faces associated with interior lines |
++------------------+-------------------+-------------------------------------------------------------+
+
 Example
-^^^^^^^
+-------
 
 The mappings are demonstrated using an example with five facets, one interior node. 
 The code on the left produces the output on the right.
@@ -89,7 +110,7 @@ The code on the left produces the output on the right.
 
 
 Interim configuration characteristics
--------------------------------------
+=====================================
 
 For a given state ``u`` return the normal vectors and/or get the angles between them. 
 

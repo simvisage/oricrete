@@ -62,3 +62,23 @@ F_L: faces -> lines
  [2 7 6]
  [3 4 7]
  [8 9 1]]
+
+L_lengths: line lengths
+[ 1.          1.          1.          1.          0.70710678  0.70710678
+  0.70710678  0.70710678  0.70710678  0.70710678]
+
+F_normals: facet normals
+[[ 0.   0.   0.5]
+ [ 0.   0.   0.5]
+ [ 0.   0.   0.5]
+ [ 0.   0.   0.5]
+ [ 0.   0.   0.5]]
+
+F_area: facet area
+[ 0.25  0.25  0.25  0.25  0.25]
+
+iN_F_theta: angles around the interior nodes
+[array([ 1.57079633,  1.57079633,  1.57079633,  1.57079633])]
+
+iL_phi: dihedral angles around interior lines
+[ 0.  0.  0.  0.  0.]
