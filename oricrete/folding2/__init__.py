@@ -20,7 +20,8 @@ from crease_pattern_view import \
 from eq_cons import \
     EqCons, \
     DofConstraints, GrabPoints, PointsOnLine, \
-    PointsOnSurface, ConstantLength, Developability
+    PointsOnSurface, EqConsConstantLength, EqConsDevelopability, \
+    EqConsFlatFoldability
 
 from eq_cons_control_face import \
     EqConsControlFace, EqConsControlFace as CF, x_, y_, z_, r_, s_, t_
@@ -33,6 +34,12 @@ from eq_cons_dofs import \
 
 from opt_crit_target_face import \
     CnstrTargetFace, TF
+
+from opt_crit_node_dist import \
+    OptCritNodeDist
+
+from opt_crit_potential_energy import \
+    OptCritPotentialEnergy
 
 from reshaping_assembly import \
     RotSymAssembly, MonoShapeAssembly

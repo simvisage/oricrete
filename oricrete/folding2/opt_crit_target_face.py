@@ -149,7 +149,8 @@ class ParamFaceOperator(HasTraits):
         return self.d_norm_cond_fn(*args)
 
     def get_r_pnt(self, r0_pnt, x_pnt, t):
-
+        '''Get the parametric coordinates of a nearest point on a surface.
+        '''
         get_norm_cond = lambda r_pnt: self.get_norm_cond(r_pnt, x_pnt, t)
         get_d_norm_cond = lambda r_pnt: self.get_d_norm_cond(r_pnt, x_pnt, t)
 
@@ -197,6 +198,8 @@ class CnstrTargetFace(HasTraits):
     defined surface F.
     '''
     pf_operator = Instance(ParamFaceOperator)
+    '''Operators on a parametric surface
+    '''
     def _pf_operator_default(self):
         return ParamFaceOperator()
 
@@ -205,44 +208,47 @@ class CnstrTargetFace(HasTraits):
     t = Float(0.0, input=True)
 
     X_arr = Array(float, input=True)
+    '''Input coordinates of nodes for the evaluation of the closest point projection.
+    '''
     def _X_arr_default(self):
         return np.array([[0, 0, 1]], dtype='f')
 
-    #===========================================================================
-    # Closest point projection of X points to the target surface
-    #===========================================================================
     r_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
+    '''Closest point projection of X points to the target surface.
+    '''
     @cached_property
     def _get_r_arr(self):
         r0_pnt = np.array([0, 0], dtype='f')
         return np.array([self.pf_operator.get_r_pnt(r0_pnt, x_pnt, self.t)
                          for x_pnt in self.X_arr], dtype='f')
 
-    #===========================================================================
-    # Distance from the target surface
-    #===========================================================================
     d_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
+    '''Distance from the target surface.
+    '''
     @cached_property
     def _get_d_arr(self):
         return np.array([self.pf_operator.get_dist(r_pnt, x_pnt, self.t)
                          for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype='f')
 
     d_xyz_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
+    '''Gradient of the distance from the target surface.
+    '''
     @cached_property
     def _get_d_xyz_arr(self):
         return np.array([self.pf_operator.get_d_dist_xyz(r_pnt, x_pnt, self.t)
                          for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype='f')
 
-    #===========================================================================
-    # Level set representation of the surface - used for visualization
-    #===========================================================================
     ls_arr = Property(Array(float), depends_on='+input, F, t, X_arr[]')
+    '''Level set representation of the surface - used for visualization.
+    '''
     @cached_property
     def _get_ls_arr(self):
         return np.array([self.pf_operator.get_ls(r_pnt, x_pnt, self.t)
                          for r_pnt, x_pnt in zip(self.r_arr, self.X_arr)], dtype='f')
 
     def Rf(self, x, y, z, t):
+        '''Evaluate the distance from the surface for all points in x, y, z and time t
+        '''
         self.X_arr = np.c_[x.flatten(), y.flatten(), z.flatten()]
         self.t = t
         ls_arr = self.ls_arr
@@ -307,6 +313,7 @@ if __name__ == '__main__':
     print 'r_arr:\n', target_face.r_arr
     print 'd_arr:\n', target_face.d_arr
     print 'ls_arr:\n', target_face.ls_arr
+    print 'd_xyz_arr:\n', target_face.d_xyz_arr
 
     target_face.X_arr = target_face.X_arr + 1.0
 
@@ -314,7 +321,12 @@ if __name__ == '__main__':
     print 'r_arr:\n', target_face.r_arr
     print 'd_arr:\n', target_face.d_arr
     print 'ls_arr:\n', target_face.ls_arr
-    print 'ls_arr:\n', target_face.d_xyz_arr
+    print 'd_xyz_arr:\n', target_face.d_xyz_arr
 
     target_face.F = [r_, s_, t_]
-    print 'ls_arr:\n', target_face.d_xyz_arr
+
+    print 'x_arr:\n', target_face.X_arr
+    print 'r_arr:\n', target_face.r_arr
+    print 'd_arr:\n', target_face.d_arr
+    print 'ls_arr:\n', target_face.ls_arr
+    print 'd_xyz_arr:\n', target_face.d_xyz_arr

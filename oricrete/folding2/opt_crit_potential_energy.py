@@ -129,7 +129,7 @@ if __name__ == '__main__':
     init.t_arr
     init.u_t[-1]
 
-    fold = Folding(source=init, n_steps=0,
+    fold = Folding(source=init, n_steps=1,
                    acc=1e-6, MAX_ITER=500,
                    )
 

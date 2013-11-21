@@ -22,9 +22,9 @@ from crease_pattern import \
     CreasePattern
 
 from eq_cons import \
-    IEqCons, ConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints, Developability, \
-    FlatFoldability
+    IEqCons, EqConsConstantLength, GrabPoints, \
+    PointsOnLine, PointsOnSurface, DofConstraints, EqConsDevelopability, \
+    EqConsFlatFoldability
 
 from folding_simulator import FoldingSimulator
 
@@ -222,8 +222,8 @@ class FormFinding(Reshaping):
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'ff' : FlatFoldability(reshaping=self),
-                'uf' : Developability(reshaping=self),
+                'ff' : EqConsFlatFoldability(reshaping=self),
+                'uf' : EqConsDevelopability(reshaping=self),
                 'ps' : PointsOnSurface(reshaping=self),
                 'dc' : DofConstraints(reshaping=self)
                 }
@@ -250,7 +250,7 @@ class Folding(Reshaping):
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(reshaping=self),
+                'cl' : EqConsConstantLength(reshaping=self),
                 'ps' : PointsOnSurface(reshaping=self),
                 'dc' : DofConstraints(reshaping=self)
                 }
@@ -271,7 +271,7 @@ class Lifting(Reshaping):
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(reshaping=self),
+                'cl' : EqConsConstantLength(reshaping=self),
                 'gp' : GrabPoints(reshaping=self),
                 'pl' : PointsOnLine(reshaping=self),
                 'ps' : PointsOnSurface(reshaping=self),

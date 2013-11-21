@@ -55,7 +55,7 @@ class EqCons(HasStrictTraits):
         self.reshaping = reshaping
         super(HasStrictTraits, self).__init__(*args, **kw)
 
-class ConstantLength(EqCons):
+class EqConsConstantLength(EqCons):
     '''Constant length constraint.
     '''
 
@@ -595,7 +595,7 @@ class AngleEqCons(EqCons):
 
         return G_du
 
-class Developability(AngleEqCons):
+class EqConsDevelopability(AngleEqCons):
     '''For the specified node associations require
     the sum of the angles between adjacent crease lines be 2Pi
     '''
@@ -612,7 +612,7 @@ class Developability(AngleEqCons):
     def get_G_du(self, U, t):
         return self._get_G_du(U, t)
 
-class FlatFoldability(AngleEqCons):
+class EqConsFlatFoldability(AngleEqCons):
     '''For the specified node associations require
     the sum of alternating crease angles be zero.
     '''
@@ -648,13 +648,13 @@ if __name__ == '__main__':
 
     reshaping = Reshaping(cp=cp)
 
-    print 'theta_lst', cp.iN_neighbors
+    print 'in_neighbors', cp.iN_neighbors
 
-    uf = Developability(reshaping)
+    uf = EqConsDevelopability(reshaping)
 
     U = np.zeros_like(cp.X)
     U[3] = 0.1
-    print 'theta_arr', uf.get_iN_theta(U, 0)
+    print 'iN_theta', uf.get_iN_theta(U, 0)
 
     print 'G\n', uf.get_G(U, 0)
     print 'G_du\n', uf.get_G_du(U, 0)
