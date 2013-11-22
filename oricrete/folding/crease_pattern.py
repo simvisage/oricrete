@@ -20,7 +20,7 @@ import numpy as np
 
 from equality_constraint import \
     IEqualityConstraint, EqConsConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints
+    PointsOnLine, EqConsPointsOnSurface, DofConstraints
 
 from scipy.optimize import fmin_slsqp
 
@@ -183,7 +183,7 @@ class CreasePattern(HasTraits):
                 'cl' : EqConsConstantLength(cp = self),
                 'gp' : GrabPoints(cp = self),
                 'pl' : PointsOnLine(cp = self),
-                'ps' : PointsOnSurface(cp = self),
+                'ps' : EqConsPointsOnSurface(cp = self),
                 'dc' : DofConstraints(cp = self)
                 }
 

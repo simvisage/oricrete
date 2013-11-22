@@ -9,6 +9,7 @@ Created on Nov 21, 2013
 from oricrete.folding2 import \
     CreasePattern, Reshaping, \
     EqConsDevelopability, EqConsFlatFoldability, \
+    EqConsConstantLength, EqConsPointsOnSurface, \
     CF, x_, y_, t_
 
 import numpy as np
@@ -27,6 +28,23 @@ def test_eq_cons_sliding_face():
 
     assert np.allclose(control_face.dRf(xx, yy, xx, 0)[0], np.array([0, 5, 10, 15, 20], dtype='f'))
     assert np.allclose(control_face.dRf(xx, yy, xx, 1)[1], np.array([4, 1.6, -0.8, -3.2, -5.6, -8], dtype='f'))
+
+
+    cp = CreasePattern(X=[[-4, -5, -3],
+                          [0, 0.0, 0],
+                          [1.0, 0.1, 0],
+                          ],
+                       L=[[0, 1], [1, 2]],
+                       )
+
+    reshaping = Reshaping(cp=cp, cf_lst=[(control_face, [2])])
+    sliding_face = EqConsPointsOnSurface(reshaping)
+    U = np.zeros_like(cp.X)
+    U[2] += 1.0
+
+    assert np.allclose(sliding_face.get_G(U, 0), [ 2.79])
+    assert np.allclose(sliding_face.get_G_du(U, 0),
+                       np.array([[ 0. , 0. , 0. , 0. , 0. , 0. , 4. , -2.2, 0. ]]))
 
 def test_eq_cons_developability():
 
@@ -85,5 +103,28 @@ def test_eq_cons_flat_foldability():
                                             - 2.        , 0.        , 0.        ]]
                                             )
 
+def test_eq_cons_constant_length():
+
+    cp = CreasePattern(X=[[-4, -5, -3],
+                          [0, 0.0, 0],
+                          [1.0, 0.1, 0],
+                          ],
+                       L=[[0, 1], [1, 2]]
+                       )
+
+    reshaping = Reshaping(cp=cp)
+
+    uf = EqConsConstantLength(reshaping)
+    U = np.zeros_like(cp.X)
+    U[2] += 1.0
+
+    print [uf.get_G(U, 0)]
+    print [uf.get_G_du(U, 0)]
+
+    assert np.allclose(uf.get_G(U, 0), np.array([  0. , 5.2]))
+    assert np.allclose(uf.get_G_du(U, 0), np.array([[ -8. , -10. , -6. , 8. , 10. , 6. , 0. , 0. , 0. ],
+                                                    [  0. , 0. , 0. , -4. , -2.2, -2. , 4. , 2.2, 2. ], ])
+                                            )
+
 if __name__ == '__main__':
-    test_eq_cons_flat_foldability()
+    test_eq_cons_constant_length()

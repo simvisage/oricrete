@@ -356,7 +356,7 @@ class PointsOnLine(EqualityConstraint):
 
         return dR
 
-class PointsOnSurface(EqualityConstraint):
+class EqConsPointsOnSurface(EqualityConstraint):
 
     nodes = DelegatesTo('cp')
     n_n = DelegatesTo('cp')

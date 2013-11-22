@@ -49,15 +49,10 @@ if __name__ == '__main__':
 
     ff.tf_lst = [(caf, [0, 1, 2, 3, 4, 5, 6])]
 
-    ff.connectivity = [(3, [0, 1, 4, 6, 5, 2])]
-
-    ff.show()
-
     # Unfolding
     uf = Folding(cp=ff.cp, tf_lst=ff.tf_lst, n_steps=10)
-    uf.X = ff.x_t[-1]
     uf.unfold = True
     print 'x_t', uf.x_t[-1]
-    uf.show()
+
 
 

@@ -14,7 +14,7 @@
 
 from oricrete.folding2 import Folding, Initialization
 from oricrete.folding2 import CreasePattern, CreasePatternView
-from oricrete.folding2.cnstr_target_face import CnstrTargetFace, r_, s_, t_
+from oricrete.folding2 import TF, r_, s_, t_
 
 
 if __name__ == '__main__':
@@ -32,7 +32,7 @@ if __name__ == '__main__':
                        F=[[0, 1, 3],
                             [1, 2, 3]])
 
-    caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
+    caf = TF(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)])
 
     ini = Initialization(cp=cp,
                          n_steps=10,

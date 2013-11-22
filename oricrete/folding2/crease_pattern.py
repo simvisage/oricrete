@@ -281,33 +281,6 @@ class CreasePattern(OriNode,
             oc.append(neighbors)
         return oc
 
-    #===========================================================================
-    # Control face ... belongs into constraints
-    #===========================================================================
-    cf_lst = List([])
-    '''List of sticky faces defined as a list of tuples
-    with the first entry defining the face geometry depending
-    on time parameter and second entry specifying the nodes
-    sticking to the surface.
-    '''
-
-    ff_lst = Property
-    '''Derived list of sticky faces without the associated nodes.
-    '''
-    def _get_ff_lst(self):
-        return [ ff for ff, nodes in self.cf_lst ]
-
-    n_c_ff = Property
-    '''Number of sticky faces.
-    '''
-    def _get_n_c_ff(self):
-        '''Number of constraints'''
-        n_c = 0
-        # count the nodes in each entry in the cf_lst
-        for ff, nodes in self.cf_lst:
-            n_c += len(nodes)
-        return n_c
-
     #===============================================================================
     # methods and Information for Abaqus calculation
     #===============================================================================

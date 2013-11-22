@@ -15,11 +15,9 @@
 from etsproxy.traits.api import \
     HasStrictTraits, Interface, implements, WeakRef, \
     Array, DelegatesTo, PrototypedFrom, cached_property, Property, \
-    List, Bool, Constant
+    List, Bool
 
 import numpy as np
-
-import math
 
 class IEqCons(Interface):
     '''Interface of an equality constraint.
@@ -78,32 +76,11 @@ class EqConsConstantLength(EqCons):
     '''Number of dimensions
     '''
 
-    #===========================================================================
-    # Dependent interim results
-    #===========================================================================
-    crease_line_vectors = Property(Array, depends_on='N, L')
-    '''Direction vectors of the crease lines
-    involved in the constant-length constraints.
-    '''
-    @cached_property
-    def _get_crease_line_vectors(self):
-        n = self.x_0[...]
-        cl = self.L
-        return n[ cl[:, 1] ] - n[ cl[:, 0] ]
-
-    crease_line_lengths = Property(Array, depends_on='nodes, crease_lines')
-    '''Lengths of the crease lines involved
-    in the constant-length constraints.
-    '''
-    @cached_property
-    def _get_crease_line_lengths(self):
-        c = self.crease_line_vectors
-        return np.sqrt(np.sum(c ** 2, axis=1))
-
     def get_G(self, U, t):
         ''' Calculate the residuum for constant crease length
         given the fold vector dX.
         '''
+        L_vectors = self.reshaping.cp.L_vectors
 
         j = self.L[:, 1]
         i = self.L[:, 0]
@@ -112,8 +89,8 @@ class EqConsConstantLength(EqCons):
         u_j = u[j]
         u_i = u[i]
 
-        v_u_i = np.sum(self.crease_line_vectors * u_i, axis=1)
-        v_u_j = np.sum(self.crease_line_vectors * u_j, axis=1)
+        v_u_i = np.sum(L_vectors * u_i, axis=1)
+        v_u_j = np.sum(L_vectors * u_j, axis=1)
 
         u_ij = np.sum(u_i * u_j, axis=1)
         u_ii = np.sum(u_i ** 2, axis=1)
@@ -127,6 +104,9 @@ class EqConsConstantLength(EqCons):
         given the fold vector dX.
 
         '''
+
+        L_vectors = self.reshaping.cp.L_vectors
+
         i = self.L[:, 0]
         j = self.L[:, 1]
 
@@ -134,8 +114,8 @@ class EqConsConstantLength(EqCons):
         u_i = u[i]
         u_j = u[j]
 
-        G_du_i = -2 * self.crease_line_vectors + 2 * u_i - 2 * u_j
-        G_du_j = 2 * self.crease_line_vectors + 2 * u_j - 2 * u_i
+        G_du_i = -2 * L_vectors + 2 * u_i - 2 * u_j
+        G_du_j = 2 * L_vectors + 2 * u_j - 2 * u_i
 
         G_du = np.zeros((self.n_L, self.n_N, self.n_D), dtype='float_')
 
@@ -371,46 +351,6 @@ class PointsOnLine(EqCons):
         dR[0, cl[1] * 3 + 1] = dfdy2
 
         return dR
-
-class PointsOnSurface(EqCons):
-
-    N = DelegatesTo('reshaping')
-    n_N = DelegatesTo('reshaping')
-    n_D = DelegatesTo('reshaping')
-    n_dofs = DelegatesTo('reshaping')
-    n_c_ff = DelegatesTo('reshaping')
-    cf_lst = DelegatesTo('reshaping')
-
-    def get_G(self, U, t=0.0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        x_t = self.x_0 + U.reshape(self.n_N, self.n_D)
-        Rf = np.zeros((self.n_c_ff,), dtype='float_')
-
-        i = 0
-        for ff, nodes in self.cf_lst:
-            for n in nodes:
-                x, y, z = x_t[n]
-                Rf[i] = ff.Rf(x, y, z, t)
-                i += 1
-
-        return Rf
-
-    def get_G_du(self, U, t=0):
-        ''' Calculate the residuum for given constraint equations
-        '''
-        x_t = self.x_0 + U.reshape(self.n_N, self.n_D)
-        G_du = np.zeros((self.n_c_ff, self.n_dofs), dtype='float_')
-
-        i = 0
-        for ff, nodes in self.cf_lst:
-            for n in nodes:
-                x, y, z = x_t[n]
-                dof = 3 * n
-                G_du[i, (dof, dof + 1, dof + 2) ] = ff.dRf(x, y, z, t)
-                i += 1
-
-        return G_du
 
 class DofConstraints(EqCons):
     '''Explicit constraints for selected of freedom.

@@ -12,13 +12,12 @@
 #
 # Created on Nov 18, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
-    Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Bool, File, Array, Float, Any, List
+from etsproxy.traits.api import Property
 
 from opt_crit import OptCrit
 
 import numpy as np
+
 from einsum_utils import DELTA, EPS
 
 class OptCritPotentialEnergy(OptCrit):
@@ -30,7 +29,7 @@ class OptCritPotentialEnergy(OptCrit):
         return self.reshaping.F
 
     def get_f(self, u, t=0):
-        '''Get the the norm of distances between the individual target faces and nodes.
+        '''Get the potential energy of gravity.
         '''
         x = self.reshaping.x_0 + u
         F = self.F
@@ -65,7 +64,6 @@ class OptCritPotentialEnergy(OptCrit):
 
         n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
         a = np.sqrt(np.einsum('Iai,Iai->Ia', n, n))
-
 
         NN_delta_eps_x1 = np.einsum('aK,aL,KJ,jli,ILl->IaJji',
                                     N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], DELTA, EPS, x_F)

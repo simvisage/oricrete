@@ -97,18 +97,6 @@ class FoldingSimulator(HasStrictTraits):
     def _get_n_dofs(self):
         return self.n_N * self.n_D
 
-    cf_lst = Property()
-    '''Number of control faces.
-    '''
-    def _get_cf_lst(self):
-        return self.cp.cf_lst
-
-    n_c_ff = Property()
-    '''Number of control faces.
-    '''
-    def _get_n_c_ff(self):
-        return self.cp.n_c_ff
-
     #===========================================================================
     # Constraint data
     #===========================================================================

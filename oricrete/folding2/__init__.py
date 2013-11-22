@@ -20,11 +20,12 @@ from crease_pattern_view import \
 from eq_cons import \
     EqCons, \
     DofConstraints, GrabPoints, PointsOnLine, \
-    PointsOnSurface, EqConsConstantLength, EqConsDevelopability, \
+    EqConsConstantLength, EqConsDevelopability, \
     EqConsFlatFoldability
 
 from eq_cons_control_face import \
-    EqConsControlFace, EqConsControlFace as CF, x_, y_, z_, r_, s_, t_
+    ControlFace, ControlFace as CF, x_, y_, z_, r_, s_, t_, \
+    EqConsPointsOnSurface
 
 from reshaping import \
     Reshaping, Folding, FormFinding, Lifting, Initialization
