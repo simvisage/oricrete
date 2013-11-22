@@ -22,12 +22,15 @@ from crease_pattern import \
     CreasePattern
 
 from eq_cons import \
-    IEqCons, EqConsConstantLength, GrabPoints, \
+    IEqCons, GrabPoints, \
     PointsOnLine, DofConstraints, EqConsDevelopability, \
     EqConsFlatFoldability
 
 from eq_cons_control_face import \
     EqConsPointsOnSurface
+
+from eq_cons_constant_length import \
+    EqConsConstantLength
 
 from folding_simulator import FoldingSimulator
 
