@@ -18,87 +18,22 @@ from opt_crit import OptCrit
 
 import numpy as np
 
-from einsum_utils import DELTA, EPS
-
 class OptCritPotentialEnergy(OptCrit):
-    '''Optimization criteria based on the distance between specified nodes.
-    '''
+    '''Optimization criteria based on minimum potential energy of gravity.
 
-    F = Property
-    def _get_F(self):
-        return self.reshaping.F
+    This plug-in class lets the crease pattern operators evaluate the
+    integral over the spatial domain in an instantaneous configuration
+    '''
 
     def get_f(self, u, t=0):
         '''Get the potential energy of gravity.
         '''
-        x = self.reshaping.x_0 + u
-        F = self.F
-        x_F = x[F]
-
-        N_eta_ip = self.get_N(self.eta_ip)
-        N_deta_ip = self.get_N_deta(self.eta_ip)
-
-        eta_w = self.eta_w
-
-        r = np.einsum('aK,IKi->Iai', N_eta_ip, x_F)
-        r_deta = np.einsum('ajK,IKi->Iaij', N_deta_ip, x_F)
-        n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
-        a = np.sqrt(np.einsum('Iai,Iai->Ia', n, n))
-        E_I = np.einsum('a,Ia,Ia->I', eta_w, r[..., 2], a)
-        E = np.sum(E_I)
-
-        return E
+        return self.reshaping.cp.get_V(u)
 
     def get_f_du(self, u, t=0):
         '''Get the derivatives with respect to individual displacements.
         '''
-        x = self.reshaping.x_0 + u
-        F = self.F
-        x_F = x[F]
-
-        N_eta_ip = self.get_N(self.eta_ip)
-        N_deta_ip = self.get_N_deta(self.eta_ip)
-
-        r = np.einsum('aK,IKi->Iai', N_eta_ip, x_F)
-        r_deta = np.einsum('ajK,IKi->Iaij', N_deta_ip, x_F)
-
-        n = np.einsum('Iai,Iaj,ijk->Iak', r_deta[..., 0], r_deta[..., 1], EPS)
-        a = np.sqrt(np.einsum('Iai,Iai->Ia', n, n))
-
-        NN_delta_eps_x1 = np.einsum('aK,aL,KJ,jli,ILl->IaJji',
-                                    N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], DELTA, EPS, x_F)
-        NN_delta_eps_x2 = np.einsum('aK,aL,LJ,kji,IKk->IaJji',
-                                    N_deta_ip[:, 0, :], N_deta_ip[:, 1, :], DELTA, EPS, x_F)
-        n_dx = NN_delta_eps_x1 + NN_delta_eps_x2
-        a_dx = np.einsum('Ia,Iak,IaJjk->IaJj', 1 / a, n, n_dx)
-        r3_a_dx = np.einsum('Ia,IaJj->IaJj', r[..., 2], a_dx)
-        r3_dx = np.einsum('aK,KJ,j->aJj', N_eta_ip, DELTA, DELTA[2, :])
-        a_r3_dx = np.einsum('Ia,aJj->IaJj', a, r3_dx)
-        E_dx = np.einsum('a,IaJj->IJj', self.eta_w, (a_r3_dx + r3_a_dx))
-
-        dof_map = (3 * F[:, :, np.newaxis] + np.arange(3)[np.newaxis, np.newaxis, :])
-
-        E_dX = np.bincount(dof_map.flatten(), weights=E_dx.flatten())
-        return E_dX
-
-
-    #===============================================================================
-    # Integration scheme
-    #===============================================================================
-
-    eta_ip = np.array([[1. / 3., 1. / 3.]], dtype='f')
-    eta_w = np.array([1. / 2.], dtype='f')
-
-    #===============================================================================
-    # Shape functions and their derivatives
-    #===============================================================================
-    def get_N(self, eta):
-        return np.array([eta[:, 0], eta[:, 1], 1 - eta[:, 0] - eta[:, 1]], dtype='f').T
-
-    def get_N_deta(self, eta):
-        return np.array([[[1, 0, -1],
-                          [0, 1, -1]],
-                         ], dtype='f')
+        return self.reshaping.cp.get_V_du(u)
 
 if __name__ == '__main__':
     from reshaping import Initialization, Folding

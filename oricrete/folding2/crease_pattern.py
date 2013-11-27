@@ -154,6 +154,22 @@ class CreasePattern(OriNode,
     # Line mappings
     #===========================================================================
 
+    LxLxL_F = Property(depends_on='X,L')
+    # @todo NOT TESTED (not used)
+    '''Matrix with ``n_L x n_L x n_L`` entries containing facet numbers
+    for the connected lines. For unconnected lines it contains the value ``-1``
+    '''
+    @cached_property
+    def _get_LxLxL_F(self):
+        LxLxL = np.zeros((self.n_L, self.n_L, self.n_L), dtype='int') - 1
+        LxLxL[ self.F[:, 0], self.F[:, 1], self.F[:, 2]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 1], self.F[:, 2], self.F[:, 0]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 2], self.F[:, 0], self.F[:, 1]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 2], self.F[:, 1], self.F[:, 0]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 0], self.F[:, 2], self.F[:, 1]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 1], self.F[:, 0], self.F[:, 2]] = np.arange(self.n_F)
+        return LxLxL
+
     L_F_map = Property
     '''Array associating lines with the adjacent faces.
     Returns two arrays, the first one contains line indices, the
@@ -223,7 +239,7 @@ class CreasePattern(OriNode,
         # cycle indexes around the nodes of a facet
         ix_arr = np.array([[0, 1], [1, 2], [2, 0]])
         # get cycled  node numbers around a facet 
-        F_N = self.F[:, ix_arr]
+        F_N = self.F_N[:, ix_arr]
         # use the NxN_L map to get line numbers
         return self.NxN_L[F_N[..., 0], F_N[..., 1]]
 

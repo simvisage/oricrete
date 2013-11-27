@@ -23,7 +23,10 @@ from crease_pattern import \
 
 from eq_cons import \
     IEqCons, GrabPoints, \
-    PointsOnLine, DofConstraints, EqConsDevelopability, \
+    PointsOnLine, DofConstraints
+
+from eq_cons_angle_based import \
+    EqConsDevelopability, \
     EqConsFlatFoldability
 
 from eq_cons_control_face import \

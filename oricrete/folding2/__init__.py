@@ -19,7 +19,9 @@ from crease_pattern_view import \
 
 from eq_cons import \
     EqCons, \
-    DofConstraints, GrabPoints, PointsOnLine, \
+    DofConstraints, GrabPoints, PointsOnLine
+
+from eq_cons_angle_based import \
     EqConsDevelopability, \
     EqConsFlatFoldability
 
