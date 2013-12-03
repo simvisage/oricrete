@@ -42,6 +42,13 @@ class CreaseNodeOperators(HasStrictTraits):
         return [NxN_theta[n, neighbors[:-1]]
                 for n, neighbors in zip(self.iN, self.iN_neighbors)]
 
+    def get_iN_theta_du(self, u):
+        '''Assemble the crease angles around a node I
+        '''
+        NxN_theta_du = self.get_NxN_theta_du(u)
+        return [NxN_theta_du[n, neighbors[:-1], :, :]
+                for n, neighbors in zip(self.iN, self.iN_neighbors)]
+
     def get_NxN_theta(self, u):
         '''Get the crease angle at node I for line heading to neighbor J
         to the next line reached in a counter-clockwise direction.
@@ -50,6 +57,16 @@ class CreaseNodeOperators(HasStrictTraits):
         F_theta = self.get_F_theta(u)
         NxN_theta[ self.F_N[:, (0, 1, 2)], self.F_N[:, (1, 2, 0)]] = F_theta[:, (0, 1, 2)]
         return NxN_theta
+
+    def get_NxN_theta_du(self, u):
+        '''Get the crease angle at node I for line heading to neighbor J
+        to the next line reached in a counter-clockwise direction.
+        '''
+        NxN_theta_du = np.zeros((self.n_N, self.n_N, self.n_N, self.n_D), dtype='float_')
+        F_theta_du = self.get_F_theta_du(u)
+        NxN_theta_du[ self.F_N[:, (0, 1, 2)], self.F_N[:, (1, 2, 0)], :, :] = \
+            F_theta_du[:, (0, 1, 2), :, :]
+        return NxN_theta_du
 
 class CreaseLineOperators(HasStrictTraits):
     '''Operators delivering the instantaneous states of crease lines.
@@ -80,27 +97,97 @@ class CreaseLineOperators(HasStrictTraits):
         return np.sqrt(np.sum(v ** 2, axis=1))
 
     def get_L_vectors(self, u):
+        '''Get crease line vectors
+        '''
         X = self.x_0 + u
         L = self.L
         return X[ L[:, 1] ] - X[ L[:, 0] ]
 
+    def get_L_vectors_du(self, u):
+        '''Get the derivatives of the line vectors
+        '''
+        L_vectors_du = np.zeros((self.n_L, self.n_N), dtype='float_')
+        L_idx = np.arange(self.n_L)
+        L_vectors_du[L_idx, self.L[:, 1]] = 1
+        L_vectors_du[L_idx, self.L[:, 0]] = -1
+        return L_vectors_du
+
+    iL_within_F0 = Property
+    '''Index of a crease line within the first adjacent facet
+    '''
+    @cached_property
+    def _get_iL_within_F0(self):
+        iL_F0 = self.iL_F[:, 0]
+        L_of_F0_of_iL = self.F_L[iL_F0, :]
+        iL = self.iL
+        iL_within_F0 = np.where(iL[:, np.newaxis] == L_of_F0_of_iL)
+        return iL_within_F0
+
+    def get_iL_vectors(self, u):
+        '''Get the line vector of an interior line oriented in the
+        sense of counter-clockwise direction of its first adjacent facet.
+        '''
+        F_L_vectors = self.get_F_L_vectors(u)
+        return F_L_vectors[self.iL_within_F0]
+
+    def get_norm_iL_vectors(self, u):
+        '''Get the line vector of an interior line oriented in the
+        sense of counter-clockwise direction of its first adjacent facet.
+        '''
+        iL_vectors = self.get_iL_vectors(u)
+        mag_iL_vectors = np.sqrt(np.einsum('...i,...i->...', iL_vectors, iL_vectors))
+        return iL_vectors / mag_iL_vectors[:, np.newaxis]
+
+    def get_iL_F_normals(self, u):
+        '''Get normals of facets adjacent to an interior line.
+        '''
+        F_normals = self.get_F_normals(u)
+        return F_normals[self.iL_F]
+
     iL_psi = Property
-    '''dihedral angles around the interior lines.
+    '''Dihedral angles around the interior lines.
     '''
     def _get_iL_psi(self):
         return self.get_iL_psi(np.zeros_like(self.x_0))
 
     def get_iL_psi(self, u):
+        '''Calculate the dihedral angle.
+        '''
+        n_iL_vectors = self.get_norm_iL_vectors(u)
+        iL_F_normals = self.get_iL_F_normals(u)
+        a, b = np.einsum('ijk->jik', iL_F_normals)
+        axb = np.einsum('...i,...j,...kij->...k', a, b, EPS)
+        mag_axb = np.sqrt(np.einsum('...i,...i->...', axb, axb))
+        mag_axb[ np.where(mag_axb == 0) ] = 1.e-19
+        n_axb = axb / mag_axb[:, np.newaxis]
+        sign_rot = np.einsum('...i,...i->...', n_axb, n_iL_vectors)
+        mag_aa_bb = np.sqrt(np.einsum('...i,...i,...j,...j->...', a, a, b, b))
+        gamma = sign_rot * mag_axb / mag_aa_bb
+        return np.arcsin(gamma)
+
+    def xget_iL_psi(self, u):
         iL_F = self.iL_F
         F_normals = self.get_F_normals(u)
         iL_F_normals = F_normals[iL_F]
-        a = iL_F_normals[:, 0, :]
-        b = iL_F_normals[:, 1, :]
-        ab = np.sum(a * b, axis=1)
-        aa = np.sqrt(np.sum(a * a, axis=1))
-        bb = np.sqrt(np.sum(b * b, axis=1))
-        gamma = ab / (aa * bb)
-        return np.arccos(gamma)
+        a = iL_F_normals[:, 0]
+        b = iL_F_normals[:, 1]
+        return get_theta(a, b)
+
+    def get_iL_psi_du(self, u):
+        iL_F = self.iL_F
+        F_normals = self.get_F_normals(u)
+        F_normals_du = self.get_F_normals_du(u)
+        iL_F_normals = F_normals[iL_F]
+        iL_F_normals_du = F_normals_du[iL_F]
+        a = iL_F_normals[:, 0]
+        b = iL_F_normals[:, 1]
+        print 'a', a.shape
+        print 'a', b.shape
+        a_du = iL_F_normals_du[:, 0]
+        b_du = iL_F_normals_du[:, 1]
+        print a_du.shape
+        print b_du.shape
+        return get_theta_du2(a, a_du, b, b_du)
 
 class CreaseFacetOperators(HasStrictTraits):
     '''Operators evaluating the instantaneous states of the facets.
@@ -136,7 +223,6 @@ class CreaseFacetOperators(HasStrictTraits):
     def _get_F_N(self):
         turn_facets = np.where(self.sign_normals < 0)
         F_N = np.copy(self.F)
-        print 'XXXX', self.F
         F_N[turn_facets, :] = self.F[turn_facets, ::-1]
         return F_N
 
@@ -180,6 +266,12 @@ class CreaseFacetOperators(HasStrictTraits):
         '''
         n = self.get_Fa_normals(u)
         return np.sum(n, axis=1)
+
+    def get_F_normals_du(self, u):
+        '''Get the normals of the facets.
+        '''
+        n_du = self.get_Fa_normals_du(u)
+        return np.sum(n_du, axis=1)
 
     def get_Fa_normals_du(self, u):
         '''Get the derivatives of the normals with respect to the node displacements.
@@ -264,34 +356,100 @@ class CreaseFacetOperators(HasStrictTraits):
         '''
         X = self.x_0 + u
         F_N = self.F_N # F_N is cycled counter clockwise
-        return X[ F_N[:, (0, 1, 2, 0)] ] - X[ F_N[:, (2, 0, 1, 2)] ]
+        return X[ F_N[:, (1, 2, 0)] ] - X[ F_N[:, (0, 1, 2)] ]
 
     def get_F_L_vectors_du(self, u):
-        '''Get the cycled line vectors around the facet
-        The cycle is closed - the first and last vector are identical.
+        '''Get the derivatives of the line vectors around the facets.
         '''
-        X = self.x_0 + u
-        F_N = self.F_N # F_N is cycled counter clockwise
-        return X[ F_N[:, (0, 1, 2, 0)] ] - X[ F_N[:, (2, 0, 1, 2)] ]
+        F_L_vectors_du = np.zeros((self.n_F, 3, self.n_N), dtype='float_')
+        F_idx = np.arange(self.n_F)
+        F_L_vectors_du[F_idx, 0, self.F_N[:, 1]] = 1
+        F_L_vectors_du[F_idx, 1, self.F_N[:, 2]] = 1
+        F_L_vectors_du[F_idx, 2, self.F_N[:, 0]] = 1
+        F_L_vectors_du[F_idx, 0, self.F_N[:, 0]] = -1
+        F_L_vectors_du[F_idx, 1, self.F_N[:, 1]] = -1
+        F_L_vectors_du[F_idx, 2, self.F_N[:, 2]] = -1
+        return F_L_vectors_du
 
     def get_F_theta(self, u):
         '''Get the crease angles within a facet.
         '''
         v = self.get_F_L_vectors(u)
-        a = -v[:, :-1]
-        b = v[:, 1:]
-        ab = np.einsum('...i,...i->...', a, b)
-        aa = np.sqrt(np.einsum('...i,...i->...', a, a))
-        bb = np.sqrt(np.einsum('...i,...i->...', b, b))
-        gamma = ab / (aa * bb)
-        theta = np.arccos(gamma)
-        return theta
+        a = -v[:, (2, 0, 1)]
+        b = v[:, (0, 1, 2)]
+        return get_theta(a, b)
 
     def get_F_theta_du(self, u):
-        '''Get the crease angles within a facet.
+        '''Get the derivatives of crease angles theta within a facet.
         '''
-        F_theta = self.get_F_theta(u)
-        return F_theta
+        v = self.get_F_L_vectors(u)
+        v_du = self.get_F_L_vectors_du(u)
+
+        a = -v[:, (2, 0, 1)]
+        b = v[:, (0, 1, 2)]
+        a_du = -v_du[:, (2, 0, 1)]
+        b_du = v_du[:, (0, 1, 2)]
+
+        return get_theta_du(a, a_du, b, b_du)
+
+def get_theta(a, b):
+    '''Given two arrays (n-dimensional) of vectors
+    return the mutual angles theta
+    '''
+    ab = np.einsum('...i,...i->...', a, b)
+    aa = np.sqrt(np.einsum('...i,...i->...', a, a))
+    bb = np.sqrt(np.einsum('...i,...i->...', b, b))
+    gamma = ab / (aa * bb)
+    theta = np.arccos(gamma)
+    return theta
+
+def get_theta_du(a, a_du, b, b_du):
+    '''Given two arrays (n-dimensional) of vectors a, b and their
+    derivatives a_du and b_du with respect to the nodal displacments du
+    return the derivatives of the mutual angles theta between
+    a and b with respect to the node displacement du.
+    '''
+    ab = np.einsum('...i,...i->...', a, b)
+    aa = np.sqrt(np.einsum('...i,...i->...', a, a))
+    bb = np.sqrt(np.einsum('...i,...i->...', b, b))
+    aa_bb = (aa * bb)
+    gamma = ab / (aa_bb)
+    d_atb = (np.einsum('...K,...ij,...i->...Kj', a_du, DELTA, b) +
+             np.einsum('...K,...ij,...i->...Kj', b_du, DELTA, a))
+    gamma_bb__aa = gamma * bb / aa
+    gamma_aa__bb = gamma * aa / bb
+    d_gamma_aa_bb = (np.einsum('...,...K,...ij,...i->...Kj',
+                               gamma_bb__aa, a_du, DELTA, a) +
+                     np.einsum('...,...K,...ij,...i->...Kj',
+                               gamma_aa__bb, b_du, DELTA, b))
+    gamma_du = np.einsum('...,...Kj->...Kj', 1. / aa_bb, (d_atb - d_gamma_aa_bb))
+    sqarg = 1 - gamma ** 2
+    theta_du = np.einsum('...,...Kj->...Kj', -1. / np.sqrt(sqarg), gamma_du)
+    return theta_du
+
+def get_theta_du2(a, a_du, b, b_du):
+    '''Given two arrays (n-dimensional) of vectors a, b and their
+    derivatives a_du and b_du with respect to the nodal displacments du
+    return the derivatives of the mutual angles theta between
+    a and b with respect to the node displacement du.
+    '''
+    ab = np.einsum('...i,...i->...', a, b)
+    aa = np.sqrt(np.einsum('...i,...i->...', a, a))
+    bb = np.sqrt(np.einsum('...i,...i->...', b, b))
+    aa_bb = (aa * bb)
+    gamma = ab / (aa_bb)
+    d_atb = (np.einsum('...iKj,...i->...Kj', a_du, b) +
+             np.einsum('...iKj,...i->...Kj', b_du, a))
+    gamma_bb__aa = gamma * bb / aa
+    gamma_aa__bb = gamma * aa / bb
+    d_gamma_aa_bb = (np.einsum('...,...iKj,...i->...Kj',
+                               gamma_bb__aa, a_du, a) +
+                     np.einsum('...,...iKj,...i->...Kj',
+                               gamma_aa__bb, b_du, b))
+    gamma_du = np.einsum('...,...Kj->...Kj', 1. / aa_bb, (d_atb - d_gamma_aa_bb))
+    sqarg = 1 - gamma ** 2
+    theta_du = np.einsum('...,...Kj->...Kj', -1. / np.sqrt(sqarg), gamma_du)
+    return theta_du
 
 class CummulativeOperators(HasStrictTraits):
     '''Characteristics of the whole crease pattern.
@@ -316,7 +474,7 @@ if __name__ == '__main__':
                           [1, 0, 0],
                           [1, 1, 0],
                           [0, 1, 0],
-                          [2, 2, 0]],
+                          [2, 2, 1]],
                        L=[[0, 1], [1, 2], [3, 2], [0, 3], [0, 2], [1, 4], [2, 4], [3, 4]],
                        F=[[0, 1, 2], [2, 0, 3], [1, 2, 4], [2, 3, 4]])
 
@@ -385,6 +543,12 @@ if __name__ == '__main__':
     print 'iL_psi: dihedral angles around interior lines'
     print cp.get_iL_psi(u)
     print
+    print 'iL_psi: dihedral angles around interior lines'
+    print cp.xget_iL_psi(u)
+    print
+    print 'iL_psi_du: dihedral angles around interior lines'
+    print cp.get_iL_psi_du(u)
+    print
     print 'F_theta: crease angles within each triangular facet'
     print cp.get_F_theta(u)
     print
@@ -393,9 +557,9 @@ if __name__ == '__main__':
 
     print '------------------------'
     cp = CreasePattern(X=[[0, 0, 0],
-                          [1, 0, 0],
-                          [1, 1, 0],
-                          [0, 1, 0],
+                          [2, 0, 0],
+                          [2, 2, 0],
+                          [0, 2, 0],
                           [0.5, 0.5, 0]],
                        L=[[0, 1], [1, 2], [3, 2], [0, 3], [0, 4], [1, 4], [2, 4], [3, 4]],
                        F=[[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]])
@@ -425,4 +589,22 @@ if __name__ == '__main__':
     print
     print 'iN_theta'
     print cp.get_iN_theta(u)
-
+    print
+    print 'F_L_vectors'
+    print cp.get_F_L_vectors(u)
+    print
+    print 'L_vectors_du'
+    print cp.get_L_vectors_du(u)
+    print
+    print 'F_L_vectors_du'
+    print cp.get_F_L_vectors_du(u)
+    print
+    print 'F_theta_du'
+    print [cp.get_F_theta_du(u)]
+    print
+    print 'NxN_theta_du'
+    print cp.get_NxN_theta_du(u)
+    print
+    print 'iN_theta_du'
+    print cp.get_iN_theta_du(u)
+    print

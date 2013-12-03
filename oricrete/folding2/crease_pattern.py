@@ -71,6 +71,12 @@ class CreasePattern(OriNode,
     def _get_n_L(self):
         return self.L.shape[0]
 
+    n_F = Property
+    '''Number of facets (Property)
+    '''
+    def _get_n_F(self):
+        return self.F.shape[0]
+
     n_D = Constant(3)
     '''Dinensionality of the Euklidian space.
     '''
@@ -222,8 +228,10 @@ class CreasePattern(OriNode,
         # construct the mask hiding the edge lines in the original array
         l_map = np.zeros_like(l, dtype=bool)
         l_map[ el_ix ] = True
-        # 
+        # use the masked array to filter out the edge nodes and lose 
+        # bars from the mapping.
         fm = np.ma.masked_array(f, mask=l_map)
+        # make the array compact and reshape it.
         fm_compressed = np.ma.compressed(fm)
         return fm_compressed.reshape(-1, 2)
 

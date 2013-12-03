@@ -29,6 +29,30 @@ class AngleEqCons(EqCons):
     n_D = DelegatesTo('reshaping')
     n_dofs = DelegatesTo('reshaping')
 
+    signs = Property
+    @cached_property
+    def _get_signs(self):
+        signs = np.ones((20,), dtype='f')
+        signs[::2] = -1
+        return signs
+
+    #===========================================================================
+    # Constraint methods
+    #===========================================================================
+
+    def _get_G(self, u, t):
+        theta_arr = self.cp.get_iN_theta(u)
+        signs = self.signs
+        return np.array([np.sum(signs[:theta.shape[0]] * theta)
+                         for theta in theta_arr])
+
+    def _get_G_du(self, u, t):
+        theta_du_arr = self.cp.get_iN_theta_du(u)
+        signs = self.signs
+        sum_theta_du = np.array([np.einsum('i...,i...->...', signs[:theta_du.shape[0]], theta_du)
+                                 for theta_du in theta_du_arr])
+        return sum_theta_du.reshape(-1, self.n_dofs)
+
     #===========================================================================
     # Subsidiary operators and arrays - constants
     #===========================================================================
@@ -51,13 +75,6 @@ class AngleEqCons(EqCons):
     def _get_partial_b(self):
         return self.partial_ab[1]
 
-    signs = Property
-    @cached_property
-    def _get_signs(self):
-        signs = np.ones((20,), dtype='f')
-        signs[::2] = -1
-        return signs
-
     def get_ij_dof_ix(self, n_nbr):
         '''Indexes of the G_ij_array = [n_nbr, n_nbr * n_D]
         '''
@@ -70,21 +87,8 @@ class AngleEqCons(EqCons):
                                                          dtype='i')[None, :])
         return i_dof_ix.flatten(), j_dof_ix.flatten()
 
-    def get_iN_theta(self, U, t):
-        u = U.reshape(self.n_N, self.n_D)
-        return self.cp.get_iN_theta(u)
 
-    #===========================================================================
-    # Constraint methods
-    #===========================================================================
-
-    def _get_G(self, u, t):
-        theta_arr = self.get_iN_theta(u, t)
-        signs = self.signs
-        return np.array([np.sum(signs[:theta.shape[0]] * theta)
-                         for theta in theta_arr])
-
-    def _get_G_du(self, U, t):
+    def x_get_G_du(self, U, t):
         '''Implements the derivatives of theta with respect
         to the vector of global displacements
         '''
@@ -200,4 +204,6 @@ if __name__ == '__main__':
     print 'iN_theta', uf.get_iN_theta(U, 0)
 
     print 'G\n', uf.get_G(U, 0)
+
     print 'G_du\n', uf.get_G_du(U, 0)
+    #print 'G_du\n', uf.x_get_G_du(U, 0)
