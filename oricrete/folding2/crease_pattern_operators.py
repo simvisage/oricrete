@@ -144,6 +144,12 @@ class CreaseLineOperators(HasStrictTraits):
         F_normals = self.get_F_normals(u)
         return F_normals[self.iL_F]
 
+    def get_norm_iL_F_normals(self, u):
+        '''Get normals of facets adjacent to an interior line.
+        '''
+        norm_F_normals = self.get_norm_F_normals(u)
+        return norm_F_normals[self.iL_F]
+
     iL_psi = Property
     '''Dihedral angles around the interior lines.
     '''
@@ -165,29 +171,18 @@ class CreaseLineOperators(HasStrictTraits):
         gamma = sign_rot * mag_axb / mag_aa_bb
         return np.arcsin(gamma)
 
-    def xget_iL_psi(self, u):
-        iL_F = self.iL_F
-        F_normals = self.get_F_normals(u)
-        iL_F_normals = F_normals[iL_F]
-        a = iL_F_normals[:, 0]
-        b = iL_F_normals[:, 1]
-        return get_theta(a, b)
-
-    def get_iL_psi_du(self, u):
-        iL_F = self.iL_F
-        F_normals = self.get_F_normals(u)
-        F_normals_du = self.get_F_normals_du(u)
-        iL_F_normals = F_normals[iL_F]
-        iL_F_normals_du = F_normals_du[iL_F]
-        a = iL_F_normals[:, 0]
-        b = iL_F_normals[:, 1]
-        print 'a', a.shape
-        print 'a', b.shape
-        a_du = iL_F_normals_du[:, 0]
-        b_du = iL_F_normals_du[:, 1]
-        print a_du.shape
-        print b_du.shape
-        return get_theta_du2(a, a_du, b, b_du)
+    def get_iL_psi2(self, u):
+        '''Calculate the dihedral angle for the intermediate configuration.
+        '''
+        l = self.get_norm_iL_vectors(u)
+        n = self.get_norm_iL_F_normals(u)
+        n0, n1 = np.einsum('ijk->jik', n)
+        lxn0 = np.einsum('...i,...j,...kij->...k', l, n0, EPS)
+        T = np.concatenate([l[:, np.newaxis, :],
+                            n0[:, np.newaxis, :],
+                            lxn0[:, np.newaxis, :]], axis=1)
+        n1_ = np.einsum('...ij,...j->...i', T, n1)
+        return np.arcsin(n1_[:, -1])
 
 class CreaseFacetOperators(HasStrictTraits):
     '''Operators evaluating the instantaneous states of the facets.
@@ -266,6 +261,13 @@ class CreaseFacetOperators(HasStrictTraits):
         '''
         n = self.get_Fa_normals(u)
         return np.sum(n, axis=1)
+
+    def get_norm_F_normals(self, u):
+        '''Get the normals of the facets.
+        '''
+        n = self.get_F_normals(u)
+        mag_n = np.sqrt(np.einsum('...i,...i', n, n))
+        return n / mag_n[:, np.newaxis]
 
     def get_F_normals_du(self, u):
         '''Get the normals of the facets.
@@ -370,6 +372,36 @@ class CreaseFacetOperators(HasStrictTraits):
         F_L_vectors_du[F_idx, 1, self.F_N[:, 1]] = -1
         F_L_vectors_du[F_idx, 2, self.F_N[:, 2]] = -1
         return F_L_vectors_du
+
+    def get_norm_F_L_vectors(self, u):
+        '''Get the cycled line vectors around the facet
+        The cycle is closed - the first and last vector are identical.
+        '''
+        v = self.get_F_L_vectors(u)
+        mag_v = np.sqrt(np.einsum('...i,...i', v, v))
+        return v / mag_v[..., np.newaxis]
+
+    def get_norm_F_L_vectors_du(self, u):
+        v = self.get_F_L_vectors(u)
+        v_du = self.get_F_L_vectors_du(u)
+        mag_v = np.einsum('...i,...i', v, v)
+        ### @todo: finish the chain rule
+        raise NotImplemented
+
+    def get_F_L_bases(self, u):
+        '''Line bases around a facet'''
+        l = self.get_norm_F_L_vectors(u)
+        n = self.get_norm_F_normals(u)
+        lxn = np.einsum('...li,...j,...kij->...lk', l, n, EPS)
+        n_ = n[:, np.newaxis, :] * np.ones((1, 3, 1), dtype='float_')
+        T = np.concatenate([l[:, :, np.newaxis, :],
+                            n_[:, :, np.newaxis, :],
+                            lxn[:, :, np.newaxis, :]], axis=2)
+        return T
+
+    def get_F_L_bases_du(self):
+        '''Derivatives of line bases'''
+        raise NotImplemented
 
     def get_F_theta(self, u):
         '''Get the crease angles within a facet.

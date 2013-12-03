@@ -122,10 +122,10 @@ def test_crease_pattern_derived_mappings():
 def test_crease_pattern_angle_expressions():
     '''Test expressions evaluating angles either crease angles or dihedral angles.
     '''
-    cp = CreasePattern(X=[[0, 0, -0.1],
+    cp = CreasePattern(X=[[0, 0, 0.0],
                           [1, -0.5, 0],
                           [1, 1.5, 0],
-                          [2, 0, 0.0]],
+                          [2, 0, 1.0]],
                        L=[[0, 1], [1, 2], [2, 0], [1, 3], [2, 3]],
                        F=[[1, 2, 3], [0, 1, 2]])
 
@@ -150,8 +150,14 @@ def test_crease_pattern_angle_expressions():
     print 'F_normals'
     print cp.get_F_normals(u)
 
+    print 'iL_psi'
     print cp.get_iL_psi(u)
 
+    print 'iL_psi2'
+    print cp.get_iL_psi2(u)
+
+    print 'F_L_bases',
+    print cp.get_F_L_bases(u)
     #print cp.get_iL_psi_du(u)
 
 if __name__ == '__main__':
