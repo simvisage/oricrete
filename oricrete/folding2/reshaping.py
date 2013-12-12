@@ -258,7 +258,7 @@ class FormFinding(Reshaping):
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'ff' : EqConsFlatFoldability(reshaping=self),
+#                'ff' : EqConsFlatFoldability(reshaping=self),
                 'uf' : EqConsDevelopability(reshaping=self),
                 'ps' : EqConsPointsOnSurface(reshaping=self),
                 'dc' : DofConstraints(reshaping=self)

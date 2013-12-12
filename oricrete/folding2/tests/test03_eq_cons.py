@@ -115,9 +115,6 @@ def test_eq_cons_constant_length():
     U = np.zeros_like(cp.X)
     U[2] += 1.0
 
-    print [uf.get_G(U, 0)]
-    print [uf.get_G_du(U, 0)]
-
     assert np.allclose(uf.get_G(U, 0), np.array([  0. , 5.2]))
     assert np.allclose(uf.get_G_du(U, 0), np.array([[ -8. , -10. , -6. , 8. , 10. , 6. , 0. , 0. , 0. ],
                                                     [  0. , 0. , 0. , -4. , -2.2, -2. , 4. , 2.2, 2. ], ])

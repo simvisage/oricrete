@@ -12,7 +12,7 @@
 #
 # Created on Nov 18, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Property, DelegatesTo
+from etsproxy.traits.api import HasTraits, Property, DelegatesTo, Str
 
 import numpy as np
 import sympy as sp
@@ -25,6 +25,8 @@ class ControlFace(HasTraits):
     '''
      Folding level set function
     '''
+    name = Str('<noname>')
+
     _Rf_expr = None
 
     Rf = Property

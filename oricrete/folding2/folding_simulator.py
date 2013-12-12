@@ -17,7 +17,7 @@ import numpy as np
 from etsproxy.traits.api import HasStrictTraits, \
     Event, Property, cached_property, Str, \
     Int, Float, Array, Bool, Dict, List, \
-    Constant, Instance, DelegatesTo, Trait
+    Constant, Instance, DelegatesTo, Trait, Enum
 
 from etsproxy.traits.ui.api import View
 from opt_crit_target_face import TargetFaces
@@ -46,6 +46,8 @@ class FoldingSimulator(HasStrictTraits):
     followups = List()
 
     traits_view = View()
+
+    debug_level = Int(0, label='Debug level', auto_set=False, enter_set=True)
 
     #===========================================================================
     # type of the sampling of the random domain
@@ -305,7 +307,7 @@ class FoldingSimulator(HasStrictTraits):
             if imode == 0:
                 print '(time: %g, iter: %d, f: %g)' % (time, n_iter, f)
             else:
-                print '(time: %g, iter: %d, f: %g, %s)' % (time, n_iter, f, smode)
+                print '(time: %g, iter: %d, f: %g, err: %d, %s)' % (time, n_iter, f, imode, smode)
                 break
         return np.array(U_t, dtype='f')
 
@@ -316,34 +318,50 @@ class FoldingSimulator(HasStrictTraits):
         '''Get the goal function value.
         '''
         u = U.reshape(self.n_N, self.n_D)
-        return self.goal_function.get_f(u, self.t)
+        f = self.goal_function.get_f(u, self.t)
+        if self.debug_level > 0:
+            print 'f:\n', f
+        return f
 
     def get_f_du_t(self, U):
         '''Get the goal function derivatives.
         '''
         u = U.reshape(self.n_N, self.n_D)
-        return self.goal_function.get_f_du(u, self.t)
+        f_du = self.goal_function.get_f_du(u, self.t)
+        if self.debug_level > 1:
+            print 'f_du.shape:\n', f_du.shape
+            print 'f_du:\n', f_du
+        return f_du
 
     #===========================================================================
     # Equality constraints
     #===========================================================================
-    def get_G(self, U, t=0):
-        G_lst = [ eqcons.get_G(U, t) for eqcons in self.eqcons_lst ]
+    def get_G(self, u, t=0):
+        G_lst = [ eqcons.get_G(u, t) for eqcons in self.eqcons_lst ]
         if(G_lst == []):
             return []
         return np.hstack(G_lst)
 
     def get_G_t(self, U):
-        return self.get_G(U, self.t)
+        u = U.reshape(-1, self.n_D)
+        G = self.get_G(u, self.t)
+        if self.debug_level > 0:
+            print 'G:\n', [G]
+        return G
 
-    def get_G_du(self, U, t=0):
-        G_dx_lst = [ eqcons.get_G_du(U, t) for eqcons in self.eqcons_lst ]
+    def get_G_du(self, u, t=0):
+        G_dx_lst = [ eqcons.get_G_du(u, t) for eqcons in self.eqcons_lst ]
         if(G_dx_lst == []):
             return []
-        return np.vstack(G_dx_lst)
+        G_du = np.vstack(G_dx_lst)
+        if self.debug_level > 1:
+            print 'G_du.shape:\n', G_du.shape
+            print 'G_du:\n', [G_du]
+        return G_du
 
     def get_G_du_t(self, U):
-        return self.get_G_du(U, self.t)
+        u = U.reshape(-1, self.n_D)
+        return self.get_G_du(u, self.t)
 
     #===============================================================================
     # Verification procedures to check the compliance with the constant length criteria.
@@ -399,12 +417,24 @@ class FoldingSimulator(HasStrictTraits):
         n_t = self.X_t.shape[0]
         return self.X_t.reshape(n_t, -1, self.n_D)
 
+    x_1 = Property
+    '''Final position of all nodes.
+    '''
+    def _get_x_1(self):
+        return self.x_t[-1]
+
     u_t = Property()
     '''History of nodal positions [time, node, dim].
     '''
     def _get_u_t(self):
         n_t = self.U_t.shape[0]
         return self.U_t.reshape(n_t, -1, self.n_D)
+
+    u_1 = Property()
+    '''Final nodal positions [node, dim].
+    '''
+    def _get_u_1(self):
+        return self.u_t[-1]
 
     v_t = Property()
     '''History of crease vectors (Array)

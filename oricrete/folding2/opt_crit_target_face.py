@@ -197,6 +197,8 @@ class CnstrTargetFace(HasTraits):
     a set of points X_arr and parametrically
     defined surface F.
     '''
+    name = Str('<noname>')
+
     pf_operator = Instance(ParamFaceOperator)
     '''Operators on a parametric surface
     '''
