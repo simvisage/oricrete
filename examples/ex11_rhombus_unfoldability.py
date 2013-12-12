@@ -29,7 +29,7 @@ from oricrete.folding.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_
 
 from oricrete.folding.equality_constraint import \
-    Developability
+    EqConsDevelopability
 
 if __name__ == '__main__':
 
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                     zip(cp.interior_vertices, cp.cycled_neighbors.T)]
     print 'connectivity', connectivity
 
-    uf = Developability(cp, connectivity=connectivity)
+    uf = EqConsDevelopability(cp, connectivity=connectivity)
     cp.eqcons['uf'] = uf
 
     # the derivatives are not correct 

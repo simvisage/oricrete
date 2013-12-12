@@ -14,9 +14,8 @@
 
 from oricrete.folding2 import Folding, Initialization, FormFinding, Lifting
 from oricrete.folding2 import CreasePattern
-from oricrete.folding2.cnstr_target_face import CnstrTargetFace, x_, y_, z_, r_, s_, t_
-from oricrete.folding2 import CnstrControlFace
-
+from oricrete.folding2 import CnstrTargetFace, x_, y_, z_, r_, s_, t_
+from oricrete.folding2 import CF, Initialization, CreasePatternView
 
 if __name__ == '__main__':
 
@@ -36,12 +35,16 @@ if __name__ == '__main__':
                             [1, 2, 3]],
                        )
     cs = [z_ - 4 * 0.4 * t_ * x_ * (1 - x_ / 3)]
-    lift = Lifting(cp=cp, n_steps=10,
-                   CS=[cs],
-                   LP=[[5, 4],
-                       [6, 4]],
+
+    init = Initialization(cp=cp,
+                           tf_lst=[(CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)]),
+                                    [0, 1, 2, 3])])
+
+    lift = Lifting(source=init, n_steps=10,
+                   CS=[cs], LP=[[5, 4],
+                                [6, 4]],
                    GP=[[4, 0]],
-                   cf_lst=[(CnstrControlFace(Rf=cs[0]), [1])],
+                   cf_lst=[(CF(Rf=cs[0]), [1])],
                    cnstr_lhs=[#[(1, 2, 1.0)],
                         [(0, 0, 1.0)],
                         [(0, 1, 1.0)],
@@ -52,9 +55,10 @@ if __name__ == '__main__':
                         [(5, 0, 1.0)],
                         [(6, 0, 1.0)]
                         ],
-                   init_tf_lst=[(CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / 3)]),
-                                   [0, 1, 2, 3])])
+                   )
+    print lift.u_t[-1]
 
-    lift.show()
+    cpw = CreasePatternView(root=init)
+    cpw.configure_traits()
 
 

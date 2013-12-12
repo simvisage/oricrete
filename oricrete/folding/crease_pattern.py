@@ -19,8 +19,8 @@ from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
 import numpy as np
 
 from equality_constraint import \
-    IEqualityConstraint, ConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints
+    IEqualityConstraint, EqConsConstantLength, GrabPoints, \
+    PointsOnLine, EqConsPointsOnSurface, DofConstraints
 
 from scipy.optimize import fmin_slsqp
 
@@ -180,10 +180,10 @@ class CreasePattern(HasTraits):
     eqcons = Dict(Str, IEqualityConstraint)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(cp = self),
+                'cl' : EqConsConstantLength(cp = self),
                 'gp' : GrabPoints(cp = self),
                 'pl' : PointsOnLine(cp = self),
-                'ps' : PointsOnSurface(cp = self),
+                'ps' : EqConsPointsOnSurface(cp = self),
                 'dc' : DofConstraints(cp = self)
                 }
 

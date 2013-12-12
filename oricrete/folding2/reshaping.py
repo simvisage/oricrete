@@ -22,9 +22,18 @@ from crease_pattern import \
     CreasePattern
 
 from eq_cons import \
-    IEqCons, ConstantLength, GrabPoints, \
-    PointsOnLine, PointsOnSurface, DofConstraints, Developability, \
-    FlatFoldability
+    IEqCons, GrabPoints, \
+    PointsOnLine, DofConstraints
+
+from eq_cons_angle_based import \
+    EqConsDevelopability, \
+    EqConsFlatFoldability
+
+from eq_cons_control_face import \
+    EqConsPointsOnSurface
+
+from eq_cons_constant_length import \
+    EqConsConstantLength
 
 from folding_simulator import FoldingSimulator
 
@@ -62,7 +71,7 @@ class Reshaping(OriNode, FoldingSimulator):
         if self.source:
             raise ValueError, 'crease pattern already available in the source object'
         print 'no source - an initialization with the supplied crease pattern will be added.'
-        self.source = Initialization(cp=value)
+        self.source = Initialization(cp=value, goal_function_type='none')
 
     X_0 = Property(depends_on='source')
     '''Initial configuration given as the last
@@ -109,6 +118,33 @@ class Reshaping(OriNode, FoldingSimulator):
     '''
     def _get_U_1(self):
         return np.zeros_like(self.X_0)
+
+    #===========================================================================
+    # Control face ... belongs into constraints
+    #===========================================================================
+    cf_lst = List([])
+    '''List of sticky faces defined as a list of tuples
+    with the first entry defining the face geometry depending
+    on time parameter and second entry specifying the nodes
+    sticking to the surface.
+    '''
+
+    ff_lst = Property
+    '''Derived list of sticky faces without the associated nodes.
+    '''
+    def _get_ff_lst(self):
+        return [ ff for ff, nodes in self.cf_lst ]
+
+    n_c_ff = Property
+    '''Number of sticky faces.
+    '''
+    def _get_n_c_ff(self):
+        '''Number of constraints'''
+        n_c = 0
+        # count the nodes in each entry in the cf_lst
+        for ff, nodes in self.cf_lst:
+            n_c += len(nodes)
+        return n_c
 
 class Initialization(OriNode, FoldingSimulator):
     '''Initialization of the pattern for the reshaping control.
@@ -195,7 +231,7 @@ class Initialization(OriNode, FoldingSimulator):
     '''
     @cached_property
     def _get_U_1(self):
-        if(len(self.tf_lst) == 0):
+        if self.goal_function_type == 'none':
             return self.U_0
         else:
             return self.U_t[-1]
@@ -222,9 +258,9 @@ class FormFinding(Reshaping):
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'ff' : FlatFoldability(reshaping=self),
-                'uf' : Developability(reshaping=self),
-                'ps' : PointsOnSurface(reshaping=self),
+#                'ff' : EqConsFlatFoldability(reshaping=self),
+                'uf' : EqConsDevelopability(reshaping=self),
+                'ps' : EqConsPointsOnSurface(reshaping=self),
                 'dc' : DofConstraints(reshaping=self)
                 }
 
@@ -250,8 +286,8 @@ class Folding(Reshaping):
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(reshaping=self),
-                'ps' : PointsOnSurface(reshaping=self),
+                'cl' : EqConsConstantLength(reshaping=self),
+                'ps' : EqConsPointsOnSurface(reshaping=self),
                 'dc' : DofConstraints(reshaping=self)
                 }
 
@@ -268,13 +304,15 @@ class Lifting(Reshaping):
 
     name = Str('lifting')
 
+    goal_function_type = 'none'
+
     eqcons = Dict(Str, IEqCons)
     def _eqcons_default(self):
         return {
-                'cl' : ConstantLength(reshaping=self),
+                'cl' : EqConsConstantLength(reshaping=self),
                 'gp' : GrabPoints(reshaping=self),
                 'pl' : PointsOnLine(reshaping=self),
-                'ps' : PointsOnSurface(reshaping=self),
+                'ps' : EqConsPointsOnSurface(reshaping=self),
                 'dc' : DofConstraints(reshaping=self)
                 }
 
@@ -310,7 +348,7 @@ if __name__ == '__main__':
     lift.GP = [[4, 0]]
     lift.LP = [[5, 4],
                [6, 4]]
-    cp.cf_lst = [(CF(Rf=lift.CS[0][0]), [1])]
+    lift.cf_lst = [(CF(Rf=lift.CS[0][0]), [1])]
 
     lift.cnstr_lhs = [[(0, 0, 1.0)],
                       [(0, 1, 1.0)],

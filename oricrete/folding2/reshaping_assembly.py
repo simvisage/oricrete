@@ -25,20 +25,67 @@ class RotSymAssembly(Reshaping):
     n_visible = Int(3, auto_set=False, enter_set=True)
     center = Array(float, value=[0, 0, 0])
 
+    x_0_segments = Property
+    @cached_property
+    def _get_x_0_segments(self):
+        x_single = self.source.x_t[-1] - self.center[np.newaxis, :]
+        phi_arr = np.linspace(0, 2. * math.pi * (self.n_segments - 1) / self.n_segments, self.n_segments)
+        T_mtx = np.array([[np.cos(phi_arr), np.sin(phi_arr), np.zeros_like(phi_arr)],
+                          [-np.sin(phi_arr), np.cos(phi_arr), np.zeros_like(phi_arr)],
+                          [np.zeros_like(phi_arr), np.zeros_like(phi_arr), np.ones_like(phi_arr)],
+                          ], dtype='float_')
+        x_all = x_single[np.newaxis, :, :] + 0.0 * phi_arr[:, np.newaxis, np.newaxis]
+        return np.einsum('ijk,lki->ijl', x_all, T_mtx)
+
+    node_match_threshold = Float(1e-5, auto_set=False, enter_set=True)
+    '''Threshold value to distinguish if two nodes should be collapsed
+    to a single one or not.
+    '''
+
+    unique_node_map = Property
+    '''Property containing the mapping between the crease pattern nodes
+    with duplicate nodes and pattern with compressed nodes array.
+    The criterion for removing a node is geometric, the threshold
+    is specified in nocde_match_threshold.
+    '''
+    @cached_property
+    def _get_unique_node_map(self):
+        # reshape the coordinates in array of segments to the shape (n_N, n_D  
+        x_0 = self.x_0_segments.reshape(-1, self.n_D)
+        # construct distance vectors between every pair of nodes
+        x_x_0 = x_0[:, np.newaxis, :] - x_0[np.newaxis, :, :]
+        # calculate the distance between every pair of nodes
+        dist_0 = np.sqrt(np.einsum('...i,...i', x_x_0, x_x_0))
+        # identify those at the same location
+        zero_dist = dist_0 < self.node_match_threshold
+        # get their indices
+        i_idx, j_idx = np.where(zero_dist)
+        # take only the upper triangle indices
+        upper_triangle = i_idx < j_idx
+        # the lower indices will be replaced by the higher indices
+        i_idx_delete, j_idx_insert = i_idx[upper_triangle], j_idx[upper_triangle]
+        # construct a boolean array with True at valid and Falce at deleted indices 
+        idx_unique = np.ones((len(x_0),), dtype='bool')
+        idx_unique[i_idx_delete] = False
+        # enumerate the new compressed index range 
+        remaped_range = np.arange(len(x_0) - len(i_idx_delete), dtype='int_')
+        # construct the index mapping from old indexes to the compressed range
+        idx_remap = np.zeros((len(x_0),), dtype='int')
+        # put the compressed indexes at the valid index positions
+        idx_remap[idx_unique] = remaped_range
+        # copy the identified higher indices at the position of the deleted ones.
+        idx_remap[i_idx_delete] = idx_remap[j_idx_insert]
+
+        return idx_unique, idx_remap
+
     X_0 = Property(depends_on='n_segments, center, source')
     '''Expanded nodal coordinates.
     '''
     @cached_property
     def _get_X_0(self):
-        x_single = self.source.x_t[-1] - self.center[np.newaxis, :]
-        phi_arr = np.linspace(0, 2 * math.pi, self.n_segments + 1)
-        T_mtx = np.array([[np.cos(phi_arr), np.sin(phi_arr), np.zeros_like(phi_arr)],
-                          [-np.sin(phi_arr), np.cos(phi_arr), np.zeros_like(phi_arr)],
-                          [np.zeros_like(phi_arr), np.zeros_like(phi_arr), np.ones_like(phi_arr)],
-                          ], dtype='f').swapaxes(0, -1)
-        x_all = x_single[np.newaxis, :, :] + 0.0 * phi_arr[:, np.newaxis, np.newaxis]
-        x_trans = np.einsum('ijk,ikl->ijl', x_all, T_mtx)
-        return x_trans.flatten()
+        x_trans = self.x_0_segments.reshape(-1, 3)
+        idx_compression = self.unique_node_map[0]
+        return x_trans[idx_compression, :].flatten()
 
     U_t = Property()
     '''Array of crease_lines defined by pairs of node numbers.
@@ -53,13 +100,16 @@ class RotSymAssembly(Reshaping):
     L = Property()
     '''Array of crease_lines defined by pairs of node numbers.
     '''
+    @cached_property
     def _get_L(self):
         L = self.source.L
         n_N = self.source.n_N
         n_L = self.source.n_L
         L_arr = L[np.newaxis, :] + n_N * np.arange(0, self.n_segments)[:, np.newaxis, np.newaxis]
         L_arr = L_arr.reshape(self.n_segments * n_L, -1)
-        return L_arr[:self.n_visible * n_L]
+        #return L_arr[:self.n_visible * n_L]
+        node_idx_remap = self.unique_node_map[1]
+        return node_idx_remap[L_arr[:self.n_visible * n_L]]
 
     F = Property()
     '''Array of crease facets defined by list of node numbers.
@@ -71,7 +121,9 @@ class RotSymAssembly(Reshaping):
         F_arr = F[np.newaxis, :] + n_N * np.arange(0, self.n_segments)[:, np.newaxis, np.newaxis]
         F_arr = F_arr.reshape(self.n_segments * n_F, -1)
         F = np.vstack([F, F + self.source.n_N])
-        return F_arr[:self.n_visible * n_F]
+        #return F_arr[:self.n_visible * n_F]
+        node_idx_remap = self.unique_node_map[1]
+        return node_idx_remap[F_arr[:self.n_visible * n_F]]
 
 def q_normalize(q, axis=1):
     sq = np.sqrt(np.sum(q * q, axis=axis))
@@ -147,7 +199,6 @@ class MonoShapeAssembly(Reshaping):
     @cached_property
     def _get_X_0(self):
         x_single = np.array([self.source.x_t[-1]], dtype='f')
-        n_N = self.source.n_N * self.n_segments
         q = axis_angle_to_q(self.rotation_axes, self.rotation_angles)
         x_all = qv_mult(q, x_single)
         x_all += self.translations[:, np.newaxis, :]

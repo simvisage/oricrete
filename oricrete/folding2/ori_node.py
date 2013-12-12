@@ -12,8 +12,6 @@
 #
 # Created on Jan 29, 2013 by: rch
 
-import numpy as np
-
 from etsproxy.traits.api import HasStrictTraits, \
     Event, Property, cached_property, Str, \
     Int, Float, Array, Bool, Dict, List, \

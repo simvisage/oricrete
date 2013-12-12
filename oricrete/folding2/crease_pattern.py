@@ -71,6 +71,12 @@ class CreasePattern(OriNode,
     def _get_n_L(self):
         return self.L.shape[0]
 
+    n_F = Property
+    '''Number of facets (Property)
+    '''
+    def _get_n_F(self):
+        return self.F.shape[0]
+
     n_D = Constant(3)
     '''Dinensionality of the Euklidian space.
     '''
@@ -154,6 +160,22 @@ class CreasePattern(OriNode,
     # Line mappings
     #===========================================================================
 
+    LxLxL_F = Property(depends_on='X,L')
+    # @todo NOT TESTED (not used)
+    '''Matrix with ``n_L x n_L x n_L`` entries containing facet numbers
+    for the connected lines. For unconnected lines it contains the value ``-1``
+    '''
+    @cached_property
+    def _get_LxLxL_F(self):
+        LxLxL = np.zeros((self.n_L, self.n_L, self.n_L), dtype='int') - 1
+        LxLxL[ self.F[:, 0], self.F[:, 1], self.F[:, 2]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 1], self.F[:, 2], self.F[:, 0]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 2], self.F[:, 0], self.F[:, 1]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 2], self.F[:, 1], self.F[:, 0]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 0], self.F[:, 2], self.F[:, 1]] = np.arange(self.n_F)
+        LxLxL[ self.F[:, 1], self.F[:, 0], self.F[:, 2]] = np.arange(self.n_F)
+        return LxLxL
+
     L_F_map = Property
     '''Array associating lines with the adjacent faces.
     Returns two arrays, the first one contains line indices, the
@@ -206,8 +228,10 @@ class CreasePattern(OriNode,
         # construct the mask hiding the edge lines in the original array
         l_map = np.zeros_like(l, dtype=bool)
         l_map[ el_ix ] = True
-        # 
+        # use the masked array to filter out the edge nodes and lose 
+        # bars from the mapping.
         fm = np.ma.masked_array(f, mask=l_map)
+        # make the array compact and reshape it.
         fm_compressed = np.ma.compressed(fm)
         return fm_compressed.reshape(-1, 2)
 
@@ -223,7 +247,7 @@ class CreasePattern(OriNode,
         # cycle indexes around the nodes of a facet
         ix_arr = np.array([[0, 1], [1, 2], [2, 0]])
         # get cycled  node numbers around a facet 
-        F_N = self.F[:, ix_arr]
+        F_N = self.F_N[:, ix_arr]
         # use the NxN_L map to get line numbers
         return self.NxN_L[F_N[..., 0], F_N[..., 1]]
 
@@ -280,33 +304,6 @@ class CreasePattern(OriNode,
                 neighbors = neighbors[::-1]
             oc.append(neighbors)
         return oc
-
-    #===========================================================================
-    # Control face ... belongs into constraints
-    #===========================================================================
-    cf_lst = List([])
-    '''List of sticky faces defined as a list of tuples
-    with the first entry defining the face geometry depending
-    on time parameter and second entry specifying the nodes
-    sticking to the surface.
-    '''
-
-    ff_lst = Property
-    '''Derived list of sticky faces without the associated nodes.
-    '''
-    def _get_ff_lst(self):
-        return [ ff for ff, nodes in self.cf_lst ]
-
-    n_c_ff = Property
-    '''Number of sticky faces.
-    '''
-    def _get_n_c_ff(self):
-        '''Number of constraints'''
-        n_c = 0
-        # count the nodes in each entry in the cf_lst
-        for ff, nodes in self.cf_lst:
-            n_c += len(nodes)
-        return n_c
 
     #===============================================================================
     # methods and Information for Abaqus calculation

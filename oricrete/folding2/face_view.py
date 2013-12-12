@@ -28,6 +28,11 @@ class FaceView(HasTraits):
     '''
     data = WeakRef
 
+    name = Property
+    @cached_property
+    def _get_name(self):
+        return self.ff.name
+
     xyz_grid = DelegatesTo('data')
     x_t = DelegatesTo('data')
     scene = DelegatesTo('data')
@@ -37,7 +42,6 @@ class FaceView(HasTraits):
     show_ff_nodes = Bool(False)
     fold_step = Int(0)
     time_step = Float(0.0)
-    name = Str('Nr 1')
 
     # constrain opacity
     opacity_min = Int(0)
@@ -106,7 +110,8 @@ class FaceView(HasTraits):
             x, y, z = self.x_t[self.fold_step][self.nodes_id].T
             self.ff_nodes.mlab_source.reset(x=x, y=y, z=z)
 
-    view = View(Item('show_ff_pipe'),
+    view = View(Item('name', style='readonly'),
+                Item('show_ff_pipe'),
                 Item('show_ff_nodes'),
                 Item('opacity', editor=RangeEditor(low_name='opacity_min',
                                                         high_name='opacity_max',

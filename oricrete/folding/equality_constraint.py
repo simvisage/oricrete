@@ -45,7 +45,7 @@ class EqualityConstraint(HasStrictTraits):
         super(HasStrictTraits, self).__init__(*args, **kw)
 
 
-class ConstantLength(EqualityConstraint):
+class EqConsConstantLength(EqualityConstraint):
 
     # node-to-node array specifying the lines 
     # to be submitted to the equality constraint.
@@ -356,7 +356,7 @@ class PointsOnLine(EqualityConstraint):
 
         return dR
 
-class PointsOnSurface(EqualityConstraint):
+class EqConsPointsOnSurface(EqualityConstraint):
 
     nodes = DelegatesTo('cp')
     n_n = DelegatesTo('cp')
@@ -424,7 +424,7 @@ class DofConstraints(EqualityConstraint):
                 G_du[i, dof] += c
         return G_du
 
-class Developability(EqualityConstraint):
+class EqConsDevelopability(EqualityConstraint):
     '''For the specified node associations require
     the sum of the angles between adjacent crease lines be 2Pi
     '''
@@ -528,7 +528,7 @@ if __name__ == '__main__':
                                  [-1, -0.2, 0],
                                  [0.1, -1, 0]])
 
-    uf = Developability(cp, connectivity = [(0, [1, 2, 3, 4])])
+    uf = EqConsDevelopability(cp, connectivity = [(0, [1, 2, 3, 4])])
 
     u = np.zeros_like(cp.nodes).flatten()
     print uf.get_G(u, 0)
