@@ -61,7 +61,7 @@ init,fold = get_constrained_YCP(L_x=6.3, L_y=4.2,
 v = CreasePatternView(root=init)
 v.configure_traits()
 al = AbaqusLink(data = fold, n_split = 10)
-al.model_name = 'x3y20'
+al.model_name = 'x3y8'
 al.build_inp()
 
 

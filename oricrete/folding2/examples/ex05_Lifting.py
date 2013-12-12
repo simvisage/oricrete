@@ -10,7 +10,7 @@
 #
 # Thanks for using Simvisage open source!
 #
-# Created on Mar 5, 2013 by: matthias
+# Created on Mar 5, 2013 by: matthiase
 
 from oricrete.folding2 import Folding, Initialization, FormFinding, Lifting
 from oricrete.folding2 import CreasePattern
