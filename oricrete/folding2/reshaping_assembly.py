@@ -44,8 +44,8 @@ class RotSymAssembly(Reshaping):
 
     unique_node_map = Property
     '''Property containing the mapping between the crease pattern nodes
-    with duplicate nodes and pattern with compressed nodes aray.
-    The criterion for removing a node is geometrical, the threshold
+    with duplicate nodes and pattern with compressed nodes array.
+    The criterion for removing a node is geometric, the threshold
     is specified in nocde_match_threshold.
     '''
     @cached_property
@@ -57,7 +57,7 @@ class RotSymAssembly(Reshaping):
         # calculate the distance between every pair of nodes
         dist_0 = np.sqrt(np.einsum('...i,...i', x_x_0, x_x_0))
         # identify those at the same location
-        zero_dist = dist_0 < 1e-5
+        zero_dist = dist_0 < self.node_match_threshold
         # get their indices
         i_idx, j_idx = np.where(zero_dist)
         # take only the upper triangle indices
@@ -199,7 +199,6 @@ class MonoShapeAssembly(Reshaping):
     @cached_property
     def _get_X_0(self):
         x_single = np.array([self.source.x_t[-1]], dtype='f')
-        n_N = self.source.n_N * self.n_segments
         q = axis_angle_to_q(self.rotation_axes, self.rotation_angles)
         x_all = qv_mult(q, x_single)
         x_all += self.translations[:, np.newaxis, :]
