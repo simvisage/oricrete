@@ -1,0 +1,9 @@
+.directory
+*.pyc
+.pydevproject
+*.o
+*.so
+*.png
+*.jpg
+*~
+.svn
