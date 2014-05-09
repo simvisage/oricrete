@@ -18,7 +18,7 @@ import math
 R_o = 0.50 # outer radius of the dome
 r_o = 0.10
 R_i = 0.05
-n_segs = 100
+n_segs = 20
 H = 0.40
 h = 0.017
 H1 = 0.24
@@ -27,15 +27,16 @@ H3 = H - h
 
 L_x = R_o - R_i
 phi = 2 * math.pi / n_segs
-L_y = R_i * math.sin(phi / 2)
+min_L_y = R_i * math.sin(phi / 2)
+max_L_y = R_o * math.sin(phi / 2)
 
 def geo_trans(X):
     '''Place the crease pattern symmetrically around the x-axis.
     '''
     x, y, z = X.T
-    return np.c_[R_i + x, y - L_y / 2, z]
+    return np.c_[R_i + x, y - min_L_y / 2, z]
 
-cp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=2, n_y=2,
+cp = YoshimuraCreasePattern(L_x=L_x, L_y=(min_L_y + max_L_y) / 2.0, n_x=2, n_y=2,
                             geo_transform=geo_trans)
 
 #===============================================================================
