@@ -12,18 +12,13 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.traits.api import \
-    Property, Str, Delegate, \
-    Button, Int, Float
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
-from etsproxy.mayavi import mlab
 import numpy as np
 import sympy as sm
 a_, b_, c_, d_ = sm.symbols('a,b,c,d')
 
 # own Modules
 from oricrete.folding import \
-    YoshimuraCreasePattern, CreasePattern, CreasePatternView, x_, y_
+    YoshimuraCreasePattern, CreasePattern, CreasePatternView
 
 from oricrete.folding.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_
@@ -53,11 +48,11 @@ if __name__ == '__main__':
 
     B = 1.0
 
-    s_term = A * t_ * s_ * (1 - s_ / L_y) #* r_ / L_x
+    s_term = A * t_ * s_ * (1 - s_ / L_y)  # * r_ / L_x
 
     face_z_t = CnstrTargetFace(F=[r_, s_, t_ * (B * r_ * (1 - r_ / L_x) - s_term)])
     n_arr = np.hstack([n_h[:, :].flatten(),
-                       #n_v[:, :].flatten(),
+                       # n_v[:, :].flatten(),
                        n_i[:, :].flatten()
                        ])
     cp.tf_lst = [(face_z_t, n_arr)]
@@ -93,11 +88,11 @@ if __name__ == '__main__':
 
     sym_cnstr_i0 = [[(n, 1, 1.0)] for n in n_h[:, 2]]
 
-    cp.cnstr_lhs = [[(n_i[1, 0], 0, 1.0)], # 0
-                   [(n_i[0, -1], 0, 1.0)], # 1
+    cp.cnstr_lhs = [[(n_i[1, 0], 0, 1.0)],  # 0
+                   [(n_i[0, -1], 0, 1.0)],  # 1
                     ] + link_left_x + link_right_x + sym_cnstr_i0
-                    #+ sym_cnstr_iy + sym_cnstr_ix + sym_cnstr_iy2 
-                    #+ sym_cnstr_ix2
+                    # + sym_cnstr_iy + sym_cnstr_ix + sym_cnstr_iy2
+                    # + sym_cnstr_ix2
 
     cp.cnstr_rhs = np.zeros((len(cp.cnstr_lhs),), dtype=float)
 
@@ -129,7 +124,7 @@ if __name__ == '__main__':
     uf = EqConsDevelopability(cp, connectivity=connectivity)
     cp.eqcons['uf'] = uf
 
-    # the derivatives are not correct 
+    # the derivatives are not correct
     cp.use_G_du = False
     u_unfoldable = cp.solve(u0 + 1e-6, acc=1e-4)
 
@@ -149,7 +144,7 @@ if __name__ == '__main__':
 
     cp2.tf_lst = [(face_z_t, n_arr)]
 
-    cp2.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
+    cp2.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)],  # 0
 #                       [(n_h[1, -1], 0, 1.0)], # 1
 #                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
