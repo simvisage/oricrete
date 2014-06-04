@@ -19,6 +19,7 @@ R_o = 0.65 # outer radius of the dome
 R_i = 0.2
 n_segs = 8 # number of simple patterns in the dome
 H = 0.75
+phi = 2 * math.pi / n_segs
 
 #Definition of the simple crease pattern
 
@@ -69,26 +70,31 @@ def get_dome_z_t(R, dR, H, dH):
 tf_z_t = CnstrTargetFace(F=[get_dome_x_t(R_o, 0, H, 0), s_, get_dome_z_t(R_o, 0, H, 0)])
 
 #vault
-face_z_t = CnstrTargetFace(F=[ s_, 1.2 * t_ * r_ * (1 - r_ / 0.8), r_])
+face_z_t = CnstrTargetFace(name='tf_z',F=[s_, 1.2 * t_ * r_ * (1 - r_ / 1.2), r_])
 
 
 # Surface limits of the folding
-
-# tf_x_R_i = CnstrTargetFace(F=[R_i, r_, s_])
-# tf_x_R_o = CnstrTargetFace(F=[R_o, r_, s_])
 tf_z_0 = CnstrTargetFace(F=[0, r_, s_])
+tf_y_plus=CnstrTargetFace(name='tf_plus',F=[r_*math.sin(math.pi/6.5),s_,r_*math.cos(math.pi/6.5)])
+tf_y_minus=CnstrTargetFace(name='tf_minus',F=[r_*math.sin(-math.pi/6.5),s_,r_*math.cos(-math.pi/6.5)])
 
+#nodes associated to surfaces
+
+n_tf_y_minus = np.hstack([10,15,19,22,24,25])
+n_tf_y_plus = np.hstack([0,11,16,20,23,25])
 #===============================================================================
 # Initialization object
 #===============================================================================
 
 init = Initialization(cp=triangle, tf_lst=[(face_z_t, triangle.N)]) 
 
-fold = Folding(source=init, n_steps=8, tf_lst=[(face_z_t, triangle.N)] )
-
-uf = Folding(source=fold, name='unfolding', unfold=True, tf_lst=[(tf_z_0, triangle.N)
-                                                                 ],
-             n_steps=11, MAX_ITER=500)
+fold = Folding(source=init, n_steps=8, tf_lst=[(face_z_t, triangle.N)
+                                             ,(tf_y_plus,n_tf_y_plus)
+                                             ,(tf_y_minus,n_tf_y_minus)
+                                            ] )
+#uf = Folding(source=fold, name='unfolding', unfold=True, tf_lst=[(tf_z_0, triangle.N)
+        #                                                         ],
+            # n_steps=11, MAX_ITER=500)
 
 #===============================================================================
 # Assembling the dome
