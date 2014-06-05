@@ -64,7 +64,9 @@ def get_dome_z_t(R, dR, H, dH):
                    sp.cos(r_) / 2.0 - sp.sqrt(t_ * t_ * H * H - 2.0 * t_ * t_ * H * \
                                               dH + t_ * t_ * dH * dH + R * R - 2.0 * R * dR + dR * dR) * \
                                               (R - dR) / t_ / (H - dH) / 2.0 + t_ * (H - dH)
+#plate
 
+face_z_0=CnstrTargetFace(name='face_z_0',F=[s_, r_, 0])
 
 #dome
 tf_z_t = CnstrTargetFace(F=[get_dome_x_t(R_o, 0, H, 0), s_, get_dome_z_t(R_o, 0, H, 0)])
@@ -86,12 +88,13 @@ n_tf_y_plus = np.hstack([0,11,16,20,23,25])
 # Initialization object
 #===============================================================================
 
-init = Initialization(cp=triangle, tf_lst=[(face_z_t, triangle.N)]) 
 
-fold = Folding(source=init, n_steps=8, tf_lst=[(face_z_t, triangle.N)
-                                             ,(tf_y_plus,n_tf_y_plus)
-                                             ,(tf_y_minus,n_tf_y_minus)
-                                            ] )
+init0=Initialization(cp=triangle, tf_lst=[(face_z_0, triangle.N)]) 
+fold= Folding(source=init0, n_steps=1, tf_lst=[(face_z_0, triangle.N)])
+
+
+#init = Initialization(cp=triangle, tf_lst=[(face_z_t, triangle.N)]) 
+#fold = Folding(source=init, n_steps=8, tf_lst=[(face_z_t, triangle.N), (tf_y_plus,n_tf_y_plus) ,(tf_y_minus,n_tf_y_minus) ] )
 #uf = Folding(source=fold, name='unfolding', unfold=True, tf_lst=[(tf_z_0, triangle.N)
         #                                                         ],
             # n_steps=11, MAX_ITER=500)
@@ -102,16 +105,9 @@ fold = Folding(source=init, n_steps=8, tf_lst=[(face_z_t, triangle.N)
 
 # need coordinates of node 24, direction of the vector between node 11 an node 16 and between node 15 and node 19 to cinematicaly block the base of the folded pattern.
 
-rp = MonoShapeAssembly(source=fold,
-                       translations=[[0, 0, 0],
-                                     [0, 0, 0],
-                                     ],
-                       rotation_axes=[
-                                      [0, 1, 1],
-                                      ],
-                       rotation_angles=[0.,
-                                        0.8,
-                                        ])
+rp = RotSymAssembly(source=init0, center=[0.5-0.24/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), 1.2, 0],
+                    n_segments=n_segs, n_visible=n_segs)
+
 v = CreasePatternView(root=fold.source)
 v.configure_traits()
 fold.show()
