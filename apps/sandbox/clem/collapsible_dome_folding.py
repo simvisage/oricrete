@@ -72,7 +72,7 @@ face_z_0=CnstrTargetFace(name='face_z_0',F=[s_, r_, 0])
 tf_z_t = CnstrTargetFace(F=[get_dome_x_t(R_o, 0, H, 0), s_, get_dome_z_t(R_o, 0, H, 0)])
 
 #vault
-face_z_t = CnstrTargetFace(name='face_z',F=[s_ , r_, 1.2 * t_ * r_ * (1 - r_ / 0.8)])
+face_z_t = CnstrTargetFace(name='face_z',F=[s_ , r_, 1.7882352 * t_ * r_ * (1 - r_ / 0.85)])
 
 
 # Surface limits of the folding
@@ -95,14 +95,14 @@ n_tf_y_plus = np.hstack([0,11,16,20,23,25])
 #fold= Folding(source=init0, n_steps=1, tf_lst=[(face_z_0, triangle.N)])
 
 
-init = Initialization(cp=triangle, tf_lst=[(face_z_t, triangle.N)]) 
-fold = Folding(cp=triangle, n_steps=10, 
-                                          tf_lst=[ #(face_z_t, triangle.N) ,
+init = Initialization(cp=triangle, tf_lst=[(face_z_t, triangle.N)], ) 
+fold = Folding(source=init, n_steps=10, 
+                                          tf_lst=[ (face_z_t, triangle.N) ,
                                                      #, (face_y_0,n_y_0) ,
                                                (tf_y_plus,n_tf_y_plus) 
                                                 ,(tf_y_minus,n_tf_y_minus) 
-                                                 # ], 
-              # dof_constraints= [
+                                                  ], 
+               dof_constraints= [
                              #   ([(0,0,-1.0),(2,0,2.0),(4,0,-1.0)],0.0), ([(2,0,-1.0),(4,0,2.0),(6,0,-1.0)],0.0), ([(6,0,-1.0),(8,0,2.0),(10,0,-1.0)],0.0),
                                 
                                 #([(8,0,-1.0),(10,0,1.0),(11,0,1.0),(12,0,-1.0)],0.0),
@@ -125,8 +125,9 @@ fold = Folding(cp=triangle, n_steps=10,
                                 
                                 # ([(25,2,1.0),(5,2,-1.0)],0.3)
                                 
-                                
-                               ]
+                                 ([(25,1,1.0)],0.0), ([(25,0,1.0)],0.0)
+                                # 
+                                ]
                )
 #uf = Folding(source=fold, name='unfolding', unfold=True, tf_lst=[(tf_z_0, triangle.N)
         #                                                         ],
