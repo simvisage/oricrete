@@ -64,28 +64,33 @@ def get_dome_z_t(R, dR, H, dH):
                    sp.cos(r_) / 2.0 - sp.sqrt(t_ * t_ * H * H - 2.0 * t_ * t_ * H * \
                                               dH + t_ * t_ * dH * dH + R * R - 2.0 * R * dR + dR * dR) * \
                                               (R - dR) / t_ / (H - dH) / 2.0 + t_ * (H - dH)
+                                              
+def get_circle_z_t(R): 
+    return sp.sqrt(R*R-t_*r_*r_)
+
+                                            
 #plate
 
 face_z_0=CnstrTargetFace(name='face_z_0',F=[s_, r_, 0])
 
 #dome
 tf_z_t = CnstrTargetFace(F=[get_dome_x_t(R_o, 0, H, 0), s_, get_dome_z_t(R_o, 0, H, 0)])
-
 #vault
-face_z_t = CnstrTargetFace(name='face_z',F=[s_ , r_, 1.7882352 * t_ * r_ * (1 - r_ / 0.85)])
-
+face_z_t = CnstrTargetFace(name='face_z',F=[s_ , r_, 1.7882352/2 * t_ * r_ * (1 - r_ / 0.85)])
+face_z_t_2= CnstrTargetFace(name='face_z_2',F=[s_ , r_, get_circle_z_t(1.7)])
 
 # Surface limits of the folding
 face_x_0 = CnstrTargetFace(F=[0, r_, s_])
 face_y_0 = CnstrTargetFace(F=[s_, 0, r_])
-tf_y_plus=CnstrTargetFace(name='tf_plus',F=[r_*math.sin(math.pi/2-1.17600521),r_*math.cos(math.pi/2-1.17600521), s_])
-tf_y_minus=CnstrTargetFace(name='tf_minus',F=[1.0+r_*math.sin(-math.pi/2+1.17600521), r_*math.cos(-math.pi/2+1.17600521), s_])
+tf_y_plus=CnstrTargetFace(name='tf_plus',F=[r_*math.sin(math.pi/8),r_*math.cos(math.pi/8), s_])
+tf_y_minus=CnstrTargetFace(name='tf_minus',F=[1.0+r_*math.sin(-math.pi/8), r_*math.cos(-math.pi/8), s_])
 
 #nodes associated to surfaces
 n_y_0 = np.hstack([0,2,4,6,8,10])
 n_tf_y_minus = np.hstack([10,15,19,22,24,25])
 n_tf_y_plus = np.hstack([0,11,16,20,23,25])
-#n_test = np.hstack([0,2,4,6,8,10,25])
+n_forme = np.hstack([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,19,21,23,24,25])
+
 #===============================================================================
 # Initialization object
 #===============================================================================
@@ -95,14 +100,14 @@ n_tf_y_plus = np.hstack([0,11,16,20,23,25])
 #fold= Folding(source=init0, n_steps=1, tf_lst=[(face_z_0, triangle.N)])
 
 
-init = Initialization(cp=triangle, tf_lst=[(face_z_t, triangle.N)], ) 
+init = Initialization(cp=triangle, t_init = 0.05, tf_lst=[(face_z_t_2, triangle.N)] ) 
 fold = Folding(source=init, n_steps=10, 
-                                          tf_lst=[ (face_z_t, triangle.N) ,
+                                          tf_lst=[ (face_z_t_2, triangle.N), 
                                                      #, (face_y_0,n_y_0) ,
                                                (tf_y_plus,n_tf_y_plus) 
                                                 ,(tf_y_minus,n_tf_y_minus) 
-                                                  ], 
-               dof_constraints= [
+                                                #  ], 
+               #dof_constraints= [
                              #   ([(0,0,-1.0),(2,0,2.0),(4,0,-1.0)],0.0), ([(2,0,-1.0),(4,0,2.0),(6,0,-1.0)],0.0), ([(6,0,-1.0),(8,0,2.0),(10,0,-1.0)],0.0),
                                 
                                 #([(8,0,-1.0),(10,0,1.0),(11,0,1.0),(12,0,-1.0)],0.0),
@@ -125,13 +130,13 @@ fold = Folding(source=init, n_steps=10,
                                 
                                 # ([(25,2,1.0),(5,2,-1.0)],0.3)
                                 
-                                 ([(25,1,1.0)],0.0), ([(25,0,1.0)],0.0)
+                                 #([(25,1,1.0)],0.0), ([(25,0,1.0)],0.0)
                                 # 
-                                ]
+                                ], MAX_ITER=500
                )
-#uf = Folding(source=fold, name='unfolding', unfold=True, tf_lst=[(tf_z_0, triangle.N)
-        #                                                         ],
-            # n_steps=11, MAX_ITER=500)
+uf = Folding(source=fold, name='unfolding', tf_lst=[(face_z_0, triangle.N)
+                                                                 ],
+             n_steps=10)
 
 #===============================================================================
 # Assembling the dome
@@ -139,9 +144,15 @@ fold = Folding(source=init, n_steps=10,
 
 # need coordinates of node 24, direction of the vector between node 11 an node 16 and between node 15 and node 19 to cinematicaly block the base of the folded pattern.
 
-rp = RotSymAssembly(source=fold, center=[0.5-0.24/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), 1.2, 0],
-                    n_segments=n_segs, n_visible=n_segs)
+# rp = RotSymAssembly(source=fold, center=[0.5-0.24/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), 1.2, 0],
+                    #n_segments=n_segs, n_visible=n_segs)
+
+     
+#yp= RotSymAssembly(source=fold, center=[(25,0,1.0)-((25,1,1.0)-(24,1,1.0))/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), (25,1,1.0), (25,2,1.0)],
+                  #  n_segments=n_segs, n_visible=n_segs)
 
 v = CreasePatternView(root=fold.source)
 v.configure_traits()
-fold.show()
+print "xx" , fold.x_1[25]
+
+# fold.show()
