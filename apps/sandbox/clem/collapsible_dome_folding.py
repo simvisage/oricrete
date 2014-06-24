@@ -15,7 +15,7 @@ import math
 #===============================================================================
 # Geometrical parameters
 #===============================================================================
-R_o = 0.65 # outer radius of the dome
+R_o = 1.0 # outer radius of the dome
 R_i = 0.2
 n_segs = 8 # number of simple patterns in the dome
 H = 0.75
@@ -55,15 +55,10 @@ triangle = CreasePattern(X=[[0, 0, 0],[0.1, 0, 0],[0.2, 0, 0],[0.3, 0, 0],[0.4, 
 
 #Definition of the equations on z and x for the dome form (to change)
 
-def get_dome_x_t(R, dR, H, dH):
-    return sp.sqrt(t_ * t_ * H * H - 2.0 * t_ * t_ * H * dH + t_ * t_ * dH * dH + R *
-                   R - 2.0 * R * dR + dR * dR) * (R - dR) / t_ / (H - dH) * sp.sin(r_) / 2.0
-def get_dome_z_t(R, dR, H, dH):
-    return sp.sqrt(t_ * t_ * H * H - 2.0 * t_ * t_ * H * dH + t_ * t_ * dH * dH + R * R - 2.0 * \
-                   R * dR + dR * dR) * (R - dR) / t_ / (H - dH) * \
-                   sp.cos(r_) / 2.0 - sp.sqrt(t_ * t_ * H * H - 2.0 * t_ * t_ * H * \
-                                              dH + t_ * t_ * dH * dH + R * R - 2.0 * R * dR + dR * dR) * \
-                                              (R - dR) / t_ / (H - dH) / 2.0 + t_ * (H - dH)
+def get_dome_x_t(R):
+    return sp.sqrt(R*R*t_*t_+R*R)/t_*sp.sin(r_)/2.0
+def get_dome_z_t(R):
+    return sp.sqrt(R*R*t_*t_+R*R)/t_*sp.cos(r_)/2.0+t_*R-sp.sqrt(R*R*t_*t_+R*R)/t_/2.0
                                               
 def get_circle_z_t(R): 
     return sp.sqrt(R*R-t_*r_*r_)
@@ -74,7 +69,7 @@ def get_circle_z_t(R):
 face_z_0=CnstrTargetFace(name='face_z_0',F=[s_, r_, 0])
 
 #dome
-tf_z_t = CnstrTargetFace(F=[get_dome_x_t(R_o, 0, H, 0), s_, get_dome_z_t(R_o, 0, H, 0)])
+tf_z_t = CnstrTargetFace(name='tf_z', F=[s_, get_dome_x_t(2.0), get_dome_z_t(2.0)])
 #vault
 face_z_t = CnstrTargetFace(name='face_z',F=[s_ , r_, 1.7882352/2 * t_ * r_ * (1 - r_ / 0.85)])
 face_z_t_2= CnstrTargetFace(name='face_z_2',F=[s_ , r_, get_circle_z_t(1.7)])
@@ -101,12 +96,12 @@ n_forme = np.hstack([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,19,21,23,24,25])
 
 
 init = Initialization(cp=triangle, t_init = 0.05, tf_lst=[(face_z_t_2, triangle.N)] ) 
-fold = Folding(source=init, n_steps=10, 
+fold = Folding(source=init, n_steps=1, 
                                           tf_lst=[ (face_z_t_2, triangle.N), 
                                                      #, (face_y_0,n_y_0) ,
                                                (tf_y_plus,n_tf_y_plus) 
                                                 ,(tf_y_minus,n_tf_y_minus) 
-                                                #  ], 
+                                              #  ], 
                #dof_constraints= [
                              #   ([(0,0,-1.0),(2,0,2.0),(4,0,-1.0)],0.0), ([(2,0,-1.0),(4,0,2.0),(6,0,-1.0)],0.0), ([(6,0,-1.0),(8,0,2.0),(10,0,-1.0)],0.0),
                                 
@@ -130,7 +125,7 @@ fold = Folding(source=init, n_steps=10,
                                 
                                 # ([(25,2,1.0),(5,2,-1.0)],0.3)
                                 
-                                 #([(25,1,1.0)],0.0), ([(25,0,1.0)],0.0)
+                                #([(25,1,1.0)],0.0), ([(25,0,1.0)],0.0)
                                 # 
                                 ], MAX_ITER=500
                )
@@ -146,13 +141,15 @@ uf = Folding(source=fold, name='unfolding', tf_lst=[(face_z_0, triangle.N)
 
 # rp = RotSymAssembly(source=fold, center=[0.5-0.24/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), 1.2, 0],
                     #n_segments=n_segs, n_visible=n_segs)
-
+#0.5-(1.13835329-0.94169147)/(2*math.cos(math.pi/8)*math.sin(math.pi/8))
      
-#yp= RotSymAssembly(source=fold, center=[(25,0,1.0)-((25,1,1.0)-(24,1,1.0))/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), (25,1,1.0), (25,2,1.0)],
-                  #  n_segments=n_segs, n_visible=n_segs)
+yp= RotSymAssembly(source=fold, center=[0.5-(1.13835329-0.94169147)/(2*math.cos(math.pi/8)*math.sin(math.pi/8)), 1.13835329, 1.27589881],
+                    n_segments=n_segs)
 
 v = CreasePatternView(root=fold.source)
 v.configure_traits()
-print "xx" , fold.x_1[25]
 
-# fold.show()
+print "xx" , fold.x_1[25]
+print "yy" , fold.x_1[24]
+
+fold.show()
