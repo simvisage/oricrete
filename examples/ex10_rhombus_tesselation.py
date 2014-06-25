@@ -12,18 +12,14 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
-    Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
-    Button, Int, Float
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor
-from etsproxy.mayavi import mlab
+from etsproxy.traits.api import HasTraits, Float
 import numpy as np
 import sympy as sm
 a_, b_, c_, d_ = sm.symbols('a,b,c,d')
 
 # own Modules
 from oricrete.folding import \
-    YoshimuraCreasePattern, CreasePattern, CreasePatternView, x_, y_
+    YoshimuraCreasePattern, CreasePatternView, x_
 
 from oricrete.folding.cnstr_target_face import \
     CnstrTargetFace, r_, s_, t_
@@ -52,10 +48,9 @@ class GT(HasTraits):
 
         fn_x = sm.lambdify([x_], fn.subs(abc_subs))
 
-#        y2 = ((x - Lx / 2) / Lx / 2) * fn_x(y)
-#        x2 = ((x - Lx / 2) / Lx / 2) * fn_x(x)
+        dy = ((x - Lx / 2) / Lx / 2) * fn_x(y)
 
-        return np.c_[x, y + y2, z]
+        return np.c_[x, y + dy, z]
 
 if __name__ == '__main__':
 
@@ -66,7 +61,7 @@ if __name__ == '__main__':
                               L_y=L_y,
                               n_x=2,
                               n_y=24,
-                              #geo_transform = GT(L_x = L_x, L_y = L_y),
+                              # geo_transform = GT(L_x = L_x, L_y = L_y),
                               show_iter=False,
                               z0_ratio=0.1,
                               MAX_ITER=100)
@@ -78,7 +73,7 @@ if __name__ == '__main__':
 
     B = 0.5
 
-    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y) # * r_ / L_x
+    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y)  # * r_ / L_x
 
     face_z_t = CnstrTargetFace(F=[r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) - s_term])
     n_arr = np.hstack([n_h[:, :].flatten(),
@@ -87,7 +82,7 @@ if __name__ == '__main__':
                        ])
     cp.tf_lst = [(face_z_t, n_arr)]
 
-    cp.cnstr_lhs = [#[(n_h[1, 0], 0, 1.0)], # 0
+    cp.cnstr_lhs = [  # [(n_h[1, 0], 0, 1.0)], # 0
 #                   [(n_h[0, -1], 0, 1.0)], # 1
                     [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
                     ]
@@ -121,8 +116,8 @@ if __name__ == '__main__':
 #    cp2.tf_lst = [(face_z_t, n_arr)]
 #
 #    cp2.cnstr_lhs = [[(n_h[1, 0], 0, 1.0)], # 0
-##                       [(n_h[1, -1], 0, 1.0)], # 1
-##                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
+# #                       [(n_h[1, -1], 0, 1.0)], # 1
+# #                    [(n_h[1, -1], 1, 1.0), (n_h[1, 0], 1, 1.0)],
 #                    ]
 #    cp2.cnstr_rhs = np.zeros((len(cp2.cnstr_lhs),), dtype = float)
 #

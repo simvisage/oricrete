@@ -49,3 +49,6 @@ from opt_crit_potential_energy import \
 
 from reshaping_assembly import \
     RotSymAssembly, MonoShapeAssembly
+
+from reshaping_masking import \
+    Masking
