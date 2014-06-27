@@ -125,11 +125,12 @@ fold = Folding(source=init, tf_lst=[(tf_y_plus, n_y_plus),
                                     (tf_z_t, n_z_t),
                                     (tf_z_t_2,n_z_t_2)
                                     #(tf_z_t_3,n_x_t)
-                                    ], dof_constraints = [ ([(3,2,1.0),(7,2,-1.0)],0.0) , ([(1,2,1.0),(9,2,-1.0)],0.0) ] , n_steps=2)
+                                    ], dof_constraints = [ ([(3,2,1.0),(7,2,-1.0)],0.0) , ([(1,2,1.0),(9,2,-1.0)],0.0) , ([(11,2,1.0),(15,2,-1.0)],0.0)  ] , n_steps=2)
 fold.X_1
 
 print "zz" , fold.x_1[7]
 print "25" , fold.x_1[25]
+print "23" , fold.x_1[23]
 
 yp= RotSymAssembly(source=fold, center=[0.0, 0.0, 0.0],
                     n_segments=n_segs, n_visible=n_segs)
