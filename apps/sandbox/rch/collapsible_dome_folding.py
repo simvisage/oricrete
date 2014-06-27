@@ -66,7 +66,7 @@ triangle = CreasePattern(X=X_new,
 
 R = H / 2.0
 
-dH = 0.6
+dH = 0.3
 x_rt = R + sp.sqrt(dH * dH * t_ * t_ + R * R) * R / t_ / dH * sp.sin(r_) / 2.0;
 
 print x_rt.subs({r_:1.0, t_:1.0})
@@ -112,9 +112,22 @@ fold = Folding(source=init, tf_lst=[(tf_y_plus, n_y_plus),
                                     (tf_y_minus, n_y_minus),
                                     (tf_y_0, n_y_0),
                                     (tf_z_0, [25]),
-                                    (tf_z_t, n_z_t),
+                                    # (tf_z_t, n_z_t),
+                                    (tf_circ_z_t, triangle.N)
                                     ], n_steps=2)
 fold.X_1
+
+x_orig = fold.x_1[23]
+x_targ = fold.x_1[25]
+
+ms = MonoShapeAssembly(source=fold,
+                       translations=[[0, 0, 0],
+                                     x_targ - x_orig],
+                       rotation_axes=[[0, 0, 1],
+                                      [0, 0, 1]],
+                       rotation_angles=[0,
+                                        0],
+                       )
 
 v = CreasePatternView(root=init)
 v.configure_traits()
