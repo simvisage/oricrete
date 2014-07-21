@@ -7,8 +7,8 @@ Created on 19 mai 2014
 from traits.api import Property, Array, cached_property, Callable
 from oricrete.folding2 import \
     YoshimuraCreasePattern, CnstrTargetFace, CreasePattern, \
-    Initialization, Folding, FormFinding, link, r_, s_, t_, fix, \
-    CreasePatternView, RotSymAssembly, MonoShapeAssembly
+    Initialization, Folding, FormFinding, link, x_, y_, r_, s_, t_, fix, \
+    CreasePatternView, RotSymAssembly, MonoShapeAssembly, CF
 import numpy as np
 import sympy as sp
 import math
@@ -108,7 +108,9 @@ n_y_plus = np.hstack([0, 11, 16, 20, 23, 25])
 init = Initialization(cp=triangle, t_init=0.3, tf_lst=[(tf_circ_z_t, triangle.N)])
 print init.x_t
 
-fold = Folding(source=init, tf_lst=[(tf_y_plus, n_y_plus),
+fold = Folding(source=init,
+               name='fold curved',
+               tf_lst=[(tf_y_plus, n_y_plus),
                                     (tf_y_minus, n_y_minus),
                                     (tf_y_0, n_y_0),
                                     (tf_z_0, [25]),
@@ -117,10 +119,24 @@ fold = Folding(source=init, tf_lst=[(tf_y_plus, n_y_plus),
                                     ], n_steps=2)
 fold.X_1
 
+cf_y_plus = CF(Rf=(y_ - sp.tan(sp.pi / 8) * x_))
+cf_y_minus = CF(Rf=(y_ + sp.tan(sp.pi / 8) * x_))
+
+fold2 = Folding(source=fold,
+                name='enforce planarity of boundaries',
+                tf_lst=[            (tf_y_0, n_y_0),
+                                    (tf_z_0, [25]),
+                                    ],
+                cf_lst=[(cf_y_plus, n_y_plus),
+                        (cf_y_minus, n_y_minus),
+                        ],
+                n_steps=1)
+fold2.X_1
+
 x_orig = fold.x_1[23]
 x_targ = fold.x_1[25]
 
-ms = MonoShapeAssembly(source=fold,
+ms = MonoShapeAssembly(source=fold2,
                        translations=[[0, 0, 0],
                                      x_targ - x_orig],
                        rotation_axes=[[0, 0, 1],

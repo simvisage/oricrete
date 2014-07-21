@@ -357,7 +357,7 @@ class CreaseFacetOperators(HasStrictTraits):
         The cycle is closed - the first and last vector are identical.
         '''
         X = self.x_0 + u
-        F_N = self.F_N # F_N is cycled counter clockwise
+        F_N = self.F_N  # F_N is cycled counter clockwise
         return X[ F_N[:, (1, 2, 0)] ] - X[ F_N[:, (0, 1, 2)] ]
 
     def get_F_L_vectors_du(self, u):
@@ -385,7 +385,7 @@ class CreaseFacetOperators(HasStrictTraits):
         v = self.get_F_L_vectors(u)
         v_du = self.get_F_L_vectors_du(u)
         mag_v = np.einsum('...i,...i', v, v)
-        ### @todo: finish the chain rule
+        # ## @todo: finish the chain rule
         raise NotImplemented
 
     def get_F_L_bases(self, u):
@@ -576,11 +576,11 @@ if __name__ == '__main__':
     print cp.get_iL_psi(u)
     print
     print 'iL_psi: dihedral angles around interior lines'
-    print cp.xget_iL_psi(u)
+    print cp.get_iL_psi2(u)
     print
-    print 'iL_psi_du: dihedral angles around interior lines'
-    print cp.get_iL_psi_du(u)
-    print
+#     print 'iL_psi_du: dihedral angles around interior lines'
+#     print cp.get_iL_psi_du(u)
+#     print
     print 'F_theta: crease angles within each triangular facet'
     print cp.get_F_theta(u)
     print

@@ -50,7 +50,7 @@ class RotSymAssembly(Reshaping):
     '''
     @cached_property
     def _get_unique_node_map(self):
-        # reshape the coordinates in array of segments to the shape (n_N, n_D  
+        # reshape the coordinates in array of segments to the shape (n_N, n_D
         x_0 = self.x_0_segments.reshape(-1, self.n_D)
         # construct distance vectors between every pair of nodes
         x_x_0 = x_0[:, np.newaxis, :] - x_0[np.newaxis, :, :]
@@ -64,10 +64,10 @@ class RotSymAssembly(Reshaping):
         upper_triangle = i_idx < j_idx
         # the lower indices will be replaced by the higher indices
         i_idx_delete, j_idx_insert = i_idx[upper_triangle], j_idx[upper_triangle]
-        # construct a boolean array with True at valid and Falce at deleted indices 
+        # construct a boolean array with True at valid and Falce at deleted indices
         idx_unique = np.ones((len(x_0),), dtype='bool')
         idx_unique[i_idx_delete] = False
-        # enumerate the new compressed index range 
+        # enumerate the new compressed index range
         remaped_range = np.arange(len(x_0) - len(i_idx_delete), dtype='int_')
         # construct the index mapping from old indexes to the compressed range
         idx_remap = np.zeros((len(x_0),), dtype='int')
@@ -107,7 +107,7 @@ class RotSymAssembly(Reshaping):
         n_L = self.source.n_L
         L_arr = L[np.newaxis, :] + n_N * np.arange(0, self.n_segments)[:, np.newaxis, np.newaxis]
         L_arr = L_arr.reshape(self.n_segments * n_L, -1)
-        #return L_arr[:self.n_visible * n_L]
+        # return L_arr[:self.n_visible * n_L]
         node_idx_remap = self.unique_node_map[1]
         return node_idx_remap[L_arr[:self.n_visible * n_L]]
 
@@ -121,7 +121,7 @@ class RotSymAssembly(Reshaping):
         F_arr = F[np.newaxis, :] + n_N * np.arange(0, self.n_segments)[:, np.newaxis, np.newaxis]
         F_arr = F_arr.reshape(self.n_segments * n_F, -1)
         F = np.vstack([F, F + self.source.n_N])
-        #return F_arr[:self.n_visible * n_F]
+        # return F_arr[:self.n_visible * n_F]
         node_idx_remap = self.unique_node_map[1]
         return node_idx_remap[F_arr[:self.n_visible * n_F]]
 
@@ -150,13 +150,22 @@ def q_conjugate(q):
     return np.array([w, -x, -y, -z], dtype='f')
 
 def qv_mult(q1, u):
-    zero_re = np.zeros((1, u.shape[1]), dtype='f')
+    print 'shapes'
+    print 'q1', q1.shape, 'u', u.shape
+    zero_re = np.zeros((u.shape[0], u.shape[1]), dtype='f')
+    print 'zero_re', zero_re.shape
     q2 = np.concatenate([zero_re[:, :, np.newaxis], u], axis=2)
+    print 'q2', q2.shape
     q2 = np.rollaxis(q2, 2)
+    print 'q2', q2.shape
     q12 = q_mult(q1[:, :, np.newaxis], q2[:, :, :])
+    print 'q12', q12.shape
     q_con = q_conjugate(q1)
+    print 'q_con', q_con.shape
     q = q_mult(q12, q_con[:, :, np.newaxis])
+    print 'q', q.shape
     q = np.rollaxis(np.rollaxis(q, 2), 2)
+    print 'q', q.shape
     return q[:, :, 1:]
 
 def axis_angle_to_q(v, theta):
@@ -187,6 +196,7 @@ class MonoShapeAssembly(Reshaping):
 
     translations = Array(dtype=float, value=[])
     rotation_axes = Array(dtype=float, value=[])
+    rotation_centers = Array(dtype=float, value=[])
     rotation_angles = Array(dtype=float, value=[])
 
     n_segments = Property()
@@ -200,9 +210,13 @@ class MonoShapeAssembly(Reshaping):
     def _get_X_0(self):
         x_single = np.array([self.source.x_t[-1]], dtype='f')
         q = axis_angle_to_q(self.rotation_axes, self.rotation_angles)
-        x_all = qv_mult(q, x_single)
-        x_all += self.translations[:, np.newaxis, :]
-        return x_all.flatten()
+        x_pulled_back = x_single - self.rotation_centers[:, np.newaxis, :]
+        print x_pulled_back.shape
+
+        x_rotated = qv_mult(q, x_pulled_back)
+        x_pushed_forward = x_rotated + self.rotation_centers[:, np.newaxis, :]
+        x_translated = x_pushed_forward + self.translations[:, np.newaxis, :]
+        return x_translated.flatten()
 
     U_t = Property()
     '''Array of crease_lines defined by pairs of node numbers.

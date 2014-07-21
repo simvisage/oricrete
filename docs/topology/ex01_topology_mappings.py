@@ -62,7 +62,7 @@ print 'L_lengths: line lengths'
 print cp.L_lengths
 print
 print 'F_normals: facet normals'
-print cp.F_normals
+print cp.F0_normals
 print
 print 'F_area: facet area'
 print cp.F_area
@@ -70,6 +70,6 @@ print
 print 'iN_F_theta: angles around the interior nodes'
 print cp.iN_theta
 print
-print 'iL_phi: dihedral angles around interior lines'
-print cp.iL_phi
+print 'iL_psi: dihedral angles around interior lines'
+print cp.iL_psi
 print

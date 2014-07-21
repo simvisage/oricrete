@@ -49,7 +49,7 @@ Node mappings
 |                     |                   | the neighboring nodes (unordered)              |
 +---------------------+-------------------+------------------------------------------------+
 | ``cp.iN_neighbors`` | (n_iN, variable)  | array of lists, each list specifies            |
-|                     |                   | the neighboring ordered                        |
+|                     |                   | the neighboring nodes ordered                  |
 |                     |                   | in a counter-clockwise order                   |
 |                     |                   | (the first and last node numbers are identical)|
 +---------------------+-------------------+------------------------------------------------+
@@ -78,8 +78,8 @@ Face mappings
 |  ``cp.F_L`` | (n_F, 3)          | lines attached to a face (unordered)           |
 +-------------+-------------------+------------------------------------------------+
 
-Derived attributes
-==================
+Derived geometric quantities
+============================
 
 The geometric parameters of the crease pattern in the planar state can be obtained
 directly using the following attributes  

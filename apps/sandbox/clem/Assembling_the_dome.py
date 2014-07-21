@@ -65,12 +65,12 @@ triangle = CreasePattern(X=X_new,
 #===============================================================================
 
 R = H / 2.0
-R2 = H/(2*(math.cos(math.pi/8)))
+R2 = H / (2 * (math.cos(math.pi / 8)))
 
 dH = 0.15
 x_rt = R + sp.sqrt(dH * dH * t_ * t_ + R * R) * R / t_ / dH * sp.sin(r_) / 2.0;
 
-x_rt_2= R2 + sp.sqrt(dH * dH * t_ * t_ + R2 * R2) * R2 / t_ / dH * sp.sin(r_) / 2.0;
+x_rt_2 = R2 + sp.sqrt(dH * dH * t_ * t_ + R2 * R2) * R2 / t_ / dH * sp.sin(r_) / 2.0;
 
 print x_rt.subs({r_:1.0, t_:1.0})
 
@@ -83,13 +83,21 @@ z_rt_2 = (sp.sqrt(dH * dH * t_ * t_ + R2 * R2) * R2 / t_ / dH * sp.cos(r_) / 2.0
 tf_circ_z_t = CnstrTargetFace(name='circ_z_t', F=[x_rt , s_ , z_rt])
 n_tf_circ_z_t = np.hstack([triangle.N.flatten()])
 
-tf_circ_z_plus = CnstrTargetFace(name='circ_z_plus', F=[x_rt_2*math.cos(math.pi/8)- s_ *math.sin(math.pi / 8) , s_*math.cos(math.pi / 8) + x_rt_2 * math.sin(math.pi / 8)  , z_rt_2])
-tf_circ_z_minus = CnstrTargetFace(name='circ_z_minus', F=[x_rt_2*math.cos(math.pi/8)- s_ *math.sin(-math.pi / 8) , s_*math.cos(math.pi / 8) + x_rt_2 * math.sin(-math.pi / 8)  , z_rt_2])
+tf_circ_z_plus = CnstrTargetFace(name='circ_z_plus',
+                                 F=[x_rt_2 * math.cos(math.pi / 8) - s_ * math.sin(math.pi / 8),
+                                     s_ * math.cos(math.pi / 8) + x_rt_2 * math.sin(math.pi / 8),
+                                     z_rt_2])
+
+tf_circ_z_minus = CnstrTargetFace(name='circ_z_minus',
+                                  F=[x_rt_2 * math.cos(math.pi / 8) - s_ * math.sin(-math.pi / 8),
+                                     s_ * math.cos(math.pi / 8) + x_rt_2 * math.sin(-math.pi / 8),
+                                     z_rt_2])
 
 # Surface limits of the folding
 tf_x_t = CnstrTargetFace(F=[H - (H * 0.03) * t_, r_, s_])
 tf_z_t = CnstrTargetFace(F=[r_, s_, 0.15 * t_])
 tf_z_0 = CnstrTargetFace(F=[r_, s_, 0])
+tf_z_05 = CnstrTargetFace(F=[r_, s_, -0.05])
 tf_y_0 = CnstrTargetFace(F=[s_, 0, r_])
 tf_y_plus = CnstrTargetFace(name='tf_plus', F=[r_ * math.cos(math.pi / 8),
                                                r_ * math.sin(math.pi / 8),
@@ -98,13 +106,15 @@ tf_y_minus = CnstrTargetFace(name='tf_minus', F=[r_ * math.cos(math.pi / 8),
                                                  r_ * math.sin(-math.pi / 8),
                                                  s_])
 
+n_z_0 = triangle.N[:]
+
 # nodes associated to surfaces
 n_z_t = [21]
 n_x_t = [5]
 n_y_0 = np.hstack([5, 13, 21, 25])
 n_y_minus = np.hstack([10, 15, 19, 22, 24, 25])
 n_y_plus = np.hstack([0, 11, 16, 20, 23, 25])
-n_int = np.hstack([1,2,3,4,5,6,7,8,9,12,13,14,17,18,21,25])
+n_int = np.hstack([1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 17, 18, 21, 25])
 #===============================================================================
 # Initialization object
 #===============================================================================
@@ -114,18 +124,28 @@ n_int = np.hstack([1,2,3,4,5,6,7,8,9,12,13,14,17,18,21,25])
 # fold= Folding(source=init0, n_steps=1, tf_lst=[(face_z_0, triangle.N)])
 
 
-init = Initialization(cp=triangle, t_init=0.3, tf_lst=[(tf_circ_z_t, triangle.N)])
+init = Initialization(cp=triangle, name='init vault', t_init=0.3, tf_lst=[(tf_circ_z_t, n_z_0)])
 print init.x_t
 
-fold = Folding(source=init, tf_lst=[(tf_y_plus, n_y_plus),
+init2 = Folding(source=init, name='init valleys', tf_lst=[(tf_z_05, [1, 3, 5, 7, 9]), ],
+                                    n_steps=2)
+init2.X_1
+
+fold = Folding(source=init, name='folding',
+               tf_lst=[(tf_y_plus, n_y_plus),
                                     (tf_y_minus, n_y_minus),
                                     (tf_y_0, n_y_0),
                                     (tf_z_0, [25]),
                                     # (tf_z_t, n_z_t),
-                                    (tf_circ_z_t, n_int)
-                                    ,(tf_circ_z_plus , n_y_plus),
+                                    # (tf_circ_z_t, n_int),
+                                    (tf_circ_z_plus , n_y_plus),
                                     (tf_circ_z_minus , n_y_minus)
-                                    ], n_steps=2)
+                                    ],
+                                    dof_constraints=[([(i, 2, 1.0), (j, 2, -1.0)], 0)
+                                                     for i, j in [(8, 6), (2, 4)]] + \
+                                                    [([(i, 0, 1.0), (j, 0, -1.0)], 0)
+                                                     for i, j in [(1, 3), (9, 7), (7, 5)]],
+                                    n_steps=2)
 fold.X_1
 
 print "25" , fold.x_1[25]
@@ -134,15 +154,15 @@ print "23" , fold.x_1[23]
 print "20" , fold.x_1[20]
 
 
-#x_orig = fold.x_1[23]
-#x_targ = fold.x_1[25]
+# x_orig = fold.x_1[23]
+# x_targ = fold.x_1[25]
 
-#ms = MonoShapeAssembly(source=fold,
+# ms = MonoShapeAssembly(source=fold,
                       # translations=[[0, 0, 0],
                       #               x_targ - x_orig],
                       # rotation_axes=[[0, 0, 1],
                       #                [0, 0, 1]],
-                       #rotation_angles=[0,
+                       # rotation_angles=[0,
                        #                 0],
                       # )
 

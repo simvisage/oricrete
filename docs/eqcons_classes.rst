@@ -14,13 +14,13 @@ EqualityConstraint
    :members:
    :undoc-members:
 
-ConstantLength
---------------
+Rigidity
+--------
 
-.. inheritance-diagram:: ConstantLength
+.. inheritance-diagram:: EqConsConstantLength
 	:parts: 1
 
-.. autoclass:: ConstantLength
+.. autoclass:: EqConsConstantLength
    :members:
    :undoc-members:
 
@@ -70,10 +70,10 @@ where the product terms read
 	\frac{\partial \gamma_i}{\partial \bm{u}_i} = \frac{1}{ \left\| \bm{\mathrm{v}}_{(i,j)} \right\| \left\| \bm{\mathrm{v}}_{(i,j+1)} \right\| } \left( \frac{\partial \bm{\mathrm{v}}_{(i,j)}}{\partial \bm{u}_i} \bm{\mathrm{v}}_{(i,j+1)} + \bm{\mathrm{v}}_{(i,j)} \frac{\partial \bm{\mathrm{v}}_{(i,j+1)}}{\partial \bm{u}_i}  \right)
 
 
-.. inheritance-diagram:: Developability
+.. inheritance-diagram:: EqConsDevelopability
 	:parts: 1
 
-.. autoclass:: Developability
+.. autoclass:: EqConsDevelopability
    :members:
    :undoc-members:
 
@@ -88,6 +88,14 @@ must be zero
 	G_i^{\mathrm{ff}} := \sum_{j = 1}^{N_i^\mathrm{neighbor}} (-1)^{j} \theta_j = 0
 
 This condition must hold for any interior node of a crease pattern.
+
+.. inheritance-diagram:: EqConsFlatFoldability
+	:parts: 1
+
+.. autoclass:: EqConsFlatFoldability
+   :members:
+   :undoc-members:
+
 
 DofConstraints
 --------------
@@ -122,10 +130,10 @@ PointsOnLine
 PointsOnSurface
 ---------------
 
-.. inheritance-diagram:: PointsOnSurface
+.. inheritance-diagram:: EqConsPointsOnSurface
 	:parts: 1
 
-.. autoclass:: PointsOnSurface
+.. autoclass:: EqConsPointsOnSurface
    :members:
    :undoc-members:
 
