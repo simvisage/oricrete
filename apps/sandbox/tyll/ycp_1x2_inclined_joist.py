@@ -53,8 +53,12 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y):
     fold = Folding(source=init, n_steps=10, dof_constraints=cs)
     fold.u_1
 
-    v = CreasePatternView(root=init)
-    v.configure_traits()
+    print 'nodal coordinates', fold.x_1
+    print 'facets', fold.F
+    print 'facet coordinates', fold.x_1[fold.F]
+
+#     v = CreasePatternView(root=init)
+#     v.configure_traits()
 
     return fold
 
