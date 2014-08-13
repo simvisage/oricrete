@@ -192,7 +192,8 @@ class MonoShapeAssembly(Reshaping):
     and rotation matrix with respect to the reference
     configuration of the source.
     '''
-    name = 'mono-assembly'
+
+    name = Str('mono-assembly')
 
     translations = Array(dtype=float, value=[])
     rotation_axes = Array(dtype=float, value=[])
@@ -211,8 +212,6 @@ class MonoShapeAssembly(Reshaping):
         x_single = np.array([self.source.x_t[-1]], dtype='f')
         q = axis_angle_to_q(self.rotation_axes, self.rotation_angles)
         x_pulled_back = x_single - self.rotation_centers[:, np.newaxis, :]
-        print x_pulled_back.shape
-
         x_rotated = qv_mult(q, x_pulled_back)
         x_pushed_forward = x_rotated + self.rotation_centers[:, np.newaxis, :]
         x_translated = x_pushed_forward + self.translations[:, np.newaxis, :]

@@ -13,8 +13,7 @@
 # Created on Sep 8, 2011 by: matthias
 
 
-from etsproxy.mayavi import mlab
-from etsproxy.mayavi.core.api import Engine, PipelineBase
+from etsproxy.mayavi.core.api import PipelineBase
 from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 from etsproxy.mayavi.modules.api import Axes
 from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
@@ -72,7 +71,7 @@ class CreasePatternView(HasTraits):
     '''All reshaping steps.
     '''
 
-    x_t = DelegatesTo('data') #node position in every time_step
+    x_t = DelegatesTo('data')  # node position in every time_step
 
     # plotting stuff
     show_node_index = Bool(False)
@@ -124,7 +123,7 @@ class CreasePatternView(HasTraits):
         faktor = min_length * 0.25
         return faktor
 
-    scale_factor = Range(0.0, 1.0, 0.0)  #scale_factor Trait for rescaling
+    scale_factor = Range(0.0, 1.0, 0.0)  # scale_factor Trait for rescaling
 
     # range of fold steps
     fold_step_min = Int(0)
@@ -193,8 +192,8 @@ class CreasePatternView(HasTraits):
 
         lhs_copy = copy.deepcopy(lhs)
         while(count < len(rhs)):
-            # all cell's in rhs which are different 0 represents a load and 
-            # gives the direction 
+            # all cell's in rhs which are different 0 represents a load and
+            # gives the direction
             # the constrain on the same indexposition in lhs is the load constrain
             if (rhs[count] != 0):
                 node = lhs[count][0][0]
@@ -206,7 +205,7 @@ class CreasePatternView(HasTraits):
 
                 load_nodes = np.append(load_nodes, node)
                 load_dir = np.append(load_dir, [dir_vec])
-                lhs_copy.remove(lhs[count]) # remove the constrain from lhs-list
+                lhs_copy.remove(lhs[count])  # remove the constrain from lhs-list
 
             count += 1
 
@@ -221,7 +220,7 @@ class CreasePatternView(HasTraits):
 
         count = 0
         while(count < len(cnstr_fixed)):
-            # put all connected constrains out of cnstr_fixed into cnstr_connect    
+            # put all connected constrains out of cnstr_fixed into cnstr_connect
             if len(cnstr_fixed[count]) > 1:
                 cnstr_connect.append(cnstr_fixed.pop(count))
                 continue
@@ -245,7 +244,7 @@ class CreasePatternView(HasTraits):
         fixed_nodes = fixed_nodes.reshape(len(cnstr_fixed), 1)
         fixed_dir = fixed_dir.reshape(len(cnstr_fixed), 3)
 
-        # get connections on real node indexes 
+        # get connections on real node indexes
 
         c_nodes = np.array([], dtype=int)
         c_dir = np.array([])
@@ -291,20 +290,26 @@ class CreasePatternView(HasTraits):
         self.update_cnstr_pipeline()
         # new constrain visualization
         self.update_cp_pipeline()
+        # auxiliary pipeline
+        self.update_aux_pipeline()
+
+        if len(self.data.x_aux) > 0:
+            self.aux_tube_pipeline
+
         self.tube_pipeline
-        #self.update_face_view()
+        # self.update_face_view()
         self.set_focal_point()
         self.update_grab_pts_pipeline()
         self.update_line_pts_pipeline()
 
     cp_pipeline = Property(Instance(PipelineBase), depends_on='data')
+    '''
+    This Pipeline creates the raw construction. It builds all facets
+    and connects the nodes like self.data.L describes it, but won't
+    create the tubes.
+    '''
     @cached_property
     def _get_cp_pipeline(self):
-        '''
-        This Pipeline creates the raw construction. It builds all facets
-        and connects the nodes like self.data.L describes it, but won't
-        create the tubes.
-        '''
 
         # get the current constrain information
 
@@ -313,7 +318,7 @@ class CreasePatternView(HasTraits):
         # Arrays of Point Data in axis
         x, y, z = nodes.T
 
-        # Visualize the data 
+        # Visualize the data
 
         if len(self.data.F) > 0:
             cp_pipe = self.scene.mlab.triangular_mesh(x, y, z, self.data.F)
@@ -325,13 +330,52 @@ class CreasePatternView(HasTraits):
 
         return cp_pipe
 
+    aux_pipeline = Property(Instance(PipelineBase), depends_on='data')
+    @cached_property
+    def _get_aux_pipeline(self):
+        '''
+        This Pipeline creates the raw construction. It builds all facets
+        and connects the nodes like self.data.L describes it, but won't
+        create the tubes.
+        '''
+
+        # get the current constrain information
+
+        nodes = self.data.x_aux
+
+        # Arrays of Point Data in axis
+        x, y, z = nodes.T
+
+        # Visualize the data
+
+        if len(self.data.F_aux) > 0:
+            aux_pipe = self.scene.mlab.triangular_mesh(x, y, z, self.data.F_aux)
+            aux_pipe.mlab_source.dataset.lines = self.data.L_aux
+            self.scene.mlab.pipeline.surface(aux_pipe, color=(0.6, 0.6, 0.6))
+        else:
+            aux_pipe = self.scene.mlab.points3d(x, y, z, scale_factor=0.03)
+            aux_pipe.mlab_source.dataset.lines = self.data.L_aux
+
+        return aux_pipe
+
+    aux_tube_pipeline = Property(Instance(PipelineBase), depends_on='data')
+    '''
+    This pipeline creates all Tubes in dependence on the given connections of
+    the aux_pipeline
+    '''
+    @cached_property
+    def _get_aux_tube_pipeline(self):
+        tube = self.scene.mlab.pipeline.tube(self.aux_pipeline, tube_radius=0.1 * self.scale_factor)
+        self.scene.mlab.pipeline.surface(tube, color=(1.0, 0.5, 0.9))
+        return tube
+
     tube_pipeline = Property(Instance(PipelineBase), depends_on='data')
+    '''
+    This pipeline creates all Tubes in dependence on the given connections of
+    the cp_pipeline
+    '''
     @cached_property
     def _get_tube_pipeline(self):
-        '''
-        This pipeline creates all Tubes in dependens on the given connections of
-        the cp_pipeline
-        '''
         tube = self.scene.mlab.pipeline.tube(self.cp_pipeline, tube_radius=0.1 * self.scale_factor)
         self.scene.mlab.pipeline.surface(tube, color=(1.0, 1.0, 0.9))
         return tube
@@ -402,21 +446,24 @@ class CreasePatternView(HasTraits):
         pts = self.data.x_0[n]
 
         x, y, z = pts.T
-        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scale_factor * 0.25, color=(0.0, 1.0, 1.0))
+        grab_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scale_factor * 0.25,
+                                                     color=(0.0, 1.0, 1.0))
         return grab_pts_pipeline
 
     line_pts_pipeline = Property(Instance(PipelineBase), depends_on='data')
     @cached_property
     def _get_line_pts_pipeline(self):
         '''
-        This pipeline represents all linepoints and colors them red.
+        This pipeline represents all line points and colors them red.
         '''
         pts = np.array(self.data.LP)
         n = pts[:, 0]
         pts = self.data.x_0[n]
 
         x, y, z = pts.T
-        line_pts_pipeline = self.scene.mlab.points3d(x, y, z, scale_factor=self.scale_factor * 0.25, color=(1.0, 0.0, 0.0))
+        line_pts_pipeline = self.scene.mlab.points3d(x, y, z,
+                                                     scale_factor=self.scale_factor * 0.25,
+                                                     color=(1.0, 0.0, 0.0))
         return line_pts_pipeline
 
     # Pipeline visualizing fold faces
@@ -452,6 +499,8 @@ class CreasePatternView(HasTraits):
         Update all pipelines, which are dependend on the scale_factor trait
         '''
         self.tube_pipeline.filter.radius = 0.1 * self.scale_factor
+        if len(self.data.x_aux) > 0:
+            self.aux_tube_pipeline.filter.radius = 0.1 * self.scale_factor
         if(len(self.data.GP) > 0):
             self.grab_pts_pipeline.glyph.glyph.scale_factor = self.scale_factor * 0.25
         if(len(self.data.LP) > 0):
@@ -469,6 +518,23 @@ class CreasePatternView(HasTraits):
         # set new position of 3D Points
         self.scene.disable_render = True
         self.cp_pipeline.mlab_source.reset(x=x, y=y, z=z)
+        self.scene.disable_render = False
+
+    @on_trait_change('fold_step, data')
+    def update_aux_pipeline(self):
+        '''
+        Update cp_pipeline for every new time_step
+        '''
+        # Array of current foldstep
+        nodes = self.data.x_aux
+        if len(nodes) == 0:
+            return
+
+        x, y, z = copy.copy(nodes.T)
+
+        # set new position of 3D Points
+        self.scene.disable_render = True
+        self.aux_pipeline.mlab_source.reset(x=x, y=y, z=z)
         self.scene.disable_render = False
 
 
@@ -631,7 +697,7 @@ class CreasePatternView(HasTraits):
             self.cnstr_pipeline.mlab_source.reset(x=x, y=y, z=z)
             self.cf_cross.mlab_source.reset(x=x, y=y, z=z)
 
-            #load constrains
+            # load constrains
             cp_l = nodes[cn_l]
 
             x, y, z = cp_l.T
@@ -678,7 +744,7 @@ class CreasePatternView(HasTraits):
         self.scene.disable_render = False
 
     #===========================================================================
-    # Export animation of the folding process 
+    # Export animation of the folding process
     #===========================================================================
     print_view = Button
 
@@ -701,9 +767,9 @@ class CreasePatternView(HasTraits):
     def _save_animation_fired(self):
         self.animation_maker()
 
-    def animation_maker(self, frame= -1):
+    def animation_maker(self, frame=-1):
         #===========================================================================
-        # Prepare plotting 
+        # Prepare plotting
         #===========================================================================
         '''
         If single_frame is -1, an animation will be rendered. For this
@@ -862,5 +928,5 @@ if __name__ == '__main__':
     lift.U_0[5] = 0.05
     lift.U_0[17] = 0.025
 
-    #lift.show()
+    # lift.show()
 

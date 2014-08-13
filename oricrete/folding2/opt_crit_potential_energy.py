@@ -12,8 +12,6 @@
 #
 # Created on Nov 18, 2011 by: matthias
 
-from etsproxy.traits.api import Property
-
 from opt_crit import OptCrit
 
 import numpy as np

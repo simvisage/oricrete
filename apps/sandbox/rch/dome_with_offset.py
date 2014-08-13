@@ -13,6 +13,7 @@ import numpy as np
 import sympy as sp
 import math
 
+from oricrete.folding2 import EPS, DELTA
 #===============================================================================
 # Geometrical parameters
 #===============================================================================
@@ -166,20 +167,124 @@ phi = np.arcsin(norm(v3) / (norm(v1) * norm(v2)))
 v3 /= norm(v3)
 print v3
 print 'v3', phi
-v_seg = fold.x_1[25] - fold.x_1[24]
 
 ms = MonoShapeAssembly(source=fold,
+                       name='translating assembly',
                        translations=[[0, 0, 0],
                                      x_targ - x_orig,
-                                     x_targ - x_orig + v_seg,
                                      ],
                        rotation_centers=np.array([[0, 0, 0],
                                                   x_orig,
-                                                  x_orig], dtype='f'),
-                       rotation_axes=np.array([[0, 0, 1], v3, v3], dtype='f'),
+                                                  ], dtype='f'),
+                       rotation_axes=np.array([[0, 0, 1], v3], dtype='f'),
                        rotation_angles=[0,
                                         phi,
-                                        2 * phi],
+                                        ],
+                       )
+
+
+x_orig = ms.x_1[23]
+x_targ = ms.x_1[51]
+
+v1 = ms.x_1[41] - ms.x_1[51]
+v2 = ms.x_1[0] - ms.x_1[23]
+v3 = np.cross(v2, v1)
+
+norm = np.linalg.norm
+phi = np.arcsin(norm(v3) / (norm(v1) * norm(v2)))
+v3 /= norm(v3)
+print v3
+print 'v3', phi
+
+ms2 = MonoShapeAssembly(source=ms,
+                       name='translating assembly 2',
+                       translations=[[0, 0, 0],
+                                     x_targ - x_orig,
+                                     ],
+                       rotation_centers=np.array([[0, 0, 0],
+                                                  x_orig,
+                                                  ], dtype='f'),
+                       rotation_axes=np.array([[0, 0, 1], v3], dtype='f'),
+                       rotation_angles=[0,
+                                        phi,
+                                        ],
+                       )
+
+# find the rotation center
+
+node_rot_lst = [[0, 15],
+                [20, 24]]
+
+node_rot_arr = np.array(node_rot_lst, dtype='int')
+
+node_x_arr = fold.x_1[node_rot_arr]
+v0, v1 = node_x_arr[:, 0, :], node_x_arr[:, 1, :]
+v01 = v1 - v0
+v01_mid = (v0 + v1) / 2.0
+
+u = np.einsum('...i,...j,...kij->...k', v01[0], v01[1], EPS)
+
+w0 = np.einsum('...i,...j,...kij->...k', u, v01[0], EPS)
+w1 = np.einsum('...i,...j,...kij->...k', u, v01[1], EPS)
+
+print 'w0', w0
+print 'u', u
+print 'w1', w1
+
+r = v01_mid[1] - v01_mid[0]
+
+W = np.array([w0, u, w1]).T
+
+print 'r', r
+print 'W', W
+
+alpha = np.linalg.solve(W, r)
+print 'alpha', alpha
+
+(w0, u, w1) = W * alpha[np.newaxis, :].T
+
+print 'w0', w0
+print 'u', u
+print 'w1', w1
+
+center = v01_mid[0] + w0
+
+print 'center', center
+
+p = node_x_arr[0, :, :] - center[np.newaxis, :]
+
+print 'p', p
+
+print 'p_cross', np.einsum('...i,...j,...kij->...k', p[1], p[0], EPS)
+
+x_aux = np.array([v01_mid[0],
+                  v01_mid[1],
+                  v01_mid[0] + v01[0],
+                  v01_mid[1] + v01[1],
+                  v01_mid[0] + u,
+                  v01_mid[1] + u,
+                  ])
+L_aux = np.array([[0, 1],
+                  [0, 2],
+                  [1, 3],
+                  [0, 4],
+                  [1, 5]], dtype='int')
+
+ms = MonoShapeAssembly(source=fold,
+                       translations=[[0, 0, 0],
+                                     # [0, 0, 0],
+                                     ],
+                       rotation_centers=np.array([[0, 0, 0],
+                                                  # center,
+                                                  ], dtype='f'),
+                       rotation_axes=np.array([u,
+                                               # u
+                                               ], dtype='f'),
+                       rotation_angles=[0,
+                                       # phi
+                                        ],
+                       x_aux=x_aux,
+                       L_aux=L_aux
                        )
 
 v = CreasePatternView(root=init)

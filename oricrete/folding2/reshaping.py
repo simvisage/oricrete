@@ -39,8 +39,6 @@ from folding_simulator import FoldingSimulator
 
 from ori_node import IOriNode, OriNode
 
-from einsum_utils import DELTA, EPS
-
 class IReshaping(IOriNode):
     '''Interface for reshaping process
     simulation step within the origami design process.
@@ -146,6 +144,22 @@ class Reshaping(OriNode, FoldingSimulator):
             n_c += len(nodes)
         return n_c
 
+    #===========================================================================
+    # Auxiliary elements that can be used interim steps of computation.
+    # They are not included in the crease pattern representation.
+    #===========================================================================
+    x_aux = Array(dtype=float, value=[])
+    '''Auxiliary nodes used for visualization.
+    '''
+
+    L_aux = Array(dtype=int, value=[])
+    '''Auxiliary lines used for visualization.
+    '''
+
+    F_aux = Array(dtype=int, value=[])
+    '''Auxiliary facets used for visualization.
+    '''
+
 class Initialization(OriNode, FoldingSimulator):
     '''Initialization of the pattern for the reshaping control.
 
@@ -155,6 +169,23 @@ class Initialization(OriNode, FoldingSimulator):
 
     t_init (float): Timestep wich is used for the final mapping. Default = 0.001
     '''
+
+    #===========================================================================
+    # Auxiliary elements that can be used interim steps of computation.
+    # They are not included in the crease pattern representation.
+    #===========================================================================
+    x_aux = Array(dtype=float, value=[])
+    '''Auxiliary nodes used for visualization.
+    '''
+
+    L_aux = Array(dtype=int, value=[])
+    '''Auxiliary lines used for visualization.
+    '''
+
+    F_aux = Array(dtype=int, value=[])
+    '''Auxiliary facets used for visualization.
+    '''
+
 
     name = Str('init')
 

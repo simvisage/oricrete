@@ -52,3 +52,6 @@ from reshaping_assembly import \
 
 from reshaping_masking import \
     Masking
+
+from einsum_utils import \
+    EPS, DELTA
