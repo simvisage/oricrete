@@ -57,8 +57,8 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y):
     print 'facets', fold.F
     print 'facet coordinates', fold.x_1[fold.F]
 
-#     v = CreasePatternView(root=init)
-#     v.configure_traits()
+    v = CreasePatternView(root=init)
+    v.configure_traits()
 
     return fold
 

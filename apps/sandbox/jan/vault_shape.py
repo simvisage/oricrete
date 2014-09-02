@@ -55,7 +55,7 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
 '''configure parameters:'''
 
 init,fold = get_constrained_YCP(L_x=6.3, L_y=4.2,
-                           n_x=3, n_y=8, d= -1.25)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+                           n_x=4, n_y=8, d= -1.25)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
 
 
 v = CreasePatternView(root=init)

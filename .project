@@ -4,7 +4,13 @@
 	<comment></comment>
 	<projects>
 		<project>etsproxy</project>
+		<project>ibvpy</project>
+		<project>mathkit</project>
+		<project>matresdev</project>
+		<project>quaducom</project>
+		<project>stats</project>
 		<project>sympy</project>
+		<project>util</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
