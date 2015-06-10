@@ -789,6 +789,8 @@ class CreasePatternView(HasTraits):
     animation_steps = Int(1)
     single_frame = Int(-1)
     animation_file = File
+    animation_step_start = Int(0, auto_set=False, enter_set=True)
+    animation_step_end = Int(-1, auto_set=False, enter_set=True)
 
     def _animation_file_default(self):
         return os.path.join('fig', 'oricrete.swf')
@@ -817,6 +819,13 @@ class CreasePatternView(HasTraits):
         if(frame > -1 and frame < n_steps):
             steps[0] = frame
             multiframe = False
+        elif self.animation_step_start != 0 or self.animation_step_end != -1:
+            if (self.animation_step_end > n_steps or
+                    self.animation_step_end < self.animation_step_start or
+                    self.animation_step_start < 0):
+                raise IndexError('wrong index step specified')
+            steps = np.arange(
+                self.animation_step_start, self.animation_step_end)
         else:
             while((steps[-1] + self.animation_steps) < n_steps):
                 steps = np.append(steps, (steps[-1] + self.animation_steps))
@@ -884,6 +893,12 @@ class CreasePatternView(HasTraits):
                Group(Item('save_animation', show_label=False),
                      Item(
                          'animation_steps', tooltip='gives the distance of fold steps between the frames (1 = every fold step; 2 = every second foldstep; ...'),
+                     Item(
+                         'animation_step_start',
+                         tooltip='Initial step of animation'),
+                     Item(
+                         'animation_step_end',
+                         tooltip='final stap of the animation'),
                      Item(
                          'single_frame', tooltip='choose a iteration step for a single picture, else their will be an animation rendered'),
                      Item(
