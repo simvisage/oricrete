@@ -11,7 +11,9 @@ import numpy as np
 
 from oricrete.folding2.abaqus_link import AbaqusLink
 
+
 def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
+    
     ycp = YoshimuraCreasePattern(L_x=L_x, L_y=L_y, n_x=n_x, n_y=n_y)
 
     fixed_node = fix(ycp.N_h[0, -1], (0, 1, 2))
@@ -30,7 +32,7 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
     cntrl_displ = [([(ycp.N_h[-1, 1], 0, 1.0)], d)]
 
     caf = CnstrTargetFace(
-        F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.000015])
+        F=[r_, s_, - (4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.000015)])
     n_arr = np.hstack([ycp.N_h[:, :].flatten(),
                        ycp.N_i[:, :].flatten()
                        ])
@@ -49,8 +51,25 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
                    cntrl_displ,
                    #                    tf_lst=[(caf, n_arr)]
                    )
-    print 'u', lift.u_t[-1]
-    return init, lift
+    lift.u_t[-1]
+    
+    n_l_h_corner = ycp.N_h[0, (0, -1)].flatten()
+    n_r_h_corner = ycp.N_h[-1, (0, -1)].flatten()
+    n_lr_h_corner = ycp.N_h[(0, 0, -1, -1), (0, -1, 0, -1)].flatten()
+    n_fixed_y = ycp.N_h[(0, -1), 2].flatten()
+    
+    hanging = Folding(source=lift,
+                      goal_function_type='potential_energy',
+                      n_steps=5,
+                      MAX_ITER=1000,
+                      dof_constraints=fix(n_l_h_corner, [0], 0) + \
+                               fix(n_lr_h_corner, [2]) + \
+                               fix(n_fixed_y, [1]) + \
+                               fix(n_r_h_corner, [0], -0) 
+                      )
+    
+    hanging.u_t[-1]
+    return init, lift, hanging
 
 # configure parameters:
 # L_x = 7.0
@@ -73,8 +92,8 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
 # cpw = CreasePatternView(root=init)
 # cpw.configure_traits()
 
-init, fold = get_constrained_YCP(L_x=8, L_y=9,
-                                 n_x=4, n_y=24, d=-7.1)
+init, fold, hanging = get_constrained_YCP(L_y=3.01, L_x=2.42,
+                                 n_x=4, n_y=10, d=-0.28)
 # l_x length, l_y length, n_x number of elments, n_y number of Elements, d
 # deformation of the right side
 

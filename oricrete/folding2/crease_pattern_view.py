@@ -636,12 +636,12 @@ class CreasePatternView(HasTraits):
             cf_arrow = self.scene.mlab.quiver3d(x, y, z, U, V, W,
                                                 mode='2darrow', color=(0.0, 0.0, 1.0),
                                                 scale_mode='vector', scale_factor=1.0,
-                                                line_width=scale * 0.5)
+                                                line_width=scale)
             self.cf_cross = self.scene.mlab.quiver3d(x, y, z, U, V, W, mode='2dcross',
                                                      color=(0.0, 0.0, 1.0),
                                                      scale_mode='vector',
                                                      scale_factor=1.0,
-                                                     line_width=scale * 0.5)
+                                                     line_width=scale)
 
             self.scene.mlab.pipeline.surface(self.cf_cross)
             self.scene.mlab.pipeline.surface(cf_arrow)
