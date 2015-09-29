@@ -1,4 +1,9 @@
 '''
+Created on 28.09.2015
+
+@author: jvanderwoerd
+'''
+'''
 Created on 16.09.2015
 
 @author: jvanderwoerd
@@ -35,6 +40,16 @@ linked_h_top_and_bottom_y = link(cp.N_h[:, 0], 1, 1.0,
 
 fixed_v_left_z = fix(cp.N_v[0,2],2)
 
+
+#correction of nodes
+fixed_i_left_z_up = fix(cp.N_i[0,(1,3)],[2], -0.20)
+fixed_i_left_y_up2 = fix(cp.N_i[0,2],[0], 0.2255)
+fixed_i_right_z_up = fix(cp.N_i[-1,(1,3)],[2], -0.20)
+
+kopplung = link(cp.N_h[0,2], 0, 1.0,
+                cp.N_h[-1,2], 0, -1.0)
+fixed_h_bottom_z_up = fix(cp.N_h[1,(0,-1)],[2], -0.46)
+fixed_h_bottom_z_up2 = fix(cp.N_h[1,(1,-2)],[2], -0.444)
 
 #trying
 fixed_v_left_z_lower1 = fix(cp.N_v[0,(1,-2)],[2], -0.03)
@@ -93,7 +108,8 @@ fold = Folding(source=init,
                n_steps=5,
                MAX_ITER=1000,
                #tf_lst=[(face_z_t, cp.N)],
-               dof_constraints=fix(cp.N_v[0,2], [0],v) + \
+               dof_constraints=fix(cp.N_h[0,(2,3)], [0],v) + \
+#                                fix(cp.N_h[2,1], [2],-0.5382) + \
 #                                 fix(n_l_h_corner, [0], v) + \
 #                                fix(n_r_h_corner, [0], -v) + \
 #                               fix(n_lr_h_corner, [2]) + \
@@ -111,7 +127,9 @@ fold = Folding(source=init,
 #                               fixed_i_right_z_up + \
 #                               fixed_i_left_z_up2 + \
 #                                fixed_i_left_y_up2 +\
-                               #fixed_h_left_z_lower1  + \                               
+                               #fixed_h_left_z_lower1  + \ 
+#                                fixed_h_bottom_z_up + \
+#                                fixed_h_bottom_z_up2 + \
                                corner_slides
                                )
 #               dof_constraints=fix([0, 1], [0], v) + fix([0, 1, 6, 7], [2]) + \
@@ -122,12 +140,6 @@ cpw = CreasePatternView(root=init)
 cpw.configure_traits()
 
 
-
-
-
-#al = AbaqusLink(data = fold, n_split = 3)
-#al.model_name = 'hp_shell'
-#al.build_inp()
 
 #il = InfocadLink(data = fold, n_split = 3)
 #il.model_name = 'hp_shell'
