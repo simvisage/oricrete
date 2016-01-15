@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 #
 # Copyright (c) 2009, IMB, RWTH Aachen.
 # All rights reserved.
@@ -12,11 +12,10 @@
 #
 # Created on Nov 18, 2011 by: matthias
 
-from etsproxy.traits.api import DelegatesTo, PrototypedFrom
-
+from eq_cons import EqCons
+from traits.api import DelegatesTo, PrototypedFrom
 import numpy as np
 
-from eq_cons import EqCons
 
 class EqConsConstantLength(EqCons):
     '''Constant length constraint.
@@ -46,6 +45,11 @@ class EqConsConstantLength(EqCons):
         given the fold vector dX.
         '''
         v_0 = self.reshaping.cp.L_vectors
+
+        L = self.reshaping.cp.L
+        x_0 = self.reshaping.X_0.reshape(-1, 3)
+        v_0 = x_0[L[:, 1]] - x_0[L[:, 0]]
+
         u = U.reshape(self.n_N, self.n_D)
         u_i, u_j = u[self.L.T]
         v_u_i = np.sum(v_0 * u_i, axis=1)
@@ -66,18 +70,23 @@ class EqConsConstantLength(EqCons):
         # running crease line index
         if self.n_L > 0:
             v_0 = self.reshaping.cp.L_vectors
+
+            L = self.reshaping.cp.L
+            x_0 = self.reshaping.X_0.reshape(-1, 3)
+            v_0 = x_0[L[:, 1]] - x_0[L[:, 0]]
+
             u = U.reshape(self.n_N, self.n_D)
             i, j = self.L.T
             u_i, u_j = u[self.L.T]
             l = np.arange(self.n_L)
-            G_du[ l, i, : ] += -2 * v_0 + 2 * u_i - 2 * u_j
-            G_du[ l, j, : ] += 2 * v_0 - 2 * u_i + 2 * u_j
+            G_du[l, i, :] += -2 * v_0 + 2 * u_i - 2 * u_j
+            G_du[l, j, :] += 2 * v_0 - 2 * u_i + 2 * u_j
 
-        # reshape the 3D matrix to a 2D matrix 
-        # with rows for crease lines and columns representing 
+        # reshape the 3D matrix to a 2D matrix
+        # with rows for crease lines and columns representing
         # the derivatives with respect to the node displacements
         # in 3d.
-        # 
+        #
         G_du = G_du.reshape(self.n_L, self.n_N * self.n_D)
         return G_du
 

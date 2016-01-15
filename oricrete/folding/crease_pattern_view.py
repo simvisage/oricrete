@@ -17,10 +17,10 @@ from etsproxy.mayavi import mlab
 from etsproxy.mayavi.core.api import Engine, PipelineBase
 from etsproxy.mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 from etsproxy.mayavi.modules.api import Axes
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, Button, \
     Int, Bool, File, Array, List, Float
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor, RangeEditor, \
+from traitsui.api import View, Item, Group, ButtonEditor, RangeEditor, \
     VGroup, HGroup, HSplit, Tabbed, ViewSubElement, VGrid, Include, TreeEditor, \
     TreeNode, Handler, ListEditor
 from face_view import FaceView

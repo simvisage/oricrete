@@ -12,7 +12,7 @@
 #
 # Created on Sep 7, 2011 by: rch, schmerl
 
-from etsproxy.traits.api import HasStrictTraits, Property, cached_property, Event, \
+from traits.api import HasStrictTraits, Property, cached_property, Event, \
     Array, Int, Range, Bool, Trait, Constant, \
     List, Dict, Str
 

@@ -12,7 +12,7 @@
 #
 # Created on Nov 18, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Property
+from traits.api import HasTraits, Property
 
 import numpy as np
 import sympy as sp

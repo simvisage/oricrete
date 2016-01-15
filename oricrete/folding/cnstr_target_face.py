@@ -12,7 +12,7 @@
 #
 # Created on Nov 18, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Bool, File, Array, Float, Callable, Any, List
 

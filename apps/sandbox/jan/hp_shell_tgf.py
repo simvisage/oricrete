@@ -7,7 +7,7 @@ Created on 08.07.2015
 
 #Schale 90 grad gedreht
 
-from etsproxy.traits.api import HasTraits, Float
+from traits.api import HasTraits, Float
 import numpy as np
 import sympy as sm
 a_, b_, c_, d_ = sm.symbols('a,b,c,d')

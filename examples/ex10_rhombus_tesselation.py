@@ -12,7 +12,7 @@
 #
 # Created on Sep 8, 2011 by: matthias
 
-from etsproxy.traits.api import HasTraits, Float
+from traits.api import HasTraits, Float
 import numpy as np
 import sympy as sm
 a_, b_, c_, d_ = sm.symbols('a,b,c,d')

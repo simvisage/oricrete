@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, \
     Button, Int, Float
 

@@ -5,7 +5,7 @@ Created on Jun 20, 2013
 '''
 import numpy as np
 
-from etsproxy.traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
+from traits.api import HasStrictTraits, Range, Instance, on_trait_change, \
     Event, Property, Constant, DelegatesTo, PrototypedFrom, cached_property, Str, Delegate, \
     Button, Int, Float, Array, Bool, List, Dict, Interface, implements, WeakRef, cached_property
 
