@@ -9,7 +9,7 @@ from oricrete.folding2 import \
     CreasePatternView
 import numpy as np
 
-from oricrete.folding2.abaqus_link import AbaqusLink
+from oricrete.folding2.infocad_link import InfocadLink
 
 
 def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
@@ -60,7 +60,7 @@ init,fold = get_constrained_YCP(L_x=2.42, L_y=3.0,
 
 v = CreasePatternView(root=init)
 v.configure_traits()
-al = AbaqusLink(data = fold, n_split = 4)
+al = InfocadLink(data = fold, n_split = 4)
 al.model_name = 'barrel_vault'
 al.build_inp()
 

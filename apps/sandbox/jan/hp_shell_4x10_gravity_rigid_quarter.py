@@ -136,8 +136,10 @@ fold = Folding(source=init,
 #                               fix([0], [1]) + fix([6, 7], [0], -v))
 fold.u_t[-1]
 
-cpw = CreasePatternView(root=init)
-cpw.configure_traits()
+print fold.u_t[-1]
+
+#cpw = CreasePatternView(root=init)
+#cpw.configure_traits()
 
 
 
