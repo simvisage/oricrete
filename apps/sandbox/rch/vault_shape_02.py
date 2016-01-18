@@ -8,8 +8,6 @@ from oricrete.folding2 import \
     YoshimuraCreasePattern, fix, link, \
     Initialization, CnstrTargetFace, r_, s_, t_, Folding, \
     CreasePatternView
-from oricrete.folding2.abaqus_link import AbaqusLink
-from oricrete.folding2.reshaping import FormFinding
 
 import sympy as sp
 
