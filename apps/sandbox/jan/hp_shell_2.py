@@ -3,19 +3,7 @@ Created on 12.01.2016
 
 @author: jvanderwoerd
 '''
-#-------------------------------------------------------------------------
-#
-# Copyright (c) 2012, IMB, RWTH Aachen.
-# All rights reserved.
-#
-# This software is provided without warranty under the terms of the BSD
-# license included in simvisage/LICENSE.txt and may be redistributed only
-# under the conditions described in the aforementioned license.  The license
-# is also available online at http://www.simvisage.com/licenses/BSD.txt
-#
-# Thanks for using Simvisage open source!
-#
-# Created on Sep 8, 2011 by: matthias
+
 
 from etsproxy.traits.api import HasTraits, Float
 import numpy as np
@@ -40,7 +28,7 @@ if __name__  == '__main__':
     cp = YoshimuraCreasePattern(n_steps=10,
                                 L_x=L_x,
                                 L_y=L_y,
-                                n_x=10,
+                                n_x=3,
                                 n_y=10,
                                 show_iter=False,
                                 z0_ratio=0.1,
@@ -51,7 +39,7 @@ if __name__  == '__main__':
     
     A = 0.2
 
-    B = 0.2
+    B = -0.2
 
     s_term = 4 * B * t_ * s_ * (1 - s_ / L_y)  # * r_ / L_x
 
@@ -87,16 +75,16 @@ if __name__  == '__main__':
     print 'nodes', cp.get_new_nodes(X_fc)
 
 
-#
-#    my_model = CreasePatternView(data=cp,
-#                                 ff_resolution=30,
-#                                 show_cnstr=True)
-#    my_model.configure_traits()
+
+    my_model = CreasePatternView(data=cp,
+                                 ff_resolution=30,
+                                 show_cnstr=True)
+    my_model.configure_traits()
 
     
-    al = InfocadLink(data = cp, n_split = 3)
-    al.model_name = 'HP_shell'
-    al.build_inp()
+#    al = InfocadLink(data = cp, n_split = 3)
+#    al.model_name = 'HP_shell'
+#    al.build_inp()
 
 
 """    
