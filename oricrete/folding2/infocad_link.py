@@ -3,11 +3,11 @@ Created on 22.09.2015
 
 @author: jvanderwoerd
 '''
-from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
+from traits.api import HasTraits, Property, cached_property, Event, \
     Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
     Str, Tuple, Interface, implements, Enum, List, Float, Dict, DelegatesTo, WeakRef
 
-from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
+from traitsui.api import Item, View, HGroup, RangeEditor
 from copy import copy
 import numpy as np
 from scipy.optimize import fmin_slsqp

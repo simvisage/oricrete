@@ -12,7 +12,7 @@
 #
 # Created on Dec 21, 2011 by: rch
 
-from etsproxy.traits.api import \
+from traits.api import \
     HasTraits, Str, Property, cached_property, \
     Enum
 

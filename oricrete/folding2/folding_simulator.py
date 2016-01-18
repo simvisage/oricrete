@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 #
 # Copyright (c) 2009, IMB, RWTH Aachen.
 # All rights reserved.
@@ -12,30 +12,27 @@
 #
 # Created on Jan 29, 2013 by: rch
 
-import numpy as np
-
-from etsproxy.traits.api import HasStrictTraits, \
-    Event, Property, cached_property, Str, \
-    Int, Float, Array, Bool, Dict, List, \
-    Constant, Instance, DelegatesTo, Trait, Enum
-
-from etsproxy.traits.ui.api import View
-from opt_crit_target_face import TargetFaces
-
-from opt_crit_potential_energy import OptCritPotentialEnergy
+import platform
+from scipy.optimize import fmin_slsqp
+import time
 
 from eq_cons import \
     IEqCons
+from traits.api import HasStrictTraits, \
+    Event, Property, cached_property, Str, \
+    Int, Float, Array, Bool, Dict, List, \
+    Constant, Instance, DelegatesTo, Trait, Enum
+from traitsui.api import View
+import numpy as np
+from opt_crit_potential_energy import OptCritPotentialEnergy
+from opt_crit_target_face import TargetFaces
 
-from scipy.optimize import fmin_slsqp
-
-import platform
-import time
 
 if platform.system() == 'Linux':
     sysclock = time.time
 elif platform.system() == 'Windows':
     sysclock = time.clock
+
 
 class FoldingSimulator(HasStrictTraits):
     """Class implementing the simulation procedure of the folding process
@@ -49,16 +46,17 @@ class FoldingSimulator(HasStrictTraits):
 
     debug_level = Int(0, label='Debug level', auto_set=False, enter_set=True)
 
-    #===========================================================================
+    #=========================================================================
     # type of the sampling of the random domain
-    #===========================================================================
-    goal_function_type = Trait('target_faces', {'none' : None,
-                                                'target_faces' : TargetFaces,
-                                                'potential_energy' : OptCritPotentialEnergy
-                                         },
+    #=========================================================================
+    goal_function_type = Trait('target_faces', {'none': None,
+                                                'target_faces': TargetFaces,
+                                                'potential_energy': OptCritPotentialEnergy
+                                                },
                                input_change=True)
 
     goal_function = Property(depends_on='+input_change')
+
     @cached_property
     def _get_goal_function(self):
         if self.goal_function_type_:
@@ -73,19 +71,21 @@ class FoldingSimulator(HasStrictTraits):
     The z component of the face is multiplied with a small init_factor
     '''
 
-    #===========================================================================
+    #=========================================================================
     # Geometric data
-    #===========================================================================
+    #=========================================================================
 
     n_L = Property()
     '''Number of crease lines.
     '''
+
     def _get_n_L(self):
         return len(self.L)
 
     n_N = Property()
     '''Number of crease nodes.
     '''
+
     def _get_n_N(self):
         return len(self.x_0)
 
@@ -96,12 +96,13 @@ class FoldingSimulator(HasStrictTraits):
     n_dofs = Property()
     '''Number of degrees of freedom.
     '''
+
     def _get_n_dofs(self):
         return self.n_N * self.n_D
 
-    #===========================================================================
+    #=========================================================================
     # Constraint data
-    #===========================================================================
+    #=========================================================================
 
     GP = List([])
     ''''Points for facet grabbing [node, facet].
@@ -110,6 +111,7 @@ class FoldingSimulator(HasStrictTraits):
     n_GP = Property
     ''''Number of grab points.
     '''
+
     def _get_n_GP(self):
         '''Number of Grabpoints'''
         return len(self.GP)
@@ -122,6 +124,7 @@ class FoldingSimulator(HasStrictTraits):
     n_LP = Property
     '''Number of line points.
     '''
+
     def _get_n_LP(self):
         return len(self.LP)
 
@@ -134,6 +137,7 @@ class FoldingSimulator(HasStrictTraits):
     CS = Array()
     '''Control Surfaces.
     '''
+
     def _CS_default(self):
         return np.zeros((0,))
 
@@ -150,6 +154,7 @@ class FoldingSimulator(HasStrictTraits):
     cnstr_lhs = List()
     # right-hand side values of the constraint equations
     cnstr_rhs = Property(depends_on='cnstr_lhs')
+
     @cached_property
     def _get_cnstr_rhs(self):
         return np.zeros((len(self.cnstr_lhs),), dtype='float_')
@@ -158,21 +163,23 @@ class FoldingSimulator(HasStrictTraits):
     '''List of explicit constraints specified as a linear equation.
     '''
 
-    #===========================================================================
+    #=========================================================================
     # Equality constraints
-    #===========================================================================
+    #=========================================================================
     eqcons = Dict(Str, IEqCons)
+
     def _eqcons_default(self):
         return {}
 
     eqcons_lst = Property(depends_on='eqcons')
+
     @cached_property
     def _get_eqcons_lst(self):
         return self.eqcons.values()
 
-    #===========================================================================
+    #=========================================================================
     # Solver parameters
-    #===========================================================================
+    #=========================================================================
 
     n_steps = Int(1, auto_set=False, enter_set=True)
     '''Number of time steps.
@@ -311,9 +318,9 @@ class FoldingSimulator(HasStrictTraits):
                 break
         return np.array(U_t, dtype='f')
 
-    #===========================================================================
+    #=========================================================================
     # Goal function
-    #===========================================================================
+    #=========================================================================
     def get_f_t(self, U):
         '''Get the goal function value.
         '''
@@ -333,11 +340,11 @@ class FoldingSimulator(HasStrictTraits):
             print 'f_du:\n', f_du
         return f_du
 
-    #===========================================================================
+    #=========================================================================
     # Equality constraints
-    #===========================================================================
+    #=========================================================================
     def get_G(self, u, t=0):
-        G_lst = [ eqcons.get_G(u, t) for eqcons in self.eqcons_lst ]
+        G_lst = [eqcons.get_G(u, t) for eqcons in self.eqcons_lst]
         if(G_lst == []):
             return []
         return np.hstack(G_lst)
@@ -350,7 +357,7 @@ class FoldingSimulator(HasStrictTraits):
         return G
 
     def get_G_du(self, u, t=0):
-        G_dx_lst = [ eqcons.get_G_du(u, t) for eqcons in self.eqcons_lst ]
+        G_dx_lst = [eqcons.get_G_du(u, t) for eqcons in self.eqcons_lst]
         if(G_dx_lst == []):
             return []
         G_du = np.vstack(G_dx_lst)
@@ -363,9 +370,9 @@ class FoldingSimulator(HasStrictTraits):
         u = U.reshape(-1, self.n_D)
         return self.get_G_du(u, self.t)
 
-    #===============================================================================
+    #=========================================================================
     # Verification procedures to check the compliance with the constant length criteria.
-    #===============================================================================
+    #=========================================================================
     def get_new_nodes(self, U):
         '''
             Calculates the lengths of the crease lines.
@@ -379,7 +386,7 @@ class FoldingSimulator(HasStrictTraits):
         '''
         cX = self.get_new_nodes(U)
         cl = self.L
-        return cX[ cl[:, 1] ] - cX[ cl[:, 0] ]
+        return cX[cl[:, 1]] - cX[cl[:, 0]]
 
     def get_new_lengths(self, U):
         '''
@@ -388,31 +395,35 @@ class FoldingSimulator(HasStrictTraits):
         cV = self.get_new_vectors(U)
         return np.sqrt(np.sum(cV ** 2, axis=1))
 
-    #===========================================================================
+    #=========================================================================
     # Output data
-    #===========================================================================
+    #=========================================================================
 
     x_0 = Property
     '''Initial position of all nodes.
     '''
+
     def _get_x_0(self):
         return self.X_0.reshape(-1, self.n_D)
 
     v_0 = Property
     ''''Initial crease line vectors.
     '''
+
     def _get_v_0(self):
         return self.cp.c_vectors
 
     X_t = Property()
     '''History of nodal positions [time, node*dim]).
     '''
+
     def _get_X_t(self):
         return self.X_0[np.newaxis, :] + self.U_t
 
     x_t = Property()
     '''History of nodal positions [time, node, dim].
     '''
+
     def _get_x_t(self):
         n_t = self.X_t.shape[0]
         return self.X_t.reshape(n_t, -1, self.n_D)
@@ -420,12 +431,14 @@ class FoldingSimulator(HasStrictTraits):
     x_1 = Property
     '''Final position of all nodes.
     '''
+
     def _get_x_1(self):
         return self.x_t[-1]
 
     u_t = Property()
     '''History of nodal positions [time, node, dim].
     '''
+
     def _get_u_t(self):
         n_t = self.U_t.shape[0]
         return self.U_t.reshape(n_t, -1, self.n_D)
@@ -433,12 +446,14 @@ class FoldingSimulator(HasStrictTraits):
     u_1 = Property()
     '''Final nodal positions [node, dim].
     '''
+
     def _get_u_1(self):
         return self.u_t[-1]
 
     v_t = Property()
     '''History of crease vectors (Array)
     '''
+
     def _get_v_t(self):
         i = self.L[:, 0]
         j = self.L[:, 1]
@@ -447,6 +462,7 @@ class FoldingSimulator(HasStrictTraits):
     l_t = Property()
     '''History of crease line lengths (Property(Array)).
     '''
+
     def _get_l_t(self):
         v = self.v_t ** 2
         return np.sqrt(np.sum(v, axis=2))

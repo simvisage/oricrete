@@ -12,7 +12,7 @@
 #
 # Created on Sep 7, 2011 by: rch
 
-from etsproxy.traits.api import \
+from traits.api import \
     Float, Int, Property, cached_property, Bool, Array, Callable, Any, \
     WeakRef
 from crease_pattern import CreasePattern

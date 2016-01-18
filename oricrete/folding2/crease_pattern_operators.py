@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from etsproxy.traits.api import HasStrictTraits, \
+from traits.api import HasStrictTraits, \
     Property, cached_property, \
     Array
 

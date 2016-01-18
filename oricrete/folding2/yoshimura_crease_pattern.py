@@ -12,10 +12,10 @@
 #
 # Created on Sep 7, 2011 by: rch
 
-from etsproxy.traits.api import \
+from traits.api import \
     HasStrictTraits, Float, Int, Property, cached_property, Bool, Array, Callable, Any, \
     WeakRef
-from etsproxy.traits.ui.api import \
+from traitsui.api import \
     Item, View, HGroup, RangeEditor
 from crease_pattern import CreasePattern
 

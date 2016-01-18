@@ -11,11 +11,11 @@
 # Thanks for using Simvisage open source!
 #
 # Created on Aug 7, 2012 by: rch, schmerl
-from etsproxy.traits.api import HasTraits, Property, cached_property, Event, \
+from traits.api import HasTraits, Property, cached_property, Event, \
     Array, Instance, Int, Directory, Range, on_trait_change, Bool, Trait, Constant, \
     Str, Tuple, Interface, implements, Enum, List, Float, Dict, DelegatesTo
 
-from etsproxy.traits.ui.api import Item, View, HGroup, RangeEditor
+from traitsui.api import Item, View, HGroup, RangeEditor
 import numpy as np
 import os
 

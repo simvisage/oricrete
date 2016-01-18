@@ -1,16 +1,11 @@
-#-------------------------------------------------------------------------
-#
-# Copyright (c) 2012, IMB, RWTH Aachen.
-# All rights reserved.
-#
-# This software is provided without warranty under the terms of the BSD
-# license included in simvisage/LICENSE.txt and may be redistributed only
-# under the conditions described in the aforementioned license.  The license
-# is also available online at http://www.simvisage.com/licenses/BSD.txt
-#
-# Thanks for using Simvisage open source!
-#
-# Created on Sep 8, 2011 by: matthias
+'''
+Created on 08.07.2015
+
+@author: jvanderwoerd
+
+'''
+
+#Schale 90 grad gedreht
 
 from traits.api import HasTraits, Float
 import numpy as np
@@ -30,13 +25,13 @@ from oricrete.folding2.abaqus_link import AbaqusLink
 
 if __name__ == '__main__':
 
-    L_x = .63
-    L_y = .42
+    L_x = 2.42
+    L_y = 3.01
     cp = YoshimuraCreasePattern(n_steps=8,
                                 L_x=L_x,
                                 L_y=L_y,
-                                n_x=3,
-                                n_y=4,
+                                n_x=4,
+                                n_y=10,
                                 show_iter=False,
                                 z0_ratio=0.1,
                                 MAX_ITER=100)
@@ -44,14 +39,13 @@ if __name__ == '__main__':
     n_v = cp.N_v
     n_i = cp.N_i
     
-    A = 0.08   #0.1
+    A = 0.70   #0.1
 
-    B = 0.05   #0.05
-
-    s_term = 4 * B * t_ * s_ * (1 - s_ / L_y)  # * r_ / L_x
+    B = 0.1
+       #0.05
 
     face_z_t = CnstrTargetFace(
-        F=[r_, s_, 4 * A * t_ * r_ * (1 - r_ / L_x) - s_term])
+        F=[r_, s_, -A * t_ * r_ * (1 - r_ / L_x) + B * t_ * s_ * (1 - s_ / L_y)])
     n_arr = np.hstack([n_h[:, :].flatten(),
                        #n_v[:, :].flatten(),
                        n_i[:, :].flatten()
@@ -79,7 +73,7 @@ if __name__ == '__main__':
     X_fc = cp.solve(X0 + 1e-6)
 
  
-    print 'nodes', cp.get_new_nodes(X_fc)
+#    print 'nodes', cp.get_new_nodes(X_fc)
 
     #
 #    print 'nodes'
@@ -110,9 +104,7 @@ if __name__ == '__main__':
                                  ff_resolution=30,
                                  show_cnstr=True)
     my_model.configure_traits()
-
-
-
     
-
-
+    #il = InfocadLink(data = fold, n_split = 3)
+    #il.model_name = 'hp_shell'
+    #il.build_inp()

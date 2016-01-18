@@ -7,21 +7,18 @@ Created on 12.01.2016
 
 from etsproxy.traits.api import HasTraits, Float
 import numpy as np
+from oricrete.folding import \
+    YoshimuraCreasePattern, CreasePatternView, x_
+from oricrete.folding.abaqus_link import AbaqusLink
+from oricrete.folding.cnstr_target_face import \
+    CnstrTargetFace, r_, s_, t_
+from oricrete.folding.infocad_link import InfocadLink
 import sympy as sm
 a_, b_, c_, d_ = sm.symbols('a,b,c,d')
 
-
 # own Modules
-from oricrete.folding import \
-    YoshimuraCreasePattern, CreasePatternView, x_
 
-from oricrete.folding.cnstr_target_face import \
-    CnstrTargetFace, r_, s_, t_
-
-from oricrete.folding.abaqus_link import AbaqusLink
-from oricrete.folding.infocad_link import InfocadLink
-
-if __name__  == '__main__':
+if __name__ == '__main__':
 
     L_x = 2.42
     L_y = 3.00
@@ -36,7 +33,7 @@ if __name__  == '__main__':
     n_h = cp.N_h
     n_v = cp.N_v
     n_i = cp.N_i
-    
+
     A = 0.2
 
     B = -0.2
@@ -66,12 +63,9 @@ if __name__  == '__main__':
     # @todo - time step counting - save the initial step separately from the time history
 
     X0 = cp.generate_X0()
-    
 
-    
     X_fc = cp.solve(X0 + 1e-6)
 
- 
     print 'nodes', cp.get_new_nodes(X_fc)
 
 
@@ -81,15 +75,20 @@ if __name__  == '__main__':
                                  show_cnstr=True)
     my_model.configure_traits()
 
+<<<<<<< HEAD
     
 #    al = InfocadLink(data = cp, n_split = 3)
 #    al.model_name = 'HP_shell'
 #    al.build_inp()
+=======
+    al = InfocadLink(data=cp, n_split=3)
+    al.model_name = 'HP_shell'
+    al.build_inp()
+>>>>>>> branch 'master' of https://github.com/simvisage/oricrete
 
 
 """    
     al = AbaqusLink(data = cp, n_split = 10)
     al.model_name = 'test'
     al.build_inp()
-"""    
-    
+"""

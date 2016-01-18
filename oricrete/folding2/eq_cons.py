@@ -12,7 +12,7 @@
 #
 # Created on Jan 3, 2013 by: rch, schmerl
 
-from etsproxy.traits.api import \
+from traits.api import \
     HasStrictTraits, Interface, implements, WeakRef, \
     Array, DelegatesTo, PrototypedFrom, cached_property, Property, \
     List, Bool

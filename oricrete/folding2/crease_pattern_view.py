@@ -16,10 +16,10 @@
 from etsproxy.mayavi.core.api import PipelineBase
 from mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 from etsproxy.mayavi.modules.api import Axes
-from etsproxy.traits.api import HasTraits, Range, Instance, on_trait_change, \
+from traits.api import HasTraits, Range, Instance, on_trait_change, \
     Trait, Property, Constant, DelegatesTo, cached_property, Str, Delegate, Button, \
     Int, Bool, File, Array, List, Float, WeakRef, Tuple
-from etsproxy.traits.ui.api import View, Item, Group, ButtonEditor, RangeEditor, \
+from traitsui.api import View, Item, Group, ButtonEditor, RangeEditor, \
     VGroup, HGroup, HSplit, Tabbed, ViewSubElement, VGrid, Include, TreeEditor, \
     TreeNode, Handler, ListEditor, VSplit
 
