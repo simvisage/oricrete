@@ -5,23 +5,20 @@ Created on 08.07.2015
 
 '''
 
-#Schale 90 grad gedreht
+# Schale 90 grad gedreht
 
 from traits.api import HasTraits, Float
+
 import numpy as np
+from oricrete.folding import \
+    YoshimuraCreasePattern, CreasePatternView, x_
+from oricrete.folding.cnstr_target_face import \
+    CnstrTargetFace, r_, s_, t_
+from oricrete.folding2.abaqus_link import AbaqusLink
 import sympy as sm
 a_, b_, c_, d_ = sm.symbols('a,b,c,d')
 
-
 # own Modules
-from oricrete.folding import \
-    YoshimuraCreasePattern, CreasePatternView, x_
-
-from oricrete.folding.cnstr_target_face import \
-    CnstrTargetFace, r_, s_, t_
-
-from oricrete.folding2.abaqus_link import AbaqusLink
-
 
 if __name__ == '__main__':
 
@@ -38,10 +35,10 @@ if __name__ == '__main__':
     n_h = cp.N_h
     n_v = cp.N_v
     n_i = cp.N_i
-    
-    A = 0.2   #0.1
 
-    B = 0.1   #0.05
+    A = 0.2  # 0.1
+
+    B = 0.1  # 0.05
 
     s_term = 4 * B * t_ * s_ * (1 - s_ / L_y)  # * r_ / L_x
 
@@ -68,12 +65,9 @@ if __name__ == '__main__':
     # @todo - time step counting - save the initial step separately from the time history
 
     X0 = cp.generate_X0()
-    
 
-    
     X_fc = cp.solve(X0 + 1e-6)
 
- 
     print 'nodes', cp.get_new_nodes(X_fc)
 
     #
