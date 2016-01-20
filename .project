@@ -3,7 +3,6 @@
 	<name>oricrete</name>
 	<comment></comment>
 	<projects>
-		<project>etsproxy</project>
 		<project>ibvpy</project>
 		<project>mathkit</project>
 		<project>matresdev</project>
