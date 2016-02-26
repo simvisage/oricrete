@@ -1,0 +1,2658 @@
+*Part, NAME=Part-1
+*Node 1 	 nan 	 nan 	 nan
+ 2 	 nan 	 nan 	 nan
+ 3 	 nan 	 nan 	 nan
+ 4 	 nan 	 nan 	 nan
+ 5 	 nan 	 nan 	 nan
+ 6 	 nan 	 nan 	 nan
+ 7 	 nan 	 nan 	 nan
+ 8 	 nan 	 nan 	 nan
+ 9 	 nan 	 nan 	 nan
+ 10 	 nan 	 nan 	 nan
+ 11 	 nan 	 nan 	 nan
+ 12 	 nan 	 nan 	 nan
+ 13 	 nan 	 nan 	 nan
+ 14 	 nan 	 nan 	 nan
+ 15 	 nan 	 nan 	 nan
+ 16 	 nan 	 nan 	 nan
+ 17 	 nan 	 nan 	 nan
+ 18 	 nan 	 nan 	 nan
+ 19 	 nan 	 nan 	 nan
+ 20 	 nan 	 nan 	 nan
+ 21 	 nan 	 nan 	 nan
+ 22 	 nan 	 nan 	 nan
+ 23 	 nan 	 nan 	 nan
+ 24 	 nan 	 nan 	 nan
+ 25 	 nan 	 nan 	 nan
+ 26 	 nan 	 nan 	 nan
+ 27 	 nan 	 nan 	 nan
+ 28 	 nan 	 nan 	 nan
+ 29 	 nan 	 nan 	 nan
+ 30 	 nan 	 nan 	 nan
+ 31 	 nan 	 nan 	 nan
+ 32 	 nan 	 nan 	 nan
+ 33 	 nan 	 nan 	 nan
+ 34 	 nan 	 nan 	 nan
+ 35 	 nan 	 nan 	 nan
+ 36 	 nan 	 nan 	 nan
+ 37 	 nan 	 nan 	 nan
+ 38 	 nan 	 nan 	 nan
+ 39 	 nan 	 nan 	 nan
+ 40 	 nan 	 nan 	 nan
+ 41 	 nan 	 nan 	 nan
+ 42 	 nan 	 nan 	 nan
+ 43 	 nan 	 nan 	 nan
+ 44 	 nan 	 nan 	 nan
+ 45 	 nan 	 nan 	 nan
+ 46 	 nan 	 nan 	 nan
+ 47 	 nan 	 nan 	 nan
+ 48 	 nan 	 nan 	 nan
+ 49 	 nan 	 nan 	 nan
+ 50 	 nan 	 nan 	 nan
+ 51 	 nan 	 nan 	 nan
+ 52 	 nan 	 nan 	 nan
+ 53 	 nan 	 nan 	 nan
+ 54 	 nan 	 nan 	 nan
+ 55 	 nan 	 nan 	 nan
+ 56 	 nan 	 nan 	 nan
+ 57 	 nan 	 nan 	 nan
+ 58 	 nan 	 nan 	 nan
+ 59 	 nan 	 nan 	 nan
+ 60 	 nan 	 nan 	 nan
+ 61 	 nan 	 nan 	 nan
+ 62 	 nan 	 nan 	 nan
+ 63 	 nan 	 nan 	 nan
+ 64 	 nan 	 nan 	 nan
+ 65 	 nan 	 nan 	 nan
+ 66 	 nan 	 nan 	 nan
+ 67 	 nan 	 nan 	 nan
+ 68 	 nan 	 nan 	 nan
+ 69 	 nan 	 nan 	 nan
+ 70 	 nan 	 nan 	 nan
+ 71 	 nan 	 nan 	 nan
+ 72 	 nan 	 nan 	 nan
+ 73 	 nan 	 nan 	 nan
+ 74 	 nan 	 nan 	 nan
+ 75 	 nan 	 nan 	 nan
+ 76 	 nan 	 nan 	 nan
+ 77 	 nan 	 nan 	 nan
+ 78 	 nan 	 nan 	 nan
+ 79 	 nan 	 nan 	 nan
+ 80 	 nan 	 nan 	 nan
+ 81 	 nan 	 nan 	 nan
+ 82 	 nan 	 nan 	 nan
+ 83 	 nan 	 nan 	 nan
+ 84 	 nan 	 nan 	 nan
+ 85 	 nan 	 nan 	 nan
+ 86 	 nan 	 nan 	 nan
+ 87 	 nan 	 nan 	 nan
+ 88 	 nan 	 nan 	 nan
+ 89 	 nan 	 nan 	 nan
+ 90 	 nan 	 nan 	 nan
+ 91 	 nan 	 nan 	 nan
+ 92 	 nan 	 nan 	 nan
+ 93 	 nan 	 nan 	 nan
+ 94 	 nan 	 nan 	 nan
+ 95 	 nan 	 nan 	 nan
+ 96 	 nan 	 nan 	 nan
+ 97 	 nan 	 nan 	 nan
+ 98 	 nan 	 nan 	 nan
+ 99 	 nan 	 nan 	 nan
+ 100 	 nan 	 nan 	 nan
+ 101 	 nan 	 nan 	 nan
+ 102 	 nan 	 nan 	 nan
+ 103 	 nan 	 nan 	 nan
+ 104 	 nan 	 nan 	 nan
+ 105 	 nan 	 nan 	 nan
+ 106 	 nan 	 nan 	 nan
+ 107 	 nan 	 nan 	 nan
+ 108 	 nan 	 nan 	 nan
+ 109 	 nan 	 nan 	 nan
+ 110 	 nan 	 nan 	 nan
+ 111 	 nan 	 nan 	 nan
+ 112 	 nan 	 nan 	 nan
+ 113 	 nan 	 nan 	 nan
+ 114 	 nan 	 nan 	 nan
+ 115 	 nan 	 nan 	 nan
+ 116 	 nan 	 nan 	 nan
+ 117 	 nan 	 nan 	 nan
+ 118 	 nan 	 nan 	 nan
+ 119 	 nan 	 nan 	 nan
+ 120 	 nan 	 nan 	 nan
+ 121 	 nan 	 nan 	 nan
+ 122 	 nan 	 nan 	 nan
+ 123 	 nan 	 nan 	 nan
+ 124 	 nan 	 nan 	 nan
+ 125 	 nan 	 nan 	 nan
+ 126 	 nan 	 nan 	 nan
+ 127 	 nan 	 nan 	 nan
+ 128 	 nan 	 nan 	 nan
+ 129 	 nan 	 nan 	 nan
+ 130 	 nan 	 nan 	 nan
+ 131 	 nan 	 nan 	 nan
+ 132 	 nan 	 nan 	 nan
+ 133 	 nan 	 nan 	 nan
+ 134 	 nan 	 nan 	 nan
+ 135 	 nan 	 nan 	 nan
+ 136 	 nan 	 nan 	 nan
+ 137 	 nan 	 nan 	 nan
+ 138 	 nan 	 nan 	 nan
+ 139 	 nan 	 nan 	 nan
+ 140 	 nan 	 nan 	 nan
+ 141 	 nan 	 nan 	 nan
+ 142 	 nan 	 nan 	 nan
+ 143 	 nan 	 nan 	 nan
+ 144 	 nan 	 nan 	 nan
+ 145 	 nan 	 nan 	 nan
+ 146 	 nan 	 nan 	 nan
+ 147 	 nan 	 nan 	 nan
+ 148 	 nan 	 nan 	 nan
+ 149 	 nan 	 nan 	 nan
+ 150 	 nan 	 nan 	 nan
+ 151 	 nan 	 nan 	 nan
+ 152 	 nan 	 nan 	 nan
+ 153 	 nan 	 nan 	 nan
+ 154 	 nan 	 nan 	 nan
+ 155 	 nan 	 nan 	 nan
+ 156 	 nan 	 nan 	 nan
+ 157 	 nan 	 nan 	 nan
+ 158 	 nan 	 nan 	 nan
+ 159 	 nan 	 nan 	 nan
+ 160 	 nan 	 nan 	 nan
+ 161 	 nan 	 nan 	 nan
+ 162 	 nan 	 nan 	 nan
+ 163 	 nan 	 nan 	 nan
+ 164 	 nan 	 nan 	 nan
+ 165 	 nan 	 nan 	 nan
+ 166 	 nan 	 nan 	 nan
+ 167 	 nan 	 nan 	 nan
+ 168 	 nan 	 nan 	 nan
+ 169 	 nan 	 nan 	 nan
+ 170 	 nan 	 nan 	 nan
+ 171 	 nan 	 nan 	 nan
+ 172 	 nan 	 nan 	 nan
+ 173 	 nan 	 nan 	 nan
+ 174 	 nan 	 nan 	 nan
+ 175 	 nan 	 nan 	 nan
+ 176 	 nan 	 nan 	 nan
+ 177 	 nan 	 nan 	 nan
+ 178 	 nan 	 nan 	 nan
+ 179 	 nan 	 nan 	 nan
+ 180 	 nan 	 nan 	 nan
+ 181 	 nan 	 nan 	 nan
+ 182 	 nan 	 nan 	 nan
+ 183 	 nan 	 nan 	 nan
+ 184 	 nan 	 nan 	 nan
+ 185 	 nan 	 nan 	 nan
+ 186 	 nan 	 nan 	 nan
+ 187 	 nan 	 nan 	 nan
+ 188 	 nan 	 nan 	 nan
+ 189 	 nan 	 nan 	 nan
+ 190 	 nan 	 nan 	 nan
+ 191 	 nan 	 nan 	 nan
+ 192 	 nan 	 nan 	 nan
+ 193 	 nan 	 nan 	 nan
+ 194 	 nan 	 nan 	 nan
+ 195 	 nan 	 nan 	 nan
+ 196 	 nan 	 nan 	 nan
+ 197 	 nan 	 nan 	 nan
+ 198 	 nan 	 nan 	 nan
+ 199 	 nan 	 nan 	 nan
+ 200 	 nan 	 nan 	 nan
+ 201 	 nan 	 nan 	 nan
+ 202 	 nan 	 nan 	 nan
+ 203 	 nan 	 nan 	 nan
+ 204 	 nan 	 nan 	 nan
+ 205 	 nan 	 nan 	 nan
+ 206 	 nan 	 nan 	 nan
+ 207 	 nan 	 nan 	 nan
+ 208 	 nan 	 nan 	 nan
+ 209 	 nan 	 nan 	 nan
+ 210 	 nan 	 nan 	 nan
+ 211 	 nan 	 nan 	 nan
+ 212 	 nan 	 nan 	 nan
+ 213 	 nan 	 nan 	 nan
+ 214 	 nan 	 nan 	 nan
+ 215 	 nan 	 nan 	 nan
+ 216 	 nan 	 nan 	 nan
+ 217 	 nan 	 nan 	 nan
+ 218 	 nan 	 nan 	 nan
+ 219 	 nan 	 nan 	 nan
+ 220 	 nan 	 nan 	 nan
+ 221 	 nan 	 nan 	 nan
+ 222 	 nan 	 nan 	 nan
+ 223 	 nan 	 nan 	 nan
+ 224 	 nan 	 nan 	 nan
+ 225 	 nan 	 nan 	 nan
+ 226 	 nan 	 nan 	 nan
+ 227 	 nan 	 nan 	 nan
+ 228 	 nan 	 nan 	 nan
+ 229 	 nan 	 nan 	 nan
+ 230 	 nan 	 nan 	 nan
+ 231 	 nan 	 nan 	 nan
+ 232 	 nan 	 nan 	 nan
+ 233 	 nan 	 nan 	 nan
+ 234 	 nan 	 nan 	 nan
+ 235 	 nan 	 nan 	 nan
+ 236 	 nan 	 nan 	 nan
+ 237 	 nan 	 nan 	 nan
+ 238 	 nan 	 nan 	 nan
+ 239 	 nan 	 nan 	 nan
+ 240 	 nan 	 nan 	 nan
+ 241 	 nan 	 nan 	 nan
+ 242 	 nan 	 nan 	 nan
+ 243 	 nan 	 nan 	 nan
+ 244 	 nan 	 nan 	 nan
+ 245 	 nan 	 nan 	 nan
+ 246 	 nan 	 nan 	 nan
+ 247 	 nan 	 nan 	 nan
+ 248 	 nan 	 nan 	 nan
+ 249 	 nan 	 nan 	 nan
+ 250 	 nan 	 nan 	 nan
+ 251 	 nan 	 nan 	 nan
+ 252 	 nan 	 nan 	 nan
+ 253 	 nan 	 nan 	 nan
+ 254 	 nan 	 nan 	 nan
+ 255 	 nan 	 nan 	 nan
+ 256 	 nan 	 nan 	 nan
+ 257 	 nan 	 nan 	 nan
+ 258 	 nan 	 nan 	 nan
+ 259 	 nan 	 nan 	 nan
+ 260 	 nan 	 nan 	 nan
+ 261 	 nan 	 nan 	 nan
+ 262 	 nan 	 nan 	 nan
+ 263 	 nan 	 nan 	 nan
+ 264 	 nan 	 nan 	 nan
+ 265 	 nan 	 nan 	 nan
+ 266 	 nan 	 nan 	 nan
+ 267 	 nan 	 nan 	 nan
+ 268 	 nan 	 nan 	 nan
+ 269 	 nan 	 nan 	 nan
+ 270 	 nan 	 nan 	 nan
+ 271 	 nan 	 nan 	 nan
+ 272 	 nan 	 nan 	 nan
+ 273 	 nan 	 nan 	 nan
+ 274 	 nan 	 nan 	 nan
+ 275 	 nan 	 nan 	 nan
+ 276 	 nan 	 nan 	 nan
+ 277 	 nan 	 nan 	 nan
+ 278 	 nan 	 nan 	 nan
+ 279 	 nan 	 nan 	 nan
+ 280 	 nan 	 nan 	 nan
+ 281 	 nan 	 nan 	 nan
+ 282 	 nan 	 nan 	 nan
+ 283 	 nan 	 nan 	 nan
+ 284 	 nan 	 nan 	 nan
+ 285 	 nan 	 nan 	 nan
+ 286 	 nan 	 nan 	 nan
+ 287 	 nan 	 nan 	 nan
+ 288 	 nan 	 nan 	 nan
+ 289 	 nan 	 nan 	 nan
+ 290 	 nan 	 nan 	 nan
+ 291 	 nan 	 nan 	 nan
+ 292 	 nan 	 nan 	 nan
+ 293 	 nan 	 nan 	 nan
+ 294 	 nan 	 nan 	 nan
+ 295 	 nan 	 nan 	 nan
+ 296 	 nan 	 nan 	 nan
+ 297 	 nan 	 nan 	 nan
+ 298 	 nan 	 nan 	 nan
+ 299 	 nan 	 nan 	 nan
+ 300 	 nan 	 nan 	 nan
+ 301 	 nan 	 nan 	 nan
+ 302 	 nan 	 nan 	 nan
+ 303 	 nan 	 nan 	 nan
+ 304 	 nan 	 nan 	 nan
+ 305 	 nan 	 nan 	 nan
+ 306 	 nan 	 nan 	 nan
+ 307 	 nan 	 nan 	 nan
+ 308 	 nan 	 nan 	 nan
+ 309 	 nan 	 nan 	 nan
+ 310 	 nan 	 nan 	 nan
+ 311 	 nan 	 nan 	 nan
+ 312 	 nan 	 nan 	 nan
+ 313 	 nan 	 nan 	 nan
+ 314 	 nan 	 nan 	 nan
+ 315 	 nan 	 nan 	 nan
+ 316 	 nan 	 nan 	 nan
+ 317 	 nan 	 nan 	 nan
+ 318 	 nan 	 nan 	 nan
+ 319 	 nan 	 nan 	 nan
+ 320 	 nan 	 nan 	 nan
+ 321 	 nan 	 nan 	 nan
+ 322 	 nan 	 nan 	 nan
+ 323 	 nan 	 nan 	 nan
+ 324 	 nan 	 nan 	 nan
+ 325 	 nan 	 nan 	 nan
+ 326 	 nan 	 nan 	 nan
+ 327 	 nan 	 nan 	 nan
+ 328 	 nan 	 nan 	 nan
+ 329 	 nan 	 nan 	 nan
+ 330 	 nan 	 nan 	 nan
+ 331 	 nan 	 nan 	 nan
+ 332 	 nan 	 nan 	 nan
+ 333 	 nan 	 nan 	 nan
+ 334 	 nan 	 nan 	 nan
+ 335 	 nan 	 nan 	 nan
+ 336 	 nan 	 nan 	 nan
+ 337 	 nan 	 nan 	 nan
+ 338 	 nan 	 nan 	 nan
+ 339 	 nan 	 nan 	 nan
+ 340 	 nan 	 nan 	 nan
+ 341 	 nan 	 nan 	 nan
+ 342 	 nan 	 nan 	 nan
+ 343 	 nan 	 nan 	 nan
+ 344 	 nan 	 nan 	 nan
+ 345 	 nan 	 nan 	 nan
+ 346 	 nan 	 nan 	 nan
+ 347 	 nan 	 nan 	 nan
+ 348 	 nan 	 nan 	 nan
+ 349 	 nan 	 nan 	 nan
+ 350 	 nan 	 nan 	 nan
+ 351 	 nan 	 nan 	 nan
+ 352 	 nan 	 nan 	 nan
+ 353 	 nan 	 nan 	 nan
+ 354 	 nan 	 nan 	 nan
+ 355 	 nan 	 nan 	 nan
+ 356 	 nan 	 nan 	 nan
+ 357 	 nan 	 nan 	 nan
+ 358 	 nan 	 nan 	 nan
+ 359 	 nan 	 nan 	 nan
+ 360 	 nan 	 nan 	 nan
+ 361 	 nan 	 nan 	 nan
+ 362 	 nan 	 nan 	 nan
+ 363 	 nan 	 nan 	 nan
+ 364 	 nan 	 nan 	 nan
+ 365 	 nan 	 nan 	 nan
+ 366 	 nan 	 nan 	 nan
+ 367 	 nan 	 nan 	 nan
+ 368 	 nan 	 nan 	 nan
+ 369 	 nan 	 nan 	 nan
+ 370 	 nan 	 nan 	 nan
+ 371 	 nan 	 nan 	 nan
+ 372 	 nan 	 nan 	 nan
+ 373 	 nan 	 nan 	 nan
+ 374 	 nan 	 nan 	 nan
+ 375 	 nan 	 nan 	 nan
+ 376 	 nan 	 nan 	 nan
+ 377 	 nan 	 nan 	 nan
+ 378 	 nan 	 nan 	 nan
+ 379 	 nan 	 nan 	 nan
+ 380 	 nan 	 nan 	 nan
+ 381 	 nan 	 nan 	 nan
+ 382 	 nan 	 nan 	 nan
+ 383 	 nan 	 nan 	 nan
+ 384 	 nan 	 nan 	 nan
+ 385 	 nan 	 nan 	 nan
+ 386 	 nan 	 nan 	 nan
+ 387 	 nan 	 nan 	 nan
+ 388 	 nan 	 nan 	 nan
+ 389 	 nan 	 nan 	 nan
+ 390 	 nan 	 nan 	 nan
+ 391 	 nan 	 nan 	 nan
+ 392 	 nan 	 nan 	 nan
+ 393 	 nan 	 nan 	 nan
+ 394 	 nan 	 nan 	 nan
+ 395 	 nan 	 nan 	 nan
+ 396 	 nan 	 nan 	 nan
+ 397 	 nan 	 nan 	 nan
+ 398 	 nan 	 nan 	 nan
+ 399 	 nan 	 nan 	 nan
+ 400 	 nan 	 nan 	 nan
+ 401 	 nan 	 nan 	 nan
+ 402 	 nan 	 nan 	 nan
+ 403 	 nan 	 nan 	 nan
+ 404 	 nan 	 nan 	 nan
+ 405 	 nan 	 nan 	 nan
+ 406 	 nan 	 nan 	 nan
+ 407 	 nan 	 nan 	 nan
+ 408 	 nan 	 nan 	 nan
+ 409 	 nan 	 nan 	 nan
+ 410 	 nan 	 nan 	 nan
+ 411 	 nan 	 nan 	 nan
+ 412 	 nan 	 nan 	 nan
+ 413 	 nan 	 nan 	 nan
+ 414 	 nan 	 nan 	 nan
+ 415 	 nan 	 nan 	 nan
+ 416 	 nan 	 nan 	 nan
+ 417 	 nan 	 nan 	 nan
+ 418 	 nan 	 nan 	 nan
+ 419 	 nan 	 nan 	 nan
+ 420 	 nan 	 nan 	 nan
+ 421 	 nan 	 nan 	 nan
+ 422 	 nan 	 nan 	 nan
+ 423 	 nan 	 nan 	 nan
+ 424 	 nan 	 nan 	 nan
+ 425 	 nan 	 nan 	 nan
+ 426 	 nan 	 nan 	 nan
+ 427 	 nan 	 nan 	 nan
+ 428 	 nan 	 nan 	 nan
+ 429 	 nan 	 nan 	 nan
+ 430 	 nan 	 nan 	 nan
+ 431 	 nan 	 nan 	 nan
+ 432 	 nan 	 nan 	 nan
+ 433 	 nan 	 nan 	 nan
+ 434 	 nan 	 nan 	 nan
+ 435 	 nan 	 nan 	 nan
+ 436 	 nan 	 nan 	 nan
+ 437 	 nan 	 nan 	 nan
+ 438 	 nan 	 nan 	 nan
+ 439 	 nan 	 nan 	 nan
+ 440 	 nan 	 nan 	 nan
+ 441 	 nan 	 nan 	 nan
+ 442 	 nan 	 nan 	 nan
+ 443 	 nan 	 nan 	 nan
+ 444 	 nan 	 nan 	 nan
+ 445 	 nan 	 nan 	 nan
+ 446 	 nan 	 nan 	 nan
+ 447 	 nan 	 nan 	 nan
+ 448 	 nan 	 nan 	 nan
+ 449 	 nan 	 nan 	 nan
+ 450 	 nan 	 nan 	 nan
+ 451 	 nan 	 nan 	 nan
+ 452 	 nan 	 nan 	 nan
+ 453 	 nan 	 nan 	 nan
+ 454 	 nan 	 nan 	 nan
+ 455 	 nan 	 nan 	 nan
+ 456 	 nan 	 nan 	 nan
+ 457 	 nan 	 nan 	 nan
+ 458 	 nan 	 nan 	 nan
+ 459 	 nan 	 nan 	 nan
+ 460 	 nan 	 nan 	 nan
+ 461 	 nan 	 nan 	 nan
+ 462 	 nan 	 nan 	 nan
+ 463 	 nan 	 nan 	 nan
+ 464 	 nan 	 nan 	 nan
+ 465 	 nan 	 nan 	 nan
+ 466 	 nan 	 nan 	 nan
+ 467 	 nan 	 nan 	 nan
+ 468 	 nan 	 nan 	 nan
+ 469 	 nan 	 nan 	 nan
+ 470 	 nan 	 nan 	 nan
+ 471 	 nan 	 nan 	 nan
+ 472 	 nan 	 nan 	 nan
+ 473 	 nan 	 nan 	 nan
+ 474 	 nan 	 nan 	 nan
+ 475 	 nan 	 nan 	 nan
+ 476 	 nan 	 nan 	 nan
+ 477 	 nan 	 nan 	 nan
+ 478 	 nan 	 nan 	 nan
+ 479 	 nan 	 nan 	 nan
+ 480 	 nan 	 nan 	 nan
+ 481 	 nan 	 nan 	 nan
+ 482 	 nan 	 nan 	 nan
+ 483 	 nan 	 nan 	 nan
+ 484 	 nan 	 nan 	 nan
+ 485 	 nan 	 nan 	 nan
+ 486 	 nan 	 nan 	 nan
+ 487 	 nan 	 nan 	 nan
+ 488 	 nan 	 nan 	 nan
+ 489 	 nan 	 nan 	 nan
+ 490 	 nan 	 nan 	 nan
+ 491 	 nan 	 nan 	 nan
+ 492 	 nan 	 nan 	 nan
+ 493 	 nan 	 nan 	 nan
+ 494 	 nan 	 nan 	 nan
+ 495 	 nan 	 nan 	 nan
+ 496 	 nan 	 nan 	 nan
+ 497 	 nan 	 nan 	 nan
+ 498 	 nan 	 nan 	 nan
+ 499 	 nan 	 nan 	 nan
+ 500 	 nan 	 nan 	 nan
+ 501 	 nan 	 nan 	 nan
+ 502 	 nan 	 nan 	 nan
+ 503 	 nan 	 nan 	 nan
+ 504 	 nan 	 nan 	 nan
+ 505 	 nan 	 nan 	 nan
+ 506 	 nan 	 nan 	 nan
+ 507 	 nan 	 nan 	 nan
+ 508 	 nan 	 nan 	 nan
+ 509 	 nan 	 nan 	 nan
+ 510 	 nan 	 nan 	 nan
+ 511 	 nan 	 nan 	 nan
+ 512 	 nan 	 nan 	 nan
+ 513 	 nan 	 nan 	 nan
+ 514 	 nan 	 nan 	 nan
+ 515 	 nan 	 nan 	 nan
+ 516 	 nan 	 nan 	 nan
+ 517 	 nan 	 nan 	 nan
+ 518 	 nan 	 nan 	 nan
+ 519 	 nan 	 nan 	 nan
+ 520 	 nan 	 nan 	 nan
+ 521 	 nan 	 nan 	 nan
+ 522 	 nan 	 nan 	 nan
+ 523 	 nan 	 nan 	 nan
+ 524 	 nan 	 nan 	 nan
+ 525 	 nan 	 nan 	 nan
+ 526 	 nan 	 nan 	 nan
+ 527 	 nan 	 nan 	 nan
+ 528 	 nan 	 nan 	 nan
+ 529 	 nan 	 nan 	 nan
+ 530 	 nan 	 nan 	 nan
+ 531 	 nan 	 nan 	 nan
+ 532 	 nan 	 nan 	 nan
+ 533 	 nan 	 nan 	 nan
+ 534 	 nan 	 nan 	 nan
+ 535 	 nan 	 nan 	 nan
+ 536 	 nan 	 nan 	 nan
+ 537 	 nan 	 nan 	 nan
+ 538 	 nan 	 nan 	 nan
+ 539 	 nan 	 nan 	 nan
+ 540 	 nan 	 nan 	 nan
+ 541 	 nan 	 nan 	 nan
+ 542 	 nan 	 nan 	 nan
+ 543 	 nan 	 nan 	 nan
+ 544 	 nan 	 nan 	 nan
+ 545 	 nan 	 nan 	 nan
+ 546 	 nan 	 nan 	 nan
+ 547 	 nan 	 nan 	 nan
+ 548 	 nan 	 nan 	 nan
+ 549 	 nan 	 nan 	 nan
+ 550 	 nan 	 nan 	 nan
+ 551 	 nan 	 nan 	 nan
+ 552 	 nan 	 nan 	 nan
+ 553 	 nan 	 nan 	 nan
+ 554 	 nan 	 nan 	 nan
+ 555 	 nan 	 nan 	 nan
+ 556 	 nan 	 nan 	 nan
+ 557 	 nan 	 nan 	 nan
+ 558 	 nan 	 nan 	 nan
+ 559 	 nan 	 nan 	 nan
+ 560 	 nan 	 nan 	 nan
+ 561 	 nan 	 nan 	 nan
+ 562 	 nan 	 nan 	 nan
+ 563 	 nan 	 nan 	 nan
+ 564 	 nan 	 nan 	 nan
+ 565 	 nan 	 nan 	 nan
+ 566 	 nan 	 nan 	 nan
+ 567 	 nan 	 nan 	 nan
+ 568 	 nan 	 nan 	 nan
+ 569 	 nan 	 nan 	 nan
+ 570 	 nan 	 nan 	 nan
+ 571 	 nan 	 nan 	 nan
+ 572 	 nan 	 nan 	 nan
+ 573 	 nan 	 nan 	 nan
+ 574 	 nan 	 nan 	 nan
+ 575 	 nan 	 nan 	 nan
+ 576 	 nan 	 nan 	 nan
+ 577 	 nan 	 nan 	 nan
+ 578 	 nan 	 nan 	 nan
+ 579 	 nan 	 nan 	 nan
+ 580 	 nan 	 nan 	 nan
+ 581 	 nan 	 nan 	 nan
+ 582 	 nan 	 nan 	 nan
+ 583 	 nan 	 nan 	 nan
+ 584 	 nan 	 nan 	 nan
+ 585 	 nan 	 nan 	 nan
+ 586 	 nan 	 nan 	 nan
+ 587 	 nan 	 nan 	 nan
+ 588 	 nan 	 nan 	 nan
+ 589 	 nan 	 nan 	 nan
+ 590 	 nan 	 nan 	 nan
+ 591 	 nan 	 nan 	 nan
+ 592 	 nan 	 nan 	 nan
+ 593 	 nan 	 nan 	 nan
+ 594 	 nan 	 nan 	 nan
+ 595 	 nan 	 nan 	 nan
+ 596 	 nan 	 nan 	 nan
+ 597 	 nan 	 nan 	 nan
+ 598 	 nan 	 nan 	 nan
+ 599 	 nan 	 nan 	 nan
+ 600 	 nan 	 nan 	 nan
+ 601 	 nan 	 nan 	 nan
+ 602 	 nan 	 nan 	 nan
+ 603 	 nan 	 nan 	 nan
+ 604 	 nan 	 nan 	 nan
+ 605 	 nan 	 nan 	 nan
+ 606 	 nan 	 nan 	 nan
+ 607 	 nan 	 nan 	 nan
+ 608 	 nan 	 nan 	 nan
+ 609 	 nan 	 nan 	 nan
+ 610 	 nan 	 nan 	 nan
+ 611 	 nan 	 nan 	 nan
+ 612 	 nan 	 nan 	 nan
+ 613 	 nan 	 nan 	 nan
+ 614 	 nan 	 nan 	 nan
+ 615 	 nan 	 nan 	 nan
+ 616 	 nan 	 nan 	 nan
+ 617 	 nan 	 nan 	 nan
+ 618 	 nan 	 nan 	 nan
+ 619 	 nan 	 nan 	 nan
+ 620 	 nan 	 nan 	 nan
+ 621 	 nan 	 nan 	 nan
+ 622 	 nan 	 nan 	 nan
+ 623 	 nan 	 nan 	 nan
+ 624 	 nan 	 nan 	 nan
+ 625 	 nan 	 nan 	 nan
+ 626 	 nan 	 nan 	 nan
+ 627 	 nan 	 nan 	 nan
+ 628 	 nan 	 nan 	 nan
+ 629 	 nan 	 nan 	 nan
+ 630 	 nan 	 nan 	 nan
+ 631 	 nan 	 nan 	 nan
+ 632 	 nan 	 nan 	 nan
+ 633 	 nan 	 nan 	 nan
+ 634 	 nan 	 nan 	 nan
+ 635 	 nan 	 nan 	 nan
+ 636 	 nan 	 nan 	 nan
+ 637 	 nan 	 nan 	 nan
+ 638 	 nan 	 nan 	 nan
+ 639 	 nan 	 nan 	 nan
+ 640 	 nan 	 nan 	 nan
+ 641 	 nan 	 nan 	 nan
+ 642 	 nan 	 nan 	 nan
+ 643 	 nan 	 nan 	 nan
+ 644 	 nan 	 nan 	 nan
+ 645 	 nan 	 nan 	 nan
+ 646 	 nan 	 nan 	 nan
+ 647 	 nan 	 nan 	 nan
+ 648 	 nan 	 nan 	 nan
+ 649 	 nan 	 nan 	 nan
+ 650 	 nan 	 nan 	 nan
+ 651 	 nan 	 nan 	 nan
+ 652 	 nan 	 nan 	 nan
+ 653 	 nan 	 nan 	 nan
+ 654 	 nan 	 nan 	 nan
+ 655 	 nan 	 nan 	 nan
+ 656 	 nan 	 nan 	 nan
+ 657 	 nan 	 nan 	 nan
+ 658 	 nan 	 nan 	 nan
+ 659 	 nan 	 nan 	 nan
+ 660 	 nan 	 nan 	 nan
+ 661 	 nan 	 nan 	 nan
+ 662 	 nan 	 nan 	 nan
+ 663 	 nan 	 nan 	 nan
+ 664 	 nan 	 nan 	 nan
+ 665 	 nan 	 nan 	 nan
+ 666 	 nan 	 nan 	 nan
+ 667 	 nan 	 nan 	 nan
+ 668 	 nan 	 nan 	 nan
+ 669 	 nan 	 nan 	 nan
+ 670 	 nan 	 nan 	 nan
+ 671 	 nan 	 nan 	 nan
+ 672 	 nan 	 nan 	 nan
+ 673 	 nan 	 nan 	 nan
+ 674 	 nan 	 nan 	 nan
+ 675 	 nan 	 nan 	 nan
+ 676 	 nan 	 nan 	 nan
+ 677 	 nan 	 nan 	 nan
+ 678 	 nan 	 nan 	 nan
+ 679 	 nan 	 nan 	 nan
+ 680 	 nan 	 nan 	 nan
+ 681 	 nan 	 nan 	 nan
+ 682 	 nan 	 nan 	 nan
+ 683 	 nan 	 nan 	 nan
+ 684 	 nan 	 nan 	 nan
+ 685 	 nan 	 nan 	 nan
+ 686 	 nan 	 nan 	 nan
+ 687 	 nan 	 nan 	 nan
+ 688 	 nan 	 nan 	 nan
+ 689 	 nan 	 nan 	 nan
+ 690 	 nan 	 nan 	 nan
+ 691 	 nan 	 nan 	 nan
+ 692 	 nan 	 nan 	 nan
+ 693 	 nan 	 nan 	 nan
+ 694 	 nan 	 nan 	 nan
+ 695 	 nan 	 nan 	 nan
+ 696 	 nan 	 nan 	 nan
+ 697 	 nan 	 nan 	 nan
+ 698 	 nan 	 nan 	 nan
+ 699 	 nan 	 nan 	 nan
+ 700 	 nan 	 nan 	 nan
+ 701 	 nan 	 nan 	 nan
+ 702 	 nan 	 nan 	 nan
+ 703 	 nan 	 nan 	 nan
+ 704 	 nan 	 nan 	 nan
+ 705 	 nan 	 nan 	 nan
+ 706 	 nan 	 nan 	 nan
+ 707 	 nan 	 nan 	 nan
+ 708 	 nan 	 nan 	 nan
+ 709 	 nan 	 nan 	 nan
+ 710 	 nan 	 nan 	 nan
+ 711 	 nan 	 nan 	 nan
+ 712 	 nan 	 nan 	 nan
+ 713 	 nan 	 nan 	 nan
+ 714 	 nan 	 nan 	 nan
+ 715 	 nan 	 nan 	 nan
+ 716 	 nan 	 nan 	 nan
+ 717 	 nan 	 nan 	 nan
+ 718 	 nan 	 nan 	 nan
+ 719 	 nan 	 nan 	 nan
+ 720 	 nan 	 nan 	 nan
+ 721 	 nan 	 nan 	 nan
+ 722 	 nan 	 nan 	 nan
+ 723 	 nan 	 nan 	 nan
+ 724 	 nan 	 nan 	 nan
+ 725 	 nan 	 nan 	 nan
+ 726 	 nan 	 nan 	 nan
+ 727 	 nan 	 nan 	 nan
+ 728 	 nan 	 nan 	 nan
+ 729 	 nan 	 nan 	 nan
+ 730 	 nan 	 nan 	 nan
+ 731 	 nan 	 nan 	 nan
+ 732 	 nan 	 nan 	 nan
+ 733 	 nan 	 nan 	 nan
+ 734 	 nan 	 nan 	 nan
+ 735 	 nan 	 nan 	 nan
+ 736 	 nan 	 nan 	 nan
+ 737 	 nan 	 nan 	 nan
+ 738 	 nan 	 nan 	 nan
+ 739 	 nan 	 nan 	 nan
+ 740 	 nan 	 nan 	 nan
+ 741 	 nan 	 nan 	 nan
+ 742 	 nan 	 nan 	 nan
+ 743 	 nan 	 nan 	 nan
+ 744 	 nan 	 nan 	 nan
+ 745 	 nan 	 nan 	 nan
+ 746 	 nan 	 nan 	 nan
+ 747 	 nan 	 nan 	 nan
+ 748 	 nan 	 nan 	 nan
+ 749 	 nan 	 nan 	 nan
+ 750 	 nan 	 nan 	 nan
+ 751 	 nan 	 nan 	 nan
+ 752 	 nan 	 nan 	 nan
+ 753 	 nan 	 nan 	 nan
+ 754 	 nan 	 nan 	 nan
+ 755 	 nan 	 nan 	 nan
+ 756 	 nan 	 nan 	 nan
+ 757 	 nan 	 nan 	 nan
+ 758 	 nan 	 nan 	 nan
+ 759 	 nan 	 nan 	 nan
+ 760 	 nan 	 nan 	 nan
+ 761 	 nan 	 nan 	 nan
+ 762 	 nan 	 nan 	 nan
+ 763 	 nan 	 nan 	 nan
+ 764 	 nan 	 nan 	 nan
+ 765 	 nan 	 nan 	 nan
+ 766 	 nan 	 nan 	 nan
+ 767 	 nan 	 nan 	 nan
+ 768 	 nan 	 nan 	 nan
+ 769 	 nan 	 nan 	 nan
+ 770 	 nan 	 nan 	 nan
+ 771 	 nan 	 nan 	 nan
+ 772 	 nan 	 nan 	 nan
+ 773 	 nan 	 nan 	 nan
+ 774 	 nan 	 nan 	 nan
+ 775 	 nan 	 nan 	 nan
+ 776 	 nan 	 nan 	 nan
+ 777 	 nan 	 nan 	 nan
+ 778 	 nan 	 nan 	 nan
+ 779 	 nan 	 nan 	 nan
+ 780 	 nan 	 nan 	 nan
+ 781 	 nan 	 nan 	 nan
+ 782 	 nan 	 nan 	 nan
+ 783 	 nan 	 nan 	 nan
+ 784 	 nan 	 nan 	 nan
+ 785 	 nan 	 nan 	 nan
+ 786 	 nan 	 nan 	 nan
+ 787 	 nan 	 nan 	 nan
+ 788 	 nan 	 nan 	 nan
+ 789 	 nan 	 nan 	 nan
+ 790 	 nan 	 nan 	 nan
+ 791 	 nan 	 nan 	 nan
+ 792 	 nan 	 nan 	 nan
+ 793 	 nan 	 nan 	 nan
+ 794 	 nan 	 nan 	 nan
+ 795 	 nan 	 nan 	 nan
+ 796 	 nan 	 nan 	 nan
+ 797 	 nan 	 nan 	 nan
+ 798 	 nan 	 nan 	 nan
+ 799 	 nan 	 nan 	 nan
+ 800 	 nan 	 nan 	 nan
+ 801 	 nan 	 nan 	 nan
+ 802 	 nan 	 nan 	 nan
+ 803 	 nan 	 nan 	 nan
+ 804 	 nan 	 nan 	 nan
+ 805 	 nan 	 nan 	 nan
+ 806 	 nan 	 nan 	 nan
+ 807 	 nan 	 nan 	 nan
+ 808 	 nan 	 nan 	 nan
+ 809 	 nan 	 nan 	 nan
+ 810 	 nan 	 nan 	 nan
+ 811 	 nan 	 nan 	 nan
+ 812 	 nan 	 nan 	 nan
+ 813 	 nan 	 nan 	 nan
+ 814 	 nan 	 nan 	 nan
+ 815 	 nan 	 nan 	 nan
+ 816 	 nan 	 nan 	 nan
+ 817 	 nan 	 nan 	 nan
+ 818 	 nan 	 nan 	 nan
+ 819 	 nan 	 nan 	 nan
+ 820 	 nan 	 nan 	 nan
+ 821 	 nan 	 nan 	 nan
+ 822 	 nan 	 nan 	 nan
+ 823 	 nan 	 nan 	 nan
+ 824 	 nan 	 nan 	 nan
+ 825 	 nan 	 nan 	 nan
+ 826 	 nan 	 nan 	 nan
+ 827 	 nan 	 nan 	 nan
+ 828 	 nan 	 nan 	 nan
+ 829 	 nan 	 nan 	 nan
+ 830 	 nan 	 nan 	 nan
+ 831 	 nan 	 nan 	 nan
+ 832 	 nan 	 nan 	 nan
+ 833 	 nan 	 nan 	 nan
+ 834 	 nan 	 nan 	 nan
+ 835 	 nan 	 nan 	 nan
+ 836 	 nan 	 nan 	 nan
+ 837 	 nan 	 nan 	 nan
+ 838 	 nan 	 nan 	 nan
+ 839 	 nan 	 nan 	 nan
+ 840 	 nan 	 nan 	 nan
+ 841 	 nan 	 nan 	 nan
+ 842 	 nan 	 nan 	 nan
+ 843 	 nan 	 nan 	 nan
+ 844 	 nan 	 nan 	 nan
+ 845 	 nan 	 nan 	 nan
+ 846 	 nan 	 nan 	 nan
+ 847 	 nan 	 nan 	 nan
+ 848 	 nan 	 nan 	 nan
+ 849 	 nan 	 nan 	 nan
+ 850 	 nan 	 nan 	 nan
+ 851 	 nan 	 nan 	 nan
+ 852 	 nan 	 nan 	 nan
+ 853 	 nan 	 nan 	 nan
+ 854 	 nan 	 nan 	 nan
+ 855 	 nan 	 nan 	 nan
+ 856 	 nan 	 nan 	 nan
+ 857 	 nan 	 nan 	 nan
+ 858 	 nan 	 nan 	 nan
+ 859 	 nan 	 nan 	 nan
+ 860 	 nan 	 nan 	 nan
+ 861 	 nan 	 nan 	 nan
+ 862 	 nan 	 nan 	 nan
+ 863 	 nan 	 nan 	 nan
+ 864 	 nan 	 nan 	 nan
+ 865 	 nan 	 nan 	 nan
+ 866 	 nan 	 nan 	 nan
+ 867 	 nan 	 nan 	 nan
+ 868 	 nan 	 nan 	 nan
+ 869 	 nan 	 nan 	 nan
+ 870 	 nan 	 nan 	 nan
+ 871 	 nan 	 nan 	 nan
+ 872 	 nan 	 nan 	 nan
+ 873 	 nan 	 nan 	 nan
+ 874 	 nan 	 nan 	 nan
+ 875 	 nan 	 nan 	 nan
+ 876 	 nan 	 nan 	 nan
+ 877 	 nan 	 nan 	 nan
+ 878 	 nan 	 nan 	 nan
+ 879 	 nan 	 nan 	 nan
+ 880 	 nan 	 nan 	 nan
+ 881 	 nan 	 nan 	 nan
+ 882 	 nan 	 nan 	 nan
+ 883 	 nan 	 nan 	 nan
+ 884 	 nan 	 nan 	 nan
+ 885 	 nan 	 nan 	 nan
+ 886 	 nan 	 nan 	 nan
+ 887 	 nan 	 nan 	 nan
+ 888 	 nan 	 nan 	 nan
+ 889 	 nan 	 nan 	 nan
+ 890 	 nan 	 nan 	 nan
+ 891 	 nan 	 nan 	 nan
+ 892 	 nan 	 nan 	 nan
+ 893 	 nan 	 nan 	 nan
+ 894 	 nan 	 nan 	 nan
+ 895 	 nan 	 nan 	 nan
+ 896 	 nan 	 nan 	 nan
+ 897 	 nan 	 nan 	 nan
+ 898 	 nan 	 nan 	 nan
+ 899 	 nan 	 nan 	 nan
+ 900 	 nan 	 nan 	 nan
+ 901 	 nan 	 nan 	 nan
+ 902 	 nan 	 nan 	 nan
+ 903 	 nan 	 nan 	 nan
+ 904 	 nan 	 nan 	 nan
+ 905 	 nan 	 nan 	 nan
+ 906 	 nan 	 nan 	 nan
+ 907 	 nan 	 nan 	 nan
+ 908 	 nan 	 nan 	 nan
+ 909 	 nan 	 nan 	 nan
+ 910 	 nan 	 nan 	 nan
+ 911 	 nan 	 nan 	 nan
+ 912 	 nan 	 nan 	 nan
+ 913 	 nan 	 nan 	 nan
+ 914 	 nan 	 nan 	 nan
+ 915 	 nan 	 nan 	 nan
+ 916 	 nan 	 nan 	 nan
+ 917 	 nan 	 nan 	 nan
+ 918 	 nan 	 nan 	 nan
+ 919 	 nan 	 nan 	 nan
+ 920 	 nan 	 nan 	 nan
+ 921 	 nan 	 nan 	 nan
+ 922 	 nan 	 nan 	 nan
+ 923 	 nan 	 nan 	 nan
+ 924 	 nan 	 nan 	 nan
+ 925 	 nan 	 nan 	 nan
+ 926 	 nan 	 nan 	 nan
+ 927 	 nan 	 nan 	 nan
+ 928 	 nan 	 nan 	 nan
+ 929 	 nan 	 nan 	 nan
+*Elements 1	SH36	72	73	74						1
+ 2	SH36	75	76	77						1
+ 3	SH36	78	79	80						1
+ 4	SH36	81	82	83						1
+ 5	SH36	84	85	86						1
+ 6	SH36	87	88	89						1
+ 7	SH36	90	91	92						1
+ 8	SH36	93	94	95						1
+ 9	SH36	96	97	98						1
+ 10	SH36	99	100	101						1
+ 11	SH36	102	103	104						1
+ 12	SH36	105	106	107						1
+ 13	SH36	108	109	110						1
+ 14	SH36	111	112	113						1
+ 15	SH36	114	115	116						1
+ 16	SH36	117	118	119						1
+ 17	SH36	120	121	122						1
+ 18	SH36	123	124	125						1
+ 19	SH36	126	127	128						1
+ 20	SH36	129	130	131						1
+ 21	SH36	132	133	134						1
+ 22	SH36	135	136	137						1
+ 23	SH36	138	139	140						1
+ 24	SH36	141	142	143						1
+ 25	SH36	144	145	146						1
+ 26	SH36	147	148	149						1
+ 27	SH36	150	151	152						1
+ 28	SH36	153	154	155						1
+ 29	SH36	156	157	158						1
+ 30	SH36	159	160	161						1
+ 31	SH36	162	163	164						1
+ 32	SH36	165	166	167						1
+ 33	SH36	168	169	170						1
+ 34	SH36	171	172	173						1
+ 35	SH36	174	175	176						1
+ 36	SH36	177	178	179						1
+ 37	SH36	180	181	182						1
+ 38	SH36	183	184	185						1
+ 39	SH36	186	187	188						1
+ 40	SH36	189	190	191						1
+ 41	SH36	192	193	194						1
+ 42	SH36	195	196	197						1
+ 43	SH36	198	199	200						1
+ 44	SH36	201	202	203						1
+ 45	SH36	204	205	206						1
+ 46	SH36	207	208	209						1
+ 47	SH36	210	211	212						1
+ 48	SH36	213	214	215						1
+ 49	SH36	216	217	218						1
+ 50	SH36	219	220	221						1
+ 51	SH36	222	223	224						1
+ 52	SH36	225	226	227						1
+ 53	SH36	228	229	230						1
+ 54	SH36	231	232	233						1
+ 55	SH36	234	235	236						1
+ 56	SH36	237	238	239						1
+ 57	SH36	240	241	242						1
+ 58	SH36	243	244	245						1
+ 59	SH36	246	247	248						1
+ 60	SH36	249	250	251						1
+ 61	SH36	252	253	254						1
+ 62	SH36	255	256	257						1
+ 63	SH36	258	259	260						1
+ 64	SH36	261	262	263						1
+ 65	SH36	264	265	266						1
+ 66	SH36	267	268	269						1
+ 67	SH36	270	271	272						1
+ 68	SH36	273	274	275						1
+ 69	SH36	276	277	278						1
+ 70	SH36	279	280	281						1
+ 71	SH36	282	283	284						1
+ 72	SH36	285	286	287						1
+ 73	SH36	288	289	290						1
+ 74	SH36	291	292	293						1
+ 75	SH36	294	295	296						1
+ 76	SH36	297	298	299						1
+ 77	SH36	300	301	302						1
+ 78	SH36	303	304	305						1
+ 79	SH36	306	307	308						1
+ 80	SH36	309	310	311						1
+ 81	SH36	312	313	314						1
+ 82	SH36	315	316	317						1
+ 83	SH36	318	319	320						1
+ 84	SH36	321	322	323						1
+ 85	SH36	324	325	326						1
+ 86	SH36	327	328	329						1
+ 87	SH36	330	331	332						1
+ 88	SH36	333	334	335						1
+ 89	SH36	336	337	338						1
+ 90	SH36	339	340	341						1
+ 91	SH36	342	343	344						1
+ 92	SH36	345	346	347						1
+ 93	SH36	348	349	350						1
+ 94	SH36	351	352	353						1
+ 95	SH36	354	355	356						1
+ 96	SH36	357	358	359						1
+ 97	SH36	360	361	362						1
+ 98	SH36	363	364	365						1
+ 99	SH36	366	367	368						1
+ 100	SH36	369	370	371						1
+ 101	SH36	372	373	374						1
+ 102	SH36	375	376	377						1
+ 103	SH36	378	379	380						1
+ 104	SH36	381	382	383						1
+ 105	SH36	384	385	386						1
+ 106	SH36	387	388	389						1
+ 107	SH36	390	391	392						1
+ 108	SH36	393	394	395						1
+ 109	SH36	396	397	72						1
+ 110	SH36	397	73	72						1
+ 111	SH36	1	396	552						1
+ 112	SH36	72	552	396						1
+ 113	SH36	397	398	73						1
+ 114	SH36	696	697	73						1
+ 115	SH36	697	74	73						1
+ 116	SH36	8	696	398						1
+ 117	SH36	73	398	696						1
+ 118	SH36	697	698	74						1
+ 119	SH36	553	552	72						1
+ 120	SH36	553	72	74						1
+ 121	SH36	554	553	74						1
+ 122	SH36	48	554	698						1
+ 123	SH36	74	698	554						1
+ 124	SH36	399	400	75						1
+ 125	SH36	400	76	75						1
+ 126	SH36	2	399	555						1
+ 127	SH36	75	555	399						1
+ 128	SH36	400	401	76						1
+ 129	SH36	699	700	76						1
+ 130	SH36	700	77	76						1
+ 131	SH36	9	699	401						1
+ 132	SH36	76	401	699						1
+ 133	SH36	700	701	77						1
+ 134	SH36	556	555	75						1
+ 135	SH36	556	75	77						1
+ 136	SH36	557	556	77						1
+ 137	SH36	49	557	701						1
+ 138	SH36	77	701	557						1
+ 139	SH36	402	403	78						1
+ 140	SH36	403	79	78						1
+ 141	SH36	3	402	558						1
+ 142	SH36	78	558	402						1
+ 143	SH36	403	404	79						1
+ 144	SH36	702	703	79						1
+ 145	SH36	703	80	79						1
+ 146	SH36	10	702	404						1
+ 147	SH36	79	404	702						1
+ 148	SH36	703	704	80						1
+ 149	SH36	559	558	78						1
+ 150	SH36	559	78	80						1
+ 151	SH36	560	559	80						1
+ 152	SH36	50	560	704						1
+ 153	SH36	80	704	560						1
+ 154	SH36	405	406	81						1
+ 155	SH36	406	82	81						1
+ 156	SH36	4	405	561						1
+ 157	SH36	81	561	405						1
+ 158	SH36	406	407	82						1
+ 159	SH36	705	706	82						1
+ 160	SH36	706	83	82						1
+ 161	SH36	11	705	407						1
+ 162	SH36	82	407	705						1
+ 163	SH36	706	707	83						1
+ 164	SH36	562	561	81						1
+ 165	SH36	562	81	83						1
+ 166	SH36	563	562	83						1
+ 167	SH36	51	563	707						1
+ 168	SH36	83	707	563						1
+ 169	SH36	408	409	84						1
+ 170	SH36	409	85	84						1
+ 171	SH36	5	408	564						1
+ 172	SH36	84	564	408						1
+ 173	SH36	409	410	85						1
+ 174	SH36	708	709	85						1
+ 175	SH36	709	86	85						1
+ 176	SH36	12	708	410						1
+ 177	SH36	85	410	708						1
+ 178	SH36	709	710	86						1
+ 179	SH36	565	564	84						1
+ 180	SH36	565	84	86						1
+ 181	SH36	566	565	86						1
+ 182	SH36	52	566	710						1
+ 183	SH36	86	710	566						1
+ 184	SH36	411	412	87						1
+ 185	SH36	412	88	87						1
+ 186	SH36	6	411	567						1
+ 187	SH36	87	567	411						1
+ 188	SH36	412	413	88						1
+ 189	SH36	711	712	88						1
+ 190	SH36	712	89	88						1
+ 191	SH36	13	711	413						1
+ 192	SH36	88	413	711						1
+ 193	SH36	712	713	89						1
+ 194	SH36	568	567	87						1
+ 195	SH36	568	87	89						1
+ 196	SH36	569	568	89						1
+ 197	SH36	53	569	713						1
+ 198	SH36	89	713	569						1
+ 199	SH36	417	418	90						1
+ 200	SH36	418	91	90						1
+ 201	SH36	8	417	570						1
+ 202	SH36	90	570	417						1
+ 203	SH36	418	419	91						1
+ 204	SH36	714	715	91						1
+ 205	SH36	715	92	91						1
+ 206	SH36	15	714	419						1
+ 207	SH36	91	419	714						1
+ 208	SH36	715	716	92						1
+ 209	SH36	571	570	90						1
+ 210	SH36	571	90	92						1
+ 211	SH36	572	571	92						1
+ 212	SH36	54	572	716						1
+ 213	SH36	92	716	572						1
+ 214	SH36	420	421	93						1
+ 215	SH36	421	94	93						1
+ 216	SH36	9	420	573						1
+ 217	SH36	93	573	420						1
+ 218	SH36	421	422	94						1
+ 219	SH36	717	718	94						1
+ 220	SH36	718	95	94						1
+ 221	SH36	16	717	422						1
+ 222	SH36	94	422	717						1
+ 223	SH36	718	719	95						1
+ 224	SH36	574	573	93						1
+ 225	SH36	574	93	95						1
+ 226	SH36	575	574	95						1
+ 227	SH36	55	575	719						1
+ 228	SH36	95	719	575						1
+ 229	SH36	423	424	96						1
+ 230	SH36	424	97	96						1
+ 231	SH36	10	423	576						1
+ 232	SH36	96	576	423						1
+ 233	SH36	424	425	97						1
+ 234	SH36	720	721	97						1
+ 235	SH36	721	98	97						1
+ 236	SH36	17	720	425						1
+ 237	SH36	97	425	720						1
+ 238	SH36	721	722	98						1
+ 239	SH36	577	576	96						1
+ 240	SH36	577	96	98						1
+ 241	SH36	578	577	98						1
+ 242	SH36	56	578	722						1
+ 243	SH36	98	722	578						1
+ 244	SH36	426	427	99						1
+ 245	SH36	427	100	99						1
+ 246	SH36	11	426	579						1
+ 247	SH36	99	579	426						1
+ 248	SH36	427	428	100						1
+ 249	SH36	723	724	100						1
+ 250	SH36	724	101	100						1
+ 251	SH36	18	723	428						1
+ 252	SH36	100	428	723						1
+ 253	SH36	724	725	101						1
+ 254	SH36	580	579	99						1
+ 255	SH36	580	99	101						1
+ 256	SH36	581	580	101						1
+ 257	SH36	57	581	725						1
+ 258	SH36	101	725	581						1
+ 259	SH36	429	430	102						1
+ 260	SH36	430	103	102						1
+ 261	SH36	12	429	582						1
+ 262	SH36	102	582	429						1
+ 263	SH36	430	431	103						1
+ 264	SH36	726	727	103						1
+ 265	SH36	727	104	103						1
+ 266	SH36	19	726	431						1
+ 267	SH36	103	431	726						1
+ 268	SH36	727	728	104						1
+ 269	SH36	583	582	102						1
+ 270	SH36	583	102	104						1
+ 271	SH36	584	583	104						1
+ 272	SH36	58	584	728						1
+ 273	SH36	104	728	584						1
+ 274	SH36	432	433	105						1
+ 275	SH36	433	106	105						1
+ 276	SH36	13	432	585						1
+ 277	SH36	105	585	432						1
+ 278	SH36	433	434	106						1
+ 279	SH36	729	730	106						1
+ 280	SH36	730	107	106						1
+ 281	SH36	20	729	434						1
+ 282	SH36	106	434	729						1
+ 283	SH36	730	731	107						1
+ 284	SH36	586	585	105						1
+ 285	SH36	586	105	107						1
+ 286	SH36	587	586	107						1
+ 287	SH36	59	587	731						1
+ 288	SH36	107	731	587						1
+ 289	SH36	438	439	108						1
+ 290	SH36	439	109	108						1
+ 291	SH36	15	438	588						1
+ 292	SH36	108	588	438						1
+ 293	SH36	439	440	109						1
+ 294	SH36	732	733	109						1
+ 295	SH36	733	110	109						1
+ 296	SH36	22	732	440						1
+ 297	SH36	109	440	732						1
+ 298	SH36	733	734	110						1
+ 299	SH36	589	588	108						1
+ 300	SH36	589	108	110						1
+ 301	SH36	590	589	110						1
+ 302	SH36	60	590	734						1
+ 303	SH36	110	734	590						1
+ 304	SH36	441	442	111						1
+ 305	SH36	442	112	111						1
+ 306	SH36	16	441	591						1
+ 307	SH36	111	591	441						1
+ 308	SH36	442	443	112						1
+ 309	SH36	735	736	112						1
+ 310	SH36	736	113	112						1
+ 311	SH36	23	735	443						1
+ 312	SH36	112	443	735						1
+ 313	SH36	736	737	113						1
+ 314	SH36	592	591	111						1
+ 315	SH36	592	111	113						1
+ 316	SH36	593	592	113						1
+ 317	SH36	61	593	737						1
+ 318	SH36	113	737	593						1
+ 319	SH36	444	445	114						1
+ 320	SH36	445	115	114						1
+ 321	SH36	17	444	594						1
+ 322	SH36	114	594	444						1
+ 323	SH36	445	446	115						1
+ 324	SH36	738	739	115						1
+ 325	SH36	739	116	115						1
+ 326	SH36	24	738	446						1
+ 327	SH36	115	446	738						1
+ 328	SH36	739	740	116						1
+ 329	SH36	595	594	114						1
+ 330	SH36	595	114	116						1
+ 331	SH36	596	595	116						1
+ 332	SH36	62	596	740						1
+ 333	SH36	116	740	596						1
+ 334	SH36	447	448	117						1
+ 335	SH36	448	118	117						1
+ 336	SH36	18	447	597						1
+ 337	SH36	117	597	447						1
+ 338	SH36	448	449	118						1
+ 339	SH36	741	742	118						1
+ 340	SH36	742	119	118						1
+ 341	SH36	25	741	449						1
+ 342	SH36	118	449	741						1
+ 343	SH36	742	743	119						1
+ 344	SH36	598	597	117						1
+ 345	SH36	598	117	119						1
+ 346	SH36	599	598	119						1
+ 347	SH36	63	599	743						1
+ 348	SH36	119	743	599						1
+ 349	SH36	450	451	120						1
+ 350	SH36	451	121	120						1
+ 351	SH36	19	450	600						1
+ 352	SH36	120	600	450						1
+ 353	SH36	451	452	121						1
+ 354	SH36	744	745	121						1
+ 355	SH36	745	122	121						1
+ 356	SH36	26	744	452						1
+ 357	SH36	121	452	744						1
+ 358	SH36	745	746	122						1
+ 359	SH36	601	600	120						1
+ 360	SH36	601	120	122						1
+ 361	SH36	602	601	122						1
+ 362	SH36	64	602	746						1
+ 363	SH36	122	746	602						1
+ 364	SH36	453	454	123						1
+ 365	SH36	454	124	123						1
+ 366	SH36	20	453	603						1
+ 367	SH36	123	603	453						1
+ 368	SH36	454	455	124						1
+ 369	SH36	747	748	124						1
+ 370	SH36	748	125	124						1
+ 371	SH36	27	747	455						1
+ 372	SH36	124	455	747						1
+ 373	SH36	748	749	125						1
+ 374	SH36	604	603	123						1
+ 375	SH36	604	123	125						1
+ 376	SH36	605	604	125						1
+ 377	SH36	65	605	749						1
+ 378	SH36	125	749	605						1
+ 379	SH36	459	460	126						1
+ 380	SH36	460	127	126						1
+ 381	SH36	22	459	606						1
+ 382	SH36	126	606	459						1
+ 383	SH36	460	461	127						1
+ 384	SH36	750	751	127						1
+ 385	SH36	751	128	127						1
+ 386	SH36	29	750	461						1
+ 387	SH36	127	461	750						1
+ 388	SH36	751	752	128						1
+ 389	SH36	607	606	126						1
+ 390	SH36	607	126	128						1
+ 391	SH36	608	607	128						1
+ 392	SH36	66	608	752						1
+ 393	SH36	128	752	608						1
+ 394	SH36	462	463	129						1
+ 395	SH36	463	130	129						1
+ 396	SH36	23	462	609						1
+ 397	SH36	129	609	462						1
+ 398	SH36	463	464	130						1
+ 399	SH36	753	754	130						1
+ 400	SH36	754	131	130						1
+ 401	SH36	30	753	464						1
+ 402	SH36	130	464	753						1
+ 403	SH36	754	755	131						1
+ 404	SH36	610	609	129						1
+ 405	SH36	610	129	131						1
+ 406	SH36	611	610	131						1
+ 407	SH36	67	611	755						1
+ 408	SH36	131	755	611						1
+ 409	SH36	465	466	132						1
+ 410	SH36	466	133	132						1
+ 411	SH36	24	465	612						1
+ 412	SH36	132	612	465						1
+ 413	SH36	466	467	133						1
+ 414	SH36	756	757	133						1
+ 415	SH36	757	134	133						1
+ 416	SH36	31	756	467						1
+ 417	SH36	133	467	756						1
+ 418	SH36	757	758	134						1
+ 419	SH36	613	612	132						1
+ 420	SH36	613	132	134						1
+ 421	SH36	614	613	134						1
+ 422	SH36	68	614	758						1
+ 423	SH36	134	758	614						1
+ 424	SH36	468	469	135						1
+ 425	SH36	469	136	135						1
+ 426	SH36	25	468	615						1
+ 427	SH36	135	615	468						1
+ 428	SH36	469	470	136						1
+ 429	SH36	759	760	136						1
+ 430	SH36	760	137	136						1
+ 431	SH36	32	759	470						1
+ 432	SH36	136	470	759						1
+ 433	SH36	760	761	137						1
+ 434	SH36	616	615	135						1
+ 435	SH36	616	135	137						1
+ 436	SH36	617	616	137						1
+ 437	SH36	69	617	761						1
+ 438	SH36	137	761	617						1
+ 439	SH36	471	472	138						1
+ 440	SH36	472	139	138						1
+ 441	SH36	26	471	618						1
+ 442	SH36	138	618	471						1
+ 443	SH36	472	473	139						1
+ 444	SH36	762	763	139						1
+ 445	SH36	763	140	139						1
+ 446	SH36	33	762	473						1
+ 447	SH36	139	473	762						1
+ 448	SH36	763	764	140						1
+ 449	SH36	619	618	138						1
+ 450	SH36	619	138	140						1
+ 451	SH36	620	619	140						1
+ 452	SH36	70	620	764						1
+ 453	SH36	140	764	620						1
+ 454	SH36	474	475	141						1
+ 455	SH36	475	142	141						1
+ 456	SH36	27	474	621						1
+ 457	SH36	141	621	474						1
+ 458	SH36	475	476	142						1
+ 459	SH36	765	766	142						1
+ 460	SH36	766	143	142						1
+ 461	SH36	34	765	476						1
+ 462	SH36	142	476	765						1
+ 463	SH36	766	767	143						1
+ 464	SH36	622	621	141						1
+ 465	SH36	622	141	143						1
+ 466	SH36	623	622	143						1
+ 467	SH36	71	623	767						1
+ 468	SH36	143	767	623						1
+ 469	SH36	570	571	144						1
+ 470	SH36	571	145	144						1
+ 471	SH36	8	570	696						1
+ 472	SH36	144	696	570						1
+ 473	SH36	571	572	145						1
+ 474	SH36	878	877	145						1
+ 475	SH36	877	146	145						1
+ 476	SH36	54	878	572						1
+ 477	SH36	145	572	878						1
+ 478	SH36	877	876	146						1
+ 479	SH36	697	696	144						1
+ 480	SH36	697	144	146						1
+ 481	SH36	698	697	146						1
+ 482	SH36	48	698	876						1
+ 483	SH36	146	876	698						1
+ 484	SH36	573	574	147						1
+ 485	SH36	574	148	147						1
+ 486	SH36	9	573	699						1
+ 487	SH36	147	699	573						1
+ 488	SH36	574	575	148						1
+ 489	SH36	881	880	148						1
+ 490	SH36	880	149	148						1
+ 491	SH36	55	881	575						1
+ 492	SH36	148	575	881						1
+ 493	SH36	880	879	149						1
+ 494	SH36	700	699	147						1
+ 495	SH36	700	147	149						1
+ 496	SH36	701	700	149						1
+ 497	SH36	49	701	879						1
+ 498	SH36	149	879	701						1
+ 499	SH36	576	577	150						1
+ 500	SH36	577	151	150						1
+ 501	SH36	10	576	702						1
+ 502	SH36	150	702	576						1
+ 503	SH36	577	578	151						1
+ 504	SH36	884	883	151						1
+ 505	SH36	883	152	151						1
+ 506	SH36	56	884	578						1
+ 507	SH36	151	578	884						1
+ 508	SH36	883	882	152						1
+ 509	SH36	703	702	150						1
+ 510	SH36	703	150	152						1
+ 511	SH36	704	703	152						1
+ 512	SH36	50	704	882						1
+ 513	SH36	152	882	704						1
+ 514	SH36	579	580	153						1
+ 515	SH36	580	154	153						1
+ 516	SH36	11	579	705						1
+ 517	SH36	153	705	579						1
+ 518	SH36	580	581	154						1
+ 519	SH36	887	886	154						1
+ 520	SH36	886	155	154						1
+ 521	SH36	57	887	581						1
+ 522	SH36	154	581	887						1
+ 523	SH36	886	885	155						1
+ 524	SH36	706	705	153						1
+ 525	SH36	706	153	155						1
+ 526	SH36	707	706	155						1
+ 527	SH36	51	707	885						1
+ 528	SH36	155	885	707						1
+ 529	SH36	582	583	156						1
+ 530	SH36	583	157	156						1
+ 531	SH36	12	582	708						1
+ 532	SH36	156	708	582						1
+ 533	SH36	583	584	157						1
+ 534	SH36	890	889	157						1
+ 535	SH36	889	158	157						1
+ 536	SH36	58	890	584						1
+ 537	SH36	157	584	890						1
+ 538	SH36	889	888	158						1
+ 539	SH36	709	708	156						1
+ 540	SH36	709	156	158						1
+ 541	SH36	710	709	158						1
+ 542	SH36	52	710	888						1
+ 543	SH36	158	888	710						1
+ 544	SH36	585	586	159						1
+ 545	SH36	586	160	159						1
+ 546	SH36	13	585	711						1
+ 547	SH36	159	711	585						1
+ 548	SH36	586	587	160						1
+ 549	SH36	893	892	160						1
+ 550	SH36	892	161	160						1
+ 551	SH36	59	893	587						1
+ 552	SH36	160	587	893						1
+ 553	SH36	892	891	161						1
+ 554	SH36	712	711	159						1
+ 555	SH36	712	159	161						1
+ 556	SH36	713	712	161						1
+ 557	SH36	53	713	891						1
+ 558	SH36	161	891	713						1
+ 559	SH36	588	589	162						1
+ 560	SH36	589	163	162						1
+ 561	SH36	15	588	714						1
+ 562	SH36	162	714	588						1
+ 563	SH36	589	590	163						1
+ 564	SH36	896	895	163						1
+ 565	SH36	895	164	163						1
+ 566	SH36	60	896	590						1
+ 567	SH36	163	590	896						1
+ 568	SH36	895	894	164						1
+ 569	SH36	715	714	162						1
+ 570	SH36	715	162	164						1
+ 571	SH36	716	715	164						1
+ 572	SH36	54	716	894						1
+ 573	SH36	164	894	716						1
+ 574	SH36	591	592	165						1
+ 575	SH36	592	166	165						1
+ 576	SH36	16	591	717						1
+ 577	SH36	165	717	591						1
+ 578	SH36	592	593	166						1
+ 579	SH36	899	898	166						1
+ 580	SH36	898	167	166						1
+ 581	SH36	61	899	593						1
+ 582	SH36	166	593	899						1
+ 583	SH36	898	897	167						1
+ 584	SH36	718	717	165						1
+ 585	SH36	718	165	167						1
+ 586	SH36	719	718	167						1
+ 587	SH36	55	719	897						1
+ 588	SH36	167	897	719						1
+ 589	SH36	594	595	168						1
+ 590	SH36	595	169	168						1
+ 591	SH36	17	594	720						1
+ 592	SH36	168	720	594						1
+ 593	SH36	595	596	169						1
+ 594	SH36	902	901	169						1
+ 595	SH36	901	170	169						1
+ 596	SH36	62	902	596						1
+ 597	SH36	169	596	902						1
+ 598	SH36	901	900	170						1
+ 599	SH36	721	720	168						1
+ 600	SH36	721	168	170						1
+ 601	SH36	722	721	170						1
+ 602	SH36	56	722	900						1
+ 603	SH36	170	900	722						1
+ 604	SH36	597	598	171						1
+ 605	SH36	598	172	171						1
+ 606	SH36	18	597	723						1
+ 607	SH36	171	723	597						1
+ 608	SH36	598	599	172						1
+ 609	SH36	905	904	172						1
+ 610	SH36	904	173	172						1
+ 611	SH36	63	905	599						1
+ 612	SH36	172	599	905						1
+ 613	SH36	904	903	173						1
+ 614	SH36	724	723	171						1
+ 615	SH36	724	171	173						1
+ 616	SH36	725	724	173						1
+ 617	SH36	57	725	903						1
+ 618	SH36	173	903	725						1
+ 619	SH36	600	601	174						1
+ 620	SH36	601	175	174						1
+ 621	SH36	19	600	726						1
+ 622	SH36	174	726	600						1
+ 623	SH36	601	602	175						1
+ 624	SH36	908	907	175						1
+ 625	SH36	907	176	175						1
+ 626	SH36	64	908	602						1
+ 627	SH36	175	602	908						1
+ 628	SH36	907	906	176						1
+ 629	SH36	727	726	174						1
+ 630	SH36	727	174	176						1
+ 631	SH36	728	727	176						1
+ 632	SH36	58	728	906						1
+ 633	SH36	176	906	728						1
+ 634	SH36	603	604	177						1
+ 635	SH36	604	178	177						1
+ 636	SH36	20	603	729						1
+ 637	SH36	177	729	603						1
+ 638	SH36	604	605	178						1
+ 639	SH36	911	910	178						1
+ 640	SH36	910	179	178						1
+ 641	SH36	65	911	605						1
+ 642	SH36	178	605	911						1
+ 643	SH36	910	909	179						1
+ 644	SH36	730	729	177						1
+ 645	SH36	730	177	179						1
+ 646	SH36	731	730	179						1
+ 647	SH36	59	731	909						1
+ 648	SH36	179	909	731						1
+ 649	SH36	606	607	180						1
+ 650	SH36	607	181	180						1
+ 651	SH36	22	606	732						1
+ 652	SH36	180	732	606						1
+ 653	SH36	607	608	181						1
+ 654	SH36	914	913	181						1
+ 655	SH36	913	182	181						1
+ 656	SH36	66	914	608						1
+ 657	SH36	181	608	914						1
+ 658	SH36	913	912	182						1
+ 659	SH36	733	732	180						1
+ 660	SH36	733	180	182						1
+ 661	SH36	734	733	182						1
+ 662	SH36	60	734	912						1
+ 663	SH36	182	912	734						1
+ 664	SH36	609	610	183						1
+ 665	SH36	610	184	183						1
+ 666	SH36	23	609	735						1
+ 667	SH36	183	735	609						1
+ 668	SH36	610	611	184						1
+ 669	SH36	917	916	184						1
+ 670	SH36	916	185	184						1
+ 671	SH36	67	917	611						1
+ 672	SH36	184	611	917						1
+ 673	SH36	916	915	185						1
+ 674	SH36	736	735	183						1
+ 675	SH36	736	183	185						1
+ 676	SH36	737	736	185						1
+ 677	SH36	61	737	915						1
+ 678	SH36	185	915	737						1
+ 679	SH36	612	613	186						1
+ 680	SH36	613	187	186						1
+ 681	SH36	24	612	738						1
+ 682	SH36	186	738	612						1
+ 683	SH36	613	614	187						1
+ 684	SH36	920	919	187						1
+ 685	SH36	919	188	187						1
+ 686	SH36	68	920	614						1
+ 687	SH36	187	614	920						1
+ 688	SH36	919	918	188						1
+ 689	SH36	739	738	186						1
+ 690	SH36	739	186	188						1
+ 691	SH36	740	739	188						1
+ 692	SH36	62	740	918						1
+ 693	SH36	188	918	740						1
+ 694	SH36	615	616	189						1
+ 695	SH36	616	190	189						1
+ 696	SH36	25	615	741						1
+ 697	SH36	189	741	615						1
+ 698	SH36	616	617	190						1
+ 699	SH36	923	922	190						1
+ 700	SH36	922	191	190						1
+ 701	SH36	69	923	617						1
+ 702	SH36	190	617	923						1
+ 703	SH36	922	921	191						1
+ 704	SH36	742	741	189						1
+ 705	SH36	742	189	191						1
+ 706	SH36	743	742	191						1
+ 707	SH36	63	743	921						1
+ 708	SH36	191	921	743						1
+ 709	SH36	618	619	192						1
+ 710	SH36	619	193	192						1
+ 711	SH36	26	618	744						1
+ 712	SH36	192	744	618						1
+ 713	SH36	619	620	193						1
+ 714	SH36	926	925	193						1
+ 715	SH36	925	194	193						1
+ 716	SH36	70	926	620						1
+ 717	SH36	193	620	926						1
+ 718	SH36	925	924	194						1
+ 719	SH36	745	744	192						1
+ 720	SH36	745	192	194						1
+ 721	SH36	746	745	194						1
+ 722	SH36	64	746	924						1
+ 723	SH36	194	924	746						1
+ 724	SH36	621	622	195						1
+ 725	SH36	622	196	195						1
+ 726	SH36	27	621	747						1
+ 727	SH36	195	747	621						1
+ 728	SH36	622	623	196						1
+ 729	SH36	929	928	196						1
+ 730	SH36	928	197	196						1
+ 731	SH36	71	929	623						1
+ 732	SH36	196	623	929						1
+ 733	SH36	928	927	197						1
+ 734	SH36	748	747	195						1
+ 735	SH36	748	195	197						1
+ 736	SH36	749	748	197						1
+ 737	SH36	65	749	927						1
+ 738	SH36	197	927	749						1
+ 739	SH36	552	553	198						1
+ 740	SH36	553	199	198						1
+ 741	SH36	1	552	480						1
+ 742	SH36	198	480	552						1
+ 743	SH36	553	554	199						1
+ 744	SH36	842	841	199						1
+ 745	SH36	841	200	199						1
+ 746	SH36	48	842	554						1
+ 747	SH36	199	554	842						1
+ 748	SH36	841	840	200						1
+ 749	SH36	481	480	198						1
+ 750	SH36	481	198	200						1
+ 751	SH36	482	481	200						1
+ 752	SH36	36	482	840						1
+ 753	SH36	200	840	482						1
+ 754	SH36	555	556	201						1
+ 755	SH36	556	202	201						1
+ 756	SH36	2	555	483						1
+ 757	SH36	201	483	555						1
+ 758	SH36	556	557	202						1
+ 759	SH36	845	844	202						1
+ 760	SH36	844	203	202						1
+ 761	SH36	49	845	557						1
+ 762	SH36	202	557	845						1
+ 763	SH36	844	843	203						1
+ 764	SH36	484	483	201						1
+ 765	SH36	484	201	203						1
+ 766	SH36	485	484	203						1
+ 767	SH36	37	485	843						1
+ 768	SH36	203	843	485						1
+ 769	SH36	558	559	204						1
+ 770	SH36	559	205	204						1
+ 771	SH36	3	558	486						1
+ 772	SH36	204	486	558						1
+ 773	SH36	559	560	205						1
+ 774	SH36	848	847	205						1
+ 775	SH36	847	206	205						1
+ 776	SH36	50	848	560						1
+ 777	SH36	205	560	848						1
+ 778	SH36	847	846	206						1
+ 779	SH36	487	486	204						1
+ 780	SH36	487	204	206						1
+ 781	SH36	488	487	206						1
+ 782	SH36	38	488	846						1
+ 783	SH36	206	846	488						1
+ 784	SH36	561	562	207						1
+ 785	SH36	562	208	207						1
+ 786	SH36	4	561	489						1
+ 787	SH36	207	489	561						1
+ 788	SH36	562	563	208						1
+ 789	SH36	851	850	208						1
+ 790	SH36	850	209	208						1
+ 791	SH36	51	851	563						1
+ 792	SH36	208	563	851						1
+ 793	SH36	850	849	209						1
+ 794	SH36	490	489	207						1
+ 795	SH36	490	207	209						1
+ 796	SH36	491	490	209						1
+ 797	SH36	39	491	849						1
+ 798	SH36	209	849	491						1
+ 799	SH36	564	565	210						1
+ 800	SH36	565	211	210						1
+ 801	SH36	5	564	492						1
+ 802	SH36	210	492	564						1
+ 803	SH36	565	566	211						1
+ 804	SH36	854	853	211						1
+ 805	SH36	853	212	211						1
+ 806	SH36	52	854	566						1
+ 807	SH36	211	566	854						1
+ 808	SH36	853	852	212						1
+ 809	SH36	493	492	210						1
+ 810	SH36	493	210	212						1
+ 811	SH36	494	493	212						1
+ 812	SH36	40	494	852						1
+ 813	SH36	212	852	494						1
+ 814	SH36	567	568	213						1
+ 815	SH36	568	214	213						1
+ 816	SH36	6	567	495						1
+ 817	SH36	213	495	567						1
+ 818	SH36	568	569	214						1
+ 819	SH36	857	856	214						1
+ 820	SH36	856	215	214						1
+ 821	SH36	53	857	569						1
+ 822	SH36	214	569	857						1
+ 823	SH36	856	855	215						1
+ 824	SH36	496	495	213						1
+ 825	SH36	496	213	215						1
+ 826	SH36	497	496	215						1
+ 827	SH36	41	497	855						1
+ 828	SH36	215	855	497						1
+ 829	SH36	498	499	216						1
+ 830	SH36	499	217	216						1
+ 831	SH36	29	498	750						1
+ 832	SH36	216	750	498						1
+ 833	SH36	499	500	217						1
+ 834	SH36	858	859	217						1
+ 835	SH36	859	218	217						1
+ 836	SH36	42	858	500						1
+ 837	SH36	217	500	858						1
+ 838	SH36	859	860	218						1
+ 839	SH36	751	750	216						1
+ 840	SH36	751	216	218						1
+ 841	SH36	752	751	218						1
+ 842	SH36	66	752	860						1
+ 843	SH36	218	860	752						1
+ 844	SH36	501	502	219						1
+ 845	SH36	502	220	219						1
+ 846	SH36	30	501	753						1
+ 847	SH36	219	753	501						1
+ 848	SH36	502	503	220						1
+ 849	SH36	861	862	220						1
+ 850	SH36	862	221	220						1
+ 851	SH36	43	861	503						1
+ 852	SH36	220	503	861						1
+ 853	SH36	862	863	221						1
+ 854	SH36	754	753	219						1
+ 855	SH36	754	219	221						1
+ 856	SH36	755	754	221						1
+ 857	SH36	67	755	863						1
+ 858	SH36	221	863	755						1
+ 859	SH36	504	505	222						1
+ 860	SH36	505	223	222						1
+ 861	SH36	31	504	756						1
+ 862	SH36	222	756	504						1
+ 863	SH36	505	506	223						1
+ 864	SH36	864	865	223						1
+ 865	SH36	865	224	223						1
+ 866	SH36	44	864	506						1
+ 867	SH36	223	506	864						1
+ 868	SH36	865	866	224						1
+ 869	SH36	757	756	222						1
+ 870	SH36	757	222	224						1
+ 871	SH36	758	757	224						1
+ 872	SH36	68	758	866						1
+ 873	SH36	224	866	758						1
+ 874	SH36	507	508	225						1
+ 875	SH36	508	226	225						1
+ 876	SH36	32	507	759						1
+ 877	SH36	225	759	507						1
+ 878	SH36	508	509	226						1
+ 879	SH36	867	868	226						1
+ 880	SH36	868	227	226						1
+ 881	SH36	45	867	509						1
+ 882	SH36	226	509	867						1
+ 883	SH36	868	869	227						1
+ 884	SH36	760	759	225						1
+ 885	SH36	760	225	227						1
+ 886	SH36	761	760	227						1
+ 887	SH36	69	761	869						1
+ 888	SH36	227	869	761						1
+ 889	SH36	510	511	228						1
+ 890	SH36	511	229	228						1
+ 891	SH36	33	510	762						1
+ 892	SH36	228	762	510						1
+ 893	SH36	511	512	229						1
+ 894	SH36	870	871	229						1
+ 895	SH36	871	230	229						1
+ 896	SH36	46	870	512						1
+ 897	SH36	229	512	870						1
+ 898	SH36	871	872	230						1
+ 899	SH36	763	762	228						1
+ 900	SH36	763	228	230						1
+ 901	SH36	764	763	230						1
+ 902	SH36	70	764	872						1
+ 903	SH36	230	872	764						1
+ 904	SH36	513	514	231						1
+ 905	SH36	514	232	231						1
+ 906	SH36	34	513	765						1
+ 907	SH36	231	765	513						1
+ 908	SH36	514	515	232						1
+ 909	SH36	873	874	232						1
+ 910	SH36	874	233	232						1
+ 911	SH36	47	873	515						1
+ 912	SH36	232	515	873						1
+ 913	SH36	874	875	233						1
+ 914	SH36	766	765	231						1
+ 915	SH36	766	231	233						1
+ 916	SH36	767	766	233						1
+ 917	SH36	71	767	875						1
+ 918	SH36	233	875	767						1
+ 919	SH36	770	769	234						1
+ 920	SH36	769	235	234						1
+ 921	SH36	2	770	399						1
+ 922	SH36	234	399	770						1
+ 923	SH36	769	768	235						1
+ 924	SH36	624	625	235						1
+ 925	SH36	625	236	235						1
+ 926	SH36	48	624	768						1
+ 927	SH36	235	768	624						1
+ 928	SH36	625	626	236						1
+ 929	SH36	400	399	234						1
+ 930	SH36	400	234	236						1
+ 931	SH36	401	400	236						1
+ 932	SH36	9	401	626						1
+ 933	SH36	236	626	401						1
+ 934	SH36	773	772	237						1
+ 935	SH36	772	238	237						1
+ 936	SH36	3	773	402						1
+ 937	SH36	237	402	773						1
+ 938	SH36	772	771	238						1
+ 939	SH36	627	628	238						1
+ 940	SH36	628	239	238						1
+ 941	SH36	49	627	771						1
+ 942	SH36	238	771	627						1
+ 943	SH36	628	629	239						1
+ 944	SH36	403	402	237						1
+ 945	SH36	403	237	239						1
+ 946	SH36	404	403	239						1
+ 947	SH36	10	404	629						1
+ 948	SH36	239	629	404						1
+ 949	SH36	776	775	240						1
+ 950	SH36	775	241	240						1
+ 951	SH36	4	776	405						1
+ 952	SH36	240	405	776						1
+ 953	SH36	775	774	241						1
+ 954	SH36	630	631	241						1
+ 955	SH36	631	242	241						1
+ 956	SH36	50	630	774						1
+ 957	SH36	241	774	630						1
+ 958	SH36	631	632	242						1
+ 959	SH36	406	405	240						1
+ 960	SH36	406	240	242						1
+ 961	SH36	407	406	242						1
+ 962	SH36	11	407	632						1
+ 963	SH36	242	632	407						1
+ 964	SH36	779	778	243						1
+ 965	SH36	778	244	243						1
+ 966	SH36	5	779	408						1
+ 967	SH36	243	408	779						1
+ 968	SH36	778	777	244						1
+ 969	SH36	633	634	244						1
+ 970	SH36	634	245	244						1
+ 971	SH36	51	633	777						1
+ 972	SH36	244	777	633						1
+ 973	SH36	634	635	245						1
+ 974	SH36	409	408	243						1
+ 975	SH36	409	243	245						1
+ 976	SH36	410	409	245						1
+ 977	SH36	12	410	635						1
+ 978	SH36	245	635	410						1
+ 979	SH36	782	781	246						1
+ 980	SH36	781	247	246						1
+ 981	SH36	6	782	411						1
+ 982	SH36	246	411	782						1
+ 983	SH36	781	780	247						1
+ 984	SH36	636	637	247						1
+ 985	SH36	637	248	247						1
+ 986	SH36	52	636	780						1
+ 987	SH36	247	780	636						1
+ 988	SH36	637	638	248						1
+ 989	SH36	412	411	246						1
+ 990	SH36	412	246	248						1
+ 991	SH36	413	412	248						1
+ 992	SH36	13	413	638						1
+ 993	SH36	248	638	413						1
+ 994	SH36	785	784	249						1
+ 995	SH36	784	250	249						1
+ 996	SH36	7	785	414						1
+ 997	SH36	249	414	785						1
+ 998	SH36	784	783	250						1
+ 999	SH36	639	640	250						1
+ 1000	SH36	640	251	250						1
+ 1001	SH36	53	639	783						1
+ 1002	SH36	250	783	639						1
+ 1003	SH36	640	641	251						1
+ 1004	SH36	415	414	249						1
+ 1005	SH36	415	249	251						1
+ 1006	SH36	416	415	251						1
+ 1007	SH36	14	416	641						1
+ 1008	SH36	251	641	416						1
+ 1009	SH36	788	787	252						1
+ 1010	SH36	787	253	252						1
+ 1011	SH36	9	788	420						1
+ 1012	SH36	252	420	788						1
+ 1013	SH36	787	786	253						1
+ 1014	SH36	642	643	253						1
+ 1015	SH36	643	254	253						1
+ 1016	SH36	54	642	786						1
+ 1017	SH36	253	786	642						1
+ 1018	SH36	643	644	254						1
+ 1019	SH36	421	420	252						1
+ 1020	SH36	421	252	254						1
+ 1021	SH36	422	421	254						1
+ 1022	SH36	16	422	644						1
+ 1023	SH36	254	644	422						1
+ 1024	SH36	791	790	255						1
+ 1025	SH36	790	256	255						1
+ 1026	SH36	10	791	423						1
+ 1027	SH36	255	423	791						1
+ 1028	SH36	790	789	256						1
+ 1029	SH36	645	646	256						1
+ 1030	SH36	646	257	256						1
+ 1031	SH36	55	645	789						1
+ 1032	SH36	256	789	645						1
+ 1033	SH36	646	647	257						1
+ 1034	SH36	424	423	255						1
+ 1035	SH36	424	255	257						1
+ 1036	SH36	425	424	257						1
+ 1037	SH36	17	425	647						1
+ 1038	SH36	257	647	425						1
+ 1039	SH36	794	793	258						1
+ 1040	SH36	793	259	258						1
+ 1041	SH36	11	794	426						1
+ 1042	SH36	258	426	794						1
+ 1043	SH36	793	792	259						1
+ 1044	SH36	648	649	259						1
+ 1045	SH36	649	260	259						1
+ 1046	SH36	56	648	792						1
+ 1047	SH36	259	792	648						1
+ 1048	SH36	649	650	260						1
+ 1049	SH36	427	426	258						1
+ 1050	SH36	427	258	260						1
+ 1051	SH36	428	427	260						1
+ 1052	SH36	18	428	650						1
+ 1053	SH36	260	650	428						1
+ 1054	SH36	797	796	261						1
+ 1055	SH36	796	262	261						1
+ 1056	SH36	12	797	429						1
+ 1057	SH36	261	429	797						1
+ 1058	SH36	796	795	262						1
+ 1059	SH36	651	652	262						1
+ 1060	SH36	652	263	262						1
+ 1061	SH36	57	651	795						1
+ 1062	SH36	262	795	651						1
+ 1063	SH36	652	653	263						1
+ 1064	SH36	430	429	261						1
+ 1065	SH36	430	261	263						1
+ 1066	SH36	431	430	263						1
+ 1067	SH36	19	431	653						1
+ 1068	SH36	263	653	431						1
+ 1069	SH36	800	799	264						1
+ 1070	SH36	799	265	264						1
+ 1071	SH36	13	800	432						1
+ 1072	SH36	264	432	800						1
+ 1073	SH36	799	798	265						1
+ 1074	SH36	654	655	265						1
+ 1075	SH36	655	266	265						1
+ 1076	SH36	58	654	798						1
+ 1077	SH36	265	798	654						1
+ 1078	SH36	655	656	266						1
+ 1079	SH36	433	432	264						1
+ 1080	SH36	433	264	266						1
+ 1081	SH36	434	433	266						1
+ 1082	SH36	20	434	656						1
+ 1083	SH36	266	656	434						1
+ 1084	SH36	803	802	267						1
+ 1085	SH36	802	268	267						1
+ 1086	SH36	14	803	435						1
+ 1087	SH36	267	435	803						1
+ 1088	SH36	802	801	268						1
+ 1089	SH36	657	658	268						1
+ 1090	SH36	658	269	268						1
+ 1091	SH36	59	657	801						1
+ 1092	SH36	268	801	657						1
+ 1093	SH36	658	659	269						1
+ 1094	SH36	436	435	267						1
+ 1095	SH36	436	267	269						1
+ 1096	SH36	437	436	269						1
+ 1097	SH36	21	437	659						1
+ 1098	SH36	269	659	437						1
+ 1099	SH36	806	805	270						1
+ 1100	SH36	805	271	270						1
+ 1101	SH36	16	806	441						1
+ 1102	SH36	270	441	806						1
+ 1103	SH36	805	804	271						1
+ 1104	SH36	660	661	271						1
+ 1105	SH36	661	272	271						1
+ 1106	SH36	60	660	804						1
+ 1107	SH36	271	804	660						1
+ 1108	SH36	661	662	272						1
+ 1109	SH36	442	441	270						1
+ 1110	SH36	442	270	272						1
+ 1111	SH36	443	442	272						1
+ 1112	SH36	23	443	662						1
+ 1113	SH36	272	662	443						1
+ 1114	SH36	809	808	273						1
+ 1115	SH36	808	274	273						1
+ 1116	SH36	17	809	444						1
+ 1117	SH36	273	444	809						1
+ 1118	SH36	808	807	274						1
+ 1119	SH36	663	664	274						1
+ 1120	SH36	664	275	274						1
+ 1121	SH36	61	663	807						1
+ 1122	SH36	274	807	663						1
+ 1123	SH36	664	665	275						1
+ 1124	SH36	445	444	273						1
+ 1125	SH36	445	273	275						1
+ 1126	SH36	446	445	275						1
+ 1127	SH36	24	446	665						1
+ 1128	SH36	275	665	446						1
+ 1129	SH36	812	811	276						1
+ 1130	SH36	811	277	276						1
+ 1131	SH36	18	812	447						1
+ 1132	SH36	276	447	812						1
+ 1133	SH36	811	810	277						1
+ 1134	SH36	666	667	277						1
+ 1135	SH36	667	278	277						1
+ 1136	SH36	62	666	810						1
+ 1137	SH36	277	810	666						1
+ 1138	SH36	667	668	278						1
+ 1139	SH36	448	447	276						1
+ 1140	SH36	448	276	278						1
+ 1141	SH36	449	448	278						1
+ 1142	SH36	25	449	668						1
+ 1143	SH36	278	668	449						1
+ 1144	SH36	815	814	279						1
+ 1145	SH36	814	280	279						1
+ 1146	SH36	19	815	450						1
+ 1147	SH36	279	450	815						1
+ 1148	SH36	814	813	280						1
+ 1149	SH36	669	670	280						1
+ 1150	SH36	670	281	280						1
+ 1151	SH36	63	669	813						1
+ 1152	SH36	280	813	669						1
+ 1153	SH36	670	671	281						1
+ 1154	SH36	451	450	279						1
+ 1155	SH36	451	279	281						1
+ 1156	SH36	452	451	281						1
+ 1157	SH36	26	452	671						1
+ 1158	SH36	281	671	452						1
+ 1159	SH36	818	817	282						1
+ 1160	SH36	817	283	282						1
+ 1161	SH36	20	818	453						1
+ 1162	SH36	282	453	818						1
+ 1163	SH36	817	816	283						1
+ 1164	SH36	672	673	283						1
+ 1165	SH36	673	284	283						1
+ 1166	SH36	64	672	816						1
+ 1167	SH36	283	816	672						1
+ 1168	SH36	673	674	284						1
+ 1169	SH36	454	453	282						1
+ 1170	SH36	454	282	284						1
+ 1171	SH36	455	454	284						1
+ 1172	SH36	27	455	674						1
+ 1173	SH36	284	674	455						1
+ 1174	SH36	821	820	285						1
+ 1175	SH36	820	286	285						1
+ 1176	SH36	21	821	456						1
+ 1177	SH36	285	456	821						1
+ 1178	SH36	820	819	286						1
+ 1179	SH36	675	676	286						1
+ 1180	SH36	676	287	286						1
+ 1181	SH36	65	675	819						1
+ 1182	SH36	286	819	675						1
+ 1183	SH36	676	677	287						1
+ 1184	SH36	457	456	285						1
+ 1185	SH36	457	285	287						1
+ 1186	SH36	458	457	287						1
+ 1187	SH36	28	458	677						1
+ 1188	SH36	287	677	458						1
+ 1189	SH36	824	823	288						1
+ 1190	SH36	823	289	288						1
+ 1191	SH36	23	824	462						1
+ 1192	SH36	288	462	824						1
+ 1193	SH36	823	822	289						1
+ 1194	SH36	678	679	289						1
+ 1195	SH36	679	290	289						1
+ 1196	SH36	66	678	822						1
+ 1197	SH36	289	822	678						1
+ 1198	SH36	679	680	290						1
+ 1199	SH36	463	462	288						1
+ 1200	SH36	463	288	290						1
+ 1201	SH36	464	463	290						1
+ 1202	SH36	30	464	680						1
+ 1203	SH36	290	680	464						1
+ 1204	SH36	827	826	291						1
+ 1205	SH36	826	292	291						1
+ 1206	SH36	24	827	465						1
+ 1207	SH36	291	465	827						1
+ 1208	SH36	826	825	292						1
+ 1209	SH36	681	682	292						1
+ 1210	SH36	682	293	292						1
+ 1211	SH36	67	681	825						1
+ 1212	SH36	292	825	681						1
+ 1213	SH36	682	683	293						1
+ 1214	SH36	466	465	291						1
+ 1215	SH36	466	291	293						1
+ 1216	SH36	467	466	293						1
+ 1217	SH36	31	467	683						1
+ 1218	SH36	293	683	467						1
+ 1219	SH36	830	829	294						1
+ 1220	SH36	829	295	294						1
+ 1221	SH36	25	830	468						1
+ 1222	SH36	294	468	830						1
+ 1223	SH36	829	828	295						1
+ 1224	SH36	684	685	295						1
+ 1225	SH36	685	296	295						1
+ 1226	SH36	68	684	828						1
+ 1227	SH36	295	828	684						1
+ 1228	SH36	685	686	296						1
+ 1229	SH36	469	468	294						1
+ 1230	SH36	469	294	296						1
+ 1231	SH36	470	469	296						1
+ 1232	SH36	32	470	686						1
+ 1233	SH36	296	686	470						1
+ 1234	SH36	833	832	297						1
+ 1235	SH36	832	298	297						1
+ 1236	SH36	26	833	471						1
+ 1237	SH36	297	471	833						1
+ 1238	SH36	832	831	298						1
+ 1239	SH36	687	688	298						1
+ 1240	SH36	688	299	298						1
+ 1241	SH36	69	687	831						1
+ 1242	SH36	298	831	687						1
+ 1243	SH36	688	689	299						1
+ 1244	SH36	472	471	297						1
+ 1245	SH36	472	297	299						1
+ 1246	SH36	473	472	299						1
+ 1247	SH36	33	473	689						1
+ 1248	SH36	299	689	473						1
+ 1249	SH36	836	835	300						1
+ 1250	SH36	835	301	300						1
+ 1251	SH36	27	836	474						1
+ 1252	SH36	300	474	836						1
+ 1253	SH36	835	834	301						1
+ 1254	SH36	690	691	301						1
+ 1255	SH36	691	302	301						1
+ 1256	SH36	70	690	834						1
+ 1257	SH36	301	834	690						1
+ 1258	SH36	691	692	302						1
+ 1259	SH36	475	474	300						1
+ 1260	SH36	475	300	302						1
+ 1261	SH36	476	475	302						1
+ 1262	SH36	34	476	692						1
+ 1263	SH36	302	692	476						1
+ 1264	SH36	839	838	303						1
+ 1265	SH36	838	304	303						1
+ 1266	SH36	28	839	477						1
+ 1267	SH36	303	477	839						1
+ 1268	SH36	838	837	304						1
+ 1269	SH36	693	694	304						1
+ 1270	SH36	694	305	304						1
+ 1271	SH36	71	693	837						1
+ 1272	SH36	304	837	693						1
+ 1273	SH36	694	695	305						1
+ 1274	SH36	478	477	303						1
+ 1275	SH36	478	303	305						1
+ 1276	SH36	479	478	305						1
+ 1277	SH36	35	479	695						1
+ 1278	SH36	305	695	479						1
+ 1279	SH36	626	625	306						1
+ 1280	SH36	625	307	306						1
+ 1281	SH36	9	626	788						1
+ 1282	SH36	306	788	626						1
+ 1283	SH36	625	624	307						1
+ 1284	SH36	876	877	307						1
+ 1285	SH36	877	308	307						1
+ 1286	SH36	48	876	624						1
+ 1287	SH36	307	624	876						1
+ 1288	SH36	877	878	308						1
+ 1289	SH36	787	788	306						1
+ 1290	SH36	787	306	308						1
+ 1291	SH36	786	787	308						1
+ 1292	SH36	54	786	878						1
+ 1293	SH36	308	878	786						1
+ 1294	SH36	629	628	309						1
+ 1295	SH36	628	310	309						1
+ 1296	SH36	10	629	791						1
+ 1297	SH36	309	791	629						1
+ 1298	SH36	628	627	310						1
+ 1299	SH36	879	880	310						1
+ 1300	SH36	880	311	310						1
+ 1301	SH36	49	879	627						1
+ 1302	SH36	310	627	879						1
+ 1303	SH36	880	881	311						1
+ 1304	SH36	790	791	309						1
+ 1305	SH36	790	309	311						1
+ 1306	SH36	789	790	311						1
+ 1307	SH36	55	789	881						1
+ 1308	SH36	311	881	789						1
+ 1309	SH36	632	631	312						1
+ 1310	SH36	631	313	312						1
+ 1311	SH36	11	632	794						1
+ 1312	SH36	312	794	632						1
+ 1313	SH36	631	630	313						1
+ 1314	SH36	882	883	313						1
+ 1315	SH36	883	314	313						1
+ 1316	SH36	50	882	630						1
+ 1317	SH36	313	630	882						1
+ 1318	SH36	883	884	314						1
+ 1319	SH36	793	794	312						1
+ 1320	SH36	793	312	314						1
+ 1321	SH36	792	793	314						1
+ 1322	SH36	56	792	884						1
+ 1323	SH36	314	884	792						1
+ 1324	SH36	635	634	315						1
+ 1325	SH36	634	316	315						1
+ 1326	SH36	12	635	797						1
+ 1327	SH36	315	797	635						1
+ 1328	SH36	634	633	316						1
+ 1329	SH36	885	886	316						1
+ 1330	SH36	886	317	316						1
+ 1331	SH36	51	885	633						1
+ 1332	SH36	316	633	885						1
+ 1333	SH36	886	887	317						1
+ 1334	SH36	796	797	315						1
+ 1335	SH36	796	315	317						1
+ 1336	SH36	795	796	317						1
+ 1337	SH36	57	795	887						1
+ 1338	SH36	317	887	795						1
+ 1339	SH36	638	637	318						1
+ 1340	SH36	637	319	318						1
+ 1341	SH36	13	638	800						1
+ 1342	SH36	318	800	638						1
+ 1343	SH36	637	636	319						1
+ 1344	SH36	888	889	319						1
+ 1345	SH36	889	320	319						1
+ 1346	SH36	52	888	636						1
+ 1347	SH36	319	636	888						1
+ 1348	SH36	889	890	320						1
+ 1349	SH36	799	800	318						1
+ 1350	SH36	799	318	320						1
+ 1351	SH36	798	799	320						1
+ 1352	SH36	58	798	890						1
+ 1353	SH36	320	890	798						1
+ 1354	SH36	641	640	321						1
+ 1355	SH36	640	322	321						1
+ 1356	SH36	14	641	803						1
+ 1357	SH36	321	803	641						1
+ 1358	SH36	640	639	322						1
+ 1359	SH36	891	892	322						1
+ 1360	SH36	892	323	322						1
+ 1361	SH36	53	891	639						1
+ 1362	SH36	322	639	891						1
+ 1363	SH36	892	893	323						1
+ 1364	SH36	802	803	321						1
+ 1365	SH36	802	321	323						1
+ 1366	SH36	801	802	323						1
+ 1367	SH36	59	801	893						1
+ 1368	SH36	323	893	801						1
+ 1369	SH36	644	643	324						1
+ 1370	SH36	643	325	324						1
+ 1371	SH36	16	644	806						1
+ 1372	SH36	324	806	644						1
+ 1373	SH36	643	642	325						1
+ 1374	SH36	894	895	325						1
+ 1375	SH36	895	326	325						1
+ 1376	SH36	54	894	642						1
+ 1377	SH36	325	642	894						1
+ 1378	SH36	895	896	326						1
+ 1379	SH36	805	806	324						1
+ 1380	SH36	805	324	326						1
+ 1381	SH36	804	805	326						1
+ 1382	SH36	60	804	896						1
+ 1383	SH36	326	896	804						1
+ 1384	SH36	647	646	327						1
+ 1385	SH36	646	328	327						1
+ 1386	SH36	17	647	809						1
+ 1387	SH36	327	809	647						1
+ 1388	SH36	646	645	328						1
+ 1389	SH36	897	898	328						1
+ 1390	SH36	898	329	328						1
+ 1391	SH36	55	897	645						1
+ 1392	SH36	328	645	897						1
+ 1393	SH36	898	899	329						1
+ 1394	SH36	808	809	327						1
+ 1395	SH36	808	327	329						1
+ 1396	SH36	807	808	329						1
+ 1397	SH36	61	807	899						1
+ 1398	SH36	329	899	807						1
+ 1399	SH36	650	649	330						1
+ 1400	SH36	649	331	330						1
+ 1401	SH36	18	650	812						1
+ 1402	SH36	330	812	650						1
+ 1403	SH36	649	648	331						1
+ 1404	SH36	900	901	331						1
+ 1405	SH36	901	332	331						1
+ 1406	SH36	56	900	648						1
+ 1407	SH36	331	648	900						1
+ 1408	SH36	901	902	332						1
+ 1409	SH36	811	812	330						1
+ 1410	SH36	811	330	332						1
+ 1411	SH36	810	811	332						1
+ 1412	SH36	62	810	902						1
+ 1413	SH36	332	902	810						1
+ 1414	SH36	653	652	333						1
+ 1415	SH36	652	334	333						1
+ 1416	SH36	19	653	815						1
+ 1417	SH36	333	815	653						1
+ 1418	SH36	652	651	334						1
+ 1419	SH36	903	904	334						1
+ 1420	SH36	904	335	334						1
+ 1421	SH36	57	903	651						1
+ 1422	SH36	334	651	903						1
+ 1423	SH36	904	905	335						1
+ 1424	SH36	814	815	333						1
+ 1425	SH36	814	333	335						1
+ 1426	SH36	813	814	335						1
+ 1427	SH36	63	813	905						1
+ 1428	SH36	335	905	813						1
+ 1429	SH36	656	655	336						1
+ 1430	SH36	655	337	336						1
+ 1431	SH36	20	656	818						1
+ 1432	SH36	336	818	656						1
+ 1433	SH36	655	654	337						1
+ 1434	SH36	906	907	337						1
+ 1435	SH36	907	338	337						1
+ 1436	SH36	58	906	654						1
+ 1437	SH36	337	654	906						1
+ 1438	SH36	907	908	338						1
+ 1439	SH36	817	818	336						1
+ 1440	SH36	817	336	338						1
+ 1441	SH36	816	817	338						1
+ 1442	SH36	64	816	908						1
+ 1443	SH36	338	908	816						1
+ 1444	SH36	659	658	339						1
+ 1445	SH36	658	340	339						1
+ 1446	SH36	21	659	821						1
+ 1447	SH36	339	821	659						1
+ 1448	SH36	658	657	340						1
+ 1449	SH36	909	910	340						1
+ 1450	SH36	910	341	340						1
+ 1451	SH36	59	909	657						1
+ 1452	SH36	340	657	909						1
+ 1453	SH36	910	911	341						1
+ 1454	SH36	820	821	339						1
+ 1455	SH36	820	339	341						1
+ 1456	SH36	819	820	341						1
+ 1457	SH36	65	819	911						1
+ 1458	SH36	341	911	819						1
+ 1459	SH36	662	661	342						1
+ 1460	SH36	661	343	342						1
+ 1461	SH36	23	662	824						1
+ 1462	SH36	342	824	662						1
+ 1463	SH36	661	660	343						1
+ 1464	SH36	912	913	343						1
+ 1465	SH36	913	344	343						1
+ 1466	SH36	60	912	660						1
+ 1467	SH36	343	660	912						1
+ 1468	SH36	913	914	344						1
+ 1469	SH36	823	824	342						1
+ 1470	SH36	823	342	344						1
+ 1471	SH36	822	823	344						1
+ 1472	SH36	66	822	914						1
+ 1473	SH36	344	914	822						1
+ 1474	SH36	665	664	345						1
+ 1475	SH36	664	346	345						1
+ 1476	SH36	24	665	827						1
+ 1477	SH36	345	827	665						1
+ 1478	SH36	664	663	346						1
+ 1479	SH36	915	916	346						1
+ 1480	SH36	916	347	346						1
+ 1481	SH36	61	915	663						1
+ 1482	SH36	346	663	915						1
+ 1483	SH36	916	917	347						1
+ 1484	SH36	826	827	345						1
+ 1485	SH36	826	345	347						1
+ 1486	SH36	825	826	347						1
+ 1487	SH36	67	825	917						1
+ 1488	SH36	347	917	825						1
+ 1489	SH36	668	667	348						1
+ 1490	SH36	667	349	348						1
+ 1491	SH36	25	668	830						1
+ 1492	SH36	348	830	668						1
+ 1493	SH36	667	666	349						1
+ 1494	SH36	918	919	349						1
+ 1495	SH36	919	350	349						1
+ 1496	SH36	62	918	666						1
+ 1497	SH36	349	666	918						1
+ 1498	SH36	919	920	350						1
+ 1499	SH36	829	830	348						1
+ 1500	SH36	829	348	350						1
+ 1501	SH36	828	829	350						1
+ 1502	SH36	68	828	920						1
+ 1503	SH36	350	920	828						1
+ 1504	SH36	671	670	351						1
+ 1505	SH36	670	352	351						1
+ 1506	SH36	26	671	833						1
+ 1507	SH36	351	833	671						1
+ 1508	SH36	670	669	352						1
+ 1509	SH36	921	922	352						1
+ 1510	SH36	922	353	352						1
+ 1511	SH36	63	921	669						1
+ 1512	SH36	352	669	921						1
+ 1513	SH36	922	923	353						1
+ 1514	SH36	832	833	351						1
+ 1515	SH36	832	351	353						1
+ 1516	SH36	831	832	353						1
+ 1517	SH36	69	831	923						1
+ 1518	SH36	353	923	831						1
+ 1519	SH36	674	673	354						1
+ 1520	SH36	673	355	354						1
+ 1521	SH36	27	674	836						1
+ 1522	SH36	354	836	674						1
+ 1523	SH36	673	672	355						1
+ 1524	SH36	924	925	355						1
+ 1525	SH36	925	356	355						1
+ 1526	SH36	64	924	672						1
+ 1527	SH36	355	672	924						1
+ 1528	SH36	925	926	356						1
+ 1529	SH36	835	836	354						1
+ 1530	SH36	835	354	356						1
+ 1531	SH36	834	835	356						1
+ 1532	SH36	70	834	926						1
+ 1533	SH36	356	926	834						1
+ 1534	SH36	677	676	357						1
+ 1535	SH36	676	358	357						1
+ 1536	SH36	28	677	839						1
+ 1537	SH36	357	839	677						1
+ 1538	SH36	676	675	358						1
+ 1539	SH36	927	928	358						1
+ 1540	SH36	928	359	358						1
+ 1541	SH36	65	927	675						1
+ 1542	SH36	358	675	927						1
+ 1543	SH36	928	929	359						1
+ 1544	SH36	838	839	357						1
+ 1545	SH36	838	357	359						1
+ 1546	SH36	837	838	359						1
+ 1547	SH36	71	837	929						1
+ 1548	SH36	359	929	837						1
+ 1549	SH36	518	517	360						1
+ 1550	SH36	517	361	360						1
+ 1551	SH36	2	518	770						1
+ 1552	SH36	360	770	518						1
+ 1553	SH36	517	516	361						1
+ 1554	SH36	840	841	361						1
+ 1555	SH36	841	362	361						1
+ 1556	SH36	36	840	516						1
+ 1557	SH36	361	516	840						1
+ 1558	SH36	841	842	362						1
+ 1559	SH36	769	770	360						1
+ 1560	SH36	769	360	362						1
+ 1561	SH36	768	769	362						1
+ 1562	SH36	48	768	842						1
+ 1563	SH36	362	842	768						1
+ 1564	SH36	521	520	363						1
+ 1565	SH36	520	364	363						1
+ 1566	SH36	3	521	773						1
+ 1567	SH36	363	773	521						1
+ 1568	SH36	520	519	364						1
+ 1569	SH36	843	844	364						1
+ 1570	SH36	844	365	364						1
+ 1571	SH36	37	843	519						1
+ 1572	SH36	364	519	843						1
+ 1573	SH36	844	845	365						1
+ 1574	SH36	772	773	363						1
+ 1575	SH36	772	363	365						1
+ 1576	SH36	771	772	365						1
+ 1577	SH36	49	771	845						1
+ 1578	SH36	365	845	771						1
+ 1579	SH36	524	523	366						1
+ 1580	SH36	523	367	366						1
+ 1581	SH36	4	524	776						1
+ 1582	SH36	366	776	524						1
+ 1583	SH36	523	522	367						1
+ 1584	SH36	846	847	367						1
+ 1585	SH36	847	368	367						1
+ 1586	SH36	38	846	522						1
+ 1587	SH36	367	522	846						1
+ 1588	SH36	847	848	368						1
+ 1589	SH36	775	776	366						1
+ 1590	SH36	775	366	368						1
+ 1591	SH36	774	775	368						1
+ 1592	SH36	50	774	848						1
+ 1593	SH36	368	848	774						1
+ 1594	SH36	527	526	369						1
+ 1595	SH36	526	370	369						1
+ 1596	SH36	5	527	779						1
+ 1597	SH36	369	779	527						1
+ 1598	SH36	526	525	370						1
+ 1599	SH36	849	850	370						1
+ 1600	SH36	850	371	370						1
+ 1601	SH36	39	849	525						1
+ 1602	SH36	370	525	849						1
+ 1603	SH36	850	851	371						1
+ 1604	SH36	778	779	369						1
+ 1605	SH36	778	369	371						1
+ 1606	SH36	777	778	371						1
+ 1607	SH36	51	777	851						1
+ 1608	SH36	371	851	777						1
+ 1609	SH36	530	529	372						1
+ 1610	SH36	529	373	372						1
+ 1611	SH36	6	530	782						1
+ 1612	SH36	372	782	530						1
+ 1613	SH36	529	528	373						1
+ 1614	SH36	852	853	373						1
+ 1615	SH36	853	374	373						1
+ 1616	SH36	40	852	528						1
+ 1617	SH36	373	528	852						1
+ 1618	SH36	853	854	374						1
+ 1619	SH36	781	782	372						1
+ 1620	SH36	781	372	374						1
+ 1621	SH36	780	781	374						1
+ 1622	SH36	52	780	854						1
+ 1623	SH36	374	854	780						1
+ 1624	SH36	533	532	375						1
+ 1625	SH36	532	376	375						1
+ 1626	SH36	7	533	785						1
+ 1627	SH36	375	785	533						1
+ 1628	SH36	532	531	376						1
+ 1629	SH36	855	856	376						1
+ 1630	SH36	856	377	376						1
+ 1631	SH36	41	855	531						1
+ 1632	SH36	376	531	855						1
+ 1633	SH36	856	857	377						1
+ 1634	SH36	784	785	375						1
+ 1635	SH36	784	375	377						1
+ 1636	SH36	783	784	377						1
+ 1637	SH36	53	783	857						1
+ 1638	SH36	377	857	783						1
+ 1639	SH36	680	679	378						1
+ 1640	SH36	679	379	378						1
+ 1641	SH36	30	680	536						1
+ 1642	SH36	378	536	680						1
+ 1643	SH36	679	678	379						1
+ 1644	SH36	860	859	379						1
+ 1645	SH36	859	380	379						1
+ 1646	SH36	66	860	678						1
+ 1647	SH36	379	678	860						1
+ 1648	SH36	859	858	380						1
+ 1649	SH36	535	536	378						1
+ 1650	SH36	535	378	380						1
+ 1651	SH36	534	535	380						1
+ 1652	SH36	42	534	858						1
+ 1653	SH36	380	858	534						1
+ 1654	SH36	683	682	381						1
+ 1655	SH36	682	382	381						1
+ 1656	SH36	31	683	539						1
+ 1657	SH36	381	539	683						1
+ 1658	SH36	682	681	382						1
+ 1659	SH36	863	862	382						1
+ 1660	SH36	862	383	382						1
+ 1661	SH36	67	863	681						1
+ 1662	SH36	382	681	863						1
+ 1663	SH36	862	861	383						1
+ 1664	SH36	538	539	381						1
+ 1665	SH36	538	381	383						1
+ 1666	SH36	537	538	383						1
+ 1667	SH36	43	537	861						1
+ 1668	SH36	383	861	537						1
+ 1669	SH36	686	685	384						1
+ 1670	SH36	685	385	384						1
+ 1671	SH36	32	686	542						1
+ 1672	SH36	384	542	686						1
+ 1673	SH36	685	684	385						1
+ 1674	SH36	866	865	385						1
+ 1675	SH36	865	386	385						1
+ 1676	SH36	68	866	684						1
+ 1677	SH36	385	684	866						1
+ 1678	SH36	865	864	386						1
+ 1679	SH36	541	542	384						1
+ 1680	SH36	541	384	386						1
+ 1681	SH36	540	541	386						1
+ 1682	SH36	44	540	864						1
+ 1683	SH36	386	864	540						1
+ 1684	SH36	689	688	387						1
+ 1685	SH36	688	388	387						1
+ 1686	SH36	33	689	545						1
+ 1687	SH36	387	545	689						1
+ 1688	SH36	688	687	388						1
+ 1689	SH36	869	868	388						1
+ 1690	SH36	868	389	388						1
+ 1691	SH36	69	869	687						1
+ 1692	SH36	388	687	869						1
+ 1693	SH36	868	867	389						1
+ 1694	SH36	544	545	387						1
+ 1695	SH36	544	387	389						1
+ 1696	SH36	543	544	389						1
+ 1697	SH36	45	543	867						1
+ 1698	SH36	389	867	543						1
+ 1699	SH36	692	691	390						1
+ 1700	SH36	691	391	390						1
+ 1701	SH36	34	692	548						1
+ 1702	SH36	390	548	692						1
+ 1703	SH36	691	690	391						1
+ 1704	SH36	872	871	391						1
+ 1705	SH36	871	392	391						1
+ 1706	SH36	70	872	690						1
+ 1707	SH36	391	690	872						1
+ 1708	SH36	871	870	392						1
+ 1709	SH36	547	548	390						1
+ 1710	SH36	547	390	392						1
+ 1711	SH36	546	547	392						1
+ 1712	SH36	46	546	870						1
+ 1713	SH36	392	870	546						1
+ 1714	SH36	695	694	393						1
+ 1715	SH36	694	394	393						1
+ 1716	SH36	35	695	551						1
+ 1717	SH36	393	551	695						1
+ 1718	SH36	694	693	394						1
+ 1719	SH36	875	874	394						1
+ 1720	SH36	874	395	394						1
+ 1721	SH36	71	875	693						1
+ 1722	SH36	394	693	875						1
+ 1723	SH36	874	873	395						1
+ 1724	SH36	550	551	393						1
+ 1725	SH36	550	393	395						1
+ 1726	SH36	549	550	395						1
+ 1727	SH36	47	549	873						1
+ 1728	SH36	395	873	549						1

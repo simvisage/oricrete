@@ -63,7 +63,7 @@ if __name__ == '__main__':
     m = Masking(source=uf, F_mask=[ 0, 5, 6, 9, 10, 11, 12, 13, 14, 15, 19, 20, 21, 23, 24, 30, 31, 32, 33, 34, 39, 40, 43, 44, 45, 46, 47, 48, 49, 50, 54, 55, 56, 58, 59, 65, 66, 67, 68, 69])
     print cp.F
 
-    sym_fold = Folding(source=m, tf_lst[()])
+#    sym_fold = Folding(source=m, tf_lst[()])
 
     v = CreasePatternView(root=init)
     v.configure_traits()
