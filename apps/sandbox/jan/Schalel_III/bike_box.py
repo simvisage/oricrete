@@ -8,10 +8,9 @@ from oricrete.folding2 import \
     YoshimuraCreasePattern, fix, link, \
     Initialization, CnstrTargetFace, r_, s_, t_, Folding, \
     CreasePatternView, Masking
-
+from oricrete.folding2.infocad_link import InfocadLink
 import sympy as sp
 
-from oricrete.folding2.infocad_link import InfocadLink
 
 a_, b_ = sp.symbols('a,b')
 
@@ -70,11 +69,12 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d, n_steps):
                    cntrl_displ,
                    #
                    )
-    
-    m = Masking(source = init, F_mask=[ 42, 96, 43, 97, 0, 54, 1, 24, 78, 6, 12 ,36, 90, 18, 72, 19, 48, 102, 49, 103, 46, 100, 47, 101, 58, 5, 59, 29, 83, 65, 52, 106, 53, 107, 76, 23, 77, 41, 95, 71])
-    
-    
-    
+
+    m = Masking(source=lift, F_mask=[42, 96, 43, 97, 0, 54, 1, 24, 78, 6, 12, 36, 90, 18, 72, 19, 48,
+                                     102, 49, 103, 46, 100, 47, 101, 58, 5, 59, 29, 83, 65,
+                                     52, 106, 53, 107, 76, 23, 77, 41, 95, 71],
+                L_mask=[0, 1, 2, 3, 4, ])
+
     lift.u_1
 
     '''
@@ -115,12 +115,9 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d, n_steps):
     hang.u_1
     '''
 
-
-
-
-    al = InfocadLink(data = m, n_split = 4)
-    al.model_name = 'bike_box2'
-    al.build_inp()
+    #al = InfocadLink(data=m, n_split=4)
+    #al.model_name = 'bike_box2'
+    # al.build_inp()
 
     return init, lift
 
@@ -128,14 +125,5 @@ init, fold = get_constrained_YCP(L_x=3.0, L_y=2.42,
                                  n_x=4, n_y=12, d=-1.8, n_steps=10)
 
 
-
-
 v = CreasePatternView(root=init)
 v.configure_traits()
-
-
-
-
-
-
-
