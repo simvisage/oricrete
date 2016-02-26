@@ -3,8 +3,6 @@ Created on 12.01.2016
 
 @author: jvanderwoerd
 '''
-
-
 from etsproxy.traits.api import HasTraits, Float
 import numpy as np
 from oricrete.folding import \
@@ -75,16 +73,15 @@ if __name__ == '__main__':
                                  show_cnstr=True)
     my_model.configure_traits()
 
-<<<<<<< HEAD
+
     
 #    al = InfocadLink(data = cp, n_split = 3)
 #    al.model_name = 'HP_shell'
 #    al.build_inp()
-=======
-    al = InfocadLink(data=cp, n_split=3)
-    al.model_name = 'HP_shell'
-    al.build_inp()
->>>>>>> branch 'master' of https://github.com/simvisage/oricrete
+
+#    al = InfocadLink(data=cp, n_split=3)
+#    al.model_name = 'HP_shell'
+#    al.build_inp()
 
 
 """    

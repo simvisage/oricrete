@@ -28,7 +28,7 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
                                    ycp.N_v[1, :], 2, -1.0)
     linked_right_boundary_x = link(ycp.N_v[-1, 0], 0, 1.0,
                                    ycp.N_v[-1, 1:], 0, -1.0)
-    cntrl_displ = [([(ycp.N_h[-1, 1], 0, 1.0)], d)]
+    cntrl_displ = [([(ycp.N_h[-1, 3], 0, 1.0)], d)]
 
     caf = CnstrTargetFace(F=[r_, s_, 4 * 0.4 * t_ * r_ * (1 - r_ / L_x) + 0.000015])
     n_arr = np.hstack([ycp.N_h[:, :].flatten(),
@@ -49,19 +49,30 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
                                    cntrl_displ,
 #                    tf_lst=[(caf, n_arr)]
                    )
-    print 'u', lift.u_t[-1]
+#    print 'u', lift.u_t[-1]
     return init,lift
 
 '''configure parameters:'''
 
-init,fold = get_constrained_YCP(L_x=2.42, L_y=3.0,
-                           n_x=4, n_y=10, d= -0.28)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+#init,fold = get_constrained_YCP(L_x=2.42, L_y=3.0,
+#                           n_x=4, n_y=10, d= -0.28)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+
+
+init,fold = get_constrained_YCP(L_x=3.0, L_y=2.42,
+                           n_x=4, n_y=14, d= -2.2)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+
+
+
+
 
 
 v = CreasePatternView(root=init)
 v.configure_traits()
+
+
+
 al = InfocadLink(data = fold, n_split = 4)
-al.model_name = 'barrel_vault'
+al.model_name = 'bike_box'
 al.build_inp()
 
 
