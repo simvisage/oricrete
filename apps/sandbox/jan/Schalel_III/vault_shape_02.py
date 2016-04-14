@@ -42,6 +42,15 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d, n_steps):
                        ])
 
     init = Initialization(cp=ycp, tf_lst=[(caf, n_arr)])
+    
+#    m = Masking(source=init, F_mask=[42, 96, 43, 97, 0, 54, 1, 24, 78, 6, 12, 36, 90, 18, 72, 19, 48,
+#                                     102, 49, 103, 46, 100, 47, 101, 58, 5, 59, 29, 83, 65,
+#                                     52, 106, 53, 107, 76, 23, 77, 41, 95, 71],
+#                L_mask=[0, 1, 28, 29, 40, 41, 52, 53, 148, 149, 124, 100, 76, 160, 58, 7,
+#                        32, 44, 33, 45, 152, 128, 57, 129, 153, 5, 6, 105, 81, 165, 135, 13,
+#                        20, 93, 177, 75, 26, 147, 27, 158, 98, 123, 159, 99, 38, 50, 39, 51,
+#                        14, 112, 172, 70, 142, 21, 22, 118, 154, 94, 119, 155, 34, 46, 35, 47])
+    
 
     fixed_node = fix(ycp.N_h[0, -1], (0, 1, 2))
     planar_front_boundary = link(ycp.N_h[0, 0], 1, 1.0,
@@ -70,7 +79,7 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d, n_steps):
                    cntrl_displ,
                    #
                    )
-
+    
     lift.u_1
 
     H = lift.x_1[ycp.N_i[1, 0], 2]
@@ -106,29 +115,63 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d, n_steps):
 
     hang.u_1
 
-    al = InfocadLink(data = hang, n_split = 4)
-    al.model_name = 'hp_shell'
-    al.build_inp()
+    
+    """Export of geometry in a file with generation of extra elements"""
+#    al = InfocadLink(data = hang, n_split = 1)
+#    al.model_name = 'hp_shell'
+#    al.build_inp()
 
-    m = Masking(source = hang, F_mask=[ 42, 96, 43, 97, 0, 54, 1, 24, 78, 6, 12 ,36, 90, 18, 72, 19, 48, 102, 49, 103, 46, 100, 47, 101, 58, 5, 59, 29, 83, 65, 52, 106, 53, 107, 76, 23, 77, 41, 95, 71])
- 
+    """Export of geometry in a file without generation of finite elements"""
+    #Output nodes
+    #inpu = fold.x_0 
+    out = hang.x_1
+    fac = hang.F
+    
+    
+    
+    """
+    #print out
+    nodes = "*Node"
+    for i in range(len(out)):   
+        temp_node = ' %i \t %.4f \t %.4f \t %.4f\n' % (i + 1, out[i][0], out[i][1], out[i][2])
+        temp_node = temp_node.replace('.', ',')
+        nodes += temp_node
+            
+    facets = "*Elements" 
+    for i in range(len(fac)):
+        temp_facet = ' %i\tSH36\t%i\t%i\t%i\t\t\t\t\t\t1\n' % (i + 1, fac[i][0] + 1, fac[i][1] + 1, fac[i][2] + 1)
+        facets += temp_facet
+
+    part = nodes
+    part += facets
+
+    fname = 'spant_dach.inp'
+    inp_file = open(fname, 'w')
+    inp_file.write(part)
+    inp_file.close()
+    print'inp file %s written' % fname
+    """
+
+    m = Masking(source=hang, F_mask=[42, 96, 43, 97, 0, 54, 1, 24, 78, 6, 12, 36, 90, 18, 72, 19, 48,
+                                     102, 49, 103, 46, 100, 47, 101, 58, 5, 59, 29, 83, 65,
+                                     52, 106, 53, 107, 76, 23, 77, 41, 95, 71],
+                L_mask=[0, 1, 28, 29, 40, 41, 52, 53, 148, 149, 124, 100, 76, 160, 58, 7,
+                        32, 44, 33, 45, 152, 128, 57, 129, 153, 5, 6, 105, 81, 165, 135, 13,
+                        20, 93, 177, 75, 26, 147, 27, 158, 98, 123, 159, 99, 38, 50, 39, 51,
+                        14, 112, 172, 70, 142, 21, 22, 118, 154, 94, 119, 155, 34, 46, 35, 47])
 
     return init, lift
+
 
 init, fold = get_constrained_YCP(L_x=3.0, L_y=2.42,
                                  n_x=4, n_y=12, d=-0.4, n_steps=10)
 
-#init, fold = get_constrained_YCP(L_x=3.0, L_y=2.42,
-#                                 n_x=4, n_y=12, d=-0.2, n_steps=10)
+#print fold.x_1[1]
 
 
 
 v = CreasePatternView(root=init)
 v.configure_traits()
-
-
-
-
 
 
 

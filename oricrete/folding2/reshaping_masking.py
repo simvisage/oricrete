@@ -1,6 +1,5 @@
 '''
 Created on Jun 20, 2013
-
 @author: rch
 '''
 from traits.api import HasStrictTraits, Range, Instance, on_trait_change, \

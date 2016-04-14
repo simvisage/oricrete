@@ -58,8 +58,8 @@ def get_constrained_YCP(L_x, L_y, n_x, n_y, d):
 #                           n_x=4, n_y=10, d= -0.28)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
 
 
-init,fold = get_constrained_YCP(L_x=3.0, L_y=2.42,
-                           n_x=4, n_y=14, d= -2.2)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
+init,fold = get_constrained_YCP(L_x=2.42, L_y=3.0,
+                           n_x=4, n_y=10, d= -0.28)#l_x length, l_y length, n_x number of elments, n_y number of Elements, d deformation of the right side
 
 
 
